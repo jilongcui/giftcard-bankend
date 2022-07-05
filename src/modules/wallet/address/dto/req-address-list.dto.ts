@@ -1,7 +1,7 @@
 import { OmitType } from "@nestjs/swagger";
 import { IsOptional, IsString } from "class-validator";
 import { PaginationDto } from "src/common/dto/pagination.dto";
-import { Address } from "../entities/Address.entity";
+import { Address } from "../entities/address.entity";
 
 export class ReqAddNoticeDto extends OmitType(Address, ['id'] as const) { }
 

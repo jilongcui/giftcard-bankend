@@ -4,7 +4,7 @@ import { ReqAddressCreateDto } from './dto/req-address.dto';
 import * as jaysonPromise from 'jayson/promise';
 import { ReqAddressList } from './dto/req-address-list.dto';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
-import { Address, AddressBTC, AddressETH, AddressTRC } from './entities/Address.entity';
+import { Address, AddressBTC, AddressETH, AddressTRC } from './entities/address.entity';
 import { FindConditions, Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
