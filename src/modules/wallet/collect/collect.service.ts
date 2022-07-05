@@ -15,10 +15,11 @@ export class CollectService {
             where.address = Like(`%${reqRechargecollectList.address}%`)
         }
         if (reqRechargecollectList.txid) {
-            where.txid = reqRechargecollectList.txid
+
+            where.txid = Like(`%${reqRechargecollectList.txid}%`)
         }
-        if (reqRechargecollectList.type) {
-            where.type = reqRechargecollectList.type
+        if (reqRechargecollectList.currencyType) {
+            where.currencyType = reqRechargecollectList.currencyType
         }
         if (reqRechargecollectList.confirmState) {
             where.confirmState = reqRechargecollectList.confirmState

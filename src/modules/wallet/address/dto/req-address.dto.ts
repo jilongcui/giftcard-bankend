@@ -1,15 +1,15 @@
 import { IsString } from "class-validator";
 
-export class ReqAddressDto {
-    @IsString()
-    currencyId: string;
+export class ReqAddressCreateDto {
+    // @IsString()
+    // currencyId: string;
 
     @IsString()
-    uid: string;
-
-    @IsString()
-    type: string;
+    userId: string;
 
     @IsString()
     appId: string;
+
+    @IsString()
+    addressType: string;
 }

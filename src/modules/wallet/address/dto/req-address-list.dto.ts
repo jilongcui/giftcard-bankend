@@ -17,8 +17,13 @@ export class ReqAddressList extends PaginationDto {
     @IsString()
     userId?: number;
 
-    /* 类型 */
+    // /* 代币类型 */
+    // @IsOptional()
+    // @IsString()
+    // currencyType?: string;
+
+    /* 代币类型 */
     @IsOptional()
     @IsString()
-    addressType?: string;
+    addressType: string;
 }

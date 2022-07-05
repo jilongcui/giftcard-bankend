@@ -1,8 +1,10 @@
 import { Query, Controller, Get, Inject } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
 import { CollectService } from './collect.service';
 import { ReqRechargeCollectListDto } from './dto/req-rechargecollect-list.dto';
+import { RechargeCollect } from './entities/rechage-collect.entity';
 
 @ApiTags("钱包归集")
 @Controller('wallet/collect')
@@ -11,7 +13,8 @@ export class CollectController {
 
     @Get()
     @Public()
+    @ApiPaginatedResponse(RechargeCollect)
     async list(@Query() reqRechargeCollectListDto: ReqRechargeCollectListDto) {
-        this.collectService.list(reqRechargeCollectListDto);
+        return this.collectService.list(reqRechargeCollectListDto);
     }
 }

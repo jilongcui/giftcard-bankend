@@ -6,7 +6,6 @@ import { Excel } from "src/modules/common/excel/excel.decorator";
 import { ExcelTypeEnum } from "src/modules/common/excel/excel.enum";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('address_eth')
 export class Address {
     @PrimaryGeneratedColumn({
         name: 'id',
@@ -83,4 +82,16 @@ export class Address {
     //     sort: 99
     // })
     createTime: Number
+}
+
+@Entity('address_btc')
+export class AddressBTC extends Address {
+}
+
+@Entity('address_eth')
+export class AddressETH extends Address {
+}
+
+@Entity('address_tron')
+export class AddressTRC extends Address {
 }

@@ -25,7 +25,7 @@ export class ReqRechargeCollectListDto extends PaginationDto {
     /* 代币类型 */
     @IsOptional()
     @IsString()
-    type?: string;
+    currencyType?: string;
 
     /* 确认状态 */
     @IsOptional()

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { Public } from 'src/common/decorators/public.decorator';
-import { ReqAddressDto } from './dto/req-address.dto';
+import { ReqAddressCreateDto } from './dto/req-address.dto';
 import { ResAddressDto } from './dto/res-address.dto';
 import { AddressService } from './address.service';
 import { Address } from './entities/address.entity';
@@ -26,7 +26,7 @@ export class AddressController {
 
     @Post()
     @Public()
-    addressCreate(@Body() addressCreate: ReqAddressDto): Promise<ResAddressDto> {
+    addressCreate(@Body() addressCreate: ReqAddressCreateDto): Promise<ResAddressDto> {
         return this.addressService.addressCreate(addressCreate);
     }
 }
