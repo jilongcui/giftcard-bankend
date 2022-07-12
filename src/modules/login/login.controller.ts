@@ -9,7 +9,7 @@
  */
 
 import { Body, Controller, Get, Post, Req, UseGuards, Headers } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from 'src/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from 'src/common/decorators/api-data-response.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
@@ -21,6 +21,7 @@ import { ResImageCaptchaDto, ResLoginDto } from './dto/res-login.dto';
 import { LoginService } from './login.service';
 import { Request } from 'express';
 @ApiTags('登录')
+@ApiBearerAuth()
 @Controller()
 export class LoginController {
     constructor(private readonly loginService: LoginService) { }
