@@ -16,3 +16,4 @@ export const USER_ROLEKS_KEY = "admin:role:token"  //角色
 
 
 export const USER_ONLINE_KEY = "admin:online:token"  // 在线用户
+export const USER_SMSCODE_KEY = "user:smscode:token"  // 用户SMS Code

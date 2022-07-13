@@ -1,4 +1,4 @@
-import { IsString } from "class-validator"
+import { IsOptional, IsString } from "class-validator"
 
 export class ReqLoginDto {
     /* uuid码 */
@@ -16,4 +16,16 @@ export class ReqLoginDto {
     /* 密码 */
     @IsString()
     password: string
+}
+
+export class ReqMobileLoginDto {
+
+    /* 手机号 */
+    @IsString()
+    phone: string
+
+    /* 验证码code */
+    @IsString()
+    code: string
+
 }

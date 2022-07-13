@@ -39,5 +39,14 @@ export default defineConfig({
     password: '123456'
   },
 
+  tencentSMS: {
+    SecretId: process.env.SecretId,
+    SecretKey: process.env.SecretKey,
+    SmsSdkAppId: '1400706961',
+    TemplateLoginId: '1473029',
+    TemplateRegId: '1473032',
+    SignName: '启洲数字'
+  },
+
   isDemoEnvironment: false,
 });

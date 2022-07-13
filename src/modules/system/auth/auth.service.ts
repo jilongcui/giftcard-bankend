@@ -18,7 +18,7 @@ export class AuthService {
   async checkImgCaptcha(uuid: string, code: string) {
     const result = await this.redis.get(`${CAPTCHA_IMG_KEY}:${uuid}`);
     if (isEmpty(result) || code.toLowerCase() !== result.toLowerCase()) {
-      throw new ApiException("验证码错误")
+      throw new ApiException("图形验证码错误")
     }
     await this.redis.del(`${CAPTCHA_IMG_KEY}:${uuid}`)
   }
@@ -29,6 +29,13 @@ export class AuthService {
     if (!user) throw new ApiException("用户名不存在")
     const comparePassword = this.sharedService.md5(password + user.salt)
     if (comparePassword !== user.password) throw new ApiException("用户名或密码错误")
+    return user
+  }
+
+  /* 判断手机号是否正确 */
+  async validatePhone(phone: string) {
+    const user = await this.userService.findOneByPhone(phone);
+    if (!user) throw new ApiException("手机号不存在")
     return user
   }
 

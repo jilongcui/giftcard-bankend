@@ -16,10 +16,13 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { User, UserEnum } from 'src/common/decorators/user.decorator';
 import { LocalAuthGuard } from 'src/common/guards/local-auth.guard';
 import { Router } from '../system/menu/dto/res-menu.dto';
-import { ReqLoginDto } from './dto/req-login.dto';
+import { ReqLoginDto, ReqMobileLoginDto } from './dto/req-login.dto';
 import { ResImageCaptchaDto, ResLoginDto } from './dto/res-login.dto';
 import { LoginService } from './login.service';
 import { Request } from 'express';
+import { SmsCodeGuard } from 'src/common/guards/sms-code.guard';
+import { MobileAuthGuard } from 'src/common/guards/mobile-auth.guard';
+import { ImageCaptchaGuard } from 'src/common/guards/image-captcha.guard';
 @ApiTags('登录')
 @ApiBearerAuth()
 @Controller()
@@ -33,11 +36,19 @@ export class LoginController {
         return await this.loginService.createImageCaptcha()
     }
 
-    /* 用户登录 */
+    /* 用户密码登录 */
     @Post('login')
     @Public()
-    @UseGuards(LocalAuthGuard)
+    @UseGuards(ImageCaptchaGuard, LocalAuthGuard)
     async login(@Body() reqLoginDto: ReqLoginDto, @Req() req: Request): Promise<ResLoginDto> {
+        return await this.loginService.login(req)
+    }
+
+    /* 用户手机登录 */
+    @Post('mlogin')
+    @Public()
+    @UseGuards(SmsCodeGuard, MobileAuthGuard)
+    async mlogin(@Body() reqLoginDto: ReqMobileLoginDto, @Req() req: Request): Promise<ResLoginDto> {
         return await this.loginService.login(req)
     }
 

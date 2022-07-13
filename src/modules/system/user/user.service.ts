@@ -55,6 +55,24 @@ export class UserService {
         return user
     }
 
+    /* 通过用户名获取用户,排除停用和删除的,用于登录 */
+    async findOneByPhone(phone: string) {
+        const user = await this.userRepository.createQueryBuilder('user')
+            .select('user.userId')
+            .addSelect('user.userName')
+            .addSelect('user.password')
+            .addSelect('user.salt')
+            .addSelect('user.dept')
+            .leftJoinAndSelect('user.dept', 'dept')
+            .where({
+                phonenumber: phone,
+                delFlag: '0',
+                status: '0'
+            })
+            .getOne()
+        return user
+    }
+
     /* 通过用户名获取用户,排除删除的 */
     async findOneByUserNameState(username: string) {
         return await this.userRepository.findOne({

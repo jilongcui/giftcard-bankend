@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { ReqLoginDto } from 'src/modules/login/dto/req-login.dto';
-import { AuthService } from '../auth.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+  constructor(
+  ) {
     super(
       {
         usernameField: 'username',
@@ -17,9 +17,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(request, username: string, password: string): Promise<any> {
+    let user;
     const body: ReqLoginDto = request.body  // 获取请求体
-    // await this.authService.checkImgCaptcha(body.uuid, body.code)
-    const user = await this.authService.validateUser(username, password);
+    user = await this.authService.validateUser(username, password)
     return user   //返回值会被 守卫的  handleRequest方法 捕获
   }
 }

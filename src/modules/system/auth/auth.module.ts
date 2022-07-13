@@ -15,6 +15,7 @@ import { UserModule } from '../user/user.module';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { MobileStrategy } from './strategies/mobile.strategy';
 
 @Module({
     imports: [
@@ -22,7 +23,7 @@ import { LocalStrategy } from './strategies/local.strategy';
         PassportModule,
     ],
     controllers: [],
-    providers: [AuthService, LocalStrategy, JwtStrategy],
+    providers: [AuthService, LocalStrategy, MobileStrategy, JwtStrategy],
     exports: [AuthService],
 })
 export class AuthModule { }

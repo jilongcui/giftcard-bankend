@@ -26,6 +26,7 @@ import { Captcha } from 'captcha.gif';
 
 @Injectable()
 export class LoginService {
+    logger: Logger;
     constructor(
         private readonly sharedService: SharedService,
         @InjectRedis() private readonly redis: Redis,
@@ -34,7 +35,9 @@ export class LoginService {
         private readonly menuService: MenuService,
         private readonly logService: LogService,
         private readonly configService: ConfigService
-    ) { }
+    ) {
+        this.logger = new Logger(LogService.name)
+    }
 
     /* 创建验证码图片 */
     async createImageCaptcha() {
@@ -48,6 +51,8 @@ export class LoginService {
             img: buffer.toString('base64'),
             uuid: this.sharedService.generateUUID(),
         }
+        this.logger.debug("Image Code")
+        this.logger.debug(token)
         await this.redis.set(`${CAPTCHA_IMG_KEY}:${result.uuid}`, token, 'EX', 60 * 5)
         return result
     }

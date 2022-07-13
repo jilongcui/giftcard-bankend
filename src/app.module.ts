@@ -21,6 +21,7 @@ import { JobService } from './modules/monitor/job/job.service';
 import { AddressModule } from './modules/wallet/address/address.module';
 import { CollectModule } from './modules/wallet/collect/collect.module';
 import { IdentityModule } from './modules/identity/identity.module';
+import { SmscodeModule } from './modules/smscode/smscode.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService]
@@ -65,7 +66,8 @@ const aliasProviders = createAliasProviders();
     ServerModule,
     AddressModule,
     CollectModule,
-    IdentityModule
+    IdentityModule,
+    SmscodeModule
   ],
   providers: [...aliasProviders]
 })

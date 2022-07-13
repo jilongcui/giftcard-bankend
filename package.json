@@ -65,6 +65,7 @@
     "rxjs": "^7.5.5",
     "swagger-ui-express": "^4.2.0",
     "systeminformation": "^5.9.17",
+    "tencentcloud-sdk-nodejs": "^4.0.379",
     "typeorm": "^0.2.41",
     "ua-parser-js": "^1.0.2"
   },

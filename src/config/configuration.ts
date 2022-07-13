@@ -72,6 +72,16 @@ export interface IConfig {
         password: string,
     }
 
+    /* 配置SMS短信 */
+    tencentSMS?: {
+        SecretId: string,
+        SecretKey: string,
+        SmsSdkAppId: string,
+        TemplateLoginId: string,
+        TemplateRegId: string,
+        SignName: string,
+    }
+
     /* 是否演示环境 */
     isDemoEnvironment?: Boolean;
 }
