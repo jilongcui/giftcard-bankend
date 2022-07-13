@@ -29,3 +29,13 @@ export class ReqMobileLoginDto {
     code: string
 
 }
+
+export class ReqMobileRegDto {
+    /* 用户名 */
+    @IsString()
+    phone: string
+
+    /* 验证码code */
+    @IsString()
+    code: string
+}

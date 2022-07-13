@@ -10,7 +10,7 @@
 
 
 import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CAPTCHA_IMG_KEY, USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_NICKNAME_KEY, USER_PERMISSIONS_KEY, USER_ROLEKEYS_KEY, USER_ROLEKS_KEY, USER_TOKEN_KEY, USER_USERNAME_KEY, USER_VERSION_KEY } from 'src/common/contants/redis.contant';
 import { ApiException } from 'src/common/exceptions/api.exception';
@@ -23,6 +23,9 @@ import { Request } from 'express';
 import { LogService } from '../monitor/log/log.service';
 import { ConfigService } from '@nestjs/config';
 import { Captcha } from 'captcha.gif';
+import { ReqMobileRegDto } from './dto/req-login.dto';
+import { ReqAddUserDto } from '../system/user/dto/req-user.dto';
+import { isPhoneNumber } from 'class-validator';
 
 @Injectable()
 export class LoginService {
@@ -55,6 +58,44 @@ export class LoginService {
         this.logger.debug(token)
         await this.redis.set(`${CAPTCHA_IMG_KEY}:${result.uuid}`, token, 'EX', 60 * 5)
         return result
+    }
+
+    /* 注册 */
+    async register(reqMobileRegDto: ReqMobileRegDto, request: Request) {
+        let user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
+        if (user) throw new ApiException('该用户名已存在')
+
+        const reqAddUserDto = new ReqAddUserDto()
+        reqAddUserDto.phonenumber = reqMobileRegDto.phone;
+        reqAddUserDto.userName = reqMobileRegDto.phone;
+        reqAddUserDto.nickName = '';
+        reqAddUserDto.userType = '01'; // normal user.
+        reqAddUserDto.postIds = [];
+        reqAddUserDto.roleIds = [];
+
+        reqAddUserDto.createBy = reqAddUserDto.updateBy = 'admin'
+        await this.userService.addUser(reqAddUserDto)
+
+        user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
+        if (!user) throw new ApiException('创建用户失败')
+
+        const payload: Payload = { userId: user.userId, pv: 1, };
+        //生成token
+        let jwtSign = this.jwtService.sign(payload)
+        //演示环境 复用 token，取消单点登录。
+        if (this.configService.get<Boolean>('isDemoEnvironment')) {
+            const token = await this.redis.get(`${USER_TOKEN_KEY}:${user.userId}`)
+            if (token) {
+                jwtSign = token
+            }
+        }
+        //存储密码版本号，防止登录期间 密码被管理员更改后 还能继续登录
+        await this.redis.set(`${USER_VERSION_KEY}:${user.userId}`, 1)
+        //存储token, 防止重复登录问题，设置token过期时间(1天后 token 自动过期)，以及主动注销token。
+        await this.redis.set(`${USER_TOKEN_KEY}:${user.userId}`, jwtSign, 'EX', 60 * 60 * 24)
+        //调用存储在线用户接口
+        // await this.logService.addLogininfor(request, '注册成功', `${USER_TOKEN_KEY}:${user.userId}`)
+        return { token: jwtSign }
     }
 
     /* 登录 */

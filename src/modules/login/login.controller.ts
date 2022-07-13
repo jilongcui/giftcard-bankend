@@ -16,7 +16,7 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { User, UserEnum } from 'src/common/decorators/user.decorator';
 import { LocalAuthGuard } from 'src/common/guards/local-auth.guard';
 import { Router } from '../system/menu/dto/res-menu.dto';
-import { ReqLoginDto, ReqMobileLoginDto } from './dto/req-login.dto';
+import { ReqLoginDto, ReqMobileLoginDto, ReqMobileRegDto } from './dto/req-login.dto';
 import { ResImageCaptchaDto, ResLoginDto } from './dto/res-login.dto';
 import { LoginService } from './login.service';
 import { Request } from 'express';
@@ -50,6 +50,14 @@ export class LoginController {
     @UseGuards(SmsCodeGuard, MobileAuthGuard)
     async mlogin(@Body() reqLoginDto: ReqMobileLoginDto, @Req() req: Request): Promise<ResLoginDto> {
         return await this.loginService.login(req)
+    }
+
+    /* 用户手机注册 */
+    @Post('mregister')
+    @Public()
+    @UseGuards(SmsCodeGuard)
+    async register(@Body() reqRegDto: ReqMobileRegDto, @Req() req: Request): Promise<ResLoginDto> {
+        return await this.loginService.register(reqRegDto, req)
     }
 
     /* 获取用户信息 */
