@@ -1,0 +1,116 @@
+import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { HttpService } from '@nestjs/axios';
+import { Injectable, Logger, LoggerService } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as CryptoJS from 'crypto-js';
+import { FindConditions, Like, Repository } from 'typeorm';
+import { Identity } from './entities/identity.entity';
+import * as querystring from 'querystring';
+import { ReqIdentityList } from './dto/req-identity-list.dto';
+import { PaginatedDto } from 'src/common/dto/paginated.dto';
+import { ApiException } from 'src/common/exceptions/api.exception';
+
+@Injectable()
+export class IdentityService {
+    remoteUrl: string;
+    logger: LoggerService;
+    constructor(
+        @InjectRedis() private readonly redis: Redis,
+        @InjectRepository(Identity) private readonly indentityRepository: Repository<Identity>,
+        private readonly httpService: HttpService,
+    ) {
+        this.logger = new Logger(IdentityService.name);
+
+        this.remoteUrl = 'https://service-4epp7bin-1300755093.ap-beijing.apigateway.myqcloud.com/release/phone3element';
+    }
+
+    async identityWith3Element(mobile: string, cardId: string, realName: string, userId: number) {
+        let isIdentify = true;
+        // let isIdentify = await this.doIdentity3Element(mobile, cardId, realName);
+        if (isIdentify) {
+            // save to identity respository
+            this.indentityRepository.save({
+                mobile,
+                cardId,
+                realName,
+                userId
+            })
+        } else {
+            throw new ApiException("实名认证失败", 403)
+        }
+
+    }
+
+    /* 通过手机号三要素获取实名认证 */
+    async doIdentity3Element(
+        mobile: string, cardId: string, realName: string
+    ): Promise<boolean> {
+        // 云市场分配的密钥Id
+        let secretId = "AKID3t7Cp71mh2cwXVijzY68kOt049JNHIuW7OPE";
+        // 云市场分配的密钥Key
+        let secretKey = "4z6l4bMntHCrlexiundk5OuI1nvnjL32itSqus38";
+        let source = "market-7i7dha900";
+
+        let body = {
+            "idCard": cardId,
+            "mobile": mobile,
+            "realName": realName,
+        }
+        let datetime = (new Date()).toUTCString();
+        let signStr = "x-date: " + datetime + "\n" + "x-source: " + source;
+        var sign = CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA1(signStr, secretKey))
+        var auth = 'hmac id="' + secretId + '", algorithm="hmac-sha1", headers="x-date x-source", signature="' + sign + '"';
+        let options = {
+            headers: {
+                "X-Source": source,
+                "X-Date": datetime,
+                "Authorization": auth,
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        }
+
+        this.logger.debug(JSON.stringify(body));
+
+        let res = await this.httpService.axiosRef.post<any>(this.remoteUrl, querystring.stringify(body), options);
+        // res: AxiosResponse<any>;
+        this.logger.debug(res.data);
+        if (res.data.error_code == 0) {
+            let result = res.data.result;
+            if (result.VerificationResult == 1) {
+                //  success for identity.
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /* 分页查询 */
+    async list(reqIdentityList: ReqIdentityList): Promise<PaginatedDto<Identity>> {
+        let where: FindConditions<Identity> = {}
+        let result: any;
+        if (reqIdentityList.mobile) {
+            where.mobile = Like(`%${reqIdentityList.mobile}%`)
+        }
+        if (reqIdentityList.realName) {
+            where.realName = Like(`%${reqIdentityList.realName}%`)
+        }
+        if (reqIdentityList.cardId) {
+            where.cardId = Like(`%${reqIdentityList.cardId}%`)
+        }
+        if (reqIdentityList.userId) {
+            where.userId = reqIdentityList.userId
+        }
+        result = await this.indentityRepository.findAndCount({
+            // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+            where,
+            skip: reqIdentityList.skip,
+            take: reqIdentityList.take
+        })
+
+        return {
+            rows: result[0],
+            total: result[1]
+        }
+    }
+}
+
