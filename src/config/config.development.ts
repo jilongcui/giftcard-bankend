@@ -28,7 +28,7 @@ export default defineConfig({
   // redis 配置
   redis: {
     config: {
-      url: 'redis://:123456@localhost:6379/0'
+      url: 'redis://:123456@localhost:6379/11'
     }
   },
 
