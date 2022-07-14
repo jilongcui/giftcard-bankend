@@ -28,14 +28,14 @@ export default defineConfig({
   // redis 配置
   redis: {
     config: {
-      url: 'redis://:123456@localhost:6379/0'
+      url: 'redis://:123456@localhost:6779/11'
     }
   },
 
   // 队列reids 配置
   bullRedis: {
     host: 'localhost',
-    port: '6379',
+    port: '6779',
     password: '123456'
   },
 
