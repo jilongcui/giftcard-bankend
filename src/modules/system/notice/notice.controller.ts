@@ -38,7 +38,7 @@ export class NoticeController {
 
     /* 分页查询公告 */
     @Get("list")
-    @RequiresPermissions('system:notice:query')
+    // @RequiresPermissions('system:notice:query')
     @ApiPaginatedResponse(Notice)
     async list(@Query(PaginationPipe) reqNoeiceList: ReqNoeiceList) {
         return this.noticeService.list(reqNoeiceList)
@@ -46,7 +46,7 @@ export class NoticeController {
 
     /* 通过id查询公告 */
     @Get(':noticeId')
-    @RequiresPermissions('system:notice:query')
+    // @RequiresPermissions('system:notice:query')
     @ApiDataResponse(typeEnum.object, Notice)
     async one(@Param('noticeId') noticeId: number | string) {
         const notice = await this.noticeService.findById(noticeId)
