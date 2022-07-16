@@ -30,6 +30,6 @@ export class IdentityController {
 
     @Post()
     async identityWith3Element(@Body() reqId3Element: ReqIdentify3ElementDto, @User(UserEnum.userId) userId: number) {
-        this.identityService.identityWith3Element(reqId3Element.mobile, reqId3Element.cardId, reqId3Element.realName, userId);
+        return this.identityService.identityWith3Element(reqId3Element.mobile, reqId3Element.cardId, reqId3Element.realName, userId);
     }
 }

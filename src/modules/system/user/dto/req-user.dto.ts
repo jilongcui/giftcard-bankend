@@ -101,14 +101,17 @@ export class ReqChangeStatusDto {
 /* 更改自己的用户信息 */
 export class ReqUpdataSelfDto {
     /* 昵称 */
+    @IsOptional()
     @IsString()
     nickName?: string
 
     /* 手机号码 */
+    @IsOptional()
     @IsString()
     phonenumber?: string
 
     /* 邮箱 */
+    @IsOptional()
     @IsString()
     email?: string
 

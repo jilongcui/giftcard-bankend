@@ -3,7 +3,7 @@ https://docs.nestjs.com/controllers#controllers
 */
 
 import { Body, Controller, Delete, forwardRef, Get, Inject, Param, Post, Put, Query, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
 import { UserEnum } from 'src/common/decorators/user.decorator';
 import { UserInfoPipe } from 'src/common/pipes/user-info.pipe';
@@ -28,6 +28,7 @@ import { RequiresPermissions } from 'src/common/decorators/requires-permissions.
 import { RepeatSubmit } from 'src/common/decorators/repeat-submit.decorator';
 
 @ApiTags('用户管理')
+@ApiBearerAuth()
 @Controller('system/user')
 export class UserController {
     constructor(
