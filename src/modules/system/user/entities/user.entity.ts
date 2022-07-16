@@ -4,7 +4,8 @@ import { IsNumber, IsOptional, IsString, IsEmail, IsPhoneNumber, Allow } from "c
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Excel } from "src/modules/common/excel/excel.decorator";
 import { ExcelTypeEnum } from "src/modules/common/excel/excel.enum";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Identity } from "src/modules/identity/entities/identity.entity";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Dept } from "../../dept/entities/dept.entity";
 import { Post } from "../../post/entities/post.entity";
 import { Role } from "../../role/entities/role.entity";
@@ -174,6 +175,10 @@ export class User extends BaseEntity {
     @ApiHideProperty()
     @ManyToOne(() => Dept, dept => dept.users)
     dept: Dept
+
+    @ApiHideProperty()
+    @OneToOne(() => Identity, identity => identity.user)
+    identity: Identity
 
     @ApiHideProperty()
     @ManyToMany(() => Post, post => post.users)

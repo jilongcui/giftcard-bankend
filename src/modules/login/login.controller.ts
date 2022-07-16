@@ -39,7 +39,8 @@ export class LoginController {
     /* 用户密码登录 */
     @Post('login')
     @Public()
-    @UseGuards(ImageCaptchaGuard, LocalAuthGuard)
+    // @UseGuards(ImageCaptchaGuard, LocalAuthGuard)
+    @UseGuards(LocalAuthGuard)
     async login(@Body() reqLoginDto: ReqLoginDto, @Req() req: Request): Promise<ResLoginDto> {
         return await this.loginService.login(req)
     }

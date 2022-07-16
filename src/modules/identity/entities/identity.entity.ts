@@ -1,5 +1,7 @@
+import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber } from "class-validator";
-import { BaseEntity, Column, ColumnTypeUndefinedError, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/modules/system/user/entities/user.entity";
+import { BaseEntity, Column, ColumnTypeUndefinedError, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Identity extends BaseEntity {
@@ -13,13 +15,15 @@ export class Identity extends BaseEntity {
 
     @Column({
         name: 'mobile',
-        length: 11
+        unique: true,
+        length: 11,
     })
     /* 用户手机号 */
     mobile: string;
 
     @Column({
         name: 'card_id',
+        unique: true,
         length: 20,
     })
     /* 身份证ID */
@@ -31,10 +35,12 @@ export class Identity extends BaseEntity {
     /* 真实名称 */
     realName: string;
 
-    @Column({
+    @ApiHideProperty()
+    @OneToOne(() => User, user => user.identity)
+    @JoinColumn({
         name: 'user_id',
     })
     @IsNumber()
     /* 用户id */
-    userId: number;
+    user: User;
 }

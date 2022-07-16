@@ -46,6 +46,7 @@ export class UserService {
             .addSelect('user.salt')
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
+            .leftJoinAndSelect('user.identity', 'identity')
             .where({
                 userName: username,
                 delFlag: '0',
@@ -64,6 +65,7 @@ export class UserService {
             .addSelect('user.salt')
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
+            .leftJoinAndSelect('user.identity', 'identity')
             .where({
                 phonenumber: phone,
                 delFlag: '0',
@@ -135,6 +137,7 @@ export class UserService {
     async userAllInfo(userId: number): Promise<User> {
         return await this.userRepository.createQueryBuilder('user')
             .leftJoinAndSelect('user.dept', 'dept', "dept.delFlag = 0")
+            .leftJoinAndSelect('user.identity', 'identity')
             .leftJoinAndSelect('user.posts', 'post')
             .leftJoinAndSelect('user.roles', 'role', "role.delFlag = 0")
             .where("user.userId = :userId", { userId })
@@ -145,6 +148,7 @@ export class UserService {
     async findOneUserAllById(userId: number): Promise<User> {
         const user: User = await this.userRepository.createQueryBuilder('user')
             .leftJoinAndSelect('user.dept', 'dept', "dept.delFlag = 0 and dept.status = 0")
+            .leftJoinAndSelect('user.identity', 'identity')
             .leftJoinAndSelect('user.posts', 'post', "dept.status = 0")
             .leftJoinAndSelect('user.roles', 'role', "role.delFlag = 0 and role.status = 0")
             .where({

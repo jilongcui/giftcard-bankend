@@ -33,7 +33,7 @@ export class IdentityService {
                 mobile,
                 cardId,
                 realName,
-                userId
+                user: { userId: userId }
             })
         } else {
             throw new ApiException("实名认证失败", 403)
@@ -97,11 +97,8 @@ export class IdentityService {
         if (reqIdentityList.cardId) {
             where.cardId = Like(`%${reqIdentityList.cardId}%`)
         }
-        if (reqIdentityList.userId) {
-            where.userId = reqIdentityList.userId
-        }
         result = await this.indentityRepository.findAndCount({
-            // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+            // select: ['id', 'address', 'privateKey', 'createTime', 'status'],
             where,
             skip: reqIdentityList.skip,
             take: reqIdentityList.take
