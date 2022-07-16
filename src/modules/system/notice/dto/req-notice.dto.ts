@@ -10,15 +10,15 @@ export class ReqNoeiceList extends PaginationDto {
     /* 广告标题 */
     @IsOptional()
     @IsString()
-    noticeTitle: string
+    noticeTitle?: string
 
     /* 创建人 */
     @IsOptional()
     @IsString()
-    createBy: string
+    createBy?: string
 
     /* 公告类型 */
     @IsOptional()
     @IsString()
-    noticeType: string
+    noticeType?: string
 }
