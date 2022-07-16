@@ -8,6 +8,7 @@ import { DataObj } from 'src/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from 'src/common/decorators/api-data-response.decorator';
 import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
 import { BusinessTypeEnum, Log } from 'src/common/decorators/log.decorator';
+import { Public } from 'src/common/decorators/public.decorator';
 import { RepeatSubmit } from 'src/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from 'src/common/decorators/requires-permissions.decorator';
 import { User, UserEnum } from 'src/common/decorators/user.decorator';
@@ -39,6 +40,7 @@ export class NoticeController {
     /* 分页查询公告 */
     @Get("list")
     // @RequiresPermissions('system:notice:query')
+    @Public()
     @ApiPaginatedResponse(Notice)
     async list(@Query(PaginationPipe) reqNoeiceList: ReqNoeiceList) {
         return this.noticeService.list(reqNoeiceList)
@@ -46,6 +48,7 @@ export class NoticeController {
 
     /* 通过id查询公告 */
     @Get(':noticeId')
+    @Public()
     // @RequiresPermissions('system:notice:query')
     @ApiDataResponse(typeEnum.object, Notice)
     async one(@Param('noticeId') noticeId: number | string) {
