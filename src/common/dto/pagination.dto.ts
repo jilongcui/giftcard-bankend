@@ -12,7 +12,7 @@ import { Type } from "class-transformer"
 import { IsNumber, IsOptional, IsString } from "class-validator"
 
 export class PaginationDto {
-    
+
     /* 当前页 */
     @IsOptional()
     @Type()

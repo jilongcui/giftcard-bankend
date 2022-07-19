@@ -22,6 +22,7 @@ import { AddressModule } from './modules/wallet/address/address.module';
 import { CollectModule } from './modules/wallet/collect/collect.module';
 import { IdentityModule } from './modules/identity/identity.module';
 import { SmscodeModule } from './modules/smscode/smscode.module';
+import { ProductModule } from './modules/product/product.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService]
@@ -67,7 +68,8 @@ const aliasProviders = createAliasProviders();
     AddressModule,
     CollectModule,
     IdentityModule,
-    SmscodeModule
+    SmscodeModule,
+    ProductModule
   ],
   providers: [...aliasProviders]
 })
