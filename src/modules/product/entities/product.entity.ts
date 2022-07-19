@@ -1,7 +1,8 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsArray, IsNumber, IsString } from "class-validator";
 import { BaseEntity } from "src/common/entities/base.entity";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/modules/system/user/entities/user.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Product extends BaseEntity {
@@ -48,9 +49,17 @@ export class Product extends BaseEntity {
     })
     images: string[]
 
-    // @Column({
-    //     name: 'status',
-    //     comment: '状态(0:正常 1: 下架了)'
-    // })
-    // status: string
+    @ManyToOne(type => User)
+    @JoinColumn({
+        name: 'auth_id',
+    })
+    auth: User
+
+    @Column({
+        name: 'status',
+        comment: '状态(0:下架 1: 上架)',
+        type: 'char',
+        default: '0'
+    })
+    status: string
 }

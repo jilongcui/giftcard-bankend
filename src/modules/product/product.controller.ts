@@ -11,7 +11,7 @@ import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-respon
 import { RequiresPermissions } from 'src/common/decorators/requires-permissions.decorator';
 import { Log, BusinessTypeEnum } from 'src/common/decorators/log.decorator';
 import { RepeatSubmit } from 'src/common/decorators/repeat-submit.decorator';
-import { User, UserEnum } from 'src/common/decorators/user.decorator';
+import { User as UserDec, UserEnum } from 'src/common/decorators/user.decorator';
 import { UserInfoPipe } from 'src/common/pipes/user-info.pipe';
 
 @ApiTags('产品')
@@ -27,7 +27,7 @@ export class ProductController {
     title: '产品',
     businessType: BusinessTypeEnum.insert
   })
-  async create(@Body() createProductDto: CreateProductDto) {
+  async create(@Body() createProductDto: CreateProductDto, @UserDec(UserEnum.userId) userId: number) {
     return DataObj.create(this.productService.create(createProductDto));
   }
 
@@ -53,7 +53,7 @@ export class ProductController {
     title: '产品',
     businessType: BusinessTypeEnum.update
   })
-  async update(@Body() product: Product, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+  async update(@Body() product: Product, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
     product.updateBy = userName
     await this.productService.addOrUpdate(product)
   }
