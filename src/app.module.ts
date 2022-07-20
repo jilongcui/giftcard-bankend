@@ -27,6 +27,7 @@ import { ActivityModule } from './modules/activity/activity.module';
 import { OrderModule } from './modules/order/order.module';
 import { ContractModule } from './modules/contract/contract.module';
 import { CurrencyModule } from './modules/currency/currency.module';
+import { AccountModule } from './modules/account/account.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService]
@@ -77,7 +78,8 @@ const aliasProviders = createAliasProviders();
     ActivityModule,
     OrderModule,
     ContractModule,
-    CurrencyModule
+    CurrencyModule,
+    AccountModule
   ],
   providers: [...aliasProviders]
 })
