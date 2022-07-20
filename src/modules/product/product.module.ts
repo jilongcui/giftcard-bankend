@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { AssetService } from './asset.service';
 import { AssetController } from './asset.controller';
-import { Asset } from './entities/Asset.entity';
+import { Asset } from './entities/asset.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product, Asset])],
