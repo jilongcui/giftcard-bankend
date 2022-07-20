@@ -1,5 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsOptional } from "class-validator";
+import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Order } from "src/modules/order/entities/order.entity";
 import { Collection } from "src/modules/collection/entities/collection.entity";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
@@ -7,24 +7,28 @@ import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } f
 @Entity()
 export class Activity {
     @PrimaryGeneratedColumn()
+    @IsNumber()
     id: number
 
     @Column({
         name: 'type',
         comment: '类型 0:首发 1:盲盒 2:预售 3:秒杀'
     })
+    @IsNumber()
     type: number
 
     @Column({
         name: 'title',
         comment: '活动主题'
     })
+    @IsString()
     title: string
 
     @Column({
         name: 'ruleInfo',
         comment: '规则介绍'
     })
+    @IsString()
     ruleInfo: string
 
     @Column({
@@ -33,42 +37,49 @@ export class Activity {
         type: 'char',
         length: 1
     })
+    @IsString()
     status: string
 
     @Column({
         name: 'start_time',
         comment: '开始时间'
     })
+    @IsNumber()
     startTime: number
 
     @Column({
         name: 'end_time',
         comment: '结束时间'
     })
+    @IsNumber()
     endTime: number
 
     @Column({
         name: 'supply',
         comment: '供应量'
     })
+    @IsNumber()
     supply: number
 
     @Column({
         name: 'current',
         comment: '当前释放'
     })
+    @IsNumber()
     current: number
 
     @Column({
         name: 'presale_price',
         comment: '预售价格'
     })
+    @IsNumber()
     presalePrice: number
 
     @Column({
         name: 'price',
         comment: '正式价格'
     })
+    @IsNumber()
     price: number
 
     @Column({
@@ -78,12 +89,14 @@ export class Activity {
         default: 0,
         length: 1
     })
+    @IsString()
     needOrder: string
 
     @Column({
         name: 'deliver_delay',
         comment: '发货延迟 ms'
     })
+    @IsNumber()
     deliverDelay: number
 
     @ApiHideProperty()
