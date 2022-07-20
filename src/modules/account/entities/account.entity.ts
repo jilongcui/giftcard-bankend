@@ -1,3 +1,4 @@
+import { ApiHideProperty } from "@nestjs/swagger"
 import { IsOptional } from "class-validator"
 import { Currency } from "src/modules/currency/entities/currency.entity"
 import { User } from "src/modules/system/user/entities/user.entity"
@@ -30,6 +31,7 @@ export class Account {
     })
     status: string
 
+    @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',
         comment: '创建时间'

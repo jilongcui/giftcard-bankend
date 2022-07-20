@@ -1,4 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger";
+import { IsOptional, IsString } from "class-validator";
 import { Collection } from "src/modules/collection/entities/collection.entity";
 import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -7,6 +8,7 @@ export class Contract {
     @PrimaryGeneratedColumn()
     id: number
 
+    @IsString()
     @Column({
         name: 'chain',
         comment: '合约所在的链',
@@ -14,25 +16,29 @@ export class Contract {
     })
     chain: string
 
+    @IsString()
     @Column({
-        name: 'type',
+        name: 'standard',
         comment: '合约标准 ERC721 ERC1155',
         length: 20
     })
     standard: string
 
+    @IsString()
     @Column({
         name: 'address',
         comment: '合约地址'
     })
     address: string
 
+    @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',
         comment: '创建时间'
     })
     createTime: number
 
+    @IsOptional()
     @ApiHideProperty()
     @OneToMany(() => Collection, collection => collection.contract)
     collections: Collection

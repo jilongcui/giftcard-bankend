@@ -1,3 +1,4 @@
+import { ApiAcceptedResponse, ApiHideProperty } from "@nestjs/swagger"
 import { IsOptional } from "class-validator"
 import { Contract } from "src/modules/contract/entities/contract.entity"
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm"
@@ -66,6 +67,7 @@ export class Currency {
     })
     status: string
 
+    @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',
         comment: '创建时间'

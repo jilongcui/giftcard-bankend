@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -12,7 +12,7 @@ export class ContractService {
     @InjectRepository(Contract) private readonly orderRepository: Repository<Contract>,
   ) { }
   create(createContractDto: CreateContractDto) {
-    return this.orderRepository.create(createContractDto);
+    return this.orderRepository.save(createContractDto);
   }
 
   /* 新增或编辑 */
@@ -31,7 +31,7 @@ export class ContractService {
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
-        // createTime: 1,
+        createTime: 1,
       }
     })
 

@@ -1,3 +1,4 @@
+import { ApiHideProperty } from "@nestjs/swagger";
 import { Activity } from "src/modules/activity/entities/activity.entity";
 import { Collection } from "src/modules/collection/entities/collection.entity";
 import { User } from "src/modules/system/user/entities/user.entity";
@@ -42,6 +43,7 @@ export class Order {
     })
     status: string
 
+    @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',
         comment: '创建时间'

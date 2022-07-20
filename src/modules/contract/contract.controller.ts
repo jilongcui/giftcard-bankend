@@ -12,21 +12,21 @@ import { Contract } from './entities/contract.entity';
 @ApiBearerAuth()
 @Controller('contract')
 export class ContractController {
-  constructor(private readonly activityService: ContractService) { }
+  constructor(private readonly contractService: ContractService) { }
 
   @Post()
   create(@Body() createContractDto: CreateContractDto) {
-    return this.activityService.create(createContractDto);
+    return this.contractService.create(createContractDto);
   }
 
   @Put(':id')
   updateAll(@Param('id') id: string, @Body() updateAllContractDto: UpdateAllContractDto) {
-    return this.activityService.addOrUpdateAll(updateAllContractDto);
+    return this.contractService.addOrUpdateAll(updateAllContractDto);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateContractDto: UpdateContractDto) {
-    return this.activityService.update(+id, updateContractDto);
+    return this.contractService.update(+id, updateContractDto);
   }
 
   /* 产品列表 */
@@ -34,21 +34,21 @@ export class ContractController {
   @Public()
   @ApiPaginatedResponse(Contract)
   async list(@Query() listContractDto: ListContractDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return DataObj.create(await this.activityService.list(listContractDto, paginationDto));
+    return DataObj.create(await this.contractService.list(listContractDto, paginationDto));
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.activityService.findOne(+id);
+    return this.contractService.findOne(+id);
   }
 
   @Delete(':id')
   removeOne(@Param('id') id: string) {
-    return this.activityService.deleteOne(+id);
+    return this.contractService.deleteOne(+id);
   }
 
   @Delete(':ids')
   remove(@Param('ids') ids: string) {
-    return this.activityService.delete(ids.split(','));
+    return this.contractService.delete(ids.split(','));
   }
 }
