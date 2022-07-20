@@ -43,7 +43,7 @@ export class Order {
     status: string
 
     @CreateDateColumn({
-        name: 'creat_time',
+        name: 'create_time',
         comment: '创建时间'
     })
     createTime: number
