@@ -191,6 +191,7 @@ export class User extends BaseEntity {
     @JoinTable()
     roles: Role[]
 
+    @ApiHideProperty()
     @IsOptional()
     @OneToMany(() => Order, order => order.user)
     orders?: Order[]

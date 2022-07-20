@@ -1,5 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { Product } from "src/modules/product/entities/product.entity";
+import { Collection } from "src/modules/collection/entities/collection.entity";
 import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -16,10 +16,10 @@ export class Contract {
 
     @Column({
         name: 'type',
-        comment: '合约种类 ERC721 ERC1155',
+        comment: '合约标准 ERC721 ERC1155',
         length: 20
     })
-    type: string
+    standard: string
 
     @Column({
         name: 'address',
@@ -34,6 +34,6 @@ export class Contract {
     createTime: number
 
     @ApiHideProperty()
-    @OneToMany(() => Product, product => product.contract)
-    products: Product
+    @OneToMany(() => Collection, collection => collection.contract)
+    collections: Collection
 }

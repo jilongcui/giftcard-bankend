@@ -8,41 +8,41 @@ import { User } from "src/modules/system/user/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Product extends BaseEntity {
+export class Collection extends BaseEntity {
     @PrimaryGeneratedColumn({
-        name: 'prod_id'
+        name: 'id'
     })
-    prodId: number
+    id: number
 
     @Column({
-        name: 'prod_name',
+        name: 'name',
         comment: '名称',
         unique: true
     })
     @IsString()
-    prodName: string
+    name: string
 
     @Column({
-        name: 'prod_supply',
+        name: 'supply',
         comment: '总供应量',
     })
     @IsNumber()
-    prodSupply: number
+    supply: number
 
     @Column({
-        name: 'prod_current',
+        name: 'current',
         comment: '当前释放量',
     })
     @IsNumber()
-    prodCurrent: number
+    current: number
 
     @Column({
-        name: 'prod_desc',
+        name: 'desc',
         comment: '描述',
         type: 'longtext'
     })
     @IsString()
-    prodDesc: string
+    desc: string
 
     @IsArray()
     @Column({
@@ -52,11 +52,18 @@ export class Product extends BaseEntity {
     })
     images: string[]
 
+    @Column({
+        name: 'author_id',
+        comment: '作者id'
+    })
+    authorId: number
+
+    @ApiHideProperty()
     @ManyToOne(type => User)
     @JoinColumn({
-        name: 'auth_id',
+        name: 'author_id',
     })
-    auth: User
+    author: User
 
     @Column({
         name: 'status',
@@ -66,14 +73,21 @@ export class Product extends BaseEntity {
     })
     status: string
 
-    @ManyToOne(() => Contract, contract => contract.products)
+    @Column({
+        name: 'contract_id',
+        comment: '关联合约id'
+    })
+    contractId: number
+
+    @ManyToOne(() => Contract, contract => contract.collections)
     contract: Contract
 
     @ApiHideProperty()
-    @ManyToOne(() => Activity, activity => activity.products)
+    @ManyToOne(() => Activity, activity => activity.collections)
     activity: Activity
 
+    @ApiHideProperty()
     @IsOptional()
-    @ManyToOne(() => Order, order => order.products)
+    @ManyToOne(() => Order, order => order.collections)
     orders?: Order[]
 }

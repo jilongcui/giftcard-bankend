@@ -1,5 +1,5 @@
 import { Activity } from "src/modules/activity/entities/activity.entity";
-import { Product } from "src/modules/product/entities/product.entity";
+import { Collection } from "src/modules/collection/entities/collection.entity";
 import { User } from "src/modules/system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -54,6 +54,6 @@ export class Order {
     @ManyToOne(() => User, user => user.orders)
     user: User
 
-    @OneToMany(() => Product, product => product.orders)
-    products: Product
+    @OneToMany(() => Collection, collection => collection.orders)
+    collections: Collection
 }

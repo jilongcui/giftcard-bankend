@@ -29,8 +29,8 @@ export class AssetService {
 
     result = await this.assetRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
-      // select: ['assetId', "user", "product"],
-      relations: ["user", "product"],
+      // select: ['assetId', "user", "collection"],
+      relations: ["user", "collection"],
       where,
       skip: paginationDto.skip,
       take: paginationDto.take,

@@ -22,7 +22,7 @@ import { AddressModule } from './modules/wallet/address/address.module';
 import { CollectModule } from './modules/wallet/collect/collect.module';
 import { IdentityModule } from './modules/identity/identity.module';
 import { SmscodeModule } from './modules/smscode/smscode.module';
-import { ProductModule } from './modules/product/product.module';
+import { CollectionModule } from './modules/collection/collection.module';
 import { ActivityModule } from './modules/activity/activity.module';
 import { OrderModule } from './modules/order/order.module';
 import { ContractModule } from './modules/contract/contract.module';
@@ -74,7 +74,7 @@ const aliasProviders = createAliasProviders();
     CollectModule,
     IdentityModule,
     SmscodeModule,
-    ProductModule,
+    CollectionModule,
     ActivityModule,
     OrderModule,
     ContractModule,

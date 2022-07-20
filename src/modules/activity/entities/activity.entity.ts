@@ -1,7 +1,7 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsOptional } from "class-validator";
 import { Order } from "src/modules/order/entities/order.entity";
-import { Product } from "src/modules/product/entities/product.entity";
+import { Collection } from "src/modules/collection/entities/collection.entity";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -90,10 +90,12 @@ export class Activity {
     @CreateDateColumn({ name: 'create_time', comment: '创建时间' })
     createTime: number
 
+    @ApiHideProperty()
     @IsOptional()
-    @OneToMany(() => Product, product => product.activity)
-    products?: Product
+    @OneToMany(() => Collection, collection => collection.activity)
+    collections?: Collection[]
 
+    @ApiHideProperty()
     @IsOptional()
     @OneToMany(() => Order, order => order.activity)
     orders?: Order[]

@@ -3,7 +3,7 @@ import { IsArray, IsNumber, IsString } from "class-validator";
 import { BaseEntity } from "src/common/entities/base.entity";
 import { User } from "src/modules/system/user/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product } from "./product.entity";
+import { Collection } from "./collection.entity";
 
 @Entity()
 export class Category extends BaseEntity {

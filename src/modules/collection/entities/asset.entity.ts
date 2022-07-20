@@ -1,9 +1,7 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsArray, IsNumber, IsString } from "class-validator";
-import { BaseEntity } from "src/common/entities/base.entity";
 import { User } from "src/modules/system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product } from "./product.entity";
+import { Collection } from "./collection.entity";
 
 @Entity()
 export class Asset {
@@ -32,17 +30,17 @@ export class Asset {
     user: User
 
     @Column({
-        name: 'product_id',
+        name: 'collection_id',
         comment: '产品id'
     })
-    productId: number
+    collectionId: number
 
     @ApiHideProperty()
-    @OneToOne(type => Product)
+    @OneToOne(type => Collection)
     @JoinColumn({
-        name: 'product_id',
+        name: 'collection_id',
     })
-    product: Product
+    collection: Collection
 
     @Column({
         name: 'status',

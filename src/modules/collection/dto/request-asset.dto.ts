@@ -12,7 +12,7 @@ export class CreateAssetDto {
     userId: number
 
     @IsNumber()
-    productId: number
+    collectionId: number
 
 }
 export class UpdateAssetDto extends PartialType(CreateAssetDto) { }
