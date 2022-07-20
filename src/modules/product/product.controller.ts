@@ -36,7 +36,6 @@ export class ProductController {
   @Public()
   @ApiPaginatedResponse(Product)
   async list(@Query() listProductDto: ListProductDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    // this.logger.log(JSON.stringify(paginationDto));
     return DataObj.create(await this.productService.list(listProductDto, paginationDto));
   }
 

@@ -18,7 +18,7 @@ export class ProductService {
   /* 新增或编辑 */
   async addOrUpdate(createProductDto: CreateProductDto) {
     return await this.productRepository.save(createProductDto)
-}
+  }
 
   /* 分页查询 */
   async list(listProdList: ListProductDto, paginationDto: PaginationDto): Promise<PaginatedDto<Product>> {

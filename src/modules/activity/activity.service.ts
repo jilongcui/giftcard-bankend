@@ -1,0 +1,59 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PaginatedDto } from 'src/common/dto/paginated.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { FindConditions, Repository } from 'typeorm';
+import { CreateActivityDto, ListActivityDto, UpdateActivityDto } from './dto/request-activity.dto';
+import { Activity } from './entities/activity.entity';
+
+@Injectable()
+export class ActivityService {
+  constructor(
+    @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
+  ) { }
+  create(createActivityDto: CreateActivityDto) {
+    return this.activityRepository.create(createActivityDto);
+  }
+
+  /* 新增或编辑 */
+  async addOrUpdateAll(createActivityDto: CreateActivityDto) {
+    return await this.activityRepository.save(createActivityDto)
+  }
+
+  /* 分页查询 */
+  async list(listActivityList: ListActivityDto, paginationDto: PaginationDto): Promise<PaginatedDto<Activity>> {
+    let where: FindConditions<Activity> = {}
+    let result: any;
+    where = listActivityList;
+    result = await this.activityRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      where,
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        // createTime: 1,
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  findOne(id: number) {
+    return this.activityRepository.findOne(id)
+  }
+
+  update(id: number, updateActivityDto: UpdateActivityDto) {
+    return this.activityRepository.update(id, updateActivityDto)
+  }
+
+  deleteOne(id: number) {
+    return this.activityRepository.delete(id)
+  }
+
+  async delete(noticeIdArr: number[] | string[]) {
+    return this.activityRepository.delete(noticeIdArr)
+  }
+}
