@@ -55,7 +55,6 @@ export class Order {
         name: 'create_time',
         comment: '创建时间'
     })
-    @IsNumber()
     createTime: number
 
     @ManyToOne(() => Activity, activity => activity.orders)

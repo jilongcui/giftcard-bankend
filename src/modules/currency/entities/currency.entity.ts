@@ -81,7 +81,6 @@ export class Currency {
         name: 'create_time',
         comment: '创建时间'
     })
-    @IsNumber()
     createTime: number
 
     // @ManyToOne(() => Chain)

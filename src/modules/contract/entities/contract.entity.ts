@@ -37,7 +37,6 @@ export class Contract {
         name: 'create_time',
         comment: '创建时间'
     })
-    @IsNumber()
     createTime: number
 
     @IsOptional()

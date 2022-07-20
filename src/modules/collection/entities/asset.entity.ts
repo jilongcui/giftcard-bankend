@@ -58,6 +58,5 @@ export class Asset {
 
     @ApiHideProperty()
     @CreateDateColumn({ name: 'create_time', comment: '创建时间' })
-    @IsNumber()
     createTime: number
 }

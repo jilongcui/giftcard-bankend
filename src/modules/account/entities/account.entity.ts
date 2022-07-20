@@ -1,5 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger"
-import { IsNumber, IsOptional, IsString } from "class-validator"
+import { IsNumber, IsString } from "class-validator"
 import { Currency } from "src/modules/currency/entities/currency.entity"
 import { User } from "src/modules/system/user/entities/user.entity"
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
@@ -40,7 +40,7 @@ export class Account {
         name: 'create_time',
         comment: '创建时间'
     })
-    @IsNumber()
+    // @IsNumber()
     createTime: number
 
     @ManyToOne(() => User)
