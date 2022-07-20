@@ -5,7 +5,8 @@ import { BaseEntity } from "src/common/entities/base.entity";
 import { Excel } from "src/modules/common/excel/excel.decorator";
 import { ExcelTypeEnum } from "src/modules/common/excel/excel.enum";
 import { Identity } from "src/modules/identity/entities/identity.entity";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Order } from "src/modules/order/entities/order.entity";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Dept } from "../../dept/entities/dept.entity";
 import { Post } from "../../post/entities/post.entity";
 import { Role } from "../../role/entities/role.entity";
@@ -189,4 +190,8 @@ export class User extends BaseEntity {
     @ManyToMany(() => Role, role => role.users)
     @JoinTable()
     roles: Role[]
+
+    @IsOptional()
+    @OneToMany(() => Order, order => order.user)
+    orders?: Order[]
 }

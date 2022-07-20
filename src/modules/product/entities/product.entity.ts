@@ -1,7 +1,8 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsArray, IsNumber, IsString } from "class-validator";
+import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Activity } from "src/modules/activity/entities/activity.entity";
+import { Order } from "src/modules/order/entities/order.entity";
 import { User } from "src/modules/system/user/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -67,4 +68,8 @@ export class Product extends BaseEntity {
     @ApiHideProperty()
     @ManyToOne(() => Activity, activity => activity.products)
     activity: Activity
+
+    @IsOptional()
+    @ManyToOne(() => Order, order => order.products)
+    orders?: Order[]
 }

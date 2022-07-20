@@ -24,6 +24,7 @@ import { IdentityModule } from './modules/identity/identity.module';
 import { SmscodeModule } from './modules/smscode/smscode.module';
 import { ProductModule } from './modules/product/product.module';
 import { ActivityModule } from './modules/activity/activity.module';
+import { OrderModule } from './modules/order/order.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService]
@@ -72,6 +73,7 @@ const aliasProviders = createAliasProviders();
     SmscodeModule,
     ProductModule,
     ActivityModule,
+    OrderModule
   ],
   providers: [...aliasProviders]
 })
