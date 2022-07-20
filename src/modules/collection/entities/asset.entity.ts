@@ -1,4 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger";
+import { IsNumber, IsString } from "class-validator";
 import { User } from "src/modules/system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Collection } from "./collection.entity";
@@ -8,18 +9,21 @@ export class Asset {
     @PrimaryGeneratedColumn({
         name: 'asset_id'
     })
+    @IsNumber()
     assetId: number
 
     @Column({
         name: 'value',
         comment: '当前价值(单位人民币)'
     })
+    @IsNumber()
     value: number
 
     @Column({
         name: 'user_id',
         comment: '用户id'
     })
+    @IsNumber()
     userId: number
 
     @ApiHideProperty()
@@ -33,6 +37,7 @@ export class Asset {
         name: 'collection_id',
         comment: '产品id'
     })
+    @IsNumber()
     collectionId: number
 
     @ApiHideProperty()
@@ -48,9 +53,11 @@ export class Asset {
         type: 'char',
         default: '0'
     })
+    @IsString()
     status: string
 
     @ApiHideProperty()
     @CreateDateColumn({ name: 'create_time', comment: '创建时间' })
+    @IsNumber()
     createTime: number
 }

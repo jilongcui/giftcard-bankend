@@ -1,11 +1,12 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsOptional, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Collection } from "src/modules/collection/entities/collection.entity";
-import { Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Contract {
     @PrimaryGeneratedColumn()
+    @IsNumber()
     id: number
 
     @IsString()
@@ -36,6 +37,7 @@ export class Contract {
         name: 'create_time',
         comment: '创建时间'
     })
+    @IsNumber()
     createTime: number
 
     @IsOptional()

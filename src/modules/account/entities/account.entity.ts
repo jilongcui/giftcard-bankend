@@ -1,5 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger"
-import { IsOptional } from "class-validator"
+import { IsNumber, IsOptional, IsString } from "class-validator"
 import { Currency } from "src/modules/currency/entities/currency.entity"
 import { User } from "src/modules/system/user/entities/user.entity"
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
@@ -7,6 +7,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGenerat
 @Entity()
 export class Account {
     @PrimaryGeneratedColumn()
+    @IsNumber()
     id: number
 
     @Column({
@@ -14,6 +15,7 @@ export class Account {
         comment: '可用余额',
         default: 0
     })
+    @IsNumber()
     usable: number
 
     @Column({
@@ -21,6 +23,7 @@ export class Account {
         comment: '冻结余额',
         default: 0
     })
+    @IsNumber()
     freeze: number
 
     @Column({
@@ -29,6 +32,7 @@ export class Account {
         type: 'char',
         length: 1
     })
+    @IsString()
     status: string
 
     @ApiHideProperty()
@@ -36,6 +40,7 @@ export class Account {
         name: 'create_time',
         comment: '创建时间'
     })
+    @IsNumber()
     createTime: number
 
     @ManyToOne(() => User)

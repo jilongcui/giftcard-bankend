@@ -12,6 +12,7 @@ export class Collection extends BaseEntity {
     @PrimaryGeneratedColumn({
         name: 'id'
     })
+    @IsNumber()
     id: number
 
     @Column({
