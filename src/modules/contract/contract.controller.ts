@@ -15,18 +15,18 @@ export class ContractController {
   constructor(private readonly contractService: ContractService) { }
 
   @Post()
-  create(@Body() createContractDto: CreateContractDto) {
-    return this.contractService.create(createContractDto);
+  async create(@Body() createContractDto: CreateContractDto) {
+    return await this.contractService.create(createContractDto);
   }
 
   @Put(':id')
-  updateAll(@Param('id') id: string, @Body() updateAllContractDto: UpdateAllContractDto) {
-    return this.contractService.addOrUpdateAll(updateAllContractDto);
+  async updateAll(@Param('id') id: string, @Body() updateAllContractDto: UpdateAllContractDto) {
+    return await this.contractService.addOrUpdateAll(updateAllContractDto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateContractDto: UpdateContractDto) {
-    return this.contractService.update(+id, updateContractDto);
+  async update(@Param('id') id: string, @Body() updateContractDto: UpdateContractDto) {
+    return await this.contractService.update(+id, updateContractDto);
   }
 
   /* 产品列表 */
@@ -38,17 +38,17 @@ export class ContractController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.contractService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.contractService.findOne(+id);
   }
 
   @Delete(':id')
-  removeOne(@Param('id') id: string) {
-    return this.contractService.deleteOne(+id);
+  async removeOne(@Param('id') id: string) {
+    return await this.contractService.deleteOne(+id);
   }
 
   @Delete(':ids')
-  remove(@Param('ids') ids: string) {
-    return this.contractService.delete(ids.split(','));
+  async remove(@Param('ids') ids: string) {
+    return await this.contractService.delete(ids.split(','));
   }
 }

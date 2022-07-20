@@ -65,6 +65,6 @@ export class CollectionController {
     businessType: BusinessTypeEnum.delete
   })
   async delete(@Param('ids') ids: string) {
-    await this.collectionService.delete(ids.split(','))
+    return await this.collectionService.delete(ids.split(','))
   }
 }

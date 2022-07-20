@@ -12,7 +12,7 @@ export class ActivityService {
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
   ) { }
   create(createActivityDto: CreateActivityDto) {
-    return this.activityRepository.create(createActivityDto);
+    return this.activityRepository.save(createActivityDto);
   }
 
   /* 新增或编辑 */

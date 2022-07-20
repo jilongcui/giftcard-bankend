@@ -15,18 +15,18 @@ export class OrderController {
   constructor(private readonly activityService: OrderService) { }
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.activityService.create(createOrderDto);
+  async create(@Body() createOrderDto: CreateOrderDto) {
+    return await this.activityService.create(createOrderDto);
   }
 
   @Put(':id')
-  updateAll(@Param('id') id: string, @Body() updateAllOrderDto: UpdateAllOrderDto) {
-    return this.activityService.addOrUpdateAll(updateAllOrderDto);
+  async updateAll(@Param('id') id: string, @Body() updateAllOrderDto: UpdateAllOrderDto) {
+    return await this.activityService.addOrUpdateAll(updateAllOrderDto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.activityService.update(+id, updateOrderDto);
+  async update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    return await this.activityService.update(+id, updateOrderDto);
   }
 
   /* 产品列表 */
@@ -38,17 +38,17 @@ export class OrderController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.activityService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.activityService.findOne(+id);
   }
 
   @Delete(':id')
-  removeOne(@Param('id') id: string) {
-    return this.activityService.deleteOne(+id);
+  async removeOne(@Param('id') id: string) {
+    return await this.activityService.deleteOne(+id);
   }
 
   @Delete(':ids')
-  remove(@Param('ids') ids: string) {
-    return this.activityService.delete(ids.split(','));
+  async remove(@Param('ids') ids: string) {
+    return await this.activityService.delete(ids.split(','));
   }
 }

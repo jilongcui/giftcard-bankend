@@ -86,7 +86,7 @@ export class Currency {
     // @ManyToOne(() => Chain)
     // chain: Chain
 
-    @IsOptional()
+    @ApiHideProperty()
     @OneToOne(() => Contract)
     @JoinColumn({
         name: 'contract_id',

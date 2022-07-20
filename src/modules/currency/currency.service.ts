@@ -12,7 +12,7 @@ export class CurrencyService {
     @InjectRepository(Currency) private readonly currencyRepository: Repository<Currency>,
   ) { }
   create(createCurrencyDto: CreateCurrencyDto) {
-    return this.currencyRepository.create(createCurrencyDto);
+    return this.currencyRepository.save(createCurrencyDto);
   }
 
   /* 新增或编辑 */

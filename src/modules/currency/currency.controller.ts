@@ -16,18 +16,18 @@ export class CurrencyController {
   constructor(private readonly activityService: CurrencyService) { }
 
   @Post()
-  create(@Body() createCurrencyDto: CreateCurrencyDto) {
-    return this.activityService.create(createCurrencyDto);
+  async create(@Body() createCurrencyDto: CreateCurrencyDto) {
+    return DataObj.create(await this.activityService.create(createCurrencyDto));
   }
 
   @Put(':id')
-  updateAll(@Param('id') id: string, @Body() updateAllCurrencyDto: UpdateAllCurrencyDto) {
-    return this.activityService.addOrUpdateAll(updateAllCurrencyDto);
+  async updateAll(@Param('id') id: string, @Body() updateAllCurrencyDto: UpdateAllCurrencyDto) {
+    return await this.activityService.addOrUpdateAll(updateAllCurrencyDto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCurrencyDto: UpdateCurrencyDto) {
-    return this.activityService.update(+id, updateCurrencyDto);
+  async update(@Param('id') id: string, @Body() updateCurrencyDto: UpdateCurrencyDto) {
+    return await this.activityService.update(+id, updateCurrencyDto);
   }
 
   /* 产品列表 */
@@ -39,17 +39,17 @@ export class CurrencyController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.activityService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.activityService.findOne(+id);
   }
 
   @Delete(':id')
-  removeOne(@Param('id') id: string) {
-    return this.activityService.deleteOne(+id);
+  async removeOne(@Param('id') id: string) {
+    return await this.activityService.deleteOne(+id);
   }
 
   @Delete(':ids')
-  remove(@Param('ids') ids: string) {
-    return this.activityService.delete(ids.split(','));
+  async remove(@Param('ids') ids: string) {
+    return await this.activityService.delete(ids.split(','));
   }
 }

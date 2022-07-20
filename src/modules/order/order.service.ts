@@ -12,7 +12,7 @@ export class OrderService {
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
   ) { }
   create(createOrderDto: CreateOrderDto) {
-    return this.orderRepository.create(createOrderDto);
+    return this.orderRepository.save(createOrderDto);
   }
 
   /* 新增或编辑 */

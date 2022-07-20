@@ -54,7 +54,7 @@ export class AssetController {
     businessType: BusinessTypeEnum.update
   })
   async update(@Body() asset: Asset) {
-    await this.assetService.addOrUpdate(asset)
+    return await this.assetService.addOrUpdate(asset)
   }
 
   /* 删除 资产 */
@@ -65,6 +65,6 @@ export class AssetController {
     businessType: BusinessTypeEnum.delete
   })
   async delete(@Param('ids') ids: string) {
-    await this.assetService.delete(ids.split(','))
+    return await this.assetService.delete(ids.split(','))
   }
 }
