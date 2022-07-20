@@ -2,9 +2,10 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Activity } from "src/modules/activity/entities/activity.entity";
+import { Contract } from "src/modules/contract/entities/contract.entity";
 import { Order } from "src/modules/order/entities/order.entity";
 import { User } from "src/modules/system/user/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Product extends BaseEntity {
@@ -64,6 +65,9 @@ export class Product extends BaseEntity {
         default: '0'
     })
     status: string
+
+    @ManyToOne(() => Contract, contract => contract.products)
+    contract: Contract
 
     @ApiHideProperty()
     @ManyToOne(() => Activity, activity => activity.products)
