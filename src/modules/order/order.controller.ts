@@ -7,7 +7,9 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
 import { Order } from './entities/order.entity';
-
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+@ApiTags('订单')
+@ApiBearerAuth()
 @Controller('order')
 export class OrderController {
   constructor(private readonly activityService: OrderService) { }

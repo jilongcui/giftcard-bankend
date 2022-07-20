@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from 'src/common/class/data-obj.class';
 import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
@@ -8,6 +9,8 @@ import { ActivityService } from './activity.service';
 import { CreateActivityDto, ListActivityDto, UpdateActivityDto, UpdateAllActivityDto } from './dto/request-activity.dto';
 import { Activity } from './entities/activity.entity';
 
+@ApiTags('活动')
+@ApiBearerAuth()
 @Controller('activity')
 export class ActivityController {
   constructor(private readonly activityService: ActivityService) { }
