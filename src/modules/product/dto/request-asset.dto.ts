@@ -1,7 +1,7 @@
 import { OmitType, PartialType } from "@nestjs/swagger";
 import { IsNumber, IsObject } from "class-validator";
 import { PaginationDto } from "src/common/dto/pagination.dto";
-import { Asset } from "../entities/Asset.entity";
+import { Asset } from "../entities/asset.entity";
 
 
 export class CreateAssetDto {
