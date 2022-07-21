@@ -43,7 +43,7 @@ export class DeptController {
     @ApiDataResponse(typeEnum.objectArr, ReqAddDeptDto)
     async list(@Query() reqDeptListDto: ReqDeptListDto) {
         const deptArr = await this.deptService.list(reqDeptListDto)
-        return DataObj.create(deptArr)
+        return deptArr
     }
 
     /* 获取部门树结构 */
@@ -51,7 +51,7 @@ export class DeptController {
     @ApiDataResponse(typeEnum.objectArr, TreeDataDto)
     async treeselect() {
         const deptTree = await this.deptService.treeselect()
-        return DataObj.create(deptTree)
+        return deptTree
     }
 
     /* 通过id查询部门 */
@@ -60,7 +60,7 @@ export class DeptController {
     @ApiDataResponse(typeEnum.object, ReqAddDeptDto)
     async one(@Param('deptId') deptId: number) {
         const dept = await this.deptService.findRawById(deptId)
-        return DataObj.create(dept)
+        return dept
     }
 
     /* 查询除自己(包括子类)外部门列表 */
@@ -68,7 +68,7 @@ export class DeptController {
     @ApiDataResponse(typeEnum.objectArr, ReqAddDeptDto)
     async outList(@Param('deptId') deptId: number) {
         const deptArr = await this.deptService.outList(deptId)
-        return DataObj.create(deptArr)
+        return deptArr
     }
 
     /* 修改部门 */

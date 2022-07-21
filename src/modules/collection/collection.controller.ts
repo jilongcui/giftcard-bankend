@@ -28,7 +28,7 @@ export class CollectionController {
     businessType: BusinessTypeEnum.insert
   })
   async create(@Body() createCollectionDto: CreateCollectionDto, @UserDec(UserEnum.userId) userId: number) {
-    return DataObj.create(this.collectionService.create(createCollectionDto));
+    return this.collectionService.create(createCollectionDto);
   }
 
   /* 产品列表 */
@@ -36,13 +36,13 @@ export class CollectionController {
   @Public()
   @ApiPaginatedResponse(Collection)
   async list(@Query() listCollectionDto: ListCollectionDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return DataObj.create(await this.collectionService.list(listCollectionDto, paginationDto));
+    return await this.collectionService.list(listCollectionDto, paginationDto);
   }
 
   @Get(':id')
   @Public()
   async findOne(@Param('id') id: string) {
-    return DataObj.create(await this.collectionService.findOne(+id));
+    return await this.collectionService.findOne(+id);
   }
 
   /* 更新产品 */

@@ -57,7 +57,7 @@ export class PostController {
     @ApiDataResponse(typeEnum.object, SysPost)
     async one(@Param('postId') postId: number) {
         const post = await this.postService.findById(postId)
-        return DataObj.create(post)
+        return post
     }
 
     /* 修改岗位 */

@@ -37,7 +37,7 @@ export class MenuController {
     @ApiDataResponse(typeEnum.objectArr, ReqAddMenuDto)
     async list(@Query() reqMenuListDto: ReqMenuListDto) {
         const menutArr = await this.menuService.list(reqMenuListDto)
-        return DataObj.create(menutArr)
+        return menutArr
     }
 
     /* 查询菜单树结构 */
@@ -45,7 +45,7 @@ export class MenuController {
     @ApiDataResponse(typeEnum.objectArr, TreeDataDto)
     async treeselect() {
         const menuTree = await this.menuService.treeselect()
-        return DataObj.create(menuTree)
+        return menuTree
     }
 
     /* 通过id查询列表 */
@@ -54,7 +54,7 @@ export class MenuController {
     @ApiDataResponse(typeEnum.object, ReqAddMenuDto)
     async one(@Param('menuId') menuId: number) {
         const menu = await this.menuService.findRawById(menuId)
-        return DataObj.create(menu)
+        return menu
     }
 
     /* 查询除自己(包括子类)外菜单列表 */
@@ -62,7 +62,7 @@ export class MenuController {
     @ApiDataResponse(typeEnum.objectArr, ReqAddMenuDto)
     async outList(@Param('menuId') menuId: number) {
         const menuArr = await this.menuService.outList(menuId)
-        return DataObj.create(menuArr)
+        return menuArr
     }
 
     /* 修改菜单 */

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Repository, FindConditions } from 'typeorm';
-import { CreateAccountDto, ListAccountDto, UpdateAccountDto } from './dto/request-account.dto';
+import { CreateAccountDto, ListAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
 import { Account } from './entities/account.entity';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class AccountService {
   }
 
   /* 新增或编辑 */
-  async addOrUpdateAll(createAccountDto: CreateAccountDto) {
+  async addOrUpdateAll(createAccountDto: UpdateAllAccountDto) {
     return await this.accountRepository.save(createAccountDto)
   }
 

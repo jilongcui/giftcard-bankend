@@ -35,7 +35,7 @@ export class ActivityController {
   @Public()
   @ApiPaginatedResponse(Activity)
   async list(@Query() listActivityDto: ListActivityDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return DataObj.create(await this.activityService.list(listActivityDto, paginationDto));
+    return await this.activityService.list(listActivityDto, paginationDto);
   }
 
   @Get(':id')

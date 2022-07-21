@@ -53,7 +53,7 @@ export class NoticeController {
     @ApiDataResponse(typeEnum.object, Notice)
     async one(@Param('noticeId') noticeId: number | string) {
         const notice = await this.noticeService.findById(noticeId)
-        return DataObj.create(notice)
+        return notice
     }
 
     /* 更新公告 */

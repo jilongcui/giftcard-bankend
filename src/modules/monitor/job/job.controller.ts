@@ -51,7 +51,7 @@ export class JobController {
     @ApiDataResponse(typeEnum.object, Job)
     async oneJob(@Param('jobId') jobId: number) {
         const job = await this.jobService.oneJob(jobId)
-        return DataObj.create(job)
+        return job
     }
 
     /* 编辑任务 */

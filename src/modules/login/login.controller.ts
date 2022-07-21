@@ -72,7 +72,7 @@ export class LoginController {
     @ApiDataResponse(typeEnum.objectArr, Router)
     async getRouters(@User(UserEnum.userId) userId: number) {
         const router = await this.loginService.getRouterByUser(userId)
-        return DataObj.create(router)
+        return router
     }
 
     /* 退出登录 */

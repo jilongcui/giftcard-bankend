@@ -15,7 +15,7 @@ export class AjaxResult {
     constructor(code, msg, data) {
         this.code = code
         this.msg = msg
-        Object.assign(this, data)
+        Object.assign(this, { data: data })
     }
 
     static success(data?: any, msg: string = '操作成功') {

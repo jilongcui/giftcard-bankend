@@ -28,7 +28,7 @@ export class AssetController {
     businessType: BusinessTypeEnum.insert
   })
   async create(@Body() createAssetDto: CreateAssetDto, @UserDec(UserEnum.userId) userId: number) {
-    return DataObj.create(this.assetService.create(createAssetDto));
+    return this.assetService.create(createAssetDto);
   }
 
   /*  资产列表 */
@@ -37,13 +37,13 @@ export class AssetController {
   @ApiPaginatedResponse(Asset)
   async list(@Query() listAssetDto: ListAssetDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     // this.logger.log(JSON.stringify(paginationDto));
-    return DataObj.create(await this.assetService.list(listAssetDto, paginationDto));
+    return await this.assetService.list(listAssetDto, paginationDto);
   }
 
   @Get(':id')
   @Public()
   async findOne(@Param('id') id: string) {
-    return DataObj.create(await this.assetService.findOne(+id));
+    return await this.assetService.findOne(+id);
   }
 
   /* 更新 资产 */

@@ -34,7 +34,7 @@ export class OrderController {
   @Public()
   @ApiPaginatedResponse(Order)
   async list(@Query() listOrderDto: ListOrderDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return DataObj.create(await this.activityService.list(listOrderDto, paginationDto));
+    return await this.activityService.list(listOrderDto, paginationDto);
   }
 
   @Get(':id')

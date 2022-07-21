@@ -26,6 +26,6 @@ export class ServerController {
             sys: promiseArr[2],
             sysFiles: promiseArr[3]
         }
-        return DataObj.create(data)
+        return data
     }
 }

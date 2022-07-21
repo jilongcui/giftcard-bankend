@@ -64,9 +64,9 @@ export class DictController {
     @Get('/dict/type/:typeId')
     @RequiresPermissions('system:dict:query')
     @ApiDataResponse(typeEnum.object, DictType)
-    async oneDictType(@Param('typeId') typeId: number): Promise<DataObj<DictType>> {
+    async oneDictType(@Param('typeId') typeId: number): Promise<DictType> {
         const dictType = await this.dictService.findDictTypeById(typeId)
-        return DataObj.create(dictType)
+        return dictType
     }
 
     /* 编辑字典类型 */
@@ -80,9 +80,9 @@ export class DictController {
 
     /* 通过字典类型查询字典数据 */
     @Get('dict/data/type/:dictType')
-    async dictDataByDictType(@Param('dictType') dictType: string): Promise<DataObj<DictData[]>> {
+    async dictDataByDictType(@Param('dictType') dictType: string): Promise<DictData[]> {
         const dictDataArr = await this.dictService.getDictDataByDictType(dictType)
-        return DataObj.create(dictDataArr)
+        return dictDataArr
     }
 
     /* 分页查询字典数据列表 */
@@ -107,7 +107,7 @@ export class DictController {
     @ApiDataResponse(typeEnum.object, ReqUpdateDictDataDto)
     async oneDictData(@Param('dictCode') dictCode: number) {
         const dictData = await this.dictService.findDictDataById(dictCode)
-        return DataObj.create(dictData)
+        return dictData
     }
 
     /* 编辑字典数据 */

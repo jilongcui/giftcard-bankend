@@ -17,7 +17,7 @@ export class CurrencyController {
 
   @Post()
   async create(@Body() createCurrencyDto: CreateCurrencyDto) {
-    return DataObj.create(await this.activityService.create(createCurrencyDto));
+    return await this.activityService.create(createCurrencyDto);
   }
 
   @Put(':id')
@@ -35,7 +35,7 @@ export class CurrencyController {
   @Public()
   @ApiPaginatedResponse(Currency)
   async list(@Query() listCurrencyDto: ListCurrencyDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return DataObj.create(await this.activityService.list(listCurrencyDto, paginationDto));
+    return await this.activityService.list(listCurrencyDto, paginationDto);
   }
 
   @Get(':id')

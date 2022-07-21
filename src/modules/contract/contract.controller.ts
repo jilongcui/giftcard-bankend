@@ -34,7 +34,7 @@ export class ContractController {
   @Public()
   @ApiPaginatedResponse(Contract)
   async list(@Query() listContractDto: ListContractDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return DataObj.create(await this.contractService.list(listContractDto, paginationDto));
+    return await this.contractService.list(listContractDto, paginationDto);
   }
 
   @Get(':id')

@@ -55,7 +55,7 @@ export class RoleController {
     @ApiDataResponse(typeEnum.object, Role)
     async one(@Param('roleId') roleId: number) {
         const role = await this.roleService.findById(roleId)
-        return DataObj.create(role)
+        return role
     }
 
     /* 编辑角色 */

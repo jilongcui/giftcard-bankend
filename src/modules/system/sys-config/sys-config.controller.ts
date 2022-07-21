@@ -63,7 +63,7 @@ export class SysConfigController {
     @ApiDataResponse(typeEnum.string, SysConfig)
     async oneByconfigKey(@Param('configKey') configKey: string) {
         const sysConfig = await this.sysConfigService.lazyFindByConfigKey(configKey)
-        return DataObj.create(sysConfig)
+        return sysConfig
     }
 
     /* 通过id查询参数 */
@@ -72,7 +72,7 @@ export class SysConfigController {
     @ApiDataResponse(typeEnum.object, SysConfig)
     async one(@Param('configId') configId: number) {
         const sysConfig = await this.sysConfigService.findById(configId)
-        return DataObj.create(sysConfig)
+        return sysConfig
     }
 
     /* 修改参数 */

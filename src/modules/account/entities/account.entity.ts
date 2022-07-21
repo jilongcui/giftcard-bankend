@@ -43,9 +43,11 @@ export class Account {
     // @IsNumber()
     createTime: number
 
+    @ApiHideProperty()
     @ManyToOne(() => User)
     user: User
 
+    @ApiHideProperty()
     @ManyToOne(() => Currency)
     @JoinColumn({
         name: 'currency_id',

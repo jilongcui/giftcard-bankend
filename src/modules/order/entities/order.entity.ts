@@ -57,12 +57,15 @@ export class Order {
     })
     createTime: number
 
+    @ApiHideProperty()
     @ManyToOne(() => Activity, activity => activity.orders)
     activity: Activity
 
+    @ApiHideProperty()
     @ManyToOne(() => User, user => user.orders)
     user: User
 
+    @ApiHideProperty()
     @OneToMany(() => Collection, collection => collection.orders)
     collections: Collection
 }

@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export function setupSwagger(app: INestApplication): void {
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('槑槑')
+    .setTitle('StartLand')
     .setDescription('Api文档')
     .setTermsOfService('https://docs.nestjs.cn/8/introduction')
     .setLicense('MIT', 'https://www.baidu.com')
