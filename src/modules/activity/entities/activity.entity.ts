@@ -10,6 +10,7 @@ export class Activity {
     @IsNumber()
     id: number
 
+    /* 类型 0:首发 1:盲盒 2:预售 3:秒杀 */
     @Column({
         name: 'type',
         comment: '类型 0:首发 1:盲盒 2:预售 3:秒杀'
@@ -31,28 +32,37 @@ export class Activity {
     @IsString()
     ruleInfo: string
 
+    /* 状态 0: 未展出 1:展示 2:预售 3:发货中 4:销售结束 5:取消 */
     @Column({
         name: 'status',
-        comment: '状态 0: 等待开始 1:展示 2:预售 3:发货中 4:销售结束 5:取消',
+        comment: '状态 0: 未展出 1:展示 2:预售 3:发货中 4:销售结束 5:取消',
         type: 'char',
         length: 1
     })
     @IsString()
     status: string
 
-    @Column({
-        name: 'start_time',
-        comment: '开始时间'
-    })
-    @IsNumber()
-    startTime: number
+    // @Column({
+    //     name: 'start_time',
+    //     comment: '开始时间'
+    // })
+    // @IsNumber()
+    // startTime: number
+    /* 创建时间 */
+    @CreateDateColumn({ name: 'start_time', comment: '开始时间' })
+    @ApiHideProperty()
+    startTime: Date
 
-    @Column({
-        name: 'end_time',
-        comment: '结束时间'
-    })
-    @IsNumber()
-    endTime: number
+    // @Column({
+    //     name: 'end_time',
+    //     comment: '结束时间'
+    // })
+    // @IsNumber()
+    // endTime: number
+
+    @CreateDateColumn({ name: 'end_time', comment: '结束时间' })
+    @ApiHideProperty()
+    endTime: Date
 
     @Column({
         name: 'supply',

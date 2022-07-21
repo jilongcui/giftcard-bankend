@@ -28,6 +28,7 @@ export class ActivityService {
     result = await this.activityRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
+      relations: ['collections'],
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -42,7 +43,7 @@ export class ActivityService {
   }
 
   findOne(id: number) {
-    return this.activityRepository.findOne(id)
+    return this.activityRepository.findOne(id, { relations: ['collections'], })
   }
 
   update(id: number, updateActivityDto: UpdateActivityDto) {
@@ -55,5 +56,19 @@ export class ActivityService {
 
   async delete(noticeIdArr: number[] | string[]) {
     return this.activityRepository.delete(noticeIdArr)
+  }
+
+  async addCollection(id: number, collectionId: number) {
+    return this.activityRepository.createQueryBuilder()
+      .relation(Activity, "collections")
+      .of(id)
+      .add(collectionId);
+  }
+
+  async deleteCollection(id: number, collectionId: number) {
+    return this.activityRepository.createQueryBuilder()
+      .relation(Activity, "collectoins")
+      .of(id)
+      .remove(collectionId);
   }
 }

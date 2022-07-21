@@ -57,6 +57,7 @@ export class Collection extends BaseEntity {
         name: 'author_id',
         comment: '作者id'
     })
+    @IsNumber()
     authorId: number
 
     @ApiHideProperty()
@@ -66,21 +67,28 @@ export class Collection extends BaseEntity {
     })
     author: User
 
+    /* 状态(0:下架 1: 上架) */
     @Column({
         name: 'status',
         comment: '状态(0:下架 1: 上架)',
         type: 'char',
         default: '0'
     })
+    @IsString()
     status: string
 
     @Column({
         name: 'contract_id',
         comment: '关联合约id'
     })
+    @IsNumber()
     contractId: number
 
+    @ApiHideProperty()
     @ManyToOne(() => Contract, contract => contract.collections)
+    @JoinColumn({
+        name: 'contract_id',
+    })
     contract: Contract
 
     @ApiHideProperty()

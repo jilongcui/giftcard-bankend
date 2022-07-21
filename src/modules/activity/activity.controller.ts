@@ -52,4 +52,14 @@ export class ActivityController {
   async remove(@Param('ids') ids: string) {
     return await this.activityService.delete(ids.split(','));
   }
+
+  @Put(':id/collection/:collectionId')
+  async addCollection(@Param('id') id: string, @Param('collectionId') collectionId: string) {
+    return await this.activityService.addCollection(+id, +collectionId);
+  }
+
+  @Delete(':id/collection/:collectionId')
+  async removeCollection(@Param('id') id: string, @Param('collectionId') collectionId: string) {
+    return await this.activityService.deleteCollection(+id, +collectionId);
+  }
 }

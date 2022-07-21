@@ -33,6 +33,7 @@ export class CollectionService {
     result = await this.collectionRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
+      relations: ['contract', 'author'],
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -47,7 +48,7 @@ export class CollectionService {
   }
 
   findOne(id: number) {
-    return this.collectionRepository.findOne(id)
+    return this.collectionRepository.findOne(id, { relations: ['author', 'contract'], })
   }
 
   update(id: number, updateCollectionDto: UpdateCollectionDto) {
