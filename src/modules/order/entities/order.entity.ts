@@ -3,7 +3,7 @@ import { IsNumber, IsString } from "class-validator";
 import { Activity } from "src/modules/activity/entities/activity.entity";
 import { Collection } from "src/modules/collection/entities/collection.entity";
 import { User } from "src/modules/system/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Order {
@@ -36,19 +36,34 @@ export class Order {
 
     @Column({
         name: 'real_price',
-        comment: '订单总金额'
+        comment: '订单真实金额'
     })
     @IsNumber()
     realPrice: number
 
+    /* 订单状态 0: 订单取消，1:正常 2: 订单过期 */
     @Column({
         name: 'status',
-        comment: '订单状态',
+        comment: '订单状态 0: 订单取消，1:正常 2: 订单过期',
         type: 'char',
         length: 1
     })
     @IsString()
     status: string
+
+    @Column({
+        name: 'activity_id',
+        comment: '订单关联的活动'
+    })
+    @IsNumber()
+    activityId: number
+
+    @Column({
+        name: 'user_id',
+        comment: '订单所属用户'
+    })
+    @IsNumber()
+    userId: number
 
     @ApiHideProperty()
     @CreateDateColumn({
@@ -59,13 +74,19 @@ export class Order {
 
     @ApiHideProperty()
     @ManyToOne(() => Activity, activity => activity.orders)
+    @JoinColumn({
+        name: 'activity_id',
+    })
     activity: Activity
 
     @ApiHideProperty()
     @ManyToOne(() => User, user => user.orders)
+    @JoinColumn({
+        name: 'user_id',
+    })
     user: User
 
     @ApiHideProperty()
     @OneToMany(() => Collection, collection => collection.orders)
-    collections: Collection
+    collections: Collection[]
 }
