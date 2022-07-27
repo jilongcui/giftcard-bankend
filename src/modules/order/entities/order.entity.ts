@@ -72,6 +72,7 @@ export class Order {
     })
     createTime: number
 
+    @ApiHideProperty()
     @Column({
         name: 'invalid_time',
         type: 'datetime',
