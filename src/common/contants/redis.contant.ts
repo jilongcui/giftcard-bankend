@@ -17,3 +17,6 @@ export const USER_ROLEKS_KEY = "admin:role:token"  //角色
 
 export const USER_ONLINE_KEY = "admin:online:token"  // 在线用户
 export const USER_SMSCODE_KEY = "user:smscode:token"  // 用户SMS Code
+export const COLLECTION_ORDER_COUNT = "COLLECTION:ORDER:COUNT"  // 订单统计
+export const COLLECTION_ORDER_SUPPLY = "COLLECTION:ORDER:SUPPLY"  // 订单统计
+export const ACTIVITY_ORDER_TEMPLATE_KEY = "ACTIVITY:ORDER:TEMPLATE"  // 订单模版

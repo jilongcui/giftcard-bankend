@@ -3,7 +3,7 @@ import { IsNumber, IsString } from "class-validator";
 import { Activity } from "src/modules/activity/entities/activity.entity";
 import { Collection } from "src/modules/collection/entities/collection.entity";
 import { User } from "src/modules/system/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Order {
@@ -72,6 +72,13 @@ export class Order {
     })
     createTime: number
 
+    @Column({
+        name: 'invalid_time',
+        type: 'datetime',
+        comment: '订单失效时间'
+    })
+    invalidTime: Date
+
     @ApiHideProperty()
     @ManyToOne(() => Activity, activity => activity.orders)
     @JoinColumn({
@@ -87,6 +94,6 @@ export class Order {
     user: User
 
     @ApiHideProperty()
-    @OneToMany(() => Collection, collection => collection.orders)
+    @ManyToMany(() => Collection, collection => collection.orders)
     collections: Collection[]
 }
