@@ -59,8 +59,8 @@ export class OrderService {
         const order = new Order();
         order.type = createOrderDto.type;
         order.activityId = createOrderDto.activityId;
-        order.realPrice = createOrderDto.realPrice;
-        order.totalPrice = createOrderDto.totalPrice;
+        order.realPrice = activity.price;
+        order.totalPrice = activity.price;
         order.desc = activity.title;
         order.status = '1';
         order.userId = userId;
