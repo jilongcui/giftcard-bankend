@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { EntityManager, FindConditions, Repository, Transaction, TransactionManager } from 'typeorm';
+import { FindConditions, Repository, } from 'typeorm';
 import { CreateActivityDto, ListActivityDto, UpdateActivityDto } from './dto/request-activity.dto';
 import { Activity } from './entities/activity.entity';
 
@@ -11,10 +11,8 @@ export class ActivityService {
   constructor(
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
   ) { }
-  @Transaction()
   create(createActivityDto: CreateActivityDto) {
     return this.activityRepository.save(createActivityDto);
-    // 结束事务
   }
 
   /* 新增或编辑 */

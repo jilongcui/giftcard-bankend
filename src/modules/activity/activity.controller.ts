@@ -16,7 +16,6 @@ export class ActivityController {
   constructor(private readonly activityService: ActivityService) { }
 
   @Post()
-  @Public()
   async create(@Body() createActivityDto: CreateActivityDto) {
     return await this.activityService.create(createActivityDto);
   }

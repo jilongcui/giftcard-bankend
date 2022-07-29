@@ -13,10 +13,13 @@ export class Activity {
     /* 类型 0:首发 1:盲盒 2:预售 3:秒杀 */
     @Column({
         name: 'type',
+        type: 'char',
+        length: 1,
+        default: 0,
         comment: '类型 0:首发 1:盲盒 2:预售 3:秒杀'
     })
-    @IsNumber()
-    type: number
+    @IsString()
+    type: string
 
     @Column({
         name: 'title',
@@ -42,26 +45,20 @@ export class Activity {
     @IsString()
     status: string
 
-    // @Column({
-    //     name: 'start_time',
-    //     comment: '开始时间'
-    // })
-    // @IsNumber()
-    // startTime: number
-    /* 创建时间 */
-    @CreateDateColumn({ name: 'start_time', comment: '开始时间' })
-    @ApiHideProperty()
+    @Column({
+        name: 'start_time',
+        type: 'datetime',
+        comment: '开始时间'
+    })
+    @IsString()
     startTime: Date
 
-    // @Column({
-    //     name: 'end_time',
-    //     comment: '结束时间'
-    // })
-    // @IsNumber()
-    // endTime: number
-
-    @CreateDateColumn({ name: 'end_time', comment: '结束时间' })
-    @ApiHideProperty()
+    @Column({
+        name: 'end_time',
+        type: 'datetime',
+        comment: '结束时间'
+    })
+    @IsString()
     endTime: Date
 
     @Column({
