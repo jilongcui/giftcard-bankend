@@ -16,8 +16,8 @@ export class CollectionService {
   }
 
   /* 新增或编辑 */
-  async addOrUpdate(createCollectionDto: CreateCollectionDto) {
-    return await this.collectionRepository.save(createCollectionDto)
+  async addOrUpdate(updateCollectionDto: UpdateCollectionDto) {
+    return await this.collectionRepository.save(updateCollectionDto)
   }
 
   /* 分页查询 */

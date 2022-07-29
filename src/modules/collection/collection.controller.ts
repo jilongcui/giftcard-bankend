@@ -52,7 +52,7 @@ export class CollectionController {
     title: '藏品',
     businessType: BusinessTypeEnum.update
   })
-  async update(@Body() collection: CreateCollectionDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
+  async update(@Body() collection: UpdateCollectionDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
     collection.updateBy = userName
     await this.collectionService.addOrUpdate(collection)
   }
