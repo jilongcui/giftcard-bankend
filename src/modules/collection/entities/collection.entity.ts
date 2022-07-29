@@ -1,4 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Activity } from "src/modules/activity/entities/activity.entity";
@@ -12,6 +13,7 @@ export class Collection extends BaseEntity {
     @PrimaryGeneratedColumn({
         name: 'id'
     })
+    @Type(() => Number)
     @IsNumber()
     id: number
 
@@ -27,6 +29,7 @@ export class Collection extends BaseEntity {
         name: 'supply',
         comment: '总供应量',
     })
+    @Type(() => Number)
     @IsNumber()
     supply: number
 
@@ -34,6 +37,7 @@ export class Collection extends BaseEntity {
         name: 'current',
         comment: '当前释放量',
     })
+    @Type(() => Number)
     @IsNumber()
     current: number
 
@@ -57,6 +61,7 @@ export class Collection extends BaseEntity {
         name: 'author_id',
         comment: '作者id'
     })
+    @Type(() => Number)
     @IsNumber()
     authorId: number
 
@@ -81,6 +86,7 @@ export class Collection extends BaseEntity {
         name: 'contract_id',
         comment: '关联合约id'
     })
+    @Type(() => Number)
     @IsNumber()
     contractId: number
 
