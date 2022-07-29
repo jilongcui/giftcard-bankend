@@ -67,7 +67,7 @@ export class ActivityService {
 
   async deleteCollection(id: number, collectionId: number) {
     return this.activityRepository.createQueryBuilder()
-      .relation(Activity, "collectoins")
+      .relation(Activity, "collections")
       .of(id)
       .remove(collectionId);
   }
