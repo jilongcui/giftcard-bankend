@@ -38,7 +38,7 @@ async function bootstrap() {
   setupSwagger(app)
 
   /* 监听启动端口 */
-  await app.listen(3000);
+  await app.listen(process.env.APP_PORT || 3000);
 
   /* 打印swagger地址 */
   console.log('http://127.0.0.1:3000/swagger-ui/');
