@@ -1,5 +1,5 @@
 import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ParseArrayPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_SUPPLY } from 'src/common/contants/redis.contant';
@@ -25,15 +25,7 @@ export class OrderService {
     // 判断当前剩余
     // 如果有剩余，那么就生成订单
     // 否则，就失败
-    await getManager().transaction(async manager => {
-      // NOTE: you must perform all database operations using the given manager instance
-      // it's a special instance of EntityManager working with this transaction
-      // and don't forget to await things here
-      // 注意：你必须使用给定的管理器实例执行所有数据库操作，
-      // 它是一个使用此事务的EntityManager的特殊实例。
-      // 在这里处理一些操作
-
-
+    return await getManager().transaction(async manager => {
       let activity: Activity
       let orderCount: any
       const activityJson = await this.redis.get(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${createOrderDto.activityId}`)
@@ -49,6 +41,9 @@ export class OrderService {
       }
       if (!activity) {
         throw new ApiException('未找到此活动')
+      }
+      if (activity.current == activity.supply) {
+        throw new ApiException('已售完')
       }
       // this.logger.debug(orderCount);
       // this.logger.debug(JSON.stringify(activity));
@@ -66,8 +61,17 @@ export class OrderService {
         order.userId = userId;
         order.invalidTime = moment(moment.now()).add(5, 'minute').toDate()
         order.collections = activity.collections;
-        return await manager.save(order);
+        await manager.save(order);
+        if (order.id % 100 === 0) {
+          activity.current = parseInt(orderCount) + 1;
+          await this.redis.set(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${createOrderDto.activityId}`, JSON.stringify(activity))
+          await manager.save(activity)
+        }
+        return order;
       } else {
+        activity.current = activity.supply;
+        await this.redis.set(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${createOrderDto.activityId}`, JSON.stringify(activity))
+        await manager.save(activity)
         throw new ApiException('已售完')
       }
     });
@@ -102,7 +106,7 @@ export class OrderService {
   }
 
   findOne(id: number) {
-    return this.orderRepository.findOne(id, { relations: ["activity", "user", "collections"], })
+    return this.orderRepository.findOne(id, { relations: ["activity", "collections"], })
   }
 
   update(id: number, updateOrderDto: UpdateOrderDto) {

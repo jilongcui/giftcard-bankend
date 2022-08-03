@@ -1,5 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsNumber, IsString } from "class-validator";
+import { IsArray, IsNumber, IsString } from "class-validator";
 import { Activity } from "src/modules/activity/entities/activity.entity";
 import { Collection } from "src/modules/collection/entities/collection.entity";
 import { User } from "src/modules/system/user/entities/user.entity";
@@ -79,6 +79,15 @@ export class Order {
         comment: '订单失效时间'
     })
     invalidTime: Date
+
+    // @ApiHideProperty()
+    // @IsArray()
+    // @Column({
+    //     name: 'images',
+    //     comment: '图片',
+    //     type: 'simple-array',
+    // })
+    // images: string[]
 
     @ApiHideProperty()
     @ManyToOne(() => Activity, activity => activity.orders)
