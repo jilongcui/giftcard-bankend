@@ -2,6 +2,7 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString, IsEmail, IsPhoneNumber, Allow } from "class-validator";
 import { BaseEntity } from "src/common/entities/base.entity";
+import { Account } from "src/modules/account/entities/account.entity";
 import { Excel } from "src/modules/common/excel/excel.decorator";
 import { ExcelTypeEnum } from "src/modules/common/excel/excel.enum";
 import { Identity } from "src/modules/identity/entities/identity.entity";
@@ -195,4 +196,9 @@ export class User extends BaseEntity {
     @IsOptional()
     @OneToMany(() => Order, order => order.user)
     orders?: Order[]
+
+    @ApiHideProperty()
+    @IsOptional()
+    @OneToMany(() => Account, account => account.user)
+    accounts?: Account[]
 }

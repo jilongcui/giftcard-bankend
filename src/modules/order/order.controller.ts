@@ -53,4 +53,9 @@ export class OrderController {
   async remove(@Param('ids') ids: string) {
     return await this.orderService.delete(ids.split(','));
   }
+
+  @Post(':id/innerPay')
+  async payWithBalance(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+    return await this.orderService.payWithBalance(+id, userId);
+  }
 }

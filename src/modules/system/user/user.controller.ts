@@ -84,6 +84,17 @@ export class UserController {
         await this.userService.updataProfile(reqUpdataSelfDto, userId)
     }
 
+    /* 创建用户资金账户 */
+    @RepeatSubmit()
+    @Put('account')
+    @Log({
+        title: '用户管理',
+        businessType: BusinessTypeEnum.update
+    })
+    async createAccount(@UserDec(UserEnum.userId) userId: number) {
+        return await this.userService.findAccount(userId)
+    }
+
     /* 更改个人密码 */
     @RepeatSubmit()
     @Put('profile/updatePwd')

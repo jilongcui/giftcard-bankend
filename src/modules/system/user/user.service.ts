@@ -16,6 +16,8 @@ import * as moment from 'moment';
 import { USER_VERSION_KEY } from 'src/common/contants/redis.contant';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
+import { CreateAccountDto } from 'src/modules/account/dto/request-account.dto';
+import { Account } from 'src/modules/account/entities/account.entity';
 import { SharedService } from 'src/shared/shared.service';
 import { Between, FindConditions, In, Like, Repository } from 'typeorm';
 import { DeptService } from '../dept/dept.service';
@@ -30,6 +32,7 @@ import { User } from './entities/user.entity';
 export class UserService {
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
+        @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
         @Inject(forwardRef(() => RoleService)) private readonly roleService: RoleService,
         private readonly postService: PostService,
         private readonly deptService: DeptService,
@@ -172,7 +175,10 @@ export class UserService {
             reqAddUserDto.salt = this.sharedService.generateUUID()
             reqAddUserDto.password = this.sharedService.md5(reqAddUserDto.password + reqAddUserDto.salt)
         }
-        await this.userRepository.save(reqAddUserDto)
+        const user = await this.userRepository.save(reqAddUserDto)
+        let createAccountDto = new CreateAccountDto({ userId: user.userId, currencyId: '1', usable: 0, status: '0' })
+        await this.accountRepository.save(createAccountDto)
+        return user;
     }
 
     /* 编辑用户 */
@@ -206,6 +212,19 @@ export class UserService {
     /* id查询用户 */
     async findById(userId: number) {
         return await this.userRepository.findOne(userId)
+    }
+
+    async findAccount(userId: number) {
+        const user = await this.userRepository.findOne(userId)
+        if (user == null) {
+            throw new ApiException('用户不存在')
+        }
+        let account = await this.accountRepository.findOne({ userId: user.userId, currencyId: 1 })
+        if (account == null) {
+            let createAccountDto = new CreateAccountDto({ userId: user.userId, currencyId: '1', usable: 0, status: '0' })
+            account = await this.accountRepository.save(createAccountDto)
+        }
+        return account;
     }
 
     /* 更改密码 */

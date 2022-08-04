@@ -19,10 +19,11 @@ import { PostModule } from '../post/post.module';
 import { DeptModule } from '../dept/dept.module';
 import { storage } from 'src/modules/common/upload/upload.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { Account } from 'src/modules/account/entities/account.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User]),
+        TypeOrmModule.forFeature([User, Account]),
         forwardRef(() => RoleModule),
         PostModule,
         DeptModule,

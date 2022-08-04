@@ -35,6 +35,21 @@ export class Account {
     @IsString()
     status: string
 
+    @Column({
+        name: 'user_id',
+        comment: '用户id'
+    })
+    @IsNumber()
+    userId: number
+
+
+    @Column({
+        name: 'currency_id',
+        comment: '代币id'
+    })
+    @IsNumber()
+    currencyId: number
+
     @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',
@@ -45,6 +60,9 @@ export class Account {
 
     @ApiHideProperty()
     @ManyToOne(() => User)
+    @JoinColumn({
+        name: 'user_id',
+    })
     user: User
 
     @ApiHideProperty()

@@ -6,9 +6,10 @@ import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_S
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
-import { Repository, FindConditions, Transaction, TransactionManager, EntityManager, getManager } from 'typeorm';
+import { Repository, FindConditions, Transaction, TransactionManager, EntityManager, getManager, MoreThanOrEqual } from 'typeorm';
+import { Account } from '../account/entities/account.entity';
 import { Activity } from '../activity/entities/activity.entity';
-import { CreateOrderDto, ListOrderDto, UpdateOrderDto } from './dto/request-order.dto';
+import { CreateOrderDto, ListOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
 import { Order } from './entities/order.entity';
 
 @Injectable()
@@ -17,6 +18,7 @@ export class OrderService {
   constructor(
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
+    @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRedis() private readonly redis: Redis,
   ) {
   }
@@ -107,5 +109,29 @@ export class OrderService {
 
   async delete(noticeIdArr: number[] | string[]) {
     return this.orderRepository.delete(noticeIdArr)
+  }
+
+  async payWithBalance(id: number, userId: number) {
+    this.logger.debug(userId);
+    const order = await this.orderRepository.findOne({ id: id, userId: userId })
+    if (order == null) {
+      throw new ApiException('错误订单')
+    }
+    if (order.status != '1') {
+      throw new ApiException('订单状态错误')
+    }
+    let updateStatusDto = new UpdateOrderStatusDto();
+    updateStatusDto.status = '2'; // 订单完成
+    const { affected } = await this.orderRepository.update({ id: id, status: '1', userId: userId }, updateStatusDto)
+    if (affected == 0) {
+      throw new ApiException('订单')
+    }
+    const result = await this.accountRepository.decrement({ user: { userId: userId }, usable: MoreThanOrEqual(order.realPrice) }, "usable", order.realPrice);
+    this.logger.log(JSON.stringify(result));
+    if (!result.affected) {
+      throw new ApiException('支付失败')
+    }
+    order.status = '2';
+    return order;
   }
 }
