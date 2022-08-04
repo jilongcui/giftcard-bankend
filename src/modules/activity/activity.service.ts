@@ -1,5 +1,7 @@
+import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_COUNT } from 'src/common/contants/redis.contant';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { FindConditions, Repository, } from 'typeorm';
@@ -10,9 +12,13 @@ import { Activity } from './entities/activity.entity';
 export class ActivityService {
   constructor(
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
+    @InjectRedis() private readonly redis: Redis,
   ) { }
   async create(createActivityDto: CreateActivityDto) {
-    return await this.activityRepository.save(createActivityDto);
+    const activity = await this.activityRepository.save(createActivityDto);
+    await this.redis.set(`${COLLECTION_ORDER_COUNT}:${activity.id}`, activity.supply)
+    await this.redis.set(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${activity.id}`, JSON.stringify(activity))
+    return activity;
   }
 
   /* 新增或编辑 */

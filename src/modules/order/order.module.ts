@@ -6,7 +6,9 @@ import { Order } from './entities/order.entity';
 import { Activity } from '../activity/entities/activity.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Activity])],
+  imports: [
+    TypeOrmModule.forFeature([Order, Activity]),
+  ],
   controllers: [OrderController],
   providers: [OrderService]
 })
