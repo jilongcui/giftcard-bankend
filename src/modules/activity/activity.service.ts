@@ -5,6 +5,7 @@ import { ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_COUNT } from 'src/common/
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { FindConditions, Repository, } from 'typeorm';
+import { Collection } from '../collection/entities/collection.entity';
 import { CreateActivityDto, ListActivityDto, UpdateActivityDto, UpdateAllActivityDto } from './dto/request-activity.dto';
 import { Activity } from './entities/activity.entity';
 
@@ -12,6 +13,7 @@ import { Activity } from './entities/activity.entity';
 export class ActivityService {
   constructor(
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
+    @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
     @InjectRedis() private readonly redis: Redis,
   ) { }
   async create(createActivityDto: CreateActivityDto) {
@@ -49,13 +51,14 @@ export class ActivityService {
   }
 
   /* 获取推荐 */
-  async recommendList() {
+  async recommendList(): Promise<PaginatedDto<Activity>> {
     let where: FindConditions<Activity> = {}
     let result: any;
     where = { recommend: '1' };
     result = await this.activityRepository.findAndCount({
+      select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
       where,
-      relations: ['collections'],
+      relations: ['collections', 'collections.author'],
       order: {
         type: 1,
       }
@@ -83,16 +86,30 @@ export class ActivityService {
   }
 
   async addCollection(id: number, collectionId: number) {
-    return this.activityRepository.createQueryBuilder()
+    await this.activityRepository.createQueryBuilder()
       .relation(Activity, "collections")
       .of(id)
       .add(collectionId);
+    const activity = await this.activityRepository.findOne(id);
+    const collection = await this.collectionRepository.findOne(collectionId);
+    if (!activity.authorName) {
+      activity.authorName = collection.author.nickName
+      activity.avatar = collection.author.avatar
+    }
+    activity.supply += collection.supply
+    await this.activityRepository.save(activity)
+    return activity
   }
 
   async deleteCollection(id: number, collectionId: number) {
-    return this.activityRepository.createQueryBuilder()
+    await this.activityRepository.createQueryBuilder()
       .relation(Activity, "collections")
       .of(id)
       .remove(collectionId);
+    const activity = await this.activityRepository.findOne(id);
+    const collection = await this.collectionRepository.findOne(collectionId);
+    activity.supply -= collection.supply
+    await this.activityRepository.save(activity)
+    return activity
   }
 }

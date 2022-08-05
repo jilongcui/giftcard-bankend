@@ -30,8 +30,9 @@ export class ActivityController {
     return await this.activityService.update(+id, updateActivityDto);
   }
 
-  @Get('recommend')
+  @Get()
   @Public()
+  @ApiPaginatedResponse(Activity)
   async recommend() {
     return await this.activityService.recommendList();
   }

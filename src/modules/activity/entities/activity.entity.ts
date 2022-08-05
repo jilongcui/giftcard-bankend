@@ -125,6 +125,28 @@ export class Activity {
     @IsString()
     recommend?: string
 
+    /* 用户昵称 */
+    @ApiHideProperty()
+    @Column({
+        name: 'author_name',
+        comment: '创作者',
+        length: 30
+    })
+    @IsOptional()
+    @IsString()
+    authorName?: string
+
+    /* 头像地址 */
+    @ApiHideProperty()
+    @Column({
+        comment: '头像地址',
+        length: 100,
+        default: ''
+    })
+    @IsOptional()
+    @IsString()
+    avatar?: string
+
     @ApiHideProperty()
     @CreateDateColumn({ name: 'create_time', comment: '创建时间' })
     createTime: number
