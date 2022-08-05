@@ -121,8 +121,9 @@ export class Activity {
         length: 1,
         default: '0'
     })
+    @IsOptional()
     @IsString()
-    recommend: string
+    recommend?: string
 
     @ApiHideProperty()
     @CreateDateColumn({ name: 'create_time', comment: '创建时间' })

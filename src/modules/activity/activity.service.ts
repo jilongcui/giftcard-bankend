@@ -57,7 +57,7 @@ export class ActivityService {
       where,
       relations: ['collections'],
       order: {
-        createTime: 1,
+        type: 1,
       }
     })
     return {
