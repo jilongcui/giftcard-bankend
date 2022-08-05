@@ -55,7 +55,6 @@ export class Activity {
 
     @Column({
         name: 'cover_image',
-        type: 'string',
         comment: '活动封面'
     })
     @IsString()
