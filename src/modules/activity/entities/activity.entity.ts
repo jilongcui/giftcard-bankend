@@ -35,10 +35,10 @@ export class Activity {
     @IsString()
     ruleInfo: string
 
-    /* 状态 0: 未展出 1:展示 2:预售 3:发货中 4:销售结束 5:取消 */
+    /* 状态 0: 未展出 1:进行中 2:预售 3:发货中 4:销售结束 5:取消 */
     @Column({
         name: 'status',
-        comment: '状态 0: 未展出 1:展示 2:预售 3:发货中 4:销售结束 5:取消',
+        comment: '状态 0: 未展出 1:进行中 2:预售 3:发货中 4:销售结束 5:取消',
         type: 'char',
         length: 1
     })
@@ -112,6 +112,17 @@ export class Activity {
     })
     @IsNumber()
     deliverDelay: number
+
+    /* 推荐 */
+    @Column({
+        name: 'recommend',
+        comment: '是否推荐 0: 未推荐 1: 推荐',
+        type: 'char',
+        length: 1,
+        default: '0'
+    })
+    @IsString()
+    recommend: string
 
     @ApiHideProperty()
     @CreateDateColumn({ name: 'create_time', comment: '创建时间' })

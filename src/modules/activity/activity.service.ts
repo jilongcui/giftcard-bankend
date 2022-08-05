@@ -48,6 +48,24 @@ export class ActivityService {
     }
   }
 
+  /* 获取推荐 */
+  async recommendList() {
+    let where: FindConditions<Activity> = {}
+    let result: any;
+    where = { recommend: '1' };
+    result = await this.activityRepository.findAndCount({
+      where,
+      relations: ['collections'],
+      order: {
+        createTime: 1,
+      }
+    })
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
   findOne(id: number) {
     return this.activityRepository.findOne(id, { relations: ['collections'], })
   }

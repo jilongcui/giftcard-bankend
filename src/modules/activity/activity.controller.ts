@@ -30,6 +30,12 @@ export class ActivityController {
     return await this.activityService.update(+id, updateActivityDto);
   }
 
+  @Get('recommend')
+  @Public()
+  async recommend() {
+    return await this.activityService.recommendList();
+  }
+
   /* 产品列表 */
   @Get('list')
   @Public()
