@@ -177,7 +177,10 @@ export class UserService {
             reqAddUserDto.password = this.sharedService.md5(reqAddUserDto.password + reqAddUserDto.salt)
         }
         const user = await this.userRepository.save(reqAddUserDto)
-        let createAccountDto = new CreateAccountDto({ userId: user.userId, currencyId: '1', usable: 0, status: '0' })
+        let createAccountDto = new CreateAccountDto()
+        createAccountDto.userId = user.userId
+        createAccountDto.currencyId = 1
+        createAccountDto.status = '0'
         await this.accountRepository.save(createAccountDto)
         return user;
     }
