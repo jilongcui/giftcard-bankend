@@ -9,6 +9,9 @@ import { ApiException } from 'src/common/exceptions/api.exception';
 import { Repository, FindConditions, Transaction, TransactionManager, EntityManager, getManager, MoreThanOrEqual } from 'typeorm';
 import { Account } from '../account/entities/account.entity';
 import { Activity } from '../activity/entities/activity.entity';
+import { CreateAssetDto } from '../collection/dto/request-asset.dto';
+import { Asset } from '../collection/entities/asset.entity';
+import { Collection } from '../collection/entities/collection.entity';
 import { CreateOrderDto, ListOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
 import { Order } from './entities/order.entity';
 
@@ -19,6 +22,8 @@ export class OrderService {
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
+    @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
+    @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
     @InjectRedis() private readonly redis: Redis,
   ) {
   }
@@ -31,7 +36,7 @@ export class OrderService {
     let orderCount: any
     let countKey = COLLECTION_ORDER_COUNT + ":" + createOrderDto.activityId;
 
-    do {
+    if (createOrderDto.type == '0') { // 一级市场活动创建订单
       const [execError] = await this.redis.multi().decr(countKey).exec()
       orderCount = execError[1]
       if (orderCount < 0) {
@@ -40,23 +45,34 @@ export class OrderService {
       }
       // this.logger.log(execError[0])
       this.logger.log(orderCount)
-    } while (0)
-
+    }
     return await getManager().transaction(async manager => {
 
-      const activityJson = await this.redis.get(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${createOrderDto.activityId}`)
-      const jsonObject: any = JSON.parse(activityJson)
-      activity = <Activity>jsonObject;
+
       const order = new Order();
       order.type = createOrderDto.type;
-      order.activityId = createOrderDto.activityId;
-      order.realPrice = activity.price;
-      order.totalPrice = activity.price;
-      order.desc = activity.title;
       order.status = '1';
       order.userId = userId;
-      order.invalidTime = moment(moment.now()).add(5, 'minute').toDate()
-      order.collections = activity.collections;
+      if (order.type == '0') { // 一级市场活动创建订单
+        const activityJson = await this.redis.get(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${createOrderDto.activityId}`)
+        const jsonObject: any = JSON.parse(activityJson)
+        activity = <Activity>jsonObject;
+        order.activityId = createOrderDto.activityId;
+        order.realPrice = activity.price;
+        order.totalPrice = activity.price;
+        order.image = activity.coverImage;
+        order.desc = activity.title;
+        order.invalidTime = moment(moment.now()).add(5, 'minute').toDate()
+        order.collections = activity.collections;
+      } else if (order.type === '1') { // 交易市场创建的订单
+        const asset = await this.assetRepository.findOne({ where: { id: createOrderDto.activityId, status: 1 }, relations: ['collection'] })
+        order.activityId = createOrderDto.activityId;
+        order.realPrice = asset.value
+        order.totalPrice = asset.value
+        order.desc = asset.collection.name;
+        order.image = asset.collection.images[0]
+        order.invalidTime = moment(moment.now()).add(5, 'minute').toDate()
+      }
       await manager.save(order);
       // orderCount--;
       // if (orderCount % 100 === 0) {
@@ -112,26 +128,57 @@ export class OrderService {
   }
 
   async payWithBalance(id: number, userId: number) {
-    this.logger.debug(userId);
-    const order = await this.orderRepository.findOne({ id: id, userId: userId })
+    const order = await this.orderRepository.findOne({ where: { id: id, userId: userId } })
     if (order == null) {
       throw new ApiException('错误订单')
     }
     if (order.status != '1') {
       throw new ApiException('订单状态错误')
     }
-    let updateStatusDto = new UpdateOrderStatusDto();
-    updateStatusDto.status = '2'; // 订单完成
+    let updateStatusDto = { status: '2' }
     const { affected } = await this.orderRepository.update({ id: id, status: '1', userId: userId }, updateStatusDto)
     if (affected == 0) {
-      throw new ApiException('订单')
+      throw new ApiException('订单更新失败')
     }
     const result = await this.accountRepository.decrement({ user: { userId: userId }, usable: MoreThanOrEqual(order.realPrice) }, "usable", order.realPrice);
-    this.logger.log(JSON.stringify(result));
+    // this.logger.log(JSON.stringify(result));
     if (!result.affected) {
       throw new ApiException('支付失败')
     }
-    order.status = '2';
+
+    if (order.type === '0') { // 一级市场活动
+      // Create assetes for user.
+      const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
+      // First we need get all collections of orders, but we only get one collection.
+      if (!activity.collections || activity.collections.length <= 0) {
+        return order;
+      }
+      let collection: Collection;
+      if (order.activity.type = '1') {
+        // 首发盲盒, 我们需要随机寻找一个。
+        const index = Math.floor((Math.random() * activity.collections.length));
+        collection = activity.collections[index]
+      } else {
+        // 其他类型，我们只需要取第一个
+        collection = activity.collections[0];
+      }
+      let createAssetDto = { value: order.realPrice, assetNo: collection.current, userId: userId, collectionId: collection.id }
+      await this.assetRepository.save(createAssetDto)
+      // 把collection里的个数减少一个，这个时候需要通过交易完成，防止出现多发问题
+      await this.collectionRepository.increment({ id: collection.id }, "current", 1);
+
+      order.status = '2';
+
+    } else if (order.type === '1') { // 二级市场资产交易
+      // 把资产切换到新的用户就可以了
+      let updateOwnerDto = { userId: userId }
+      await this.assetRepository.update({ id: order.activityId }, updateOwnerDto)
+      if (affected == 0) {
+        throw new ApiException('资产更新失败')
+      }
+      order.status = '2';
+    }
+
     return order;
   }
 }

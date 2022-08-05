@@ -54,6 +54,14 @@ export class Activity {
     startTime: Date
 
     @Column({
+        name: 'cover_image',
+        type: 'string',
+        comment: '活动封面'
+    })
+    @IsString()
+    coverImage: string
+
+    @Column({
         name: 'end_time',
         type: 'datetime',
         comment: '结束时间'

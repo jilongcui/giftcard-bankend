@@ -7,10 +7,17 @@ import { Collection } from "./collection.entity";
 @Entity()
 export class Asset {
     @PrimaryGeneratedColumn({
-        name: 'asset_id'
+        name: 'id'
     })
     @IsNumber()
-    assetId: number
+    id: number
+
+    @Column({
+        name: 'asset_no',
+        comment: '藏品编号'
+    })
+    @IsNumber()
+    assetNo: number
 
     @Column({
         name: 'value',

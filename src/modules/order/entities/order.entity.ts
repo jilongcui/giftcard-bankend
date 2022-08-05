@@ -52,6 +52,13 @@ export class Order {
     status: string
 
     @Column({
+        name: 'image',
+        comment: '订单图片'
+    })
+    @IsString()
+    image: string
+
+    @Column({
         name: 'activity_id',
         comment: '订单关联的活动'
     })
