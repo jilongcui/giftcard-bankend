@@ -30,7 +30,7 @@ export class ActivityController {
     return await this.activityService.update(+id, updateActivityDto);
   }
 
-  @Get()
+  @Get('recommend')
   @Public()
   @ApiPaginatedResponse(Activity)
   async recommend() {
@@ -46,6 +46,7 @@ export class ActivityController {
   }
 
   @Get(':id')
+  @Public()
   async findOne(@Param('id') id: string) {
     return await this.activityService.findOne(+id);
   }
