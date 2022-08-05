@@ -10,7 +10,7 @@
 
 
 import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { USER_VERSION_KEY } from 'src/common/contants/redis.contant';
@@ -30,6 +30,7 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
+    logger = new Logger(UserService.name);
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
         @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
@@ -221,7 +222,10 @@ export class UserService {
         }
         let account = await this.accountRepository.findOne({ userId: user.userId, currencyId: 1 })
         if (account == null) {
-            let createAccountDto = new CreateAccountDto({ userId: user.userId, currencyId: '1', usable: 0, status: '0' })
+            let createAccountDto = new CreateAccountDto()
+            createAccountDto.userId = userId
+            createAccountDto.currencyId = 1
+            createAccountDto.status = '0'
             account = await this.accountRepository.save(createAccountDto)
         }
         return account;
