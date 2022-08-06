@@ -2,7 +2,8 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Order } from "src/modules/order/entities/order.entity";
 import { Collection } from "src/modules/collection/entities/collection.entity";
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Presale } from "./presale.entity";
 
 @Entity()
 export class Activity {
@@ -35,10 +36,10 @@ export class Activity {
     @IsString()
     ruleInfo: string
 
-    /* 状态 0: 未展出 1:进行中 2:预售 3:发货中 4:销售结束 5:取消 */
+    /* 状态 0: 未展示 1:进行中 2:已卖完  3:活动结束 */
     @Column({
         name: 'status',
-        comment: '状态 0: 未展出 1:进行中 2:预售 3:发货中 4:销售结束 5:取消',
+        comment: '状态 0: 未展示 1:进行中 2:已卖完  3:活动结束',
         type: 'char',
         length: 1
     })
@@ -82,13 +83,7 @@ export class Activity {
     @IsNumber()
     current: number
 
-    @Column({
-        name: 'presale_price',
-        comment: '预售价格'
-    })
-    @IsNumber()
-    presalePrice: number
-
+    /* 正式价格 */
     @Column({
         name: 'price',
         comment: '正式价格'
@@ -97,21 +92,12 @@ export class Activity {
     price: number
 
     @Column({
-        name: 'need_order',
-        comment: '是否需要预定 0:不需要 1:需要',
-        type: 'char',
-        default: 0,
-        length: 1
-    })
-    @IsString()
-    needOrder: string
-
-    @Column({
         name: 'deliver_delay',
         comment: '发货延迟 ms'
     })
+    @IsOptional()
     @IsNumber()
-    deliverDelay: number
+    deliverDelay?: number
 
     /* 推荐 */
     @Column({
@@ -146,6 +132,14 @@ export class Activity {
     @IsOptional()
     @IsString()
     avatar?: string
+
+    @ApiHideProperty()
+    @OneToOne(() => Presale, { cascade: true })
+    @JoinColumn({
+        name: 'presale_id',
+    })
+    @IsOptional()
+    presale?: Presale
 
     @ApiHideProperty()
     @CreateDateColumn({ name: 'create_time', comment: '创建时间' })

@@ -56,7 +56,7 @@ export class ActivityService {
     let result: any;
     where = { recommend: '1' };
     result = await this.activityRepository.findAndCount({
-      select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
+      // select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
       where,
       relations: ['collections', 'collections.author'],
       order: {
