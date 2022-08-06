@@ -23,11 +23,16 @@ import { Request } from 'express';
 import { SmsCodeGuard } from 'src/common/guards/sms-code.guard';
 import { MobileAuthGuard } from 'src/common/guards/mobile-auth.guard';
 import { ImageCaptchaGuard } from 'src/common/guards/image-captcha.guard';
+import { SharedService } from 'src/shared/shared.service';
+import { ApiException } from 'src/common/exceptions/api.exception';
 @ApiTags('登录')
 @ApiBearerAuth()
 @Controller()
 export class LoginController {
-    constructor(private readonly loginService: LoginService) { }
+    constructor(
+        private readonly loginService: LoginService,
+        private readonly sharedService: SharedService
+    ) { }
 
     /* 获取图片验证码 */
     @Get('captchaImage')
@@ -42,6 +47,9 @@ export class LoginController {
     // @UseGuards(ImageCaptchaGuard, LocalAuthGuard)
     @UseGuards(LocalAuthGuard)
     async login(@Body() reqLoginDto: ReqLoginDto, @Req() req: Request): Promise<ResLoginDto> {
+        // Todo: forTest
+        // if (!await this.sharedService.checkImageCaptcha(reqLoginDto.uuid, reqLoginDto.code))
+        //     throw new ApiException('图形验证码错误')
         return await this.loginService.login(req)
     }
 

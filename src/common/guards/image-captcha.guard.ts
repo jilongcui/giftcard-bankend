@@ -14,8 +14,6 @@ export class ImageCaptchaGuard implements CanActivate {
         const request = context.switchToHttp().getRequest()
         const uuid = request.body?.uuid
         const cacheCode = request.body?.code
-        this.logger.debug(uuid)
-        this.logger.debug(cacheCode)
         if (!uuid)
             return false;
         const code = await this.redis.get(`${CAPTCHA_IMG_KEY}:${uuid}`)

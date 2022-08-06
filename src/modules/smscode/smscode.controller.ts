@@ -2,7 +2,9 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
 import { RepeatSubmit } from 'src/common/decorators/repeat-submit.decorator';
+import { ApiException } from 'src/common/exceptions/api.exception';
 import { ImageCaptchaGuard } from 'src/common/guards/image-captcha.guard';
+import { SharedService } from 'src/shared/shared.service';
 import { ReqSmsCodeCheckDto, ReqSmsCodeSendDto } from './dto/req-smscode.dto';
 import { SmscodeService } from './smscode.service';
 
@@ -12,23 +14,28 @@ import { SmscodeService } from './smscode.service';
 export class SmscodeController {
     constructor(
         private readonly smscodeService: SmscodeService,
+        private readonly sharedService: SharedService,
     ) {
 
     }
 
     @RepeatSubmit()
     @Public()
-    @UseGuards(ImageCaptchaGuard)
+    // @UseGuards(ImageCaptchaGuard)
     @Post("reg")
     async sendRegCode(@Body() reqSmscodeSendDto: ReqSmsCodeSendDto): Promise<any> {
+        if (!await this.sharedService.checkImageCaptcha(reqSmscodeSendDto.uuid, reqSmscodeSendDto.code))
+            throw new ApiException('图形验证码错误', 400)
         return this.smscodeService.sendRegCode(reqSmscodeSendDto.phone);
     }
 
     @RepeatSubmit()
     @Public()
-    @UseGuards(ImageCaptchaGuard)
+    // @UseGuards(ImageCaptchaGuard)
     @Post("login")
     async sendLoginCode(@Body() reqSmscodeSendDto: ReqSmsCodeSendDto): Promise<any> {
+        if (!await this.sharedService.checkImageCaptcha(reqSmscodeSendDto.uuid, reqSmscodeSendDto.code))
+            throw new ApiException('图形验证码错误', 400)
         return this.smscodeService.sendLoginCode(reqSmscodeSendDto.phone);
     }
 
@@ -38,3 +45,4 @@ export class SmscodeController {
         return this.smscodeService.checkSmsCode(reqSmscodCheckDto);
     }
 }
+

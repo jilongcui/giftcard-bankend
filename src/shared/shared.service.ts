@@ -15,10 +15,17 @@ import { customAlphabet, nanoid } from 'nanoid';
 import { Request } from 'express'
 import axios from 'axios';
 import * as iconv from 'iconv-lite'
+import { CAPTCHA_IMG_KEY } from 'src/common/contants/redis.contant';
+import { isEmpty } from 'lodash';
+import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { ApiException } from 'src/common/exceptions/api.exception';
 
 
 @Injectable()
 export class SharedService {
+    constructor(
+        @InjectRedis() private readonly redis: Redis,
+    ) { }
     /**
      * 构造树型结构数据
      */
@@ -151,5 +158,13 @@ export class SharedService {
     generateRandomValue(length: number, placeholder = '1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM',): string {
         const customNanoid = customAlphabet(placeholder, length);
         return customNanoid();
+    }
+
+    async checkImageCaptcha(uuid: string, code: string) {
+        const cacheCode = await this.redis.get(`${CAPTCHA_IMG_KEY}:${uuid}`)
+        if (isEmpty(cacheCode) || code.toLowerCase() !== cacheCode.toLowerCase())
+            return false
+        await this.redis.del(`${CAPTCHA_IMG_KEY}:${uuid}`)
+        return true
     }
 }
