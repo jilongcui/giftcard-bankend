@@ -112,7 +112,7 @@ export class Activity {
     recommend?: string
 
     /* 用户昵称 */
-    @ApiHideProperty()
+    // @ApiHideProperty()
     @Column({
         name: 'author_name',
         comment: '创作者',
@@ -124,7 +124,7 @@ export class Activity {
     authorName?: string
 
     /* 头像地址 */
-    @ApiHideProperty()
+    // @ApiHideProperty()
     @Column({
         comment: '头像地址',
         length: 100,
