@@ -219,11 +219,11 @@ export class UserService {
     }
 
     async findAccount(userId: number) {
-        const user = await this.userRepository.findOne(userId)
-        if (user == null) {
-            throw new ApiException('用户不存在')
-        }
-        let account = await this.accountRepository.findOne({ userId: user.userId, currencyId: 1 })
+        return await this.accountRepository.findOne({ userId: userId, currencyId: 1 })
+    }
+
+    async updateAccount(userId: number) {
+        let account = await this.accountRepository.findOne({ userId: userId, currencyId: 1 })
         if (account == null) {
             let createAccountDto = new CreateAccountDto()
             createAccountDto.userId = userId
