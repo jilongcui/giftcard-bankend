@@ -116,7 +116,8 @@ export class Activity {
     @Column({
         name: 'author_name',
         comment: '创作者',
-        length: 30
+        length: 30,
+        default: ''
     })
     @IsOptional()
     @IsString()
@@ -133,7 +134,7 @@ export class Activity {
     @IsString()
     avatar?: string
 
-    @ApiHideProperty()
+    // @ApiHideProperty()
     @OneToOne(() => Presale, { cascade: true })
     @JoinColumn({
         name: 'presale_id',
