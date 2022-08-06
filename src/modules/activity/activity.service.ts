@@ -70,7 +70,7 @@ export class ActivityService {
   }
 
   findOne(id: number) {
-    return this.activityRepository.findOne(id, { relations: ['collections'], })
+    return this.activityRepository.findOne(id, { relations: ['collections', 'collections.contract'], })
   }
 
   update(id: number, updateActivityDto: UpdateActivityDto) {
@@ -98,7 +98,7 @@ export class ActivityService {
     }
     activity.supply += collection.supply
     let updateDto = { authorName: activity.authorName, avatar: activity.avatar, supply: activity.supply }
-    await this.activityRepository.update(id,updateDto)
+    await this.activityRepository.update(id, updateDto)
     return activity
   }
 
