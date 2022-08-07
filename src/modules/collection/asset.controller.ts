@@ -65,6 +65,7 @@ export class AssetController {
     return await this.assetService.addOrUpdate(asset)
   }
 
+
   /* 删除 资产 */
   @Delete(':ids')
   @RequiresPermissions('system:asset:remove')

@@ -22,7 +22,7 @@ export class MarketService {
   ) { }
 
   async upAsset(id: number, price: number, userId: number, userName: string) {
-    await this.assetRepository.update(id, { status: '1' })
+    await this.assetRepository.update({ id: id, userId: userId }, { status: '1' })
     await this.assetRecordRepository.save({
       type: '1', // Sell
       assetId: id,
@@ -34,27 +34,14 @@ export class MarketService {
     })
   }
 
-  async downAsset(id: number, userId: number, userName: string) {
-    await this.assetRepository.update(id, { status: '0' })
-    await this.assetRecordRepository.save({
-      type: '3', // down
-      assetId: id,
-      price: undefined,
-      fromId: undefined,
-      fromName: undefined,
-      toId: userId,
-      toName: userName
-    })
-  }
-
   async buyAsset(id: number, userId: number, userName: string) {
-    const asset = await this.assetRepository.findOne(id, { relations: ['user'] })
+    const asset = await this.assetRepository.findOne({ id }, { relations: ['user'] })
     const fromId = asset.user.userId
     const fromName = asset.user.userName
     if (fromId === userId)
       throw new ApiException("不能购买自己的资产")
 
-    await this.assetRepository.update(id, { userId: userId })
+    await this.assetRepository.update({ id: id, status: '1' }, { userId: userId })
     await this.assetRecordRepository.save({
       type: '2', // Buy
       assetId: id,
@@ -66,12 +53,28 @@ export class MarketService {
     })
   }
 
+  async downAsset(id: number, userId: number, userName: string) {
+    await this.assetRepository.update({ id: id, userId: userId }, { status: '0' })
+    await this.assetRecordRepository.save({
+      type: '3', // down
+      assetId: id,
+      price: undefined,
+      fromId: undefined,
+      fromName: undefined,
+      toId: userId,
+      toName: userName
+    })
+  }
+
   async transferAsset(id: number, userId: number, userName: string) {
-    const asset = await this.assetRepository.findOne(id, { relations: ['user'] })
+    const asset = await this.assetRepository.findOne({ id: id, userId: userId }, { relations: ['user'] })
+    if (!asset) {
+      throw new ApiException("无法操作此资产")
+    }
     const fromId = asset.user.userId
     const fromName = asset.user.userName
     if (fromId === userId)
-      throw new ApiException("不能购买自己的资产")
+      throw new ApiException("不能转移给自己")
 
     await this.assetRepository.update(id, { userId: userId })
     await this.assetRecordRepository.save({
@@ -83,45 +86,5 @@ export class MarketService {
       toId: userId,
       toName: userName
     })
-  }
-
-  async assets(paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
-    let where: FindConditions<Asset> = {}
-    let result: any;
-    // where = { recommend: '1' };
-    result = await this.assetRepository.findAndCount({
-      // select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
-      where,
-      relations: ['collections', 'collections.author'],
-      skip: paginationDto.skip,
-      take: paginationDto.take,
-      order: {
-        // type: 1,
-      }
-    })
-    return {
-      rows: result[0],
-      total: result[1]
-    }
-  }
-
-  async collections(paginationDto: PaginationDto): Promise<PaginatedDto<Collection>> {
-    let where: FindConditions<Collection> = {}
-    let result: any;
-    // where = { recommend: '1' };
-    result = await this.collectionRepository.findAndCount({
-      // select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
-      where,
-      relations: ['collections', 'collections.author'],
-      skip: paginationDto.skip,
-      take: paginationDto.take,
-      order: {
-        // type: 1,
-      }
-    })
-    return {
-      rows: result[0],
-      total: result[1]
-    }
   }
 }

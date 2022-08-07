@@ -35,6 +35,12 @@ export class MarketController {
     return await this.marketService.buyAsset(+id, userId, userName);
   }
 
+  /* 资产转移 */
+  @Put('asset/:id/transfer')
+  async buyAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
+    return await this.marketService.transferAsset(+id, userId, userName);
+  }
+
   // /* 资产购买 */
   // @Put('buy/:id')
   // async buyAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
