@@ -119,7 +119,7 @@ export class OrderService {
     let where =
       [
         {
-          userId: 1,
+          userId: userId,
           status: '1',
           invalidTime: MoreThanOrEqual(moment(moment.now()).format())
         },
@@ -151,7 +151,7 @@ export class OrderService {
     let result: any;
     let where =
     {
-      userId: 1,
+      userId: userId,
       status: '1',
       invalidTime: MoreThanOrEqual(moment(moment.now()).format())
     }

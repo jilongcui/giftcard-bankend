@@ -41,7 +41,6 @@ export class OrderController {
 
   /* 我的订单列表 */
   @Get('myList')
-  @Public()
   @ApiPaginatedResponse(Order)
   async mylist(@UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.orderService.mylist(userId, paginationDto);
@@ -49,7 +48,6 @@ export class OrderController {
 
   /* 未支付列表 */
   @Get('unpayList')
-  @Public()
   @ApiPaginatedResponse(Order)
   async unpayList(@UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.orderService.myUnpayList(userId, paginationDto);
