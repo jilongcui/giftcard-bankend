@@ -54,6 +54,7 @@ export class OrderController {
   }
 
   @Get(':id')
+  @Public()
   async findOne(@Param('id') id: string) {
     return await this.orderService.findOne(+id);
   }
