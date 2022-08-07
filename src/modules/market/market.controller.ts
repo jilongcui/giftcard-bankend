@@ -5,8 +5,11 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
 import { UserEnum } from 'src/common/decorators/user.decorator';
 import { User as UserDec } from 'src/common/decorators/user.decorator';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Public } from 'src/common/decorators/public.decorator';
 
-
+@ApiTags('订单')
+@ApiBearerAuth()
 @Controller('market')
 export class MarketController {
   constructor(
@@ -34,6 +37,7 @@ export class MarketController {
 
   /* 交易记录 */
   @Get('asset/:id/records')
+  @Public()
   records(@Param('id') id: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return this.assetRecordService.list(id, paginationDto);
   }
