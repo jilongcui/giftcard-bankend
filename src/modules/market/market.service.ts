@@ -58,7 +58,7 @@ export class MarketService {
     await this.assetRecordRepository.save({
       type: '2', // Buy
       assetId: id,
-      price: asset.value,
+      price: asset.price,
       fromId: fromId,
       fromName: fromName,
       toId: userId,
@@ -77,7 +77,7 @@ export class MarketService {
     await this.assetRecordRepository.save({
       type: '4', // 转增
       assetId: id,
-      price: asset.value,
+      price: asset.price,
       fromId: fromId,
       fromName: fromName,
       toId: userId,

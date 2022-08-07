@@ -7,10 +7,11 @@ import { Activity } from '../activity/entities/activity.entity';
 import { Account } from '../account/entities/account.entity';
 import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
+import { AssetRecord } from '../market/entities/asset-record.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, Activity, Account, Asset, Collection]),
+    TypeOrmModule.forFeature([Order, Activity, Account, Asset, Collection, AssetRecord]),
   ],
   controllers: [OrderController],
   providers: [OrderService]

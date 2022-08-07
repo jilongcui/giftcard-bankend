@@ -69,8 +69,8 @@ export class OrderService {
       } else if (order.type === '1') { // 交易市场创建的订单
         const asset = await this.assetRepository.findOne({ where: { id: createOrderDto.activityId, status: 1 }, relations: ['collection'] })
         order.activityId = createOrderDto.activityId;
-        order.realPrice = asset.value
-        order.totalPrice = asset.value
+        order.realPrice = asset.price
+        order.totalPrice = asset.price
         order.desc = asset.collection.name;
         order.image = asset.collection.images[0]
         order.invalidTime = moment().add(5, 'minute').toDate()
@@ -225,7 +225,7 @@ export class OrderService {
         // 其他类型，我们只需要取第一个
         collection = activity.collections[0];
       }
-      let createAssetDto = { value: order.realPrice, assetNo: collection.current, userId: userId, collectionId: collection.id }
+      let createAssetDto = { price: order.realPrice, assetNo: collection.current, userId: userId, collectionId: collection.id }
       await this.assetRepository.save(createAssetDto)
       // 把collection里的个数减少一个，这个时候需要通过交易完成，防止出现多发问题
       await this.collectionRepository.increment({ id: collection.id }, "current", 1);
@@ -258,7 +258,7 @@ export class OrderService {
     await this.assetRecordRepository.save({
       type: '2', // Buy
       assetId: id,
-      price: asset.value,
+      price: asset.price,
       fromId: fromId,
       fromName: fromName,
       toId: userId,

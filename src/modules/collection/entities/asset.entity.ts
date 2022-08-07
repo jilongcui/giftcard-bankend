@@ -20,11 +20,11 @@ export class Asset {
     assetNo: number
 
     @Column({
-        name: 'value',
+        name: 'price',
         comment: '当前价值(单位人民币)'
     })
     @IsNumber()
-    value: number
+    price: number
 
     @Column({
         name: 'user_id',

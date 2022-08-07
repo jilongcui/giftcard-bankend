@@ -6,7 +6,7 @@ import { Asset } from "../entities/asset.entity";
 
 export class CreateAssetDto {
     @IsNumber()
-    value: number;
+    price: number;
 
     @IsNumber()
     userId: number
