@@ -13,7 +13,7 @@ import { CreateAssetDto } from '../collection/dto/request-asset.dto';
 import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
 import { AssetRecord } from '../market/entities/asset-record.entity';
-import { CreateOrderDto, ListOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
+import { CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
 import { Order } from './entities/order.entity';
 
 @Injectable()
@@ -115,21 +115,16 @@ export class OrderService {
   }
 
   /* 分页查询 */
-  async mylist(userId: number, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
-    // let where: FindConditions<Order> = [{}]
+  async mylist(userId: number, listMyOrderDto: ListMyOrderDto, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
+    let where: FindConditions<ListOrderDto> = {}
     let result: any;
-    let where =
-      [
-        {
-          userId: userId,
-          status: '1',
-          invalidTime: MoreThanOrEqual(moment(moment.now()).format())
-        },
-        {
-          userId: userId,
-          status: '2',
-        },
-      ]
+    where = {
+      ...listMyOrderDto,
+      userId,
+    }
+    if (listMyOrderDto.status === '2')
+      where.invalidTime = MoreThanOrEqual(moment(moment.now()).format())
+
     result = await this.orderRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
@@ -148,11 +143,12 @@ export class OrderService {
   }
 
   /* 分页查询 */
-  async myUnpayList(userId: number, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
+  async myUnpayList(userId: number, listUnpayDto: ListUnpayOrderDto, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
     // let where: FindConditions<Order> = [{}]
     let result: any;
     let where =
     {
+      ...listUnpayDto,
       userId: userId,
       status: '1',
       invalidTime: MoreThanOrEqual(moment(moment.now()).format())

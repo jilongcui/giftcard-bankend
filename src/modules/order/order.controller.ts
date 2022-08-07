@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto, ListOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
+import { CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
 import { DataObj } from 'src/common/class/data-obj.class';
 import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
@@ -42,15 +42,15 @@ export class OrderController {
   /* 我的订单列表 */
   @Get('myList')
   @ApiPaginatedResponse(Order)
-  async mylist(@UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return await this.orderService.mylist(userId, paginationDto);
+  async mylist(@Query() listMyOrderDto: ListMyOrderDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.orderService.mylist(userId, listMyOrderDto, paginationDto);
   }
 
   /* 未支付列表 */
   @Get('unpayList')
   @ApiPaginatedResponse(Order)
-  async unpayList(@UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return await this.orderService.myUnpayList(userId, paginationDto);
+  async unpayList(@Query() listUnpayDto: ListUnpayOrderDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.orderService.myUnpayList(userId, listUnpayDto, paginationDto);
   }
 
   @Get(':id')
