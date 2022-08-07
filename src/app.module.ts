@@ -29,6 +29,7 @@ import { ContractModule } from './modules/contract/contract.module';
 import { CurrencyModule } from './modules/currency/currency.module';
 import { AccountModule } from './modules/account/account.module';
 import { BannerModule } from './modules/system/banner/banner.module';
+import { MarketModule } from './modules/market/market.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService]
@@ -81,7 +82,8 @@ const aliasProviders = createAliasProviders();
     ContractModule,
     CurrencyModule,
     AccountModule,
-    BannerModule
+    BannerModule,
+    MarketModule
   ],
   providers: [...aliasProviders]
 })
