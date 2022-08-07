@@ -69,7 +69,7 @@ export class OrderController {
   }
 
   @Post(':id/innerPay')
-  async payWithBalance(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
-    return await this.orderService.payWithBalance(+id, userId);
+  async payWithBalance(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) nickName: string) {
+    return await this.orderService.payWithBalance(+id, userId, nickName);
   }
 }

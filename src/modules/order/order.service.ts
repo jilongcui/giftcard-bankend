@@ -12,6 +12,7 @@ import { Activity } from '../activity/entities/activity.entity';
 import { CreateAssetDto } from '../collection/dto/request-asset.dto';
 import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
+import { AssetRecord } from '../market/entities/asset-record.entity';
 import { CreateOrderDto, ListOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
 import { Order } from './entities/order.entity';
 
@@ -24,6 +25,7 @@ export class OrderService {
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
     @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
+    @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
     @InjectRedis() private readonly redis: Redis,
   ) {
   }
@@ -188,7 +190,7 @@ export class OrderService {
     return this.orderRepository.delete(noticeIdArr)
   }
 
-  async payWithBalance(id: number, userId: number) {
+  async payWithBalance(id: number, userId: number, userName: string) {
     const order = await this.orderRepository.findOne({ where: { id: id, userId: userId } })
     if (order == null) {
       throw new ApiException('错误订单')
@@ -227,19 +229,40 @@ export class OrderService {
       await this.assetRepository.save(createAssetDto)
       // 把collection里的个数减少一个，这个时候需要通过交易完成，防止出现多发问题
       await this.collectionRepository.increment({ id: collection.id }, "current", 1);
-
+      // 记录交易记录
+      await this.assetRecordRepository.save({
+        type: '2', // Buy
+        assetId: id,
+        price: order.realPrice,
+        toId: userId,
+        toName: userName
+      })
       order.status = '2';
 
     } else if (order.type === '1') { // 二级市场资产交易
       // 把资产切换到新的用户就可以了
-      let updateOwnerDto = { userId: userId }
-      await this.assetRepository.update({ id: order.activityId }, updateOwnerDto)
-      if (affected == 0) {
-        throw new ApiException('资产更新失败')
-      }
+      await this.buyAsset(order.activityId, userId, userName)
       order.status = '2';
     }
 
     return order;
+  }
+
+  async buyAsset(id: number, userId: number, userName: string) {
+    const asset = await this.assetRepository.findOne(id, { relations: ['user'] })
+    const fromId = asset.user.userId
+    const fromName = asset.user.userName
+    if (fromId === userId)
+      throw new ApiException("不能购买自己的资产")
+    await this.assetRepository.update(id, { userId: userId })
+    await this.assetRecordRepository.save({
+      type: '2', // Buy
+      assetId: id,
+      price: asset.value,
+      fromId: fromId,
+      fromName: fromName,
+      toId: userId,
+      toName: userName
+    })
   }
 }
