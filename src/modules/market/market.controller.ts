@@ -14,15 +14,21 @@ export class MarketController {
     private readonly assetRecordService: AssetRecordService
   ) { }
 
-  /* 资产上链 */
+  /* 资产出售 */
   @Put(':id')
   upAsset(@Param('id') id: string, price: number, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
     return this.marketService.upAsset(+id, price, userId, userName);
   }
 
-  /* 资产下链 */
+  /* 资产撤回 */
   @Put(':id')
   downAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
+    return this.marketService.buyAsset(+id, userId, userName);
+  }
+
+  /* 资产购买 */
+  @Put(':id')
+  buyAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
     return this.marketService.downAsset(+id, userId, userName);
   }
 

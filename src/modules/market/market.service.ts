@@ -6,6 +6,7 @@ import { Redis } from 'ioredis';
 import { USER_CID_KEY } from 'src/common/contants/redis.contant';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { ApiException } from 'src/common/exceptions/api.exception';
 import { FindConditions, Repository } from 'typeorm';
 import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
@@ -39,6 +40,24 @@ export class MarketService {
       price: undefined,
       fromId: undefined,
       fromName: undefined,
+      toId: userId,
+      toName: userName
+    })
+  }
+
+  async buyAsset(id: number, userId: number, userName: string) {
+    const asset = await this.assetRepository.findOne(id, { relations: ['user'] })
+    const fromId = asset.user.userId
+    const fromName = asset.user.userName
+    if (fromId === userId)
+      throw new ApiException("不能购买自己的资产")
+
+    await this.assetRepository.update(id, { userId: userId })
+    await this.assetRecordRepository.save({
+      assetId: id,
+      price: asset.value,
+      fromId: fromId,
+      fromName: fromName,
       toId: userId,
       toName: userName
     })
