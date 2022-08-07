@@ -8,6 +8,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, On
 @Entity()
 export class AssetRecord {
     @PrimaryGeneratedColumn()
+    @IsNumber()
     id: number
 
     @Column({
@@ -28,6 +29,7 @@ export class AssetRecord {
 
     @Column({
         name: 'price',
+        default: 0,
         comment: '金额'
     })
     @IsOptional()
@@ -36,6 +38,7 @@ export class AssetRecord {
 
     @Column({
         name: 'from_id',
+        default: 0,
         comment: '来源用户id'
     })
     @IsOptional()
@@ -46,6 +49,7 @@ export class AssetRecord {
         name: 'from_name',
         type: 'varchar',
         length: '50',
+        default: '',
         comment: '来源用户name'
     })
     @IsOptional()
@@ -54,6 +58,7 @@ export class AssetRecord {
 
     @Column({
         name: 'to_id',
+        default: 0,
         comment: '目标用户id'
     })
     @IsOptional()
@@ -63,6 +68,7 @@ export class AssetRecord {
     @Column({
         name: 'to_name',
         type: 'varchar',
+        default: '',
         length: '50',
         comment: '目标用户name'
     })

@@ -213,7 +213,7 @@ export class OrderService {
         return order;
       }
       let collection: Collection;
-      if (order.activity.type = '1') {
+      if (activity.type === '1') {
         // 首发盲盒, 我们需要随机寻找一个。
         const index = Math.floor((Math.random() * activity.collections.length));
         collection = activity.collections[index]
@@ -221,7 +221,12 @@ export class OrderService {
         // 其他类型，我们只需要取第一个
         collection = activity.collections[0];
       }
-      let createAssetDto = { price: order.realPrice, assetNo: collection.current, userId: userId, collectionId: collection.id }
+      let createAssetDto = new CreateAssetDto()
+      createAssetDto.price = order.realPrice
+      createAssetDto.assetNo = collection.current
+      createAssetDto.userId = userId
+      createAssetDto.collectionId = collection.id
+
       await this.assetRepository.save(createAssetDto)
       // 把collection里的个数减少一个，这个时候需要通过交易完成，防止出现多发问题
       await this.collectionRepository.increment({ id: collection.id }, "current", 1);
