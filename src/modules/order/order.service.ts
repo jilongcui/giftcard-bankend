@@ -101,7 +101,7 @@ export class OrderService {
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
-        // createTime: 1,
+        createTime: 'DESC',
       }
     })
 

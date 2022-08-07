@@ -35,7 +35,10 @@ export class NoticeService {
             select: ['noticeId', 'noticeTitle', 'createBy', 'createTime', 'noticeType', 'status'],
             where,
             skip: reqNoeiceList.skip,
-            take: reqNoeiceList.take
+            take: reqNoeiceList.take,
+            order: {
+                createTime: 'DESC'
+            }
         })
         return {
             rows: result[0],
