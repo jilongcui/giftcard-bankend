@@ -24,6 +24,7 @@ export class MarketService {
   async upAsset(id: number, price: number, userId: number, userName: string) {
     await this.assetRepository.update(id, { status: '1' })
     await this.assetRecordRepository.save({
+      type: '1', // Sell
       assetId: id,
       price: price,
       fromId: userId,
@@ -36,6 +37,7 @@ export class MarketService {
   async downAsset(id: number, userId: number, userName: string) {
     await this.assetRepository.update(id, { status: '0' })
     await this.assetRecordRepository.save({
+      type: '3', // down
       assetId: id,
       price: undefined,
       fromId: undefined,
@@ -54,6 +56,26 @@ export class MarketService {
 
     await this.assetRepository.update(id, { userId: userId })
     await this.assetRecordRepository.save({
+      type: '2', // Buy
+      assetId: id,
+      price: asset.value,
+      fromId: fromId,
+      fromName: fromName,
+      toId: userId,
+      toName: userName
+    })
+  }
+
+  async transferAsset(id: number, userId: number, userName: string) {
+    const asset = await this.assetRepository.findOne(id, { relations: ['user'] })
+    const fromId = asset.user.userId
+    const fromName = asset.user.userName
+    if (fromId === userId)
+      throw new ApiException("不能购买自己的资产")
+
+    await this.assetRepository.update(id, { userId: userId })
+    await this.assetRecordRepository.save({
+      type: '4', // 转增
       assetId: id,
       price: asset.value,
       fromId: fromId,

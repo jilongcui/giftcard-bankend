@@ -13,7 +13,7 @@ export class AssetRecord {
     @Column({
         name: 'type',
         type: 'char',
-        comment: '类型 0: Create 1: Sell 2: Buy 3: Down'
+        comment: '类型 0: Create 1: Sell 2: Buy 3: Down 4: Transfer'
     })
     @IsString()
     type: string
