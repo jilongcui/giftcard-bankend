@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Logger, Put } from '@nestjs/common';
 import { AssetService } from './asset.service';
-import { CreateAssetDto, ListAssetDto, UpdateAssetDto } from './dto/request-asset.dto';
+import { CreateAssetDto, FlowAssetDto, ListAssetDto, UpdateAssetDto } from './dto/request-asset.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -38,6 +38,22 @@ export class AssetController {
   async list(@Query() listAssetDto: ListAssetDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     // this.logger.log(JSON.stringify(paginationDto));
     return await this.assetService.list(listAssetDto, paginationDto);
+  }
+
+  /* 首页推荐资产 */
+  @Get('top')
+  @Public()
+  @ApiPaginatedResponse(Asset)
+  async topAssets() {
+    return await this.assetService.latest();
+  }
+
+  /* 资产二级市场数据流 */
+  @Get('flow')
+  @Public()
+  @ApiPaginatedResponse(Asset)
+  async listAssets(@Query() flowAssetDto: FlowAssetDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.assetService.flow(flowAssetDto, paginationDto);
   }
 
   @Get(':id')

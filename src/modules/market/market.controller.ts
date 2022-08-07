@@ -7,6 +7,8 @@ import { UserEnum } from 'src/common/decorators/user.decorator';
 import { User as UserDec } from 'src/common/decorators/user.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
+import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
+import { AssetRecord } from './entities/asset-record.entity';
 
 @ApiTags('订单')
 @ApiBearerAuth()
@@ -18,44 +20,38 @@ export class MarketController {
   ) { }
 
   /* 资产出售 */
-  @Put(':id')
-  upAsset(@Param('id') id: string, price: number, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
-    return this.marketService.upAsset(+id, price, userId, userName);
+  async upAsset(@Param('id') id: string, price: number, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
+    return await this.marketService.upAsset(+id, price, userId, userName);
   }
 
   /* 资产撤回 */
   @Put(':id')
-  downAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
-    return this.marketService.buyAsset(+id, userId, userName);
+  async downAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
+    return await this.marketService.buyAsset(+id, userId, userName);
   }
 
   /* 资产购买 */
   @Put(':id')
-  buyAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
-    return this.marketService.downAsset(+id, userId, userName);
+  async buyAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
+    return await this.marketService.downAsset(+id, userId, userName);
   }
 
-  /* 交易记录 */
+  /* 资产交易记录 */
   @Get('asset/:id/records')
   @Public()
-  records(@Param('id') id: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return this.assetRecordService.list(id, paginationDto);
+  @ApiPaginatedResponse(AssetRecord)
+  async records(@Param('id') id: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.assetRecordService.list(id, paginationDto);
   }
-
-  // /* 网站首页推荐 */
-  // @Get('asset')
-  // assets() {
-  //   return this.assetRecordService.list();
-  // }
 
   // /* 市场首页推荐 */
   // @Get('collection')
-  // collections() {
+  // async collections() {
   //   return this.assetRecordService.findAll();
   // }
 
   // @Delete(':id')
-  // remove(@Param('id') id: string) {
+  // async remove(@Param('id') id: string) {
   //   return this.marketService.remove(+id);
   // }
 }

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { FindConditions, Like, Repository } from 'typeorm';
-import { CreateAssetDto, UpdateAssetDto, ListAssetDto } from './dto/request-asset.dto';
+import { CreateAssetDto, UpdateAssetDto, ListAssetDto, FlowAssetDto } from './dto/request-asset.dto';
 import { Asset } from './entities/asset.entity';
 
 @Injectable()
@@ -37,6 +37,53 @@ export class AssetService {
       order: {
         createTime: 1,
       }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  /* 二级市场数据流查询 */
+  async flow(flowAssetDto: FlowAssetDto, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
+    let where: FindConditions<FlowAssetDto> = {}
+    let result: any;
+    where = flowAssetDto;
+    result = await this.assetRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      // select: ['assetId', "user", "collection"],
+      relations: ["user", "collection"],
+      where,
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 1,
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  async latest(): Promise<PaginatedDto<Asset>> {
+    let where: FindConditions<Asset> = {
+      status: '1' // market
+    }
+    let result: any;
+
+    result = await this.assetRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      // select: ['assetId', "user", "collection"],
+      relations: ["user", "collection"],
+      where,
+      skip: 0,
+      take: 6,
+      order: {
+        updateTime: 'DESC',
+      },
     })
 
     return {
