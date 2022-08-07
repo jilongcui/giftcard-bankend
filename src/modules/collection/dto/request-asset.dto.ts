@@ -18,7 +18,7 @@ export class CreateAssetDto {
 export class FlowAssetDto {
     @IsOptional()
     @IsNumber()
-    userId: number
+    userId?: number
 }
 export class UpdateAssetDto extends PartialType(CreateAssetDto) { }
 export class ListAssetDto extends PartialType(Asset) { }
