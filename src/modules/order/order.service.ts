@@ -94,6 +94,8 @@ export class OrderService {
     let where: FindConditions<Order> = {}
     let result: any;
     where = listOrderList;
+
+    where.invalidTime = MoreThanOrEqual(moment.now())
     result = await this.orderRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
