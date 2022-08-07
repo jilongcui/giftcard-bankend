@@ -48,14 +48,6 @@ export class AssetController {
     return await this.assetService.latest();
   }
 
-  /* 资产二级市场数据流 */
-  @Get('flow')
-  @Public()
-  @ApiPaginatedResponse(Asset)
-  async listAssets(@Query() flowAssetDto: FlowAssetDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return await this.assetService.flow(flowAssetDto, paginationDto);
-  }
-
   @Get(':id')
   @Public()
   async findOne(@Param('id') id: string) {

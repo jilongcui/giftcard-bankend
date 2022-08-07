@@ -14,7 +14,7 @@ import { RepeatSubmit } from 'src/common/decorators/repeat-submit.decorator';
 import { User as UserDec, UserEnum } from 'src/common/decorators/user.decorator';
 import { UserInfoPipe } from 'src/common/pipes/user-info.pipe';
 
-@ApiTags('藏品')
+@ApiTags('藏品集合')
 @Controller('collection')
 @ApiBearerAuth()
 export class CollectionController {
@@ -24,7 +24,7 @@ export class CollectionController {
   /* 新增产品 */
   @Post()
   @Log({
-    title: '藏品',
+    title: '藏品集合',
     businessType: BusinessTypeEnum.insert
   })
   async create(@Body() createCollectionDto: CreateCollectionDto, @UserDec(UserEnum.userId) userId: number) {
@@ -49,7 +49,7 @@ export class CollectionController {
   @RepeatSubmit()
   @Put()
   @Log({
-    title: '藏品',
+    title: '藏品集合',
     businessType: BusinessTypeEnum.update
   })
   async update(@Body() collection: UpdateCollectionDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
@@ -61,7 +61,7 @@ export class CollectionController {
   @Delete(':ids')
   @RequiresPermissions('system:collection:remove')
   @Log({
-    title: '藏品',
+    title: '藏品集合',
     businessType: BusinessTypeEnum.delete
   })
   async delete(@Param('ids') ids: string) {
