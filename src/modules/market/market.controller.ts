@@ -10,7 +10,7 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
 import { AssetRecord } from './entities/asset-record.entity';
 
-@ApiTags('订单')
+@ApiTags('市场')
 @ApiBearerAuth()
 @Controller('market')
 export class MarketController {
