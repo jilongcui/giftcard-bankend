@@ -122,7 +122,7 @@ export class OrderService {
       ...listMyOrderDto,
       userId,
     }
-    if (listMyOrderDto.status === '2')
+    if (listMyOrderDto.status === '1')
       where.invalidTime = MoreThanOrEqual(moment(moment.now()).format())
 
     result = await this.orderRepository.findAndCount({
