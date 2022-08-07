@@ -62,7 +62,7 @@ export class OrderService {
         order.totalPrice = activity.price;
         order.image = activity.coverImage;
         order.desc = activity.title;
-        order.invalidTime = moment(moment.now()).add(5, 'minute').toDate()
+        order.invalidTime = moment().add(5, 'minute').toDate()
         order.collections = activity.collections;
       } else if (order.type === '1') { // 交易市场创建的订单
         const asset = await this.assetRepository.findOne({ where: { id: createOrderDto.activityId, status: 1 }, relations: ['collection'] })
@@ -71,7 +71,7 @@ export class OrderService {
         order.totalPrice = asset.value
         order.desc = asset.collection.name;
         order.image = asset.collection.images[0]
-        order.invalidTime = moment(moment.now()).add(5, 'minute').toDate()
+        order.invalidTime = moment().add(5, 'minute').toDate()
       }
       await manager.save(order);
       // orderCount--;
@@ -95,7 +95,66 @@ export class OrderService {
     let result: any;
     where = listOrderList;
 
-    where.invalidTime = MoreThanOrEqual(moment.now())
+    result = await this.orderRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      where: [where, {}],
+      relations: ["activity", "collections"],
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  /* 分页查询 */
+  async mylist(userId: number, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
+    // let where: FindConditions<Order> = [{}]
+    let result: any;
+    let where =
+      [
+        {
+          userId: 1,
+          status: '1',
+          invalidTime: MoreThanOrEqual(moment(moment.now()).format())
+        },
+        {
+          userId: userId,
+          status: '2',
+        },
+      ]
+    result = await this.orderRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      where,
+      relations: ["activity", "collections"],
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  /* 分页查询 */
+  async myUnpayList(userId: number, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
+    // let where: FindConditions<Order> = [{}]
+    let result: any;
+    let where =
+    {
+      userId: 1,
+      status: '1',
+      invalidTime: MoreThanOrEqual(moment(moment.now()).format())
+    }
     result = await this.orderRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,

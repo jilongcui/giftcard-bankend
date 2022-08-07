@@ -31,12 +31,28 @@ export class OrderController {
     return await this.orderService.update(+id, updateOrderDto);
   }
 
-  /* 产品列表 */
+  /* 订单列表 */
   @Get('list')
   @Public()
   @ApiPaginatedResponse(Order)
   async list(@Query() listOrderDto: ListOrderDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.orderService.list(listOrderDto, paginationDto);
+  }
+
+  /* 我的订单列表 */
+  @Get('myList')
+  @Public()
+  @ApiPaginatedResponse(Order)
+  async mylist(@UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.orderService.mylist(userId, paginationDto);
+  }
+
+  /* 未支付列表 */
+  @Get('unpayList')
+  @Public()
+  @ApiPaginatedResponse(Order)
+  async unpayList(@UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.orderService.myUnpayList(userId, paginationDto);
   }
 
   @Get(':id')
