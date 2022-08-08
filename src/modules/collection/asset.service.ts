@@ -46,6 +46,32 @@ export class AssetService {
     }
   }
 
+  /* 分页查询 */
+  async myList(userId: number, listAssetList: ListAssetDto, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
+    let where: FindConditions<Asset> = {}
+    let result: any;
+
+    where = listAssetList;
+    where.userId = userId;
+
+    result = await this.assetRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      // select: ['assetId', "user", "collection"],
+      relations: ["user", "collection"],
+      where,
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 1,
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
   /* 二级市场数据流查询 */
   async flow(flowAssetDto: FlowAssetDto, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
     let where: FindConditions<FlowAssetDto> = {}

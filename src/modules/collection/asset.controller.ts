@@ -31,7 +31,16 @@ export class AssetController {
     return this.assetService.create(createAssetDto);
   }
 
-  /*  资产列表 */
+  /* 个人资产列表 */
+  @Get('myList')
+  @Public()
+  @ApiPaginatedResponse(Asset)
+  async myList(@UserDec(UserEnum.userId) userId: number, @Query() listAssetDto: ListAssetDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    // this.logger.log(JSON.stringify(paginationDto));
+    return await this.assetService.myList(userId, listAssetDto, paginationDto);
+  }
+
+  /* 资产列表 */
   @Get('list')
   @Public()
   @ApiPaginatedResponse(Asset)

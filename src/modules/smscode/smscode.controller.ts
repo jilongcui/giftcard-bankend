@@ -25,7 +25,7 @@ export class SmscodeController {
     @Post("reg")
     async sendRegCode(@Body() reqSmscodeSendDto: ReqSmsCodeSendDto): Promise<any> {
         if (!await this.sharedService.checkImageCaptcha(reqSmscodeSendDto.uuid, reqSmscodeSendDto.code))
-            throw new ApiException('图形验证码错误', 400)
+            throw new ApiException('图形验证码错误')
         return this.smscodeService.sendRegCode(reqSmscodeSendDto.phone);
     }
 
@@ -35,7 +35,7 @@ export class SmscodeController {
     @Post("login")
     async sendLoginCode(@Body() reqSmscodeSendDto: ReqSmsCodeSendDto): Promise<any> {
         if (!await this.sharedService.checkImageCaptcha(reqSmscodeSendDto.uuid, reqSmscodeSendDto.code))
-            throw new ApiException('图形验证码错误', 400)
+            throw new ApiException('图形验证码错误')
         return this.smscodeService.sendLoginCode(reqSmscodeSendDto.phone);
     }
 
