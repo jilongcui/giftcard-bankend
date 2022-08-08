@@ -74,9 +74,13 @@ export class AssetService {
 
   /* 二级市场数据流查询 */
   async flow(flowAssetDto: FlowAssetDto, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
-    let where: FindConditions<FlowAssetDto> = {}
+    let where: FindConditions<Asset> = {}
     let result: any;
-    where = flowAssetDto;
+    where = {
+      ...flowAssetDto,
+      status: '1'
+    }
+
     result = await this.assetRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       // select: ['assetId', "user", "collection"],
