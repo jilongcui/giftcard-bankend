@@ -46,7 +46,7 @@ export class OrderService {
         throw new ApiException('已售完')
       }
       // this.logger.log(execError[0])
-      this.logger.log(orderCount)
+      // this.logger.log(orderCount)
     }
     return await getManager().transaction(async manager => {
 
