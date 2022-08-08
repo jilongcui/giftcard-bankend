@@ -25,7 +25,7 @@ export class MarketController {
 
   /* 资产出售 */
   @Put('asset/:id/sell')
-  async upAsset(@Param('id') id: string, @Param('price') price: number, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
+  async upAsset(@Param('id') id: string, @Body('price') price: number, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
     return await this.marketService.upAsset(+id, price, userId, userName);
   }
 
