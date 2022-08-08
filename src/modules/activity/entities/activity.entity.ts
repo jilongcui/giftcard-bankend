@@ -93,6 +93,7 @@ export class Activity {
 
     @Column({
         name: 'deliver_delay',
+        default: 0,
         comment: '发货延迟 ms'
     })
     @IsOptional()

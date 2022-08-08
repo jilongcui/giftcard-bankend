@@ -60,7 +60,8 @@ export class ActivityService {
       where,
       relations: ['collections', 'collections.author'],
       order: {
-        type: 1,
+        type: 'ASC',
+        createTime: 'DESC'
       }
     })
     return {
@@ -86,31 +87,16 @@ export class ActivityService {
   }
 
   async addCollection(id: number, collectionId: number) {
-    await this.activityRepository.createQueryBuilder()
+    return await this.activityRepository.createQueryBuilder()
       .relation(Activity, "collections")
       .of(id)
       .add(collectionId);
-    const activity = await this.activityRepository.findOne(id);
-    const collection = await this.collectionRepository.findOne(collectionId, { relations: ['author'] });
-    if (!activity.authorName) {
-      activity.authorName = collection.author.nickName
-      activity.avatar = collection.author.avatar
-    }
-    activity.supply += collection.supply
-    let updateDto = { authorName: activity.authorName, avatar: activity.avatar, supply: activity.supply }
-    await this.activityRepository.update(id, updateDto)
-    return activity
   }
 
   async deleteCollection(id: number, collectionId: number) {
-    await this.activityRepository.createQueryBuilder()
+    return await this.activityRepository.createQueryBuilder()
       .relation(Activity, "collections")
       .of(id)
       .remove(collectionId);
-    const activity = await this.activityRepository.findOne(id);
-    const collection = await this.collectionRepository.findOne(collectionId, { relations: ['author'] });
-    activity.supply -= collection.supply
-    await this.activityRepository.update(id, { supply: activity.supply })
-    return activity
   }
 }
