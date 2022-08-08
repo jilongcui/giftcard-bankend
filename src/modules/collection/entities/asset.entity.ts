@@ -48,10 +48,10 @@ export class Asset {
     collectionId: number
 
     @ApiHideProperty()
-    @OneToOne(() => Collection)
-    // @JoinColumn({
-    //     name: 'collection_id',
-    // })
+    @ManyToOne(type => Collection)
+    @JoinColumn({
+        name: 'collection_id',
+    })
     collection: Collection
 
     @Column({
