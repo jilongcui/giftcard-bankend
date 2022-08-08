@@ -17,7 +17,7 @@ export class ResUserDto extends User {
 /* 用户信息 */
 export class ResUserInfoDto {
     /* 用户信息 */
-    data?: ResUserDto
+    user?: ResUserDto
 
     /* 用户的岗位id数组 */
     postIds?: number[]

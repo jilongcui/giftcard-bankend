@@ -63,11 +63,11 @@ export class UserController {
     /* 获取用户信息 */
     @Get('profile')
     async profile(@UserDec(UserEnum.userId) userId: number) {
-        const data = await this.userService.userAllInfo(userId)
-        const postGroup = data.posts.map(item => item.postName).join('、')
-        const roleGroup = data.roles.map(item => item.roleName).join('、')
+        const user = await this.userService.userAllInfo(userId)
+        const postGroup = user.posts.map(item => item.postName).join('、')
+        const roleGroup = user.roles.map(item => item.roleName).join('、')
         return {
-            data,
+            user,
             postGroup,
             roleGroup
         }
@@ -138,7 +138,7 @@ export class UserController {
         user.postIds = []
         user.roleIds = []
         return {
-            data: user,
+            user,
             postIds,
             roleIds,
             posts: posts.rows,
