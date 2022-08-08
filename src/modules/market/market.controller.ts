@@ -32,7 +32,7 @@ export class MarketController {
   /* 资产下架 */
   @Put('asset/:id/down')
   async downAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
-    return await this.marketService.buyAsset(+id, userId, userName);
+    return await this.marketService.downAsset(+id, userId, userName);
   }
 
   /* 资产转移 */

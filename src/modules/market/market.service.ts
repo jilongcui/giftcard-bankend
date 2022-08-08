@@ -54,7 +54,10 @@ export class MarketService {
   }
 
   async downAsset(id: number, userId: number, userName: string) {
-    await this.assetRepository.update({ id: id, userId: userId }, { status: '0' })
+    const asset = await this.assetRepository.update({ id: id, userId: userId }, { status: '0' })
+    if (!asset) {
+      throw new ApiException("无法操作此资产")
+    }
     await this.assetRecordRepository.save({
       type: '3', // down
       assetId: id,
