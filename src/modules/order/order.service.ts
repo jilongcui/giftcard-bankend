@@ -67,7 +67,9 @@ export class OrderService {
         order.invalidTime = moment().add(5, 'minute').toDate()
         order.collections = activity.collections;
       } else if (order.type === '1') { // 交易市场创建的订单
-        const asset = await this.assetRepository.findOne({ where: { id: createOrderDto.activityId, status: 1 }, relations: ['collection'] })
+        const asset = await this.assetRepository.findOne({ where: { id: createOrderDto.activityId, status: '1' }, relations: ['collection'] })
+        if (!asset)
+          throw new ApiException('市场上未发现此藏品')
         order.activityId = createOrderDto.activityId;
         order.realPrice = asset.price
         order.totalPrice = asset.price
