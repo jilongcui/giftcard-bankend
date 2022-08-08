@@ -94,7 +94,7 @@ export class AssetService {
   }
 
   findOne(id: number) {
-    return this.assetRepository.findOne(id)
+    return this.assetRepository.findOne(id, { relations: ["user", "collection"] })
   }
 
   update(id: number, updateAssetDto: UpdateAssetDto) {
