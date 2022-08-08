@@ -1,4 +1,5 @@
 import { OmitType, PartialType } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import { IsNumber, IsObject, IsOptional } from "class-validator";
 import { Asset } from "../entities/asset.entity";
 
@@ -19,6 +20,7 @@ export class CreateAssetDto {
 }
 export class FlowAssetDto {
     @IsOptional()
+    @Type(() => Number)
     @IsNumber()
     userId?: number
 }
