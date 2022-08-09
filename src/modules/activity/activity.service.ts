@@ -1,7 +1,7 @@
 import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_COUNT } from 'src/common/contants/redis.contant';
+import { ACTIVITY_ORDER_TEMPLATE_KEY, ACTIVITY_PRESTART_TIME, ACTIVITY_START_TIME, COLLECTION_ORDER_COUNT } from 'src/common/contants/redis.contant';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
@@ -86,7 +86,7 @@ export class ActivityService {
   }
 
   async start(id: number) {
-    const activity = await this.activityRepository.findOne(id)
+    const activity = await this.activityRepository.findOne(id, { relations: ['presale'] })
     if (activity.status === '1') {
       throw new ApiException('活动已开启');
     }
@@ -94,6 +94,9 @@ export class ActivityService {
     updateActivityDto.status = '1' // start
     const result = await this.activityRepository.update(id, updateActivityDto)
     await this.redis.set(`${COLLECTION_ORDER_COUNT}:${activity.id}`, activity.supply)
+    await this.redis.set(`${ACTIVITY_START_TIME}:${activity.id}`, activity.startTime.getUTCMilliseconds())
+    if (activity.presale)
+      await this.redis.set(`${ACTIVITY_PRESTART_TIME}:${activity.id}`, activity.presale.presaleTime.getUTCMilliseconds())
     await this.redis.set(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${activity.id}`, JSON.stringify(activity))
     return result
   }

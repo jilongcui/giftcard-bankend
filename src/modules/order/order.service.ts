@@ -2,7 +2,7 @@ import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
 import { Injectable, Logger, ParseArrayPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
-import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_SUPPLY } from 'src/common/contants/redis.contant';
+import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_SUPPLY, ACTIVITY_START_TIME, ACTIVITY_PRESTART_TIME } from 'src/common/contants/redis.contant';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
@@ -36,20 +36,40 @@ export class OrderService {
     // 否则，就失败
     let activity: Activity
     let orderCount: any
-    let countKey = COLLECTION_ORDER_COUNT + ":" + createOrderDto.activityId;
 
-    if (createOrderDto.type == '0') { // 一级市场活动创建订单
+    if (createOrderDto.type === '0') { // 一级市场活动创建订单
+      let startTime: string;
+      // 如果时间大于开始时间，那么直接就开始了
+      // 否则才会读取预售时间，然后再判断预售开始了没有。
+      // 如果预售也开始了，那么就判单这个用户是否具有预售权限。
+      const startTimeKey = ACTIVITY_START_TIME + ":" + createOrderDto.activityId;
+      startTime = await this.redis.get(startTimeKey)
+      const now = moment.now()
+      if (now < parseInt(startTime)) {
+        const preStartTimeKey = ACTIVITY_PRESTART_TIME + ":" + createOrderDto.activityId;
+        startTime = await this.redis.get(preStartTimeKey)
+        if (!startTime || now < parseInt(startTime)) {
+          throw new ApiException('没开始')
+        }
+        // 可以预售
+        // 判断用户预售权限
+        // const presale = await this.presaleService.findOne({ userId: userId, activityId: activityId })
+        // if (!presale) {
+        //   throw new ApiException('没有预售权限')
+        // }
+      }
+
+      const countKey = COLLECTION_ORDER_COUNT + ":" + createOrderDto.activityId;
       const [execError] = await this.redis.multi().decr(countKey).exec()
       orderCount = execError[1]
       if (orderCount < 0) {
         // await this.redis.unwatch()
-        throw new ApiException('已售完或没开始')
+        throw new ApiException('已售完')
       }
       // this.logger.log(execError[0])
       // this.logger.log(orderCount)
     }
     return await getManager().transaction(async manager => {
-
 
       const order = new Order();
       order.type = createOrderDto.type;
