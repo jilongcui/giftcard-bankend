@@ -50,10 +50,10 @@ export class ActivityService {
   }
 
   /* 获取推荐 */
-  async recommendList(): Promise<PaginatedDto<Activity>> {
+  async topList(): Promise<PaginatedDto<Activity>> {
     let where: FindConditions<Activity> = {}
     let result: any;
-    where = { recommend: '1' };
+    where = { top: '1' };
     result = await this.activityRepository.findAndCount({
       // select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
       where,

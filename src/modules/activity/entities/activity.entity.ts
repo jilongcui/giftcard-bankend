@@ -33,18 +33,21 @@ export class Activity {
         name: 'ruleInfo',
         comment: '规则介绍'
     })
+    @IsOptional()
     @IsString()
-    ruleInfo: string
+    ruleInfo?: string
 
     /* 状态 0: 未展示 1:进行中 2:已卖完  3:活动结束 */
     @Column({
         name: 'status',
         comment: '状态 0: 未展示 1:进行中 2:已卖完  3:活动结束',
         type: 'char',
+        default: '0',
         length: 1
     })
+    @IsOptional()
     @IsString()
-    status: string
+    status?: string
 
     @Column({
         name: 'start_time',
@@ -66,8 +69,9 @@ export class Activity {
         type: 'datetime',
         comment: '结束时间'
     })
+    @IsOptional()
     @IsString()
-    endTime: Date
+    endTime?: Date
 
     @Column({
         name: 'supply',
@@ -78,10 +82,12 @@ export class Activity {
 
     @Column({
         name: 'current',
+        default: '0',
         comment: '当前释放'
     })
+    @IsOptional()
     @IsNumber()
-    current: number
+    current?: number
 
     /* 正式价格 */
     @Column({
@@ -91,26 +97,26 @@ export class Activity {
     @IsNumber()
     price: number
 
-    @Column({
-        name: 'deliver_delay',
-        default: 0,
-        comment: '发货延迟 ms'
-    })
-    @IsOptional()
-    @IsNumber()
-    deliverDelay?: number
+    // @Column({
+    //     name: 'deliver_delay',
+    //     default: 0,
+    //     comment: '发货延迟 ms'
+    // })
+    // @IsOptional()
+    // @IsNumber()
+    // deliverDelay?: number
 
-    /* 推荐 */
+    /* 置顶 */
     @Column({
-        name: 'recommend',
-        comment: '是否推荐 0: 未推荐 1: 推荐',
+        name: 'top',
+        comment: '是否推荐 0: 未置顶 1: 置顶',
         type: 'char',
         length: 1,
         default: '0'
     })
     @IsOptional()
     @IsString()
-    recommend?: string
+    top?: string
 
     /* 用户昵称 */
     // @ApiHideProperty()

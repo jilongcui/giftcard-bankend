@@ -23,7 +23,7 @@ export class AssetRecordService {
   async list(id: number, paginationDto: PaginationDto): Promise<PaginatedDto<AssetRecord>> {
     let where: FindConditions<AssetRecord> = {}
     let result: any;
-    // where = { recommend: '1' };
+    // where = { top: '1' };
     result = await this.assetRecordRepository.findAndCount({
       // select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
       where,

@@ -45,11 +45,11 @@ export class ActivityController {
     return await this.activityService.update(+id, updateActivityDto);
   }
 
-  @Get('recommend')
+  @Get('top')
   @Public()
   @ApiPaginatedResponse(Activity)
-  async recommend() {
-    return await this.activityService.recommendList();
+  async top() {
+    return await this.activityService.topList();
   }
 
   /* 产品列表 */
