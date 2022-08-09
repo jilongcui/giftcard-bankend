@@ -43,7 +43,7 @@ export class OrderService {
       orderCount = execError[1]
       if (orderCount < 0) {
         // await this.redis.unwatch()
-        throw new ApiException('已售完')
+        throw new ApiException('已售完或没开始')
       }
       // this.logger.log(execError[0])
       // this.logger.log(orderCount)

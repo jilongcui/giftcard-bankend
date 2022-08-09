@@ -25,6 +25,21 @@ export class ActivityController {
     return await this.activityService.addOrUpdateAll(updateAllActivityDto);
   }
 
+  @Put(':id/start')
+  async start(@Param('id') id: string) {
+    return await this.activityService.start(+id);
+  }
+
+  @Put(':id/sellout')
+  async sellout(@Param('id') id: string) {
+    return await this.activityService.sellout(+id);
+  }
+
+  @Put(':id/finish')
+  async finish(@Param('id') id: string) {
+    return await this.activityService.finish(+id);
+  }
+
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateActivityDto: UpdateActivityDto) {
     return await this.activityService.update(+id, updateActivityDto);
