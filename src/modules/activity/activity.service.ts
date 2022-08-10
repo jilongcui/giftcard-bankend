@@ -23,10 +23,10 @@ export class ActivityService {
   }
 
   async getRemainCount(activityId: string) {
-    const key = COLLECTION_ORDER_COUNT + activityId
+    const key = COLLECTION_ORDER_COUNT + ':' + activityId
     const value = await this.cacheManager.get(key);
     if (value) return value;
-    const valueStr = await this.redis.get(`${COLLECTION_ORDER_COUNT}:${activityId}`)
+    const valueStr = await this.redis.get(key)
     if (valueStr) {
       await this.cacheManager.set(key, valueStr, { ttl: 1 })
     }
