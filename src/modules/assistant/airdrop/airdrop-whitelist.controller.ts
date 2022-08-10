@@ -10,7 +10,7 @@ import { AirdropWhitelist } from './entities/airdrop-whitelist.entity';
 
 @ApiTags('空投白名单')
 @ApiBearerAuth()
-@Controller('airdrop')
+@Controller('airdropWhitelist')
 export class AirdropWhitelistController {
   constructor(private readonly airdropService: AirdropWhitelistService) { }
 
