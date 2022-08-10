@@ -4,7 +4,7 @@ import { ActivityController } from './activity.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Collection } from '../collection/entities/collection.entity';
 import { Activity } from './entities/activity.entity';
-import { Preemption } from '../assistant/preemption/entities/preemption.entity';
+import { Preemption } from '../assistant/preemption/entities/preemptionWhitelist.entity';
 import { PreemptionActivity } from '../assistant/preemption/entities/preemption-activity.entity';
 
 @Module({

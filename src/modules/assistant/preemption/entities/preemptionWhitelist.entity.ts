@@ -5,7 +5,7 @@ import { Activity } from "src/modules/activity/entities/activity.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Preemption {
+export class PreemptionWhitelist {
     @PrimaryGeneratedColumn()
     @IsNumber()
     id: number
@@ -24,10 +24,10 @@ export class Preemption {
     @IsNumber()
     userId: number
 
-    /* 空投发送状态 0: 未发送 1:发送中 2:发送成功 3:发送失败 */
+    /* 优先购状态 0: 为购买 1:已购买 */
     @Column({
         name: 'status',
-        comment: '空投发送状态 0: 为购买 1:已购买',
+        comment: '优先购状态 0: 为购买 1:已购买',
         type: 'char',
         default: '0',
         length: 1

@@ -3,21 +3,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { FindConditions, Repository } from 'typeorm';
-import { CreatePreemptionDto, ListPreemptionDto, UpdatePreemptionDto } from './dto/request-preemption.dto';
-import { Preemption } from './entities/preemption.entity';
+import { CreatePreemptionWhitelistDto, ListPreemptionWhitelistDto, UpdatePreemptionWhitelistDto } from './dto/request-preemption-whitelist.dto';
+import { PreemptionWhitelist } from './entities/preemptionWhitelist.entity';
 
 @Injectable()
-export class PreemptionService {
+export class PreemptionWhiteListService {
   constructor(
-    @InjectRepository(Preemption) private readonly preemptionRepository: Repository<Preemption>
+    @InjectRepository(PreemptionWhitelist) private readonly preemptionRepository: Repository<PreemptionWhitelist>
   ) { }
-  async create(createPreemptionDto: CreatePreemptionDto) {
-    return await this.preemptionRepository.save(createPreemptionDto)
+  async create(createPreemptionWhitelistDto: CreatePreemptionWhitelistDto) {
+    return await this.preemptionRepository.save(createPreemptionWhitelistDto)
   }
 
   /* 分页查询 */
-  async list(listPreemptionList: ListPreemptionDto, paginationDto: PaginationDto): Promise<PaginatedDto<Preemption>> {
-    let where: FindConditions<Preemption> = {}
+  async list(listPreemptionList: ListPreemptionWhitelistDto, paginationDto: PaginationDto): Promise<PaginatedDto<PreemptionWhitelist>> {
+    let where: FindConditions<PreemptionWhitelist> = {}
     let result: any;
     where = listPreemptionList;
 
@@ -42,8 +42,8 @@ export class PreemptionService {
     return await this.preemptionRepository.findOne(id, { relations: ['activity'] });
   }
 
-  async update(id: number, updatePreemptionDto: UpdatePreemptionDto) {
-    return await this.preemptionRepository.update(id, updatePreemptionDto)
+  async update(id: number, updatePreemptionWhitelistDto: UpdatePreemptionWhitelistDto) {
+    return await this.preemptionRepository.update(id, updatePreemptionWhitelistDto)
   }
 
   async delete(noticeIdArr: number[] | string[]) {

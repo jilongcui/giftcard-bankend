@@ -8,7 +8,7 @@ import { Account } from '../account/entities/account.entity';
 import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
 import { AssetRecord } from '../market/entities/asset-record.entity';
-import { Preemption } from '../assistant/preemption/entities/preemption.entity';
+import { Preemption } from '../assistant/preemption/entities/preemptionWhitelist.entity';
 
 @Module({
   imports: [

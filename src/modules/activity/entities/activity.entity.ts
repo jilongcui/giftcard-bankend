@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Order } from "src/modules/order/entities/order.entity";
 import { Collection } from "src/modules/collection/entities/collection.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Preemption } from "src/modules/assistant/preemption/entities/preemption.entity";
+import { Preemption } from "src/modules/assistant/preemption/entities/preemptionWhitelist.entity";
 import { PreemptionActivity } from "src/modules/assistant/preemption/entities/preemption-activity.entity";
 
 @Entity()

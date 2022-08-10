@@ -9,7 +9,7 @@ import { ApiException } from 'src/common/exceptions/api.exception';
 import { Repository, FindConditions, Transaction, TransactionManager, EntityManager, getManager, MoreThanOrEqual } from 'typeorm';
 import { Account } from '../account/entities/account.entity';
 import { Activity } from '../activity/entities/activity.entity';
-import { Preemption } from '../assistant/preemption/entities/preemption.entity';
+import { Preemption } from '../assistant/preemption/entities/preemptionWhitelist.entity';
 import { CreateAssetDto } from '../collection/dto/request-asset.dto';
 import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
