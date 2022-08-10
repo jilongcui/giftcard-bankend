@@ -9,6 +9,7 @@ import { ApiException } from 'src/common/exceptions/api.exception';
 import { Repository, FindConditions, Transaction, TransactionManager, EntityManager, getManager, MoreThanOrEqual } from 'typeorm';
 import { Account } from '../account/entities/account.entity';
 import { Activity } from '../activity/entities/activity.entity';
+import { Preemption } from '../assistant/preemption/entities/preemption.entity';
 import { CreateAssetDto } from '../collection/dto/request-asset.dto';
 import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
@@ -25,6 +26,7 @@ export class OrderService {
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
     @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
+    @InjectRepository(Preemption) private readonly preemptionRepository: Repository<Preemption>,
     @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
     @InjectRedis() private readonly redis: Redis,
   ) {
@@ -53,10 +55,10 @@ export class OrderService {
         }
         // 可以预售
         // 判断用户预售权限
-        // const presale = await this.presaleService.findOne({ userId: userId, activityId: activityId })
-        // if (!presale) {
-        //   throw new ApiException('没有预售权限')
-        // }
+        const preemption = await this.preemptionRepository.findOne({ userId: userId, activityId: createOrderDto.activityId })
+        if (!preemption) {
+          throw new ApiException('没有预售权限')
+        }
       }
 
       const countKey = COLLECTION_ORDER_COUNT + ":" + createOrderDto.activityId;

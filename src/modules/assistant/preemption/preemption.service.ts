@@ -24,7 +24,7 @@ export class PreemptionService {
     result = await this.preemptionRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where: [where, {}],
-      relations: ["collection"],
+      relations: ["activity"],
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -39,7 +39,7 @@ export class PreemptionService {
   }
 
   async findOne(id: number) {
-    return await this.preemptionRepository.findOne(id, { relations: ['collection'] });
+    return await this.preemptionRepository.findOne(id, { relations: ['activity'] });
   }
 
   async update(id: number, updatePreemptionDto: UpdatePreemptionDto) {
