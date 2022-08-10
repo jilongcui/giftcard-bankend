@@ -4,7 +4,7 @@ import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-respon
 import { Public } from 'src/common/decorators/public.decorator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
-import { AirdropService } from './airdrop-activity.service';
+import { AirdropService } from './airdrop.service';
 import { CreateAirdropDto, ListAirdropDto, UpdateAirdropDto } from './dto/request-airdrop-activity.dto';
 import { Airdrop } from './entities/airdrop-activity.entity';
 

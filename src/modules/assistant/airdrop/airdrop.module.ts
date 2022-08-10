@@ -4,8 +4,8 @@ import { AirdropWhitelistService } from './airdrop-whitelist.service';
 import { AirdropWhitelistController } from './airdrop-whitelist.controller';
 import { Airdrop } from './entities/airdrop-activity.entity';
 import { AirdropWhitelist } from './entities/airdrop-whitelist.entity';
-import { AirdropService } from './airdrop-activity.service';
-import { AirdropController } from './airdrop-activity.controller';
+import { AirdropService } from './airdrop.service';
+import { AirdropController } from './airdrop.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([AirdropWhitelist, Airdrop])],
