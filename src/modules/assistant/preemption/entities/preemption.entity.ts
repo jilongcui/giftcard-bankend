@@ -5,7 +5,7 @@ import { Collection } from "src/modules/collection/entities/collection.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class PreemptionActivity {
+export class Preemption {
     @PrimaryGeneratedColumn()
     @IsNumber()
     id: number

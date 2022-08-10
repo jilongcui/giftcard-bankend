@@ -3,23 +3,23 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { FindConditions, Repository } from 'typeorm';
-import { CreatePreemptionActivityDto, ListPreemptionActivityDto, UpdatePreemptionActivityDto } from './dto/request-preemption-activity.dto';
-import { PreemptionActivity } from './entities/preemption-activity.entity';
+import { CreatePreemptionDto, ListPreemptionDto, UpdatePreemptionDto } from './dto/request-preemption.dto';
+import { Preemption } from './entities/preemption.entity';
 
 @Injectable()
-export class PreemptionActivityService {
+export class PreemptionService {
   constructor(
-    @InjectRepository(PreemptionActivity) private readonly preemptionRepository: Repository<PreemptionActivity>
+    @InjectRepository(Preemption) private readonly preemptionRepository: Repository<Preemption>
   ) { }
-  async create(createPreemptionActivityDto: CreatePreemptionActivityDto) {
-    return await this.preemptionRepository.save(createPreemptionActivityDto)
+  async create(createPreemptionDto: CreatePreemptionDto) {
+    return await this.preemptionRepository.save(createPreemptionDto)
   }
 
   /* 分页查询 */
-  async list(listPreemptionActivityList: ListPreemptionActivityDto, paginationDto: PaginationDto): Promise<PaginatedDto<PreemptionActivity>> {
-    let where: FindConditions<PreemptionActivity> = {}
+  async list(listPreemptionList: ListPreemptionDto, paginationDto: PaginationDto): Promise<PaginatedDto<Preemption>> {
+    let where: FindConditions<Preemption> = {}
     let result: any;
-    where = listPreemptionActivityList;
+    where = listPreemptionList;
 
     result = await this.preemptionRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
@@ -42,8 +42,8 @@ export class PreemptionActivityService {
     return await this.preemptionRepository.findOne(id, { relations: ['collection'] });
   }
 
-  async update(id: number, updatePreemptionActivityDto: UpdatePreemptionActivityDto) {
-    return await this.preemptionRepository.update(id, updatePreemptionActivityDto)
+  async update(id: number, updatePreemptionDto: UpdatePreemptionDto) {
+    return await this.preemptionRepository.update(id, updatePreemptionDto)
   }
 
   async delete(noticeIdArr: number[] | string[]) {

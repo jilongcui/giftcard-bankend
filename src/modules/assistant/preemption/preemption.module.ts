@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { PreemptionWhiteListService } from './preemptionWhitelist.service';
 import { PreemptionWhiteController } from './preemptionWhitelist.controller';
-import { PreemptionActivity } from './entities/preemption-activity.entity';
+import { Preemption } from './entities/preemption.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PreemptionWhitelist } from './entities/preemptionWhitelist.entity';
-import { PreemptionActivityService } from './preemption-activity.service';
-import { PreemptionActivityController } from './preemption-activity.controller';
+import { PreemptionService } from './preemption.service';
+import { PreemptionController } from './preemption.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PreemptionWhitelist, PreemptionActivity])],
-  controllers: [PreemptionWhiteController, PreemptionActivityController],
-  providers: [PreemptionWhiteListService, PreemptionActivityService]
+  imports: [TypeOrmModule.forFeature([PreemptionWhitelist, Preemption])],
+  controllers: [PreemptionWhiteController, PreemptionController],
+  providers: [PreemptionWhiteListService, PreemptionService]
 })
 export class PreemptionModule { }
