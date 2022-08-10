@@ -10,7 +10,7 @@ import { Airdrop } from './entities/airdrop-activity.entity';
 
 @ApiTags('空投活动')
 @ApiBearerAuth()
-@Controller('airdropAcitivty')
+@Controller('airdrop')
 export class AirdropController {
   constructor(private readonly airdropAcitivtyService: AirdropService) { }
 

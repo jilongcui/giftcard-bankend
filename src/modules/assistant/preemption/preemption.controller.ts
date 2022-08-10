@@ -10,7 +10,7 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('优先购活动')
 @ApiBearerAuth()
-@Controller('preemptionAcitivty')
+@Controller('preemption')
 export class PreemptionController {
   constructor(private readonly preemptionAcitivtyService: PreemptionService) { }
 
