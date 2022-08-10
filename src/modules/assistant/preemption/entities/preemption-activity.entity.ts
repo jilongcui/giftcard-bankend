@@ -2,7 +2,7 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
 import { Activity } from "src/modules/activity/entities/activity.entity";
 import { Collection } from "src/modules/collection/entities/collection.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class PreemptionActivity {
@@ -25,19 +25,21 @@ export class PreemptionActivity {
     desc: string
 
     /* 0: 设置中 1:活动开启 */
-    @Column({
-        name: 'status',
-        comment: '优先购活动状态 0: 设置中 1:活动开启',
-        type: 'char',
-        default: '0',
-        length: 1
-    })
-    @IsString()
-    status: string
+    // @Column({
+    //     name: 'status',
+    //     comment: '优先购活动状态 0: 设置中 1:活动开启',
+    //     type: 'char',
+    //     default: '0',
+    //     length: 1
+    // })
+    // @IsString()
+    // status: string
 
+    /* 每人限购数量 0:不限购 */
     @Column({
         name: 'limit',
-        comment: '优先购的数量'
+        default: 0, // 0 不限购
+        comment: '每人限购数量'
     })
     @IsOptional()
     @IsNumber()
@@ -52,15 +54,6 @@ export class PreemptionActivity {
     startTime: Date
 
     @ApiHideProperty()
-    @Column({
-        name: 'end_time',
-        type: 'datetime',
-        comment: '优先购活动结束时间'
-    })
-    @IsOptional()
-    endTime?: Date
-
-    @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',
         comment: '创建时间'
@@ -68,7 +61,7 @@ export class PreemptionActivity {
     createTime: number
 
     @ApiHideProperty()
-    @ManyToOne(() => Activity)
+    @OneToOne(() => Activity)
     @JoinColumn({
         name: 'activity_id',
     })

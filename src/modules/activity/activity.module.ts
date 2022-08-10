@@ -4,10 +4,11 @@ import { ActivityController } from './activity.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Collection } from '../collection/entities/collection.entity';
 import { Activity } from './entities/activity.entity';
-import { Presale } from './entities/presale.entity';
+import { Preemption } from '../assistant/preemption/entities/preemption.entity';
+import { PreemptionActivity } from '../assistant/preemption/entities/preemption-activity.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Activity, Presale, Collection])],
+  imports: [TypeOrmModule.forFeature([Activity, Preemption, PreemptionActivity, Collection])],
   controllers: [ActivityController],
   providers: [ActivityService]
 })

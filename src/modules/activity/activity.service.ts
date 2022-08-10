@@ -57,7 +57,7 @@ export class ActivityService {
     result = await this.activityRepository.findAndCount({
       // select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
       where,
-      relations: ['collections', 'collections.author'],
+      relations: ['collections', 'collections.author', 'preemption'],
       order: {
         type: 'ASC',
         createTime: 'DESC'
@@ -95,8 +95,8 @@ export class ActivityService {
     const result = await this.activityRepository.update(id, updateActivityDto)
     await this.redis.set(`${COLLECTION_ORDER_COUNT}:${activity.id}`, activity.supply)
     await this.redis.set(`${ACTIVITY_START_TIME}:${activity.id}`, activity.startTime.getUTCMilliseconds())
-    if (activity.presale)
-      await this.redis.set(`${ACTIVITY_PRESTART_TIME}:${activity.id}`, activity.presale.presaleTime.getUTCMilliseconds())
+    if (activity.preemption)
+      await this.redis.set(`${ACTIVITY_PRESTART_TIME}:${activity.id}`, activity.preemption.startTime.getUTCMilliseconds())
     await this.redis.set(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${activity.id}`, JSON.stringify(activity))
     return result
   }

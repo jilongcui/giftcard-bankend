@@ -3,7 +3,8 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Order } from "src/modules/order/entities/order.entity";
 import { Collection } from "src/modules/collection/entities/collection.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Presale } from "./presale.entity";
+import { Preemption } from "src/modules/assistant/preemption/entities/preemption.entity";
+import { PreemptionActivity } from "src/modules/assistant/preemption/entities/preemption-activity.entity";
 
 @Entity()
 export class Activity {
@@ -142,12 +143,12 @@ export class Activity {
     avatar?: string
 
     // @ApiHideProperty()
-    @OneToOne(() => Presale, { cascade: true })
+    @OneToOne(() => PreemptionActivity, { cascade: true })
     @JoinColumn({
-        name: 'presale_id',
+        name: 'preemption_id',
     })
     @IsOptional()
-    presale?: Presale
+    preemption?: PreemptionActivity
 
     @ApiHideProperty()
     @CreateDateColumn({ name: 'create_time', comment: '创建时间' })
