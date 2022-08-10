@@ -31,6 +31,7 @@ import { AccountModule } from './modules/account/account.module';
 import { BannerModule } from './modules/system/banner/banner.module';
 import { MarketModule } from './modules/market/market.module';
 import { AirdropModule } from './modules/assistant/airdrop/airdrop.module';
+import { PreemptionModule } from './modules/assistant/preemption/preemption.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService]
@@ -85,7 +86,8 @@ const aliasProviders = createAliasProviders();
     AccountModule,
     BannerModule,
     MarketModule,
-    AirdropModule
+    AirdropModule,
+    PreemptionModule
   ],
   providers: [...aliasProviders]
 })

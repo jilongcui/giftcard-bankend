@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -7,6 +8,8 @@ import { AirdropService } from './airdrop.service';
 import { CreateAirdropDto, ListAirdropDto, UpdateAirdropDto } from './dto/request-airdrop.dto';
 import { Airdrop } from './entities/airdrop.entity';
 
+@ApiTags('空投')
+@ApiBearerAuth()
 @Controller('airdrop')
 export class AirdropController {
   constructor(private readonly airdropService: AirdropService) { }

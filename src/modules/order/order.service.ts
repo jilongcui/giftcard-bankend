@@ -82,8 +82,9 @@ export class OrderService {
         const jsonObject: any = JSON.parse(activityJson)
         activity = <Activity>jsonObject;
         order.activityId = createOrderDto.activityId;
-        order.realPrice = activity.price;
-        order.totalPrice = activity.price;
+        order.realPrice = activity.price * createOrderDto.count;
+        order.totalPrice = order.realPrice;
+        order.count = createOrderDto.count;
         order.image = activity.coverImage;
         order.desc = activity.title;
         order.invalidTime = moment().add(5, 'minute').toDate()

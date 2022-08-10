@@ -41,6 +41,14 @@ export class Order {
     @IsNumber()
     realPrice: number
 
+    @Column({
+        name: 'count',
+        default: '0',
+        comment: '订单数量'
+    })
+    @IsNumber()
+    count: number
+
     /* 订单状态 0: 订单取消，1:未支付 2: 订单完成 3: 订单过期*/
     @Column({
         name: 'status',

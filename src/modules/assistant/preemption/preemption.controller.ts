@@ -8,7 +8,7 @@ import { CreatePreemptionDto, ListPreemptionDto, UpdatePreemptionDto } from './d
 import { Preemption } from './entities/preemption.entity';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
-@ApiTags('优先购权')
+@ApiTags('优先购')
 @ApiBearerAuth()
 @Controller('preemption')
 export class PreemptionController {
