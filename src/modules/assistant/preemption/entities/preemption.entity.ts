@@ -1,25 +1,25 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
-import { Collection } from "src/modules/collection/entities/collection.entity";
+import { Activity } from "src/modules/activity/entities/activity.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Airdrop {
+export class Preemption {
     @PrimaryGeneratedColumn()
     @IsNumber()
     id: number
 
     @Column({
-        name: 'collection_id',
-        comment: '管理的藏品集合'
+        name: 'activity_id',
+        comment: '关联的活动'
     })
     @IsNumber()
-    collectionId: number
+    activityId: number
 
     @Column({
         name: 'user_id',
-        comment: '管理的藏品集合'
+        comment: '关联的用户'
     })
     @IsNumber()
     userId: number
@@ -27,7 +27,7 @@ export class Airdrop {
     /* 空投发送状态 0: 未发送 1:发送中 2:发送成功 3:发送失败 */
     @Column({
         name: 'status',
-        comment: '空投发送状态 0: 未发送 1:发送中 2:发送成功 3:发送失败',
+        comment: '空投发送状态 0: 为购买 1:已购买',
         type: 'char',
         default: '0',
         length: 1
@@ -36,20 +36,12 @@ export class Airdrop {
     status: string
 
     @Column({
-        name: 'tx',
-        comment: '交易id'
+        name: 'count',
+        comment: '已购买数量'
     })
     @IsOptional()
-    @IsString()
-    tx?: string
-
-    /* 需要领取 0: 不需要领取，1:需要领取*/
-    @Column({
-        name: 'chain_id',
-        comment: '链的Id',
-    })
-    @Type()
-    chainId: number
+    @IsNumber()
+    count?: number
 
     @ApiHideProperty()
     @CreateDateColumn({
@@ -59,10 +51,10 @@ export class Airdrop {
     createTime: number
 
     @ApiHideProperty()
-    @ManyToOne(() => Collection)
+    @ManyToOne(() => Activity)
     @JoinColumn({
         name: 'collection_id',
     })
-    collection: Collection
+    collection: Activity
 }
 
