@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AirdropService } from './airdrop.service';
-import { AirdropController } from './airdrop.controller';
+import { AirdropWhitelistService } from './airdrop-whitelist.service';
+import { AirdropWhitelistController } from './airdrop-whitelist.controller';
 import { AirdropActivity } from './entities/airdrop-activity.entity';
-import { Airdrop } from './entities/airdrop.entity';
+import { AirdropWhitelist } from './entities/airdrop-whitelist.entity';
 import { AirdropActivityService } from './airdrop-activity.service';
 import { AirdropActivityController } from './airdrop-activity.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Airdrop, AirdropActivity])],
-  controllers: [AirdropController, AirdropActivityController],
-  providers: [AirdropService, AirdropActivityService]
+  imports: [TypeOrmModule.forFeature([AirdropWhitelist, AirdropActivity])],
+  controllers: [AirdropWhitelistController, AirdropActivityController],
+  providers: [AirdropWhitelistService, AirdropActivityService]
 })
 export class AirdropModule { }

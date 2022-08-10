@@ -3,23 +3,23 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { FindConditions, Repository } from 'typeorm';
-import { CreateAirdropDto, ListAirdropDto, UpdateAirdropDto } from './dto/request-airdrop.dto';
-import { Airdrop } from './entities/airdrop.entity';
+import { CreateAirdropWhitelistDto, ListAirdropWhitelistDto, UpdateAirdropWhitelistDto } from './dto/request-airdrop-whitelist.dto';
+import { AirdropWhitelist } from './entities/airdrop-whitelist.entity';
 
 @Injectable()
-export class AirdropService {
+export class AirdropWhitelistService {
   constructor(
-    @InjectRepository(Airdrop) private readonly airdropRepository: Repository<Airdrop>
+    @InjectRepository(AirdropWhitelist) private readonly airdropRepository: Repository<AirdropWhitelist>
   ) { }
-  async create(createAirdropDto: CreateAirdropDto) {
-    return await this.airdropRepository.save(createAirdropDto)
+  async create(createAirdropWhitelistDto: CreateAirdropWhitelistDto) {
+    return await this.airdropRepository.save(createAirdropWhitelistDto)
   }
 
   /* 分页查询 */
-  async list(listAirdropList: ListAirdropDto, paginationDto: PaginationDto): Promise<PaginatedDto<Airdrop>> {
-    let where: FindConditions<Airdrop> = {}
+  async list(listAirdropWhitelistList: ListAirdropWhitelistDto, paginationDto: PaginationDto): Promise<PaginatedDto<AirdropWhitelist>> {
+    let where: FindConditions<AirdropWhitelist> = {}
     let result: any;
-    where = listAirdropList;
+    where = listAirdropWhitelistList;
 
     result = await this.airdropRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
@@ -42,8 +42,8 @@ export class AirdropService {
     return await this.airdropRepository.findOne(id, { relations: ['collection'] });
   }
 
-  async update(id: number, updateAirdropDto: UpdateAirdropDto) {
-    return await this.airdropRepository.update(id, updateAirdropDto)
+  async update(id: number, updateAirdropWhitelistDto: UpdateAirdropWhitelistDto) {
+    return await this.airdropRepository.update(id, updateAirdropWhitelistDto)
   }
 
   async delete(noticeIdArr: number[] | string[]) {
