@@ -5,7 +5,7 @@ import { Collection } from "src/modules/collection/entities/collection.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class AirdropActivity {
+export class Airdrop {
     @PrimaryGeneratedColumn()
     @IsNumber()
     id: number

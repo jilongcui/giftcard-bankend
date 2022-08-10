@@ -3,23 +3,23 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { FindConditions, Repository } from 'typeorm';
-import { CreateAirdropActivityDto, ListAirdropActivityDto, UpdateAirdropActivityDto } from './dto/request-airdrop-activity.dto';
-import { AirdropActivity } from './entities/airdrop-activity.entity';
+import { CreateAirdropDto, ListAirdropDto, UpdateAirdropDto } from './dto/request-airdrop-activity.dto';
+import { Airdrop } from './entities/airdrop-activity.entity';
 
 @Injectable()
-export class AirdropActivityService {
+export class AirdropService {
   constructor(
-    @InjectRepository(AirdropActivity) private readonly airdropRepository: Repository<AirdropActivity>
+    @InjectRepository(Airdrop) private readonly airdropRepository: Repository<Airdrop>
   ) { }
-  async create(createAirdropActivityDto: CreateAirdropActivityDto) {
-    return await this.airdropRepository.save(createAirdropActivityDto)
+  async create(createAirdropDto: CreateAirdropDto) {
+    return await this.airdropRepository.save(createAirdropDto)
   }
 
   /* 分页查询 */
-  async list(listAirdropActivityList: ListAirdropActivityDto, paginationDto: PaginationDto): Promise<PaginatedDto<AirdropActivity>> {
-    let where: FindConditions<AirdropActivity> = {}
+  async list(listAirdropList: ListAirdropDto, paginationDto: PaginationDto): Promise<PaginatedDto<Airdrop>> {
+    let where: FindConditions<Airdrop> = {}
     let result: any;
-    where = listAirdropActivityList;
+    where = listAirdropList;
 
     result = await this.airdropRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
@@ -42,8 +42,8 @@ export class AirdropActivityService {
     return await this.airdropRepository.findOne(id, { relations: ['collection'] });
   }
 
-  async update(id: number, updateAirdropActivityDto: UpdateAirdropActivityDto) {
-    return await this.airdropRepository.update(id, updateAirdropActivityDto)
+  async update(id: number, updateAirdropDto: UpdateAirdropDto) {
+    return await this.airdropRepository.update(id, updateAirdropDto)
   }
 
   async delete(noticeIdArr: number[] | string[]) {

@@ -4,25 +4,25 @@ import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-respon
 import { Public } from 'src/common/decorators/public.decorator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
-import { AirdropActivityService } from './airdrop-activity.service';
-import { CreateAirdropActivityDto, ListAirdropActivityDto, UpdateAirdropActivityDto } from './dto/request-airdrop-activity.dto';
-import { AirdropActivity } from './entities/airdrop-activity.entity';
+import { AirdropService } from './airdrop-activity.service';
+import { CreateAirdropDto, ListAirdropDto, UpdateAirdropDto } from './dto/request-airdrop-activity.dto';
+import { Airdrop } from './entities/airdrop-activity.entity';
 
 @ApiTags('空投活动')
 @ApiBearerAuth()
 @Controller('airdropAcitivty')
-export class AirdropActivityController {
-  constructor(private readonly airdropAcitivtyService: AirdropActivityService) { }
+export class AirdropController {
+  constructor(private readonly airdropAcitivtyService: AirdropService) { }
 
   @Post()
-  async create(@Body() createAirdropActivityDto: CreateAirdropActivityDto) {
-    return await this.airdropAcitivtyService.create(createAirdropActivityDto);
+  async create(@Body() createAirdropDto: CreateAirdropDto) {
+    return await this.airdropAcitivtyService.create(createAirdropDto);
   }
 
   @Get('list')
-  @ApiPaginatedResponse(AirdropActivity)
-  async list(@Query() listAirdropActivityDto: ListAirdropActivityDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return await this.airdropAcitivtyService.list(listAirdropActivityDto, paginationDto);
+  @ApiPaginatedResponse(Airdrop)
+  async list(@Query() listAirdropDto: ListAirdropDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.airdropAcitivtyService.list(listAirdropDto, paginationDto);
   }
 
   @Get(':id')
@@ -31,8 +31,8 @@ export class AirdropActivityController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateAirdropActivityDto: UpdateAirdropActivityDto) {
-    return await this.airdropAcitivtyService.update(+id, updateAirdropActivityDto);
+  async update(@Param('id') id: string, @Body() updateAirdropDto: UpdateAirdropDto) {
+    return await this.airdropAcitivtyService.update(+id, updateAirdropDto);
   }
 
   @Delete(':id')
