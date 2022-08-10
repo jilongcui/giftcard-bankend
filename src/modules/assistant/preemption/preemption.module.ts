@@ -5,10 +5,11 @@ import { PreemptionActivity } from './entities/preemption-activity.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Preemption } from './entities/preemption.entity';
 import { PreemptionActivityService } from './preemption-activity.service';
+import { PreemptionActivityController } from './preemption-activity.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Preemption, PreemptionActivity])],
-  controllers: [PreemptionController],
+  controllers: [PreemptionController, PreemptionActivityController],
   providers: [PreemptionService, PreemptionActivityService]
 })
 export class PreemptionModule { }
