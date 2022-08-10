@@ -1,25 +1,36 @@
 import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Cache } from 'cache-manager';
 import { ACTIVITY_ORDER_TEMPLATE_KEY, ACTIVITY_PRESTART_TIME, ACTIVITY_START_TIME, COLLECTION_ORDER_COUNT } from 'src/common/contants/redis.contant';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
 import { FindConditions, Repository, } from 'typeorm';
-import { Collection } from '../collection/entities/collection.entity';
-import { CreateActivityDto, ListActivityDto, UpdateActivityDto, UpdateAllActivityDto } from './dto/request-activity.dto';
+import { CreateActivityDto, ListActivityDto, UpdateActivityDto } from './dto/request-activity.dto';
 import { Activity } from './entities/activity.entity';
 
 @Injectable()
 export class ActivityService {
   constructor(
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
-    @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRedis() private readonly redis: Redis,
   ) { }
   async create(createActivityDto: CreateActivityDto) {
     const activity = await this.activityRepository.save(createActivityDto);
     return activity;
+  }
+
+  async getRemainCount(activityId: string) {
+    const key = COLLECTION_ORDER_COUNT + activityId
+    const value = await this.cacheManager.get(key);
+    if (value) return value;
+    const valueStr = await this.redis.get(`${COLLECTION_ORDER_COUNT}:${activityId}`)
+    if (valueStr) {
+      await this.cacheManager.set(key, valueStr, { ttl: 1 })
+    }
+    return valueStr;
   }
 
   /* 新增或编辑 */
@@ -86,7 +97,7 @@ export class ActivityService {
   }
 
   async start(id: number) {
-    const activity = await this.activityRepository.findOne(id, { relations: ['presale'] })
+    const activity = await this.activityRepository.findOne(id, { relations: ['preemption'] })
     if (activity.status === '1') {
       throw new ApiException('活动已开启');
     }

@@ -8,7 +8,7 @@
  * You can you up，no can no bb！！
  */
 import { SharedService } from './shared.service';
-import { Global, Module } from '@nestjs/common';
+import { CacheModule, Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from '@nestjs-modules/ioredis';

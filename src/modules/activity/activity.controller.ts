@@ -66,6 +66,12 @@ export class ActivityController {
     return await this.activityService.findOne(+id);
   }
 
+  @Get(':id/count')
+  @Public()
+  async getCount(@Param('id') id: string) {
+    return await this.activityService.getRemainCount(id);
+  }
+
   @Delete(':id')
   async removeOne(@Param('id') id: string) {
     return await this.activityService.deleteOne(+id);
