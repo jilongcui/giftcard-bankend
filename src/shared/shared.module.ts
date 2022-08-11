@@ -11,7 +11,6 @@ import { SharedService } from './shared.service';
 import { CacheModule, Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RedisModule } from '@nestjs-modules/ioredis';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ReponseTransformInterceptor } from 'src/common/interceptors/reponse-transform.interceptor';
 import { OperationLogInterceptor } from 'src/common/interceptors/operation-log.interceptor';
@@ -23,6 +22,8 @@ import { BullModule } from '@nestjs/bull';
 import { DataScopeInterceptor } from 'src/common/interceptors/data-scope.interceptor';
 import { RepeatSubmitGuard } from 'src/common/guards/repeat-submit.guard';
 import { DemoEnvironmentGuard } from 'src/common/guards/demo-environment.guard';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 
 @Global()
 @Module({

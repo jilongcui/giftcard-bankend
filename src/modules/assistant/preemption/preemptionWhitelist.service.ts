@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { FindConditions, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreatePreemptionWhitelistDto, ListPreemptionWhitelistDto, UpdatePreemptionWhitelistDto } from './dto/request-preemption-whitelist.dto';
 import { PreemptionWhitelist } from './entities/preemptionWhitelist.entity';
 
@@ -17,7 +17,7 @@ export class PreemptionWhiteListService {
 
   /* 分页查询 */
   async list(listPreemptionList: ListPreemptionWhitelistDto, paginationDto: PaginationDto): Promise<PaginatedDto<PreemptionWhitelist>> {
-    let where: FindConditions<PreemptionWhitelist> = {}
+    let where: FindOptionsWhere<PreemptionWhitelist> = {}
     let result: any;
     where = listPreemptionList;
 
@@ -39,7 +39,7 @@ export class PreemptionWhiteListService {
   }
 
   async findOne(id: number) {
-    return await this.preemptionRepository.findOne(id, { relations: ['activity'] });
+    return await this.preemptionRepository.findOne({ where: { id }, relations: ['activity'] });
   }
 
   async update(id: number, updatePreemptionWhitelistDto: UpdatePreemptionWhitelistDto) {

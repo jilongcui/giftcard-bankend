@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { FindConditions, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateAirdropDto, ListAirdropDto, UpdateAirdropDto } from './dto/request-airdrop-activity.dto';
 import { Airdrop } from './entities/airdrop-activity.entity';
 
@@ -17,7 +17,7 @@ export class AirdropService {
 
   /* 分页查询 */
   async list(listAirdropList: ListAirdropDto, paginationDto: PaginationDto): Promise<PaginatedDto<Airdrop>> {
-    let where: FindConditions<Airdrop> = {}
+    let where: FindOptionsWhere<Airdrop> = {}
     let result: any;
     where = listAirdropList;
 
@@ -39,7 +39,7 @@ export class AirdropService {
   }
 
   async findOne(id: number) {
-    return await this.airdropRepository.findOne(id, { relations: ['collection'] });
+    return await this.airdropRepository.findOne({ where: { id }, relations: { collection: true } });
   }
 
   async update(id: number, updateAirdropDto: UpdateAirdropDto) {

@@ -1,5 +1,6 @@
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable } from '@nestjs/common';
+import Redis from 'ioredis';
 import { isEmpty } from 'lodash';
 import { CAPTCHA_IMG_KEY, USER_TOKEN_KEY, USER_VERSION_KEY } from 'src/common/contants/redis.contant';
 import { ApiException } from 'src/common/exceptions/api.exception';

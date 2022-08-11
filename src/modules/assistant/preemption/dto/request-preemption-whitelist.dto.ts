@@ -6,7 +6,7 @@ export class CreatePreemptionWhitelistDto extends OmitType(PreemptionWhitelist, 
 export class UpdateAllPreemptionWhitelistDto extends PreemptionWhitelist { }
 export class UpdatePreemptionWhitelistDto extends PartialType(CreatePreemptionWhitelistDto) { }
 export class UpdatePreemptionStatusDto extends PickType(PreemptionWhitelist, ['status']) { }
-export class ListPreemptionWhitelistDto extends PartialType(PreemptionWhitelist) { }
+export class ListPreemptionWhitelistDto extends PartialType(OmitType(PreemptionWhitelist, ['activity'] as const)) { }
 export class ListMyPreemptionWhitelistDto {
     @IsOptional()
     @IsString()

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { Repository, FindConditions } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { CreateCurrencyDto, ListCurrencyDto, UpdateCurrencyDto } from './dto/request-currency.dto';
 import { Currency } from './entities/currency.entity';
 
@@ -22,7 +22,7 @@ export class CurrencyService {
 
   /* 分页查询 */
   async list(listCurrencyList: ListCurrencyDto, paginationDto: PaginationDto): Promise<PaginatedDto<Currency>> {
-    let where: FindConditions<Currency> = {}
+    let where: FindOptionsWhere<Currency> = {}
     let result: any;
     where = listCurrencyList;
     result = await this.currencyRepository.findAndCount({
@@ -42,7 +42,7 @@ export class CurrencyService {
   }
 
   findOne(id: number) {
-    return this.currencyRepository.findOne(id)
+    return this.currencyRepository.findOneBy({ id })
   }
 
   update(id: number, updateCurrencyDto: UpdateCurrencyDto) {

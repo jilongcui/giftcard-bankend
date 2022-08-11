@@ -5,7 +5,7 @@ https://docs.nestjs.com/providers#services
 import { forwardRef, Get, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from 'src/shared/shared.service';
-import { FindConditions, In, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Like, Repository } from 'typeorm';
 import { RoleService } from '../role/role.service';
 import { ReqAddDeptDto, ReqDeptListDto } from './dto/req-dept.dto';
 import { Dept } from './entities/dept.entity';
@@ -29,7 +29,7 @@ export class DeptService {
 
     /* 查询部门列表 */
     async list(reqDeptListDto: ReqDeptListDto) {
-        let where: FindConditions<Dept> = { delFlag: '0' }
+        let where: FindOptionsWhere<Dept> = { delFlag: '0' }
         if (reqDeptListDto.deptName) {
             where.deptName = Like((`%${reqDeptListDto.deptName}%`))
         }
@@ -50,8 +50,8 @@ export class DeptService {
     }
 
     /* 通过id查询 */
-    async findById(deptId: number | string) {
-        return this.deptRepository.findOne(deptId)
+    async findById(deptId: number) {
+        return this.deptRepository.findOneBy({ deptId })
     }
 
     /* 通过id查询，返回原始数据 */
@@ -116,7 +116,7 @@ export class DeptService {
     }
 
     /* 获取角色的数据权限列表 */
-    async getCheckedKeys(roleId: number | string): Promise<number[]> {
+    async getCheckedKeys(roleId: number): Promise<number[]> {
         let deptArr = await this.deptRepository.createQueryBuilder('dept')
             .select('dept.deptId', 'deptId')
             .addSelect('dept.mpath', 'mpath')
@@ -136,7 +136,7 @@ export class DeptService {
         return this.deptRepository.find({
             where: {
                 deptId: In(deptIdArr),
-                delFlag: 0
+                delFlag: '0'
             }
         })
     }

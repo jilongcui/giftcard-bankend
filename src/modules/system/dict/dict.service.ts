@@ -2,13 +2,14 @@
 https://docs.nestjs.com/providers#services
 */
 
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
-import { Between, FindConditions, Like, Not, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, Like, Not, Repository } from 'typeorm';
 import { DICTTYPE_KEY } from './dict.contant';
 import { ReqAddDictDataDto, ReqAddDictTypeDto, ReqDictDataListDto, ReqDictTypeListDto, ReqUpdateDictDataDto } from './dto/req-dict.dto';
 import { DictData } from './entities/dict_data.entity';
@@ -30,7 +31,7 @@ export class DictService {
 
     /* 字典类型list */
     async typeList(reqDictTypeListDto: ReqDictTypeListDto) {
-        let where: FindConditions<DictType> = {}
+        let where: FindOptionsWhere<DictType> = {}
         if (reqDictTypeListDto.dictName) {
             where.dictName = Like(`%${reqDictTypeListDto.dictName}%`)
         }
@@ -41,7 +42,7 @@ export class DictService {
             where.status = reqDictTypeListDto.status
         }
         if (reqDictTypeListDto.params) {
-            where.createTime = Between(reqDictTypeListDto.params.beginTime, moment(reqDictTypeListDto.params.endTime).add(1, 'day').format())
+            where.createTime = Between(reqDictTypeListDto.params.beginTime, moment(reqDictTypeListDto.params.endTime).add(1, 'day').toDate())
         }
         const result = await this.dictTypeRepository.findAndCount({
             where,
@@ -57,7 +58,7 @@ export class DictService {
 
     /* 通过字典类型查询 */
     async findByDictType(dictType: string, dictId?: number): Promise<DictType> {
-        let where: FindConditions<DictType> = {
+        let where: FindOptionsWhere<DictType> = {
             dictType
         }
         if (dictId) {
@@ -74,8 +75,8 @@ export class DictService {
     }
 
     /* 通过id 查找字典类型 */
-    async findDictTypeById(typeIds: number) {
-        return await this.dictTypeRepository.findOne(typeIds)
+    async findDictTypeById(dictId: number) {
+        return await this.dictTypeRepository.findOneBy({ dictId })
     }
 
     /* 通过 dictType 获取 字典数据(排除停用的) 并缓存进入redis*/
@@ -103,7 +104,7 @@ export class DictService {
 
     /* 分页查询字典数据 */
     async dictDataList(reqDictDataListDto: ReqDictDataListDto): Promise<PaginatedDto<DictData>> {
-        let where: FindConditions<DictData> = {}
+        let where: FindOptionsWhere<DictData> = {}
         if (reqDictDataListDto.status) {
             where.status = reqDictDataListDto.status
         }
@@ -136,7 +137,7 @@ export class DictService {
 
     /* 通过dictCode获取字典数据 */
     async findDictDataById(dictCode: number) {
-        const dictData = await this.dictDataRepository.findOne(dictCode, { relations: ['dictType'] })
+        const dictData = await this.dictDataRepository.findOne({ where: { dictCode }, relations: { dictType: true } })
         const reqUpdateDictDataDto = Object.assign(new ReqUpdateDictDataDto(), dictData) as ReqUpdateDictDataDto
         reqUpdateDictDataDto.dictType = dictData.dictType.dictType
         return reqUpdateDictDataDto

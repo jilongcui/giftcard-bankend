@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { Repository, FindConditions } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { CreateAccountDto, ListAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
 import { Account } from './entities/account.entity';
 
@@ -23,7 +23,7 @@ export class AccountService {
 
   /* 分页查询 */
   async list(listAccountList: ListAccountDto, paginationDto: PaginationDto): Promise<PaginatedDto<Account>> {
-    let where: FindConditions<Account> = {}
+    let where: FindOptionsWhere<Account> = {}
     let result: any;
     where = listAccountList;
     result = await this.accountRepository.findAndCount({
@@ -43,7 +43,7 @@ export class AccountService {
   }
 
   findOne(id: number) {
-    return this.accountRepository.findOne(id)
+    return this.accountRepository.findOneBy({ id })
   }
 
   update(id: number, updateAccountDto: UpdateAccountDto) {

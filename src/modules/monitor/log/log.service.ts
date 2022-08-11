@@ -2,7 +2,8 @@
 https://docs.nestjs.com/providers#services
 */
 
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
@@ -10,7 +11,7 @@ import { USER_ONLINE_KEY } from 'src/common/contants/redis.contant';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { User } from 'src/modules/system/user/entities/user.entity';
 import { SharedService } from 'src/shared/shared.service';
-import { Between, FindConditions, Like, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, Like, Repository } from 'typeorm';
 import { ReqLogininforDto, ReqOperLogDto } from './dto/req-log.dto';
 import { Logininfor } from './entities/logininfor.entity';
 import { OperLog } from './entities/oper_log.entity';
@@ -29,10 +30,10 @@ export class LogService {
     async addOperLog(operLog: OperLog) {
         return await this.operLogRepository.save(operLog)
     }
-    
+
     //分页查询
     async operLogList(reqOperLogDto: ReqOperLogDto): Promise<PaginatedDto<OperLog>> {
-        let where: FindConditions<OperLog> = {}
+        let where: FindOptionsWhere<OperLog> = {}
         if (reqOperLogDto.title) {
             where.title = Like(`%${reqOperLogDto.title}%`)
         }
@@ -46,7 +47,7 @@ export class LogService {
             where.status = reqOperLogDto.status
         }
         if (reqOperLogDto.params) {
-            where.operTime = Between(reqOperLogDto.params.beginTime, moment(reqOperLogDto.params.endTime).add(1, 'day').format())
+            where.operTime = Between(reqOperLogDto.params.beginTime, moment(reqOperLogDto.params.endTime).add(1, 'day').toDate())
         }
         const queryBuilder = this.operLogRepository.createQueryBuilder('operLog')
             .where(where)
@@ -83,7 +84,7 @@ export class LogService {
         logininfor.loginLocation = await this.sharedService.getLocation(logininfor.ipaddr)
         logininfor.status = token ? "0" : "1"
         logininfor.msg = msg
-        logininfor.loginTime = moment().format("YYYY-MM-DDTHH:mm:ss")
+        logininfor.loginTime = moment().toDate()
         logininfor.browser = browser.name + browser.version.split('.')[0]
         logininfor.os = os.name + os.version
         if (token) {  // 如果登录成功，就记录这个登录信息，方便在线用户查询
@@ -100,7 +101,7 @@ export class LogService {
 
     /* 分页查询登录日志 */
     async logininforList(reqLogininforDto: ReqLogininforDto): Promise<PaginatedDto<Logininfor>> {
-        let where: FindConditions<Logininfor> = {}
+        let where: FindOptionsWhere<Logininfor> = {}
         if (reqLogininforDto.ipaddr) {
             where.ipaddr = Like(`%${reqLogininforDto.ipaddr}%`)
         }
@@ -111,7 +112,7 @@ export class LogService {
             where.status = reqLogininforDto.status
         }
         if (reqLogininforDto.params) {
-            where.loginTime = Between(reqLogininforDto.params.beginTime, moment(reqLogininforDto.params.endTime).add(1, 'day').format())
+            where.loginTime = Between(reqLogininforDto.params.beginTime, moment(reqLogininforDto.params.endTime).add(1, 'day').toDate())
         }
         const queryBuilder = this.logininforRepository.createQueryBuilder('logininfor')
             .where(where)

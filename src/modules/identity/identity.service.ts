@@ -1,9 +1,10 @@
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger, LoggerService } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as CryptoJS from 'crypto-js';
-import { FindConditions, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { Identity } from './entities/identity.entity';
 import * as querystring from 'querystring';
 import { ReqIdentityList } from './dto/req-identity-list.dto';
@@ -86,7 +87,7 @@ export class IdentityService {
 
     /* 分页查询 */
     async list(reqIdentityList: ReqIdentityList): Promise<PaginatedDto<Identity>> {
-        let where: FindConditions<Identity> = {}
+        let where: FindOptionsWhere<Identity> = {}
         let result: any;
         if (reqIdentityList.mobile) {
             where.mobile = Like(`%${reqIdentityList.mobile}%`)

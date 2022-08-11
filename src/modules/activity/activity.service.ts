@@ -1,12 +1,13 @@
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
+import Redis from 'ioredis';
 import { ACTIVITY_ORDER_TEMPLATE_KEY, ACTIVITY_PRESTART_TIME, ACTIVITY_START_TIME, COLLECTION_ORDER_COUNT } from 'src/common/contants/redis.contant';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
-import { FindConditions, Repository, } from 'typeorm';
+import { FindOptionsWhere, Repository, } from 'typeorm';
 import { CreateActivityDto, ListActivityDto, UpdateActivityDto } from './dto/request-activity.dto';
 import { Activity } from './entities/activity.entity';
 
@@ -40,9 +41,13 @@ export class ActivityService {
 
   /* 分页查询 */
   async list(listActivityList: ListActivityDto, paginationDto: PaginationDto): Promise<PaginatedDto<Activity>> {
-    let where: FindConditions<Activity> = {}
+    let where: FindOptionsWhere<Activity> = {}
     let result: any;
-    where = listActivityList;
+    // where = {
+    //   ... listActivityList
+    // }
+    where = listActivityList
+    where.authorName = listActivityList.authorName;
     result = await this.activityRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
@@ -62,7 +67,7 @@ export class ActivityService {
 
   /* 获取推荐 */
   async topList(): Promise<PaginatedDto<Activity>> {
-    let where: FindConditions<Activity> = {}
+    let where: FindOptionsWhere<Activity> = {}
     let result: any;
     where = { top: '1' };
     result = await this.activityRepository.findAndCount({
@@ -81,7 +86,14 @@ export class ActivityService {
   }
 
   findOne(id: number) {
-    return this.activityRepository.findOne(id, { relations: ['collections', 'collections.contract'], })
+    return this.activityRepository.findOne({
+      where: { id },
+      relations: {
+        collections: {
+          contract: true
+        }
+      },
+    })
   }
 
   update(id: number, updateActivityDto: UpdateActivityDto) {
@@ -97,7 +109,8 @@ export class ActivityService {
   }
 
   async start(id: number) {
-    const activity = await this.activityRepository.findOne(id, { relations: ['preemption'] })
+    const activity = await this.activityRepository.findOne(
+      { where: { id }, relations: { preemption: true } })
     if (activity.status === '1') {
       throw new ApiException('活动已开启');
     }
@@ -113,7 +126,7 @@ export class ActivityService {
   }
 
   async sellout(id: number) {
-    const activity = await this.activityRepository.findOne(id)
+    const activity = await this.activityRepository.findOneBy({ id })
     if (activity.status === '2') {
       throw new ApiException('活动已售完');
     }

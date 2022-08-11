@@ -9,7 +9,6 @@ import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
 import { Order } from './entities/order.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User as UserDec, UserEnum } from 'src/common/decorators/user.decorator';
-import { getManager } from 'typeorm';
 @ApiTags('订单')
 @ApiBearerAuth()
 @Controller('order')

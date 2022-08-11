@@ -11,7 +11,7 @@ export class ParamsDto {
         name: 'params[beginTime]',
         default: moment().format("YYYY-MM-DD")
     })
-    beginTime?: string
+    beginTime?: Date
 
     /* 结束日期 */
     @IsOptional()
@@ -20,5 +20,5 @@ export class ParamsDto {
         name: 'params[endTime]',
         default: moment().format("YYYY-MM-DD")
     })
-    endTime?: string
+    endTime?: Date
 }

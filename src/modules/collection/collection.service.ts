@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { FindConditions, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { CreateCollectionDto, UpdateCollectionDto, ListCollectionDto } from './dto/request-collection.dto';
 import { Collection } from './entities/collection.entity';
 
@@ -22,7 +22,7 @@ export class CollectionService {
 
   /* 分页查询 */
   async list(listProdList: ListCollectionDto, paginationDto: PaginationDto): Promise<PaginatedDto<Collection>> {
-    let where: FindConditions<Collection> = {}
+    let where: FindOptionsWhere<Collection> = {}
     let result: any;
     if (listProdList.name) {
       where.name = Like(`%${listProdList.name}%`)
@@ -48,7 +48,7 @@ export class CollectionService {
   }
 
   findOne(id: number) {
-    return this.collectionRepository.findOne(id, { relations: ['author', 'contract'], })
+    return this.collectionRepository.findOne({ where: { id }, relations: ['author', 'contract'], })
   }
 
   update(id: number, updateCollectionDto: UpdateCollectionDto) {

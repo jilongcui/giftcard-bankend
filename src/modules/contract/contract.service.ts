@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { Repository, FindConditions } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { CreateContractDto, ListContractDto, UpdateContractDto } from './dto/request-contract.dto';
 import { Contract } from './entities/contract.entity';
 
@@ -22,7 +22,7 @@ export class ContractService {
 
   /* 分页查询 */
   async list(listContractList: ListContractDto, paginationDto: PaginationDto): Promise<PaginatedDto<Contract>> {
-    let where: FindConditions<Contract> = {}
+    let where: FindOptionsWhere<Contract> = {}
     let result: any;
     where = listContractList;
     result = await this.orderRepository.findAndCount({
@@ -42,7 +42,7 @@ export class ContractService {
   }
 
   findOne(id: number) {
-    return this.orderRepository.findOne(id)
+    return this.orderRepository.findOneBy({ id })
   }
 
   update(id: number, updateContractDto: UpdateContractDto) {

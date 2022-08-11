@@ -9,9 +9,10 @@
  */
 
 
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import Redis from 'ioredis';
 import { PERMISSION_KEY_METADATA } from '../contants/decorator.contant';
 import { USER_PERMISSIONS_KEY } from '../contants/redis.contant';
 import { PermissionObj } from '../decorators/requires-permissions.decorator';

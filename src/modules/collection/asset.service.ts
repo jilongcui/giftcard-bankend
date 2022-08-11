@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
-import { FindConditions, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { CreateAssetDto, UpdateAssetDto, ListAssetDto, FlowAssetDto } from './dto/request-asset.dto';
 import { Asset } from './entities/asset.entity';
 
@@ -22,17 +22,19 @@ export class AssetService {
   }
 
   /* 分页查询 */
-  async list(listAssetList: ListAssetDto, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
-    let where: FindConditions<Asset> = {}
+  async list(listAssetDto: ListAssetDto, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
+    let where: FindOptionsWhere<Asset> = {}
     let result: any;
 
-    where = listAssetList;
+    where = {
+      ...listAssetDto,
+    };
 
     result = await this.assetRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       // select: ['assetId', "user", "collection"],
       relations: ["user", "collection"],
-      where,
+      where: listAssetDto,
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -48,7 +50,7 @@ export class AssetService {
 
   /* 分页查询 */
   async myList(userId: number, listAssetList: ListAssetDto, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
-    let where: FindConditions<Asset> = {}
+    let where: FindOptionsWhere<Asset> = {}
     let result: any;
 
     where = listAssetList;
@@ -74,7 +76,7 @@ export class AssetService {
 
   /* 二级市场数据流查询 */
   async flow(flowAssetDto: FlowAssetDto, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
-    let where: FindConditions<Asset> = {}
+    let where: FindOptionsWhere<Asset> = {}
     let result: any;
     where = {
       ...flowAssetDto,
@@ -100,7 +102,7 @@ export class AssetService {
   }
 
   async latest(): Promise<PaginatedDto<Asset>> {
-    let where: FindConditions<Asset> = {
+    let where: FindOptionsWhere<Asset> = {
       status: '1' // market
     }
     let result: any;
@@ -124,7 +126,7 @@ export class AssetService {
   }
 
   findOne(id: number) {
-    return this.assetRepository.findOne(id, { relations: ["user", "collection"] })
+    return this.assetRepository.findOne({ where: { id }, relations: ["user", "collection"] })
   }
 
   update(id: number, updateAssetDto: UpdateAssetDto) {

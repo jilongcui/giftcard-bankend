@@ -52,7 +52,7 @@ export class NoticeController {
     // @RequiresPermissions('system:notice:query')
     @ApiDataResponse(typeEnum.object, Notice)
     async one(@Param('noticeId') noticeId: number | string) {
-        const notice = await this.noticeService.findById(noticeId)
+        const notice = await this.noticeService.findById(+noticeId)
         return notice
     }
 

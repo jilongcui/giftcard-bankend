@@ -1,4 +1,5 @@
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import { Injectable, Logger, ParseArrayPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
@@ -6,7 +7,7 @@ import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_S
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
-import { Repository, FindConditions, Transaction, TransactionManager, EntityManager, getManager, MoreThanOrEqual } from 'typeorm';
+import { Repository, FindOptionsWhere, EntityManager, getManager, MoreThanOrEqual } from 'typeorm';
 import { Account } from '../account/entities/account.entity';
 import { Activity } from '../activity/entities/activity.entity';
 import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
@@ -55,7 +56,7 @@ export class OrderService {
         }
         // 可以预售
         // 判断用户预售权限
-        const preemption = await this.preemptionWhitelistRepository.findOne({ userId: userId, activityId: createOrderDto.activityId })
+        const preemption = await this.preemptionWhitelistRepository.findOneBy({ userId: userId, activityId: createOrderDto.activityId })
         if (!preemption) {
           throw new ApiException('没有预售权限')
         }
@@ -118,14 +119,14 @@ export class OrderService {
 
   /* 分页查询 */
   async list(listOrderList: ListOrderDto, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
-    let where: FindConditions<Order> = {}
+    let where: FindOptionsWhere<Order> = {}
     let result: any;
-    where = listOrderList;
+    where = listOrderList
 
     result = await this.orderRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
-      where: [where, {}],
-      relations: ["activity", "collections"],
+      where,
+      relations: { activity: true, collections: true },
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -141,14 +142,14 @@ export class OrderService {
 
   /* 分页查询 */
   async mylist(userId: number, listMyOrderDto: ListMyOrderDto, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
-    let where: FindConditions<ListOrderDto> = {}
+    let where: FindOptionsWhere<ListOrderDto> = {}
     let result: any;
     where = {
       ...listMyOrderDto,
       userId,
     }
     if (listMyOrderDto.status === '1')
-      where.invalidTime = MoreThanOrEqual(moment(moment.now()).format())
+      where.invalidTime = MoreThanOrEqual(moment(moment.now()).toDate())
 
     result = await this.orderRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
@@ -169,14 +170,14 @@ export class OrderService {
 
   /* 分页查询 */
   async myUnpayList(userId: number, listUnpayDto: ListUnpayOrderDto, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
-    // let where: FindConditions<Order> = [{}]
+    let where: FindOptionsWhere<Order> = {}
     let result: any;
-    let where =
+    where =
     {
       ...listUnpayDto,
       userId: userId,
       status: '1',
-      invalidTime: MoreThanOrEqual(moment(moment.now()).format())
+      invalidTime: MoreThanOrEqual(moment(moment.now()).toDate())
     }
     result = await this.orderRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
@@ -196,7 +197,7 @@ export class OrderService {
   }
 
   findOne(id: number) {
-    return this.orderRepository.findOne(id, { relations: ["activity", "collections"], })
+    return this.orderRepository.findOne({ where: { id }, relations: { activity: true, collections: true } })
   }
 
   update(id: number, updateOrderDto: UpdateOrderDto) {
@@ -275,7 +276,7 @@ export class OrderService {
   }
 
   async buyAsset(id: number, userId: number, userName: string) {
-    const asset = await this.assetRepository.findOne(id, { relations: ['user'] })
+    const asset = await this.assetRepository.findOne({ where: { id: id }, relations: { user: true } })
     const fromId = asset.user.userId
     const fromName = asset.user.userName
     if (fromId === userId)

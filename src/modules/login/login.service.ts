@@ -9,7 +9,8 @@
  */
 
 
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CAPTCHA_IMG_KEY, USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_NICKNAME_KEY, USER_PERMISSIONS_KEY, USER_ROLEKEYS_KEY, USER_ROLEKS_KEY, USER_TOKEN_KEY, USER_USERNAME_KEY, USER_VERSION_KEY } from 'src/common/contants/redis.contant';

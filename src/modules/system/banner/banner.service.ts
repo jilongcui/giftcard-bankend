@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { FindConditions, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateBannerDto, ListBannerDto, UpdateBannerDto } from './dto/request-banner.dto';
 import { Banner } from './entities/banner.entity';
 
@@ -18,7 +18,7 @@ export class BannerService {
 
   /* 分页查询 */
   async list(listBannerDto: ListBannerDto, paginationDto: PaginationDto): Promise<PaginatedDto<Banner>> {
-    let where: FindConditions<Banner> = {}
+    let where: FindOptionsWhere<Banner> = {}
     let result: any;
     where = listBannerDto;
     result = await this.bannerRepository.findAndCount({
@@ -37,7 +37,7 @@ export class BannerService {
   }
 
   findOne(id: number) {
-    return this.bannerRepository.findOne(id)
+    return this.bannerRepository.findOneBy({ id })
   }
 
   update(id: number, updateBannerDto: UpdateBannerDto) {

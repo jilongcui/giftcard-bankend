@@ -25,5 +25,5 @@ export class FlowAssetDto {
     userId?: number
 }
 export class UpdateAssetDto extends PartialType(CreateAssetDto) { }
-export class ListAssetDto extends PartialType(Asset) { }
+export class ListAssetDto extends PartialType(OmitType(Asset, ['user', 'collection'] as const)) { }
 

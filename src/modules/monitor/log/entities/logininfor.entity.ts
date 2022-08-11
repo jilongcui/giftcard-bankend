@@ -107,5 +107,5 @@ export class Logininfor {
         name: '操作时间',
         dateFormat: 'YYYY-MM-DD HH:mm:ss'
     })
-    loginTime: string
+    loginTime: Date
 }

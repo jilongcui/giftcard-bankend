@@ -10,6 +10,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
+import Redis from 'ioredis';
 import * as CryptoJS from 'crypto-js';
 import { customAlphabet, nanoid } from 'nanoid';
 import { Request } from 'express'
@@ -17,7 +18,7 @@ import axios from 'axios';
 import * as iconv from 'iconv-lite'
 import { CAPTCHA_IMG_KEY } from 'src/common/contants/redis.contant';
 import { isEmpty } from 'lodash';
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { ApiException } from 'src/common/exceptions/api.exception';
 
 

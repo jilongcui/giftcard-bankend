@@ -1,10 +1,10 @@
-import { InjectRedis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Redis } from 'ioredis';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { FindConditions, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Collection } from '../collection/entities/collection.entity';
 import { CreateAssetRecordDto, UpdateAssetRecordDto } from './dto/request-asset-record.dto';
 import { AssetRecord } from './entities/asset-record.entity';
@@ -13,7 +13,6 @@ import { AssetRecord } from './entities/asset-record.entity';
 export class AssetRecordService {
   constructor(
     @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
-    @InjectRedis() private readonly redis: Redis,
   ) { }
   create(createAssetRecordDto: CreateAssetRecordDto) {
     return 'This action adds a new market';
@@ -21,7 +20,7 @@ export class AssetRecordService {
 
 
   async list(id: number, paginationDto: PaginationDto): Promise<PaginatedDto<AssetRecord>> {
-    let where: FindConditions<AssetRecord> = {}
+    let where: FindOptionsWhere<AssetRecord> = {}
     let result: any;
     // where = { top: '1' };
     result = await this.assetRecordRepository.findAndCount({

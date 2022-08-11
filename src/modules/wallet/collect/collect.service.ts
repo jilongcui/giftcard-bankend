@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
-import { FindConditions, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { ReqRechargeCollectListDto } from './dto/req-rechargecollect-list.dto';
 import { RechargeCollect } from './entities/rechage-collect.entity';
 
@@ -10,7 +10,7 @@ export class CollectService {
     constructor(@InjectRepository(RechargeCollect) private readonly collectRepository: Repository<RechargeCollect>) { }
     /* 分页查询 */
     async list(reqRechargecollectList: ReqRechargeCollectListDto): Promise<PaginatedDto<RechargeCollect>> {
-        let where: FindConditions<RechargeCollect> = {}
+        let where: FindOptionsWhere<RechargeCollect> = {}
         if (reqRechargecollectList.address) {
             where.address = Like(`%${reqRechargecollectList.address}%`)
         }

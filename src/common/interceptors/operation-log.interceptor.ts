@@ -8,7 +8,8 @@
  * You can you up，no can no bb！！
  */
 
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, StreamableFile } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import * as moment from 'moment';
@@ -101,7 +102,7 @@ export class OperationLogInterceptor implements NestInterceptor {
         operLog.jsonResult = JSON.stringify(data)
       }
       // 请求时间
-      operLog.operTime = moment().format("YYYY-MM-DDTHH:mm:ss")
+      operLog.operTime = moment().toDate()
       return this.logService.addOperLog(operLog)
     }
   }

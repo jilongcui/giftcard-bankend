@@ -56,7 +56,7 @@ export class ActivityController {
   @Get('list')
   @Public()
   @ApiPaginatedResponse(Activity)
-  async list(@Query() listActivityDto: ListActivityDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+  async list(@Query() listActivityDto: Activity, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.activityService.list(listActivityDto, paginationDto);
   }
 

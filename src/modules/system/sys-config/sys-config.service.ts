@@ -2,13 +2,14 @@
 https://docs.nestjs.com/providers#services
 */
 
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
-import { Between, FindConditions, Like, Not, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, Like, Not, Repository } from 'typeorm';
 import { ReqAddConfigDto, ReqConfigListDto } from './dto/req-sys-config.dto';
 import { SysConfig } from './entities/sys-config.entity';
 import { SYSCONFIG_KEY } from './sys-config.contant';
@@ -29,7 +30,7 @@ export class SysConfigService {
 
     /* 分页查询 */
     async list(reqConfigListDto: ReqConfigListDto): Promise<PaginatedDto<SysConfig>> {
-        let where: FindConditions<SysConfig> = {}
+        let where: FindOptionsWhere<SysConfig> = {}
         if (reqConfigListDto.configName) {
             where.configName = Like(`%${reqConfigListDto.configName}%`)
         }
@@ -40,7 +41,7 @@ export class SysConfigService {
             where.configType = reqConfigListDto.configType
         }
         if (reqConfigListDto.params) {
-            where.createTime = Between(reqConfigListDto.params.beginTime, moment(reqConfigListDto.params.endTime).add(1, 'day').format())
+            where.createTime = Between(reqConfigListDto.params.beginTime, moment(reqConfigListDto.params.endTime).add(1, 'day').toDate())
         }
         const result = await this.sysConfigRepository.findAndCount({
             where,
@@ -54,8 +55,8 @@ export class SysConfigService {
     }
 
     /* 通过id查询 */
-    async findById(configId: number | string) {
-        return await this.sysConfigRepository.findOne(configId)
+    async findById(configId: number) {
+        return await this.sysConfigRepository.findOneBy({ configId })
     }
 
     /* 通过id数组删除 */
@@ -65,11 +66,11 @@ export class SysConfigService {
 
     /* 通过字参数键名查询 */
     async findByConfigKey(configKey: string, configId?: number) {
-        let where: FindConditions<SysConfig> = { configKey }
+        let where: FindOptionsWhere<SysConfig> = { configKey }
         if (configId) {
             where.configId = Not(configId)
         }
-        return await this.sysConfigRepository.findOne({ where })
+        return await this.sysConfigRepository.findOneBy(where)
     }
 
     /* 通过参数键名 懒查询参数值,并缓存进入redis  */
@@ -78,7 +79,7 @@ export class SysConfigService {
         if (configValue) {
             return configValue
         } else {
-            const sysConfig = await this.sysConfigRepository.findOne({ configKey })
+            const sysConfig = await this.sysConfigRepository.findOneBy({ configKey })
             configValue = sysConfig ? sysConfig.configValue : ''
             await this.redis.set(`${SYSCONFIG_KEY}:${configKey}`, configValue)
             return configValue

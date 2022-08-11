@@ -1,4 +1,4 @@
-import { InjectRedis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { privateDecrypt } from 'crypto';
@@ -7,7 +7,7 @@ import { USER_CID_KEY } from 'src/common/contants/redis.contant';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
-import { FindConditions, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
 import { AssetRecord } from './entities/asset-record.entity';
@@ -18,7 +18,6 @@ export class MarketService {
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
     @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
     @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
-    @InjectRedis() private readonly redis: Redis,
   ) { }
 
   async upAsset(id: number, price: number, userId: number, userName: string) {
@@ -35,7 +34,7 @@ export class MarketService {
   }
 
   async buyAsset(id: number, userId: number, userName: string) {
-    const asset = await this.assetRepository.findOne({ id }, { relations: ['user'] })
+    const asset = await this.assetRepository.findOne({ where: { id }, relations: ['user'] })
     const fromId = asset.user.userId
     const fromName = asset.user.userName
     if (fromId === userId)
@@ -70,7 +69,7 @@ export class MarketService {
   }
 
   async transferAsset(id: number, userId: number, userName: string) {
-    const asset = await this.assetRepository.findOne({ id: id, userId: userId }, { relations: ['user'] })
+    const asset = await this.assetRepository.findOne({ where: { id: id, userId: userId }, relations: ['user'] })
     if (!asset) {
       throw new ApiException("无法操作此资产")
     }

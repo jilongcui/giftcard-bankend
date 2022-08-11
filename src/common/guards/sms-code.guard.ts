@@ -1,4 +1,5 @@
-import { InjectRedis, Redis } from "@nestjs-modules/ioredis";
+import { InjectRedis } from "@liaoliaots/nestjs-redis";
+import Redis from 'ioredis';
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { USER_SMSCODE_KEY } from "../contants/redis.contant";
 

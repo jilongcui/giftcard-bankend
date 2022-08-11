@@ -1,4 +1,5 @@
-import { InjectRedis, Redis } from "@nestjs-modules/ioredis";
+import { InjectRedis } from "@liaoliaots/nestjs-redis";
+import Redis from "ioredis";
 import { CanActivate, ExecutionContext, Injectable, Logger } from "@nestjs/common";
 import { isEmpty } from "lodash";
 import { CAPTCHA_IMG_KEY } from "../contants/redis.contant";

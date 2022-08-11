@@ -8,7 +8,8 @@
  * You can you up，no can no bb！！
  */
 
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
 import { USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_NICKNAME_KEY, USER_USERNAME_KEY } from '../contants/redis.contant';
 import { UserEnum } from '../decorators/user.decorator';

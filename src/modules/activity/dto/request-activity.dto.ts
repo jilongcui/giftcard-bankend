@@ -11,4 +11,4 @@ export class CreateActivityDto extends OmitType(Activity, ['id', 'status', 'pree
 }
 export class UpdateAllActivityDto extends Activity { }
 export class UpdateActivityDto extends PartialType(Activity) { }
-export class ListActivityDto extends PartialType(Activity) { }
+export class ListActivityDto extends PartialType(OmitType(Activity, ['collections', 'orders', 'preemption'] as const)) { }

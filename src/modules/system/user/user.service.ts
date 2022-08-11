@@ -9,7 +9,8 @@
  */
 
 
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
@@ -19,7 +20,7 @@ import { ApiException } from 'src/common/exceptions/api.exception';
 import { CreateAccountDto } from 'src/modules/account/dto/request-account.dto';
 import { Account } from 'src/modules/account/entities/account.entity';
 import { SharedService } from 'src/shared/shared.service';
-import { Between, FindConditions, In, Like, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, In, Like, Repository } from 'typeorm';
 import { DeptService } from '../dept/dept.service';
 import { PostService } from '../post/post.service';
 import { ReqRoleListDto } from '../role/dto/req-role.dto';
@@ -92,7 +93,7 @@ export class UserService {
 
     /* 分页查询用户列表 */
     async list(reqUserListDto: ReqUserListDto, roleId?: number, reverse?: Boolean, sataScopeSql?: string): Promise<PaginatedDto<User>> {
-        let where: FindConditions<User> = { delFlag: '0' }
+        let where: FindOptionsWhere<User> = { delFlag: '0' }
         if (reqUserListDto.userName) {
             where.userName = Like(`%${reqUserListDto.userName}%`)
         }
@@ -103,7 +104,7 @@ export class UserService {
             where.status = reqUserListDto.status
         }
         if (reqUserListDto.params) {
-            where.createTime = Between(reqUserListDto.params.beginTime, moment(reqUserListDto.params.endTime).add(1, 'day').format())
+            where.createTime = Between(reqUserListDto.params.beginTime, moment(reqUserListDto.params.endTime).add(1, 'day').toDate())
         }
         const deptId = reqUserListDto.deptId ?? ''
         const queryBuilde = this.userRepository.createQueryBuilder('user').innerJoin(User, 'user2', "user.createBy = user2.userName")
@@ -215,15 +216,15 @@ export class UserService {
 
     /* id查询用户 */
     async findById(userId: number) {
-        return await this.userRepository.findOne(userId)
+        return await this.userRepository.findOneBy({ userId })
     }
 
     async findAccount(userId: number) {
-        return await this.accountRepository.findOne({ userId: userId, currencyId: 1 })
+        return await this.accountRepository.findOneBy({ userId: userId, currencyId: 1 })
     }
 
     async updateAccount(userId: number) {
-        let account = await this.accountRepository.findOne({ userId: userId, currencyId: 1 })
+        let account = await this.accountRepository.findOneBy({ userId: userId, currencyId: 1 })
         if (account == null) {
             let createAccountDto = new CreateAccountDto()
             createAccountDto.userId = userId

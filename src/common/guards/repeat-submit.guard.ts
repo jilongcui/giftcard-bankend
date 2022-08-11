@@ -11,7 +11,8 @@
 https://docs.nestjs.com/guards#guards
 */
 
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { REOEATSUBMIT_METADATA } from '../contants/decorator.contant';

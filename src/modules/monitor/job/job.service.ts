@@ -11,7 +11,7 @@ import * as moment from 'moment';
 import { JOB_BULL_KEY } from 'src/common/contants/bull.contants';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { ApiException } from 'src/common/exceptions/api.exception';
-import { Between, FindCondition, In, Like, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, In, Like, Repository } from 'typeorm';
 import { ReqAddJob, ReqChangStatusDto, ReqJobListDto, ReqJobLogList } from './dto/req-job.dto';
 import { Job } from './entities/job.entity';
 import { JobLog } from './entities/job_log.entity';
@@ -54,7 +54,7 @@ export class JobService {
 
     /* 分页查询任务列表 */
     async jobList(reqJobListDto: ReqJobListDto): Promise<PaginatedDto<Job>> {
-        let where: FindCondition<Job> = {}
+        let where: FindOptionsWhere<Job> = {}
         if (reqJobListDto.jobName) {
             where.jobName = Like(`%${reqJobListDto.jobName}%`)
         }
@@ -78,7 +78,7 @@ export class JobService {
 
     /* 通过id查询任务 */
     async oneJob(jobId: number): Promise<Job> {
-        return this.jobRepository.findOne(jobId)
+        return this.jobRepository.findOneBy({ jobId })
     }
 
 
@@ -115,13 +115,13 @@ export class JobService {
     }
 
     /* 添加任务日志记录 */
-    async addJobLog(jobLog: JobLog) {  
+    async addJobLog(jobLog: JobLog) {
         return await this.jobLogRepository.save(jobLog)
     }
 
     /* 分页查询任务调度日志 */
     async jobLogList(reqJobLogList: ReqJobLogList): Promise<PaginatedDto<JobLog>> {
-        let where: FindCondition<Job> = {}
+        let where: FindOptionsWhere<Job> = {}
         if (reqJobLogList.jobName) {
             where.jobName = Like(`%${reqJobLogList.jobName}%`)
         }
@@ -132,7 +132,7 @@ export class JobService {
             where.status = reqJobLogList.status
         }
         if (reqJobLogList.params) {
-            where.createTime = Between(reqJobLogList.params.beginTime, moment(reqJobLogList.params.endTime).add(1, 'day').format())
+            where.createTime = Between(reqJobLogList.params.beginTime, moment(reqJobLogList.params.endTime).add(1, 'day').toDate())
         }
         const result = await this.jobLogRepository.findAndCount({
             where,

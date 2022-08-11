@@ -1,8 +1,6 @@
 import { OnlineController } from './online.controller';
 import { OnlineService } from './online.service';
 import { Module } from '@nestjs/common';
-import { Redis } from 'ioredis';
-import { InjectRedis } from '@nestjs-modules/ioredis';
 
 @Module({
     imports: [],
@@ -11,4 +9,4 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
     providers: [
         OnlineService,],
 })
-export class OnlineModule {}
+export class OnlineModule { }

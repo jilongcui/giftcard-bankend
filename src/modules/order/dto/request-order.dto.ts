@@ -7,7 +7,7 @@ export class CreateOrderDto extends OmitType(Order, ['id', 'image', 'status', 'u
 export class UpdateAllOrderDto extends Order { }
 export class UpdateOrderDto extends PartialType(CreateOrderDto) { }
 export class UpdateOrderStatusDto extends PickType(Order, ['status']) { }
-export class ListOrderDto extends PartialType(Order) { }
+export class ListOrderDto extends PartialType(OmitType(Order, ['activity', 'user', 'collections'] as const)) { }
 export class ListUnpayOrderDto {
     @IsOptional()
     @IsNumber()

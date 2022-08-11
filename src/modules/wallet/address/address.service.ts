@@ -5,7 +5,7 @@ import * as jaysonPromise from 'jayson/promise';
 import { ReqAddressList } from './dto/req-address-list.dto';
 import { PaginatedDto } from 'src/common/dto/paginated.dto';
 import { Address, AddressBTC, AddressETH, AddressTRC } from './entities/address.entity';
-import { FindConditions, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -37,7 +37,7 @@ export class AddressService implements OnModuleInit {
 
     /* 分页查询 */
     async list(reqAddressList: ReqAddressList): Promise<PaginatedDto<Address>> {
-        let where: FindConditions<Address> = {}
+        let where: FindOptionsWhere<Address> = {}
         let result: any;
         if (reqAddressList.address) {
             where.address = Like(`%${reqAddressList.address}%`)

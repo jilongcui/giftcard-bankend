@@ -55,6 +55,6 @@ export class PreemptionWhitelist {
     @JoinColumn({
         name: 'collection_id',
     })
-    collection: Activity
+    activity: Activity
 }
 

@@ -35,7 +35,6 @@ export class AssetController {
   @Get('myList')
   @ApiPaginatedResponse(Asset)
   async myList(@UserDec(UserEnum.userId) userId: number, @Query() listAssetDto: ListAssetDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    // this.logger.log(JSON.stringify(paginationDto));
     return await this.assetService.myList(userId, listAssetDto, paginationDto);
   }
 

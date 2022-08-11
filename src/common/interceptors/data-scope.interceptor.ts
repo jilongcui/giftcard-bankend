@@ -8,7 +8,8 @@
  * You can you up，no can no bb！！
  */
 
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { concat, Observable } from 'rxjs';

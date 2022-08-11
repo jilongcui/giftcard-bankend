@@ -179,6 +179,6 @@ export class OperLog {
         name: '操作时间',
         dateFormat: 'YYYY-MM-DD HH:mm:ss'
     })
-    operTime: string
+    operTime: Date
 
 }

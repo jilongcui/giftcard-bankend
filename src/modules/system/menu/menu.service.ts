@@ -6,7 +6,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TreeDataDto } from 'src/common/dto/tree-data.dto';
 import { SharedService } from 'src/shared/shared.service';
-import { FindConditions, getManager, In, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, getManager, In, Like, Repository } from 'typeorm';
 import { RoleService } from '../role/role.service';
 import { ReqAddMenuDto, ReqMenuListDto, ReqUpdateMenu } from './dto/req-menu.dto';
 import { Router } from './dto/res-menu.dto';
@@ -31,7 +31,7 @@ export class MenuService {
 
     /* 查询菜单列表 */
     async list(reqMenuListDto: ReqMenuListDto) {
-        let where: FindConditions<Menu> = {}
+        let where: FindOptionsWhere<Menu> = {}
         if (reqMenuListDto.menuName) {
             where.menuName = Like((`%${reqMenuListDto.menuName}%`))
         }
@@ -56,8 +56,8 @@ export class MenuService {
     }
 
     /* 通过id查询 */
-    async findById(menuId: number | string) {
-        return this.menuRepository.findOne(menuId)
+    async findById(menuId: number) {
+        return this.menuRepository.findOneBy({ menuId })
     }
 
     /* 通过id查询，返回原始数据 */
@@ -131,7 +131,7 @@ export class MenuService {
     }
 
     /* 获取角色的菜单权限列表 */
-    async getCheckedKeys(roleId: number | string): Promise<number[]> {
+    async getCheckedKeys(roleId: number): Promise<number[]> {
         let menuArr = await this.menuRepository.createQueryBuilder('menu')
             .select('menu.menuId', 'menuId')
             .addSelect('menu.mpath', 'mpath')

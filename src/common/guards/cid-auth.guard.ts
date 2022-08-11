@@ -1,5 +1,6 @@
-import { InjectRedis, Redis } from "@nestjs-modules/ioredis";
+import { InjectRedis } from "@liaoliaots/nestjs-redis";
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import Redis from "ioredis";
 import { USER_CID_KEY } from "../contants/redis.contant";
 
 @Injectable()
