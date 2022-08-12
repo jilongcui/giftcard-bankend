@@ -1,6 +1,6 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/nestjs-backend/src",
   "compilerOptions": {
     "assets": [
       "**/*.proto"
@@ -14,6 +14,30 @@
           "introspectComments": true
         }
       }
-    ]
+    ],
+    "webpack": true,
+    "tsConfigPath": "apps/nestjs-backend/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/nestjs-backend",
+  "projects": {
+    "nestjs-backend": {
+      "type": "application",
+      "root": "apps/nestjs-backend",
+      "entryFile": "main",
+      "sourceRoot": "apps/nestjs-backend/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/nestjs-backend/tsconfig.app.json"
+      }
+    },
+    "blockchain-backend": {
+      "type": "application",
+      "root": "apps/blockchain-backend",
+      "entryFile": "main",
+      "sourceRoot": "apps/blockchain-backend/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/blockchain-backend/tsconfig.app.json"
+      }
+    }
   }
 }
