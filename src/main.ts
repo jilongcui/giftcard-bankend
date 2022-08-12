@@ -13,6 +13,9 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter())  // 全局异常过滤器
 
   app.setGlobalPrefix("api")
+
+  app.disable('x-powered-by')
+
   /* 全局参数校验管道 */
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,  // 启用白名单，dto中没有声明的属性自动过滤
