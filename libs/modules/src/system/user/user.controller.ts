@@ -18,7 +18,7 @@ import { User as UserDec } from '@app/common/decorators/user.decorator';
 import { UserService } from './user.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
-import { ExcelService } from 'src/modules/common/excel/excel.service';
+import { ExcelService } from '@app/modules/common/excel/excel.service';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';

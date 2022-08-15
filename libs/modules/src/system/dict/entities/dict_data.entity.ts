@@ -1,7 +1,7 @@
 import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { BaseEntity } from "@app/common/entities/base.entity";
-import { Excel } from "../../common/excel/excel.decorator";
+import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { DictType } from "./dict_type.entity";
 

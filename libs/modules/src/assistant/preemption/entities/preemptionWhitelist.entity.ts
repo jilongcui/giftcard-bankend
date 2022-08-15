@@ -1,7 +1,7 @@
+import { Activity } from "@app/modules/activity/entities/activity.entity";
 import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
-import { Activity } from "../../activity/entities/activity.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()

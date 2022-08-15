@@ -2,7 +2,7 @@ import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator";
 import { BaseEntity } from "@app/common/entities/base.entity";
-import { Excel } from "../../common/excel/excel.decorator";
+import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Dept } from "../../dept/entities/dept.entity";
 import { Menu } from "../../menu/entities/menu.entity";

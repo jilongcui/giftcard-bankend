@@ -3,7 +3,7 @@ import { Injectable, Type } from '@nestjs/common';
 import { EXCEL_ARR_KRY } from './excel.constant';
 import xlsx from 'node-xlsx'
 import * as moment from 'moment';
-import { DictService } from 'src/modules/system/dict/dict.service';
+import { DictService } from '@app/modules/system/dict/dict.service';
 import { ExcelOptionAll } from './excel.interface';
 import { ExcelTypeEnum } from './excel.enum';
 import * as fs from 'fs';

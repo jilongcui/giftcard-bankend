@@ -1,4 +1,4 @@
-import { Excel } from "../../common/excel/excel.decorator";
+import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({

@@ -6,7 +6,7 @@ import { Collection } from '../collection/entities/collection.entity';
 import { Activity } from './entities/activity.entity';
 import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
 import { Preemption } from '../assistant/preemption/entities/preemption.entity';
-import { SharedModule } from 'src/shared/shared.module';
+import { SharedModule } from '@app/shared/shared.module';
 
 @Module({
   imports: [CacheModule.register(), TypeOrmModule.forFeature([Activity, PreemptionWhitelist, Preemption, Collection])],

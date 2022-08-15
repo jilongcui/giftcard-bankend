@@ -15,7 +15,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CAPTCHA_IMG_KEY, USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_NICKNAME_KEY, USER_PERMISSIONS_KEY, USER_ROLEKEYS_KEY, USER_ROLEKS_KEY, USER_TOKEN_KEY, USER_USERNAME_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
 import { ApiException } from '@app/common/exceptions/api.exception';
-import { SharedService } from 'src/shared/shared.service';
+import { SharedService } from '@app/shared/shared.service';
 import { MenuService } from '../system/menu/menu.service';
 import { User } from '../system/user/entities/user.entity';
 import { UserService } from '../system/user/user.service';
@@ -80,7 +80,7 @@ export class LoginService {
         user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
         if (!user) throw new ApiException('创建用户失败')
 
-        const payload: Payload = { userId: user.userId, pv: 1, };
+        const payload = { userId: user.userId, pv: 1, };
         //生成token
         let jwtSign = this.jwtService.sign(payload)
         //演示环境 复用 token，取消单点登录。
@@ -102,7 +102,7 @@ export class LoginService {
     /* 登录 */
     async login(request: Request) {
         const { user } = request as any
-        const payload: Payload = { userId: user.userId, pv: 1, };
+        const payload = { userId: user.userId, pv: 1, };
         //生成token
         let jwtSign = this.jwtService.sign(payload)
         //演示环境 复用 token，取消单点登录。

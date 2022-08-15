@@ -1,5 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { SharedModule } from 'src/shared/shared.module';
+import { SharedModule } from '@app/shared/shared.module';
 import { SmscodeController } from './smscode.controller';
 import { SmscodeService } from './smscode.service';
 

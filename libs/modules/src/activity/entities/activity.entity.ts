@@ -1,7 +1,7 @@
+import { Collection } from "@app/modules/collection/entities/collection.entity";
+import { Order } from "@app/modules/order/entities/order.entity";
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString } from "class-validator";
-import { Order } from "../../order/entities/order.entity";
-import { Collection } from "../../collection/entities/collection.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Preemption } from "../../assistant/preemption/entities/preemption.entity";
 

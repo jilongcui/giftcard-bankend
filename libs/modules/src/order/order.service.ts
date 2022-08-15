@@ -271,7 +271,7 @@ export class OrderService {
 
       const pattern = { cmd: 'hello' }
       const mintDto = new MintDto()
-      this.client.mint<number>(pattern, mintDto)
+      this.client.send(pattern, mintDto)
 
     } else if (order.type === '1') { // 二级市场资产交易
       // 把资产切换到新的用户就可以了

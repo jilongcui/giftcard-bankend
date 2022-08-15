@@ -13,7 +13,7 @@ import Redis from 'ioredis';
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { concat, Observable } from 'rxjs';
-import { Role } from 'src/modules/system/role/entities/role.entity';
+import { Role } from '@app/modules/system/role/entities/role.entity';
 import { DATASCOPE_KEY_METADATA } from '../contants/decorator.contant';
 import { USER_DEPTID_KEY, USER_ROLEKS_KEY } from '../contants/redis.contant';
 import { DeptOrUserAlias } from '../decorators/datascope.decorator';

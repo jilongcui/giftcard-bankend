@@ -31,11 +31,17 @@
       "@app/common/*": [
         "libs/common/src/*"
       ],
-      "../../": [
+      "@app/modules": [
         "libs/modules/src"
       ],
-      "../../*": [
+      "@app/modules/*": [
         "libs/modules/src/*"
+      ],
+      "@app/shared": [
+        "libs/shared/src"
+      ],
+      "@app/shared/*": [
+        "libs/shared/src/*"
       ]
     }
   }

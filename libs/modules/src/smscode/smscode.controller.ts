@@ -4,7 +4,7 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { ImageCaptchaGuard } from '@app/common/guards/image-captcha.guard';
-import { SharedService } from 'src/shared/shared.service';
+import { SharedService } from '@app/shared/shared.service';
 import { ReqSmsCodeCheckDto, ReqSmsCodeSendDto } from './dto/req-smscode.dto';
 import { SmscodeService } from './smscode.service';
 

@@ -11,7 +11,7 @@ import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 import { ApiException } from '../exceptions/api.exception';
-import { LogService } from 'src/modules/monitor/log/log.service';
+import { LogService } from '@app/modules/monitor/log/log.service';
 
 @Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {

@@ -8,7 +8,7 @@
  * You can you up，no can no bb！！
  */
 
-interface Payload {
+export interface Payload {
     userId: number,
     pv: number
 }

@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import { JOB_BULL_KEY } from '@app/common/contants/bull.contants';
 import { JobConsumer } from './job.processor';
-import { PostService } from 'src/modules/system/post/post.service';
+import { PostService } from '@app/modules/system/post/post.service';
 @Module({
     imports: [
         TypeOrmModule.forFeature([Job, JobLog]),

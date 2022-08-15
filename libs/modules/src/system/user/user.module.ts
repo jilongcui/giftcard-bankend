@@ -17,9 +17,9 @@ import { User } from './entities/user.entity';
 import { RoleModule } from '../role/role.module';
 import { PostModule } from '../post/post.module';
 import { DeptModule } from '../dept/dept.module';
-import { storage } from 'src/modules/common/upload/upload.module';
+import { storage } from '@app/modules/common/upload/upload.module';
 import { MulterModule } from '@nestjs/platform-express';
-import { Account } from 'src/modules/account/entities/account.entity';
+import { Account } from '@app/modules/account/entities/account.entity';
 
 @Module({
     imports: [

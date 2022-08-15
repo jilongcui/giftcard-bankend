@@ -15,7 +15,7 @@ import { Post as SysPost } from './entities/post.entity';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { Keep } from '@app/common/decorators/keep.decorator';
-import { ExcelService } from 'src/modules/common/excel/excel.service';
+import { ExcelService } from '@app/modules/common/excel/excel.service';
 import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';

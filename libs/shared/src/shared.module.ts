@@ -17,7 +17,7 @@ import { OperationLogInterceptor } from '@app/common/interceptors/operation-log.
 import { JwtAuthGuard } from '@app/common/guards/jwt-auth.guard';
 import { PermissionAuthGuard } from '@app/common/guards/permission-auth.guard';
 import { RoleAuthGuard } from '@app/common/guards/role-auth.guard';
-import { LogModule } from 'src/modules/monitor/log/log.module';
+import { LogModule } from '@app/modules/monitor/log/log.module';
 import { BullModule } from '@nestjs/bull';
 import { DataScopeInterceptor } from '@app/common/interceptors/data-scope.interceptor';
 import { RepeatSubmitGuard } from '@app/common/guards/repeat-submit.guard';

@@ -23,7 +23,7 @@ import { Request } from 'express';
 import { SmsCodeGuard } from '@app/common/guards/sms-code.guard';
 import { MobileAuthGuard } from '@app/common/guards/mobile-auth.guard';
 import { ImageCaptchaGuard } from '@app/common/guards/image-captcha.guard';
-import { SharedService } from 'src/shared/shared.service';
+import { SharedService } from '@app/shared/shared.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
 @ApiTags('登录')
 @ApiBearerAuth()

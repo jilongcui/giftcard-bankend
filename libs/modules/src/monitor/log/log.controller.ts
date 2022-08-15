@@ -9,7 +9,7 @@ import { Keep } from '@app/common/decorators/keep.decorator';
 import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
-import { ExcelService } from 'src/modules/common/excel/excel.service';
+import { ExcelService } from '@app/modules/common/excel/excel.service';
 import { ReqLogininforDto, ReqOperLogDto } from './dto/req-log.dto';
 import { Logininfor } from './entities/logininfor.entity';
 import { OperLog } from './entities/oper_log.entity';

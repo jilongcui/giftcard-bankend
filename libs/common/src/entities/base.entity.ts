@@ -10,8 +10,8 @@
 import { IsOptional, IsString } from "class-validator"
 import { Column, CreateDateColumn, UpdateDateColumn } from "typeorm"
 import { ApiHideProperty } from '@nestjs/swagger'
-import { Excel } from "../../common/excel/excel.decorator"
-import { ExcelTypeEnum } from "../../common/excel/excel.enum"
+import { Excel } from "@app/modules/common/excel/excel.decorator"
+import { ExcelTypeEnum } from "@app/modules/common/excel/excel.enum"
 
 export class BaseEntity {
     /* 创建时间 */

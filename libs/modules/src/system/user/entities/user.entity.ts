@@ -2,15 +2,15 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString, IsEmail, IsPhoneNumber, Allow } from "class-validator";
 import { BaseEntity } from "@app/common/entities/base.entity";
-import { Account } from "../../account/entities/account.entity";
-import { Excel } from "../../common/excel/excel.decorator";
-import { ExcelTypeEnum } from "../../common/excel/excel.enum";
-import { Identity } from "../../identity/entities/identity.entity";
-import { Order } from "../../order/entities/order.entity";
+import { Excel } from "@app/modules/common/excel/excel.decorator";
+import { ExcelTypeEnum } from "@app/modules/common/excel/excel.enum";
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Dept } from "../../dept/entities/dept.entity";
 import { Post } from "../../post/entities/post.entity";
 import { Role } from "../../role/entities/role.entity";
+import { Identity } from "@app/modules/identity/entities/identity.entity";
+import { Order } from "@app/modules/order/entities/order.entity";
+import { Account } from "@app/modules/account/entities/account.entity";
 
 @Entity()
 export class User extends BaseEntity {

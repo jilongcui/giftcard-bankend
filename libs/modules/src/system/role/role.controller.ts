@@ -14,7 +14,7 @@ import { RequiresPermissions } from '@app/common/decorators/requires-permissions
 import { User, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
-import { ExcelService } from 'src/modules/common/excel/excel.service';
+import { ExcelService } from '@app/modules/common/excel/excel.service';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { ReqAddRoleDto, ReqAllocatedListDto, ReqCancelAllDto, ReqCancelDto, ReqChangeStatusDto, ReqDataScopeDto, ReqRoleListDto, ReqUpdateRoleDto } from './dto/req-role.dto';
 import { Role } from './entities/role.entity';

@@ -15,7 +15,7 @@ import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
-import { ExcelService } from 'src/modules/common/excel/excel.service';
+import { ExcelService } from '@app/modules/common/excel/excel.service';
 import { DictService } from './dict.service';
 import { ReqAddDictDataDto, ReqAddDictTypeDto, ReqDictDataListDto, ReqDictTypeListDto, ReqUpdateDictDataDto } from './dto/req-dict.dto';
 import { DictData } from './entities/dict_data.entity';

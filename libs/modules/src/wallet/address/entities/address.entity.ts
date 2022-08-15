@@ -2,8 +2,8 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { BaseEntity } from "@app/common/entities/base.entity";
-import { Excel } from "../../common/excel/excel.decorator";
-import { ExcelTypeEnum } from "../../common/excel/excel.enum";
+import { Excel } from "@app/modules/common/excel/excel.decorator";
+import { ExcelTypeEnum } from "@app/modules/common/excel/excel.enum";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 export class Address {
