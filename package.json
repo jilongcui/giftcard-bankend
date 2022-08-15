@@ -122,7 +122,8 @@
     "moduleNameMapper": {
       "^@app/user(|/.*)$": "<rootDir>/libs/user/src/$1",
       "^@app/chain(|/.*)$": "<rootDir>/libs/chain/src/$1",
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^../../(|/.*)$": "<rootDir>/libs/modules/src/$1"
     }
   }
 }

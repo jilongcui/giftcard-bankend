@@ -30,6 +30,12 @@
       ],
       "@app/common/*": [
         "libs/common/src/*"
+      ],
+      "../../": [
+        "libs/modules/src"
+      ],
+      "../../*": [
+        "libs/modules/src/*"
       ]
     }
   }
