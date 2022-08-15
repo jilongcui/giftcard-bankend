@@ -38,6 +38,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/blockchain-backend/tsconfig.json"
       }
+    },
+    "asset-library": {
+      "type": "library",
+      "root": "libs/asset-library",
+      "entryFile": "index",
+      "sourceRoot": "libs/asset-library/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/asset-library/tsconfig.lib.json"
+      }
+    },
+    "user": {
+      "type": "library",
+      "root": "libs/user",
+      "entryFile": "index",
+      "sourceRoot": "libs/user/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/user/tsconfig.lib.json"
+      }
     }
   }
 }

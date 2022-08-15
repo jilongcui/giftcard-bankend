@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { BlockchainBackendModule } from './../src/blockchain-backend.module';
+import { BlockchainBackendModule } from '../src/blockchain-app.module';
 
 describe('BlockchainBackendController (e2e)', () => {
   let app: INestApplication;
