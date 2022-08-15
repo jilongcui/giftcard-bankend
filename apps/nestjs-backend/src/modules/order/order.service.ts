@@ -18,6 +18,7 @@ import { AssetRecord } from '../market/entities/asset-record.entity';
 import { CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
 import { Order } from './entities/order.entity';
 import { ClientProxy } from '@nestjs/microservices';
+import { MintDto } from '@app/chain';
 
 @Injectable()
 export class OrderService {
@@ -31,7 +32,7 @@ export class OrderService {
     @InjectRepository(PreemptionWhitelist) private readonly preemptionWhitelistRepository: Repository<PreemptionWhitelist>,
     @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
     @InjectRedis() private readonly redis: Redis,
-    @Inject('HELLO_SERVICE') private client: ClientProxy,
+    @Inject('CHAIN_SERVICE') private client: ClientProxy,
   ) {
   }
   async create(createOrderDto: CreateOrderDto, userId: number) {
@@ -267,6 +268,10 @@ export class OrderService {
         toName: userName
       })
       order.status = '2';
+
+      const pattern = { cmd: 'hello' }
+      const mintDto = new MintDto()
+      this.client.mint<number>(pattern, mintDto)
 
     } else if (order.type === '1') { // 二级市场资产交易
       // 把资产切换到新的用户就可以了

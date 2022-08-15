@@ -16,7 +16,7 @@
       }
     ],
     "webpack": true,
-    "tsConfigPath": "apps/nestjs-backend/tsconfig.json"
+    "tsConfigPath": "apps/nestjs-backend/tsconfig.app.json"
   },
   "monorepo": true,
   "root": "apps/nestjs-backend",
@@ -27,7 +27,7 @@
       "entryFile": "main",
       "sourceRoot": "apps/nestjs-backend/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/nestjs-backend/tsconfig.json"
+        "tsConfigPath": "apps/nestjs-backend/tsconfig.app.json"
       }
     },
     "blockchain-app": {
@@ -46,6 +46,15 @@
       "sourceRoot": "libs/user/src",
       "compilerOptions": {
         "tsConfigPath": "libs/user/tsconfig.lib.json"
+      }
+    },
+    "chain": {
+      "type": "library",
+      "root": "libs/chain",
+      "entryFile": "index",
+      "sourceRoot": "libs/chain/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/chain/tsconfig.lib.json"
       }
     }
   }

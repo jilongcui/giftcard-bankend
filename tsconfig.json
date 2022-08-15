@@ -13,17 +13,17 @@
     "incremental": true,
     "skipLibCheck": true,
     "paths": {
-      "@app/asset-library": [
-        "libs/asset-library/src"
-      ],
-      "@app/asset-library/*": [
-        "libs/asset-library/src/*"
-      ],
       "@app/user": [
         "libs/user/src"
       ],
       "@app/user/*": [
         "libs/user/src/*"
+      ],
+      "@app/chain": [
+        "libs/chain/src"
+      ],
+      "@app/chain/*": [
+        "libs/chain/src/*"
       ]
     }
   }

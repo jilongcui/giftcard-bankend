@@ -88,6 +88,7 @@ const aliasProviders = createAliasProviders();
     MarketModule,
     AirdropModule,
     PreemptionModule
+
   ],
   providers: [...aliasProviders]
 })
