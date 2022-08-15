@@ -5,7 +5,7 @@ import { Job } from './entities/job.entity';
 import { JobLog } from './entities/job_log.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
-import { JOB_BULL_KEY } from 'src/common/contants/bull.contants';
+import { JOB_BULL_KEY } from '@app/common/contants/bull.contants';
 import { JobConsumer } from './job.processor';
 import { PostService } from 'src/modules/system/post/post.service';
 @Module({

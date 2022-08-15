@@ -4,9 +4,9 @@ https://docs.nestjs.com/controllers#controllers
 
 import { Body, Controller, Delete, forwardRef, Get, Inject, Param, Post, Put, Query, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
-import { UserEnum } from 'src/common/decorators/user.decorator';
-import { UserInfoPipe } from 'src/common/pipes/user-info.pipe';
+import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
+import { UserEnum } from '@app/common/decorators/user.decorator';
+import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { ReqPostListDto } from '../post/dto/req-post.dto';
 import { PostService } from '../post/post.service';
 import { ReqRoleListDto } from '../role/dto/req-role.dto';
@@ -14,18 +14,18 @@ import { RoleService } from '../role/role.service';
 import { ReqAddUserDto, ReqChangeStatusDto, ReqResetPwdDto, ReqUpdataSelfDto, ReqUpdateAuthRoleDto, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
 import { ResAuthRoleDto, ResUserDto, ResUserInfoDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
-import { User as UserDec } from 'src/common/decorators/user.decorator';
+import { User as UserDec } from '@app/common/decorators/user.decorator';
 import { UserService } from './user.service';
-import { ApiException } from 'src/common/exceptions/api.exception';
-import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
+import { ApiException } from '@app/common/exceptions/api.exception';
+import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { ExcelService } from 'src/modules/common/excel/excel.service';
-import { Keep } from 'src/common/decorators/keep.decorator';
+import { Keep } from '@app/common/decorators/keep.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { BusinessTypeEnum, Log } from 'src/common/decorators/log.decorator';
-import { DataScope } from 'src/common/decorators/datascope.decorator';
-import { DataScopeSql } from 'src/common/decorators/data-scope-sql.decorator';
-import { RequiresPermissions } from 'src/common/decorators/requires-permissions.decorator';
-import { RepeatSubmit } from 'src/common/decorators/repeat-submit.decorator';
+import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
+import { DataScope } from '@app/common/decorators/datascope.decorator';
+import { DataScopeSql } from '@app/common/decorators/data-scope-sql.decorator';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
+import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 
 @ApiTags('用户管理')
 @ApiBearerAuth()

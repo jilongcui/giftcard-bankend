@@ -4,7 +4,7 @@ https://docs.nestjs.com/controllers#controllers
 
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { DataObj } from 'src/common/class/data-obj.class';
+import { DataObj } from '@app/common/class/data-obj.class';
 import { ServerService } from './server.service';
 
 @ApiTags('服务监控')

@@ -4,7 +4,7 @@ https://docs.nestjs.com/providers#services
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaginatedDto } from 'src/common/dto/paginated.dto';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { ReqAddNoticeDto, ReqNoeiceList } from './dto/req-notice.dto';
 import { Notice } from './entities/notice.entity';

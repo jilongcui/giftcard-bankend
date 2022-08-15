@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaginatedDto } from 'src/common/dto/paginated.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Repository, FindOptionsWhere } from 'typeorm';
 import { CreateContractDto, ListContractDto, UpdateContractDto } from './dto/request-contract.dto';
 import { Contract } from './entities/contract.entity';

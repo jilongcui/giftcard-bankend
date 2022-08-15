@@ -2,8 +2,8 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
-import { USER_SMSCODE_KEY } from 'src/common/contants/redis.contant';
-import { ApiException } from 'src/common/exceptions/api.exception';
+import { USER_SMSCODE_KEY } from '@app/common/contants/redis.contant';
+import { ApiException } from '@app/common/exceptions/api.exception';
 import * as tencentcloud from "tencentcloud-sdk-nodejs"
 import { ReqSmsCodeCheckDto } from './dto/req-smscode.dto';
 

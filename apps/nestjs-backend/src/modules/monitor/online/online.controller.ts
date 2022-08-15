@@ -4,9 +4,9 @@ https://docs.nestjs.com/controllers#controllers
 
 import { Controller, Delete, Get, Param, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ApiDataResponse, typeEnum } from 'src/common/decorators/api-data-response.decorator';
-import { BusinessTypeEnum, Log } from 'src/common/decorators/log.decorator';
-import { RequiresPermissions } from 'src/common/decorators/requires-permissions.decorator';
+import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
+import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { ReqOnline } from './dto/req-online.dto';
 import { ResOnlineDto } from './dto/res-online.dto';
 import { OnlineService } from './online.service';

@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
-import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
-import { Public } from 'src/common/decorators/public.decorator';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
+import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
+import { Public } from '@app/common/decorators/public.decorator';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { PreemptionService } from './preemption.service';
 import { CreatePreemptionDto, ListPreemptionDto, UpdatePreemptionDto } from './dto/request-preemption.dto';
 import { Preemption } from './entities/preemption.entity';

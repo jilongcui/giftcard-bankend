@@ -5,8 +5,8 @@ https://docs.nestjs.com/providers#services
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
-import { USER_ONLINE_KEY, USER_TOKEN_KEY } from 'src/common/contants/redis.contant';
-import { PaginatedDto } from 'src/common/dto/paginated.dto';
+import { USER_ONLINE_KEY, USER_TOKEN_KEY } from '@app/common/contants/redis.contant';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { ReqOnline } from './dto/req-online.dto';
 import { ResOnlineDto } from './dto/res-online.dto';
 

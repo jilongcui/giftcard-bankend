@@ -3,7 +3,7 @@ import { ResAddressDto } from './dto/res-address.dto';
 import { ReqAddressCreateDto } from './dto/req-address.dto';
 import * as jaysonPromise from 'jayson/promise';
 import { ReqAddressList } from './dto/req-address-list.dto';
-import { PaginatedDto } from 'src/common/dto/paginated.dto';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { Address, AddressBTC, AddressETH, AddressTRC } from './entities/address.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';

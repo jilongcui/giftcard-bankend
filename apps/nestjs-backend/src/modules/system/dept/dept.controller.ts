@@ -4,15 +4,15 @@ https://docs.nestjs.com/controllers#controllers
 
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { DataObj } from 'src/common/class/data-obj.class';
-import { ApiDataResponse, typeEnum } from 'src/common/decorators/api-data-response.decorator';
-import { BusinessTypeEnum, Log } from 'src/common/decorators/log.decorator';
-import { RepeatSubmit } from 'src/common/decorators/repeat-submit.decorator';
-import { RequiresPermissions } from 'src/common/decorators/requires-permissions.decorator';
-import { User, UserEnum } from 'src/common/decorators/user.decorator';
-import { TreeDataDto } from 'src/common/dto/tree-data.dto';
-import { ApiException } from 'src/common/exceptions/api.exception';
-import { UserInfoPipe } from 'src/common/pipes/user-info.pipe';
+import { DataObj } from '@app/common/class/data-obj.class';
+import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
+import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
+import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
+import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { TreeDataDto } from '@app/common/dto/tree-data.dto';
+import { ApiException } from '@app/common/exceptions/api.exception';
+import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { DeptService } from './dept.service';
 import { ReqAddDeptDto, ReqDeptListDto, ReqUpdateDept } from './dto/req-dept.dto';
 import { ResRoleDeptTreeselectDto } from './dto/res-dept.dto';

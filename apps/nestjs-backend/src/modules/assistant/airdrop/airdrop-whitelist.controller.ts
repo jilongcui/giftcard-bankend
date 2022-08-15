@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
-import { Public } from 'src/common/decorators/public.decorator';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
+import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
+import { Public } from '@app/common/decorators/public.decorator';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { AirdropWhitelistService } from './airdrop-whitelist.service';
 import { CreateAirdropWhitelistDto, ListAirdropWhitelistDto, UpdateAirdropWhitelistDto } from './dto/request-airdrop-whitelist.dto';
 import { AirdropWhitelist } from './entities/airdrop-whitelist.entity';

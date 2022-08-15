@@ -4,11 +4,11 @@ https://docs.nestjs.com/controllers#controllers
 
 import { Body, Controller, Delete, Get, Param, Post, Query, StreamableFile } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
-import { Keep } from 'src/common/decorators/keep.decorator';
-import { BusinessTypeEnum, Log } from 'src/common/decorators/log.decorator';
-import { RequiresPermissions } from 'src/common/decorators/requires-permissions.decorator';
-import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
+import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
+import { Keep } from '@app/common/decorators/keep.decorator';
+import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
+import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { ExcelService } from 'src/modules/common/excel/excel.service';
 import { ReqLogininforDto, ReqOperLogDto } from './dto/req-log.dto';
 import { Logininfor } from './entities/logininfor.entity';

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaginatedDto } from 'src/common/dto/paginated.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreatePreemptionDto, ListPreemptionDto, UpdatePreemptionDto } from './dto/request-preemption.dto';
 import { Preemption } from './entities/preemption.entity';

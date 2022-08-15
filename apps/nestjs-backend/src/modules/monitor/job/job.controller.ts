@@ -4,15 +4,15 @@ https://docs.nestjs.com/controllers#controllers
 
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, StreamableFile } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { DataObj } from 'src/common/class/data-obj.class';
-import { ApiDataResponse, typeEnum } from 'src/common/decorators/api-data-response.decorator';
-import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
-import { Keep } from 'src/common/decorators/keep.decorator';
-import { RepeatSubmit } from 'src/common/decorators/repeat-submit.decorator';
-import { RequiresPermissions } from 'src/common/decorators/requires-permissions.decorator';
-import { User, UserEnum } from 'src/common/decorators/user.decorator';
-import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
-import { UserInfoPipe } from 'src/common/pipes/user-info.pipe';
+import { DataObj } from '@app/common/class/data-obj.class';
+import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
+import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
+import { Keep } from '@app/common/decorators/keep.decorator';
+import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
+import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
+import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { ExcelService } from 'src/modules/common/excel/excel.service';
 import { ReqAddJob, ReqChangStatusDto, ReqJobListDto, ReqJobLogList, ReqJobRunDto } from './dto/req-job.dto';
 import { Job } from './entities/job.entity';

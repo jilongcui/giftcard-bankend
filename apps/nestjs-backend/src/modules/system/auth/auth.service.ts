@@ -2,8 +2,8 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { isEmpty } from 'lodash';
-import { CAPTCHA_IMG_KEY, USER_TOKEN_KEY, USER_VERSION_KEY } from 'src/common/contants/redis.contant';
-import { ApiException } from 'src/common/exceptions/api.exception';
+import { CAPTCHA_IMG_KEY, USER_TOKEN_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
+import { ApiException } from '@app/common/exceptions/api.exception';
 import { SharedService } from 'src/shared/shared.service';
 import { UserService } from '../user/user.service';
 

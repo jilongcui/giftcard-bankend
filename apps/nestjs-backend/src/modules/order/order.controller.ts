@@ -1,14 +1,14 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
-import { DataObj } from 'src/common/class/data-obj.class';
-import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
-import { Public } from 'src/common/decorators/public.decorator';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
+import { DataObj } from '@app/common/class/data-obj.class';
+import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
+import { Public } from '@app/common/decorators/public.decorator';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { Order } from './entities/order.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { User as UserDec, UserEnum } from 'src/common/decorators/user.decorator';
+import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 @ApiTags('订单')
 @ApiBearerAuth()
 @Controller('order')

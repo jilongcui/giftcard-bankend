@@ -10,21 +10,21 @@
 
 import { Body, Controller, Get, Post, Req, UseGuards, Headers } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { DataObj } from 'src/common/class/data-obj.class';
-import { ApiDataResponse, typeEnum } from 'src/common/decorators/api-data-response.decorator';
-import { Public } from 'src/common/decorators/public.decorator';
-import { User, UserEnum } from 'src/common/decorators/user.decorator';
-import { LocalAuthGuard } from 'src/common/guards/local-auth.guard';
+import { DataObj } from '@app/common/class/data-obj.class';
+import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
+import { Public } from '@app/common/decorators/public.decorator';
+import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { LocalAuthGuard } from '@app/common/guards/local-auth.guard';
 import { Router } from '../system/menu/dto/res-menu.dto';
 import { ReqLoginDto, ReqMobileLoginDto, ReqMobileRegDto } from './dto/req-login.dto';
 import { ResImageCaptchaDto, ResLoginDto } from './dto/res-login.dto';
 import { LoginService } from './login.service';
 import { Request } from 'express';
-import { SmsCodeGuard } from 'src/common/guards/sms-code.guard';
-import { MobileAuthGuard } from 'src/common/guards/mobile-auth.guard';
-import { ImageCaptchaGuard } from 'src/common/guards/image-captcha.guard';
+import { SmsCodeGuard } from '@app/common/guards/sms-code.guard';
+import { MobileAuthGuard } from '@app/common/guards/mobile-auth.guard';
+import { ImageCaptchaGuard } from '@app/common/guards/image-captcha.guard';
 import { SharedService } from 'src/shared/shared.service';
-import { ApiException } from 'src/common/exceptions/api.exception';
+import { ApiException } from '@app/common/exceptions/api.exception';
 @ApiTags('登录')
 @ApiBearerAuth()
 @Controller()

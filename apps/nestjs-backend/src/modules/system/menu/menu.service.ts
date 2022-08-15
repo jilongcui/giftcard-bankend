@@ -4,7 +4,7 @@ https://docs.nestjs.com/providers#services
 
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TreeDataDto } from 'src/common/dto/tree-data.dto';
+import { TreeDataDto } from '@app/common/dto/tree-data.dto';
 import { SharedService } from 'src/shared/shared.service';
 import { FindOptionsWhere, getManager, In, Like, Repository } from 'typeorm';
 import { RoleService } from '../role/role.service';

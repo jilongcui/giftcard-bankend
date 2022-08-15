@@ -3,12 +3,12 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ReqIdentify3ElementDto } from './dto/req-identity-3e.dto';
 import { IdentityService } from './identity.service';
 import { Request } from 'express';
-import { Public } from 'src/common/decorators/public.decorator';
+import { Public } from '@app/common/decorators/public.decorator';
 import { ReqAddressCreateDto } from '../wallet/address/dto/req-address.dto';
-import { User, UserEnum } from 'src/common/decorators/user.decorator';
+import { User, UserEnum } from '@app/common/decorators/user.decorator';
 import { Identity } from './entities/identity.entity';
-import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
-import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
+import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
+import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { ReqIdentityList } from './dto/req-identity-list.dto';
 
 @Controller('identity')

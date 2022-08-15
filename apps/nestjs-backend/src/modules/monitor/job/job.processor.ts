@@ -1,8 +1,8 @@
 import { OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { ModuleRef } from '@nestjs/core';
 import { Job } from 'bull';
-import { JOB_BULL_KEY } from 'src/common/contants/bull.contants';
-import { ApiException } from 'src/common/exceptions/api.exception';
+import { JOB_BULL_KEY } from '@app/common/contants/bull.contants';
+import { ApiException } from '@app/common/exceptions/api.exception';
 import { Job as SysJob } from './entities/job.entity';
 import { JobLog } from './entities/job_log.entity';
 import { JobService } from './job.service';

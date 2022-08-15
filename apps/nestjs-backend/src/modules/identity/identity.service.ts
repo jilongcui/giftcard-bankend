@@ -8,8 +8,8 @@ import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { Identity } from './entities/identity.entity';
 import * as querystring from 'querystring';
 import { ReqIdentityList } from './dto/req-identity-list.dto';
-import { PaginatedDto } from 'src/common/dto/paginated.dto';
-import { ApiException } from 'src/common/exceptions/api.exception';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
+import { ApiException } from '@app/common/exceptions/api.exception';
 
 @Injectable()
 export class IdentityService {

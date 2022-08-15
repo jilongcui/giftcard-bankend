@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaginatedDto } from 'src/common/dto/paginated.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateAirdropWhitelistDto, ListAirdropWhitelistDto, UpdateAirdropWhitelistDto } from './dto/request-airdrop-whitelist.dto';
 import { AirdropWhitelist } from './entities/airdrop-whitelist.entity';

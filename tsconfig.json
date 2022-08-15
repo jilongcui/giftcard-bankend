@@ -24,6 +24,12 @@
       ],
       "@app/chain/*": [
         "libs/chain/src/*"
+      ],
+      "@app/common": [
+        "libs/common/src"
+      ],
+      "@app/common/*": [
+        "libs/common/src/*"
       ]
     }
   }

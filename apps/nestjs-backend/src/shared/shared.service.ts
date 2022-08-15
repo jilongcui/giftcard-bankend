@@ -16,10 +16,10 @@ import { customAlphabet, nanoid } from 'nanoid';
 import { Request } from 'express'
 import axios from 'axios';
 import * as iconv from 'iconv-lite'
-import { CAPTCHA_IMG_KEY } from 'src/common/contants/redis.contant';
+import { CAPTCHA_IMG_KEY } from '@app/common/contants/redis.contant';
 import { isEmpty } from 'lodash';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { ApiException } from 'src/common/exceptions/api.exception';
+import { ApiException } from '@app/common/exceptions/api.exception';
 
 
 @Injectable()

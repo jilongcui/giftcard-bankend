@@ -1,9 +1,9 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Public } from 'src/common/decorators/public.decorator';
-import { RepeatSubmit } from 'src/common/decorators/repeat-submit.decorator';
-import { ApiException } from 'src/common/exceptions/api.exception';
-import { ImageCaptchaGuard } from 'src/common/guards/image-captcha.guard';
+import { Public } from '@app/common/decorators/public.decorator';
+import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
+import { ApiException } from '@app/common/exceptions/api.exception';
+import { ImageCaptchaGuard } from '@app/common/guards/image-captcha.guard';
 import { SharedService } from 'src/shared/shared.service';
 import { ReqSmsCodeCheckDto, ReqSmsCodeSendDto } from './dto/req-smscode.dto';
 import { SmscodeService } from './smscode.service';

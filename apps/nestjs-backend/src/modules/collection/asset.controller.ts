@@ -2,17 +2,17 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Logger, Put }
 import { AssetService } from './asset.service';
 import { CreateAssetDto, FlowAssetDto, ListAssetDto, UpdateAssetDto } from './dto/request-asset.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PaginationPipe } from 'src/common/pipes/pagination.pipe';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { DataObj } from 'src/common/class/data-obj.class';
-import { Public } from 'src/common/decorators/public.decorator';
+import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { DataObj } from '@app/common/class/data-obj.class';
+import { Public } from '@app/common/decorators/public.decorator';
 import { Asset } from './entities/asset.entity';
-import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
-import { RequiresPermissions } from 'src/common/decorators/requires-permissions.decorator';
-import { Log, BusinessTypeEnum } from 'src/common/decorators/log.decorator';
-import { RepeatSubmit } from 'src/common/decorators/repeat-submit.decorator';
-import { User as UserDec, UserEnum } from 'src/common/decorators/user.decorator';
-import { UserInfoPipe } from 'src/common/pipes/user-info.pipe';
+import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
+import { Log, BusinessTypeEnum } from '@app/common/decorators/log.decorator';
+import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
+import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 
 @ApiTags('资产')
 @Controller('asset')

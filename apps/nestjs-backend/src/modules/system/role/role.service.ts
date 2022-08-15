@@ -5,7 +5,7 @@ https://docs.nestjs.com/providers#services
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
-import { PaginatedDto } from 'src/common/dto/paginated.dto';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { Between, FindOptionsWhere, In, Like, Repository } from 'typeorm';
 import { DeptService } from '../dept/dept.service';
 import { MenuService } from '../menu/menu.service';

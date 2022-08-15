@@ -3,7 +3,6 @@
   "compilerOptions": {
     "declaration": false,
     "allowJs": true,
-    "baseUrl": "./",
     "outDir": "../../dist/apps/nestjs-backend"
   },
   "include": [
