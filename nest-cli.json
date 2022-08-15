@@ -30,22 +30,13 @@
         "tsConfigPath": "apps/nestjs-backend/tsconfig.json"
       }
     },
-    "blockchain-backend": {
+    "blockchain-app": {
       "type": "application",
-      "root": "apps/blockchain-backend",
+      "root": "apps/blockchain-app",
       "entryFile": "main",
-      "sourceRoot": "apps/blockchain-backend/src",
+      "sourceRoot": "apps/blockchain-app/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/blockchain-backend/tsconfig.json"
-      }
-    },
-    "asset-library": {
-      "type": "library",
-      "root": "libs/asset-library",
-      "entryFile": "index",
-      "sourceRoot": "libs/asset-library/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/asset-library/tsconfig.lib.json"
+        "tsConfigPath": "apps/blockchain-app/tsconfig.app.json"
       }
     },
     "user": {

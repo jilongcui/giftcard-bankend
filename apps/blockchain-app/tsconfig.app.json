@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": false,
-    "outDir": "../../dist/apps/blockchain-backend"
+    "outDir": "../../dist/apps/blockchain-app"
   },
   "include": [
     "src/**/*"
