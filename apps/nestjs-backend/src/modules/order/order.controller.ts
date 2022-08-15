@@ -72,4 +72,10 @@ export class OrderController {
   async payWithBalance(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) nickName: string) {
     return await this.orderService.payWithBalance(+id, userId, nickName);
   }
+
+  @Put('hello/:name')
+  @Public()
+  async hello(@Param('name') name: string) {
+    return await this.orderService.hello(name);
+  }
 }

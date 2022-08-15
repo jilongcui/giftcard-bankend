@@ -1,11 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { BlockchainAppModule } from './blockchain-app.module';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    BlockchainAppModule, {
+    AppModule, {
     transport: Transport.TCP,
+    options: {
+      port: 4000,
+    }
   });
   await app.listen();
 }

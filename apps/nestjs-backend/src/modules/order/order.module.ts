@@ -9,11 +9,16 @@ import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
 import { AssetRecord } from '../market/entities/asset-record.entity';
 import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, Activity, Account, Asset, Collection, AssetRecord, PreemptionWhitelist]),
+    ClientsModule.register([
+      { name: 'HELLO_SERVICE', transport: Transport.TCP, options: { port: 4000 } },
+    ]),
   ],
+
   controllers: [OrderController],
   providers: [OrderService]
 })

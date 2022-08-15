@@ -1,6 +1,6 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
-import { Injectable, Logger, ParseArrayPipe } from '@nestjs/common';
+import { Inject, Injectable, Logger, ParseArrayPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_SUPPLY, ACTIVITY_START_TIME, ACTIVITY_PRESTART_TIME } from 'src/common/contants/redis.contant';
@@ -17,6 +17,7 @@ import { Collection } from '../collection/entities/collection.entity';
 import { AssetRecord } from '../market/entities/asset-record.entity';
 import { CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
 import { Order } from './entities/order.entity';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class OrderService {
@@ -30,6 +31,7 @@ export class OrderService {
     @InjectRepository(PreemptionWhitelist) private readonly preemptionWhitelistRepository: Repository<PreemptionWhitelist>,
     @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
     @InjectRedis() private readonly redis: Redis,
+    @Inject('HELLO_SERVICE') private client: ClientProxy,
   ) {
   }
   async create(createOrderDto: CreateOrderDto, userId: number) {
@@ -291,5 +293,10 @@ export class OrderService {
       toId: userId,
       toName: userName
     })
+  }
+
+  async hello(name: string) {
+    const pattern = { cmd: 'hello' }
+    return this.client.send<number>(pattern, name)
   }
 }
