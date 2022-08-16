@@ -13,12 +13,6 @@
     "incremental": true,
     "skipLibCheck": true,
     "paths": {
-      "@app/user": [
-        "libs/user/src"
-      ],
-      "@app/user/*": [
-        "libs/user/src/*"
-      ],
       "@app/chain": [
         "libs/chain/src"
       ],
