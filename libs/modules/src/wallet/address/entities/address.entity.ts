@@ -15,14 +15,6 @@ export class Address {
     @IsNumber()
     id: number
 
-    // @Column({
-    //     name: 'notice_title',
-    //     comment: '公告标题',
-    //     length: 50,
-    // })
-    // @IsString()
-    // noticeTitle: string
-
     @Column({
         name: 'user_id',
         comment: '用户ID',
@@ -67,7 +59,7 @@ export class Address {
         name: 'state',
         comment: '公告状态（0正常 1关闭）',
         type: 'char',
-        default: '1',
+        default: '0',
         length: 1
     })
     @IsNumber()

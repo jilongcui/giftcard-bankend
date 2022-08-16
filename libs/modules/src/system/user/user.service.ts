@@ -28,6 +28,12 @@ import { RoleService } from '../role/role.service';
 import { ReqAddUserDto, ReqUpdataSelfDto, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
 import { ResAuthRoleDto, ResHasRoleDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
+import { CreateAddressDto } from '@app/modules/address/dto/request-address.dto';
+import { ClientProxy } from '@nestjs/microservices';
+import { AddressService } from '@app/modules/wallet/address/address.service';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { ResAddressCreateDto } from '@app/chain/dto/response-chain.dto';
+import { ReqAddressCreateDto } from '@app/modules/wallet/address/dto/req-address.dto';
 
 @Injectable()
 export class UserService {
@@ -36,10 +42,11 @@ export class UserService {
         @InjectRepository(User) private readonly userRepository: Repository<User>,
         @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
         @Inject(forwardRef(() => RoleService)) private readonly roleService: RoleService,
+        @InjectRedis() private readonly redis: Redis,
         private readonly postService: PostService,
         private readonly deptService: DeptService,
         private readonly sharedService: SharedService,
-        @InjectRedis() private readonly redis: Redis
+        private readonly addressService: AddressService,
     ) { }
 
     /* 通过用户名获取用户,排除停用和删除的,用于登录 */
@@ -178,11 +185,21 @@ export class UserService {
             reqAddUserDto.password = this.sharedService.md5(reqAddUserDto.password + reqAddUserDto.salt)
         }
         const user = await this.userRepository.save(reqAddUserDto)
+
+        // Create user account.
         let createAccountDto = new CreateAccountDto()
         createAccountDto.userId = user.userId
         createAccountDto.currencyId = 1
         createAccountDto.status = '0'
         await this.accountRepository.save(createAccountDto)
+
+
+        // Create address record.
+        const createAddressDto = new ReqAddressCreateDto()
+        createAddressDto.appId = '0'
+        createAddressDto.addressType = 'CRI'
+        createAddressDto.userId = user.userId
+        await this.addressService.addressCreate(createAddressDto)
         return user;
     }
 

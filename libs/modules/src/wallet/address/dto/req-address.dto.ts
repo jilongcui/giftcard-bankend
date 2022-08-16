@@ -5,7 +5,7 @@ export class ReqAddressCreateDto {
     // currencyId: string;
 
     @IsString()
-    userId: string;
+    userId: number;
 
     @IsString()
     appId: string;

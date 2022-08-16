@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ResAddressDto } from './dto/res-address.dto';
 import { ReqAddressCreateDto } from './dto/req-address.dto';
 import * as jaysonPromise from 'jayson/promise';
@@ -7,6 +7,9 @@ import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { Address, AddressBTC, AddressETH, AddressTRC } from './entities/address.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateAddressDto } from '@app/modules/address/dto/request-address.dto';
+import { firstValueFrom } from 'rxjs';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class AddressService implements OnModuleInit {
@@ -17,6 +20,7 @@ export class AddressService implements OnModuleInit {
         @InjectRepository(AddressETH) private readonly addressEthRepository: Repository<AddressETH>,
         @InjectRepository(AddressBTC) private readonly addressBtcRepository: Repository<AddressETH>,
         @InjectRepository(AddressTRC) private readonly addressTrcRepository: Repository<AddressTRC>,
+        @Inject('CHAIN_SERVICE') private client: ClientProxy,
     ) { }
 
     onModuleInit() {
@@ -31,8 +35,16 @@ export class AddressService implements OnModuleInit {
 
     async addressCreate(data: ReqAddressCreateDto): Promise<ResAddressDto> {
         // return this.addressRpcService.addressCreate(data)
-        this.response = await this.rpcClient.request('addressCreate', data);
-        return this.response;
+        if (data.addressType === 'CRI') {
+            // Get address from chain microservice
+            const pattern = { cmd: 'createAddress' }
+            const createAddrDto = new CreateAddressDto
+            const resAddressCreateDto = await firstValueFrom(this.client.send<ResAddressDto>(pattern, createAddrDto))
+            return resAddressCreateDto
+        } else {
+            const response = await this.rpcClient.request('addressCreate', data);
+            return response;
+        }
     }
 
     /* 分页查询 */

@@ -20,6 +20,7 @@ export class ChainService {
     async initAccount() {
         let kpA = crichain.Account.genKeypair()
         this.logger.debug(kpA)
+        return { address: kpA.address, privateKey: kpA.hexPrikey }
     }
 
     // 通过私钥，解码出地址
@@ -28,18 +29,21 @@ export class ChainService {
         // 0x8fa5914ae97735b19d5cfaac0bf4e04ab55a4dab
         let kp = crichain.Account.genFromPrikey("e6779259efd057970aa83ea5cc9db62d72695ce95de9cb117c8b635418605e5d");
         this.logger.debug(kp)
+        return kp
     }
 
     // 实名认证
     async realAuth(realAuthDto: RealAuthDto) {
         let result1 = await crichain.Account.realauth(realAuthDto.hexAddress, realAuthDto.userName, realAuthDto.userCardId);
         console.log("realauth", result1);
+        return result1
     }
 
     // 获得用户信息
     async getAccountInfo(address: string) {
         let account = await crichain.Account.getAccountInfo(address);
         console.log("account", account);
+        return account
     }
 
     // 铸造NFT
