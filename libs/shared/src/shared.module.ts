@@ -30,6 +30,7 @@ import Redis from 'ioredis';
     imports: [
         /* 连接mysql数据库 */
         TypeOrmModule.forRootAsync({
+            name: 'default',
             useFactory: (configService: ConfigService) => ({
                 autoLoadEntities: true,
                 type: configService.get<any>('database.type'),
