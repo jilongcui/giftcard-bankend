@@ -34,9 +34,9 @@ export class ChainService {
 
     // 实名认证
     async realAuth(realAuthDto: RealAuthDto) {
-        let result1 = await crichain.Account.realauth(realAuthDto.hexAddress, realAuthDto.userName, realAuthDto.userCardId);
-        console.log("realauth", result1);
-        return result1
+        let result = await crichain.Account.realauth(realAuthDto.hexAddress, realAuthDto.userName, realAuthDto.userCardId);
+        // console.log("realauth", result1);
+        return result
     }
 
     // 获得用户信息

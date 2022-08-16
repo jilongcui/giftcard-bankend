@@ -13,3 +13,17 @@ export class ReqIdentify3ElementDto {
     @IsString()
     realName: string;
 }
+
+export class ReqIdentify2ElementDto {
+    /*  CRI地址 */
+    @IsString()
+    address: string;
+
+    /* 身份证号 */
+    @IsString()
+    cardId: string;
+
+    /* 真实名称 */
+    @IsString()
+    realName: string;
+}

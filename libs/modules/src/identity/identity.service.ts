@@ -1,7 +1,7 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger, LoggerService } from '@nestjs/common';
+import { Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as CryptoJS from 'crypto-js';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
@@ -10,6 +10,9 @@ import * as querystring from 'querystring';
 import { ReqIdentityList } from './dto/req-identity-list.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import { RealAuthDto } from '@app/chain';
 
 @Injectable()
 export class IdentityService {
@@ -18,6 +21,7 @@ export class IdentityService {
     constructor(
         @InjectRedis() private readonly redis: Redis,
         @InjectRepository(Identity) private readonly indentityRepository: Repository<Identity>,
+        @Inject('CHAIN_SERVICE') private readonly chainClient: ClientProxy,
         private readonly httpService: HttpService,
     ) {
         this.logger = new Logger(IdentityService.name);
@@ -30,7 +34,7 @@ export class IdentityService {
         // let isIdentify = await this.doIdentity3Element(mobile, cardId, realName);
         if (isIdentify) {
             // save to identity respository
-            this.indentityRepository.save({
+            await this.indentityRepository.save({
                 mobile,
                 cardId,
                 realName,
@@ -39,7 +43,6 @@ export class IdentityService {
         } else {
             throw new ApiException("实名认证失败", 403)
         }
-
     }
 
     /* 通过手机号三要素获取实名认证 */
@@ -74,7 +77,7 @@ export class IdentityService {
 
         let res = await this.httpService.axiosRef.post<any>(this.remoteUrl, querystring.stringify(body), options);
         // res: AxiosResponse<any>;
-        this.logger.debug(res.data);
+        // this.logger.debug(res.data);
         if (res.data.error_code == 0) {
             let result = res.data.result;
             if (result.VerificationResult == 1) {
@@ -83,6 +86,37 @@ export class IdentityService {
             }
         }
         return false;
+    }
+
+    async identityWithCrichain(address: string, cardId: string, realName: string, userId: number) {
+        // let isIdentify = true;
+        let isIdentify = await this.doIdentityWithCrichain(address, cardId, realName)
+        if (isIdentify) {
+            // save to identity respository
+            await this.indentityRepository.save({
+                mobile: address.slice(0, 10),
+                cardId,
+                realName,
+                user: { userId: userId }
+            })
+        } else {
+            throw new ApiException("实名认证失败", 403)
+        }
+    }
+    /* 通过手机号三要素获取实名认证 */
+    async doIdentityWithCrichain(
+        address: string, cardId: string, realName: string
+    ): Promise<boolean> {
+
+        const pattern = { cmd: 'realAuth' }
+        const dto = new RealAuthDto()
+        dto.hexAddress = address
+        dto.userCardId = cardId
+        dto.userName = realName
+        const response = await firstValueFrom(this.chainClient.send(pattern, dto))
+        if (!response || !response.result)
+            return false;
+        return true
     }
 
     /* 分页查询 */
