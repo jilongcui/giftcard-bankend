@@ -42,6 +42,14 @@
       ],
       "@app/shared/*": [
         "libs/shared/src/*"
+      ],
+      "@app/crichain": [
+        "libs/crichain/src",
+        "libs/crichain/src"
+      ],
+      "@app/crichain/*": [
+        "libs/crichain/src/*",
+        "libs/crichain/src/*"
       ]
     }
   }
