@@ -18,11 +18,13 @@ import { AssetRecord } from '../market/entities/asset-record.entity';
 import { CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
 import { Order } from './entities/order.entity';
 import { ClientProxy } from '@nestjs/microservices';
-import { MintDto } from '@app/chain';
+import { MintADto } from '@app/chain';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class OrderService {
   logger = new Logger(OrderService.name)
+  platformAddress: string
   constructor(
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
@@ -33,7 +35,9 @@ export class OrderService {
     @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
     @InjectRedis() private readonly redis: Redis,
     @Inject('CHAIN_SERVICE') private client: ClientProxy,
+    private readonly configService: ConfigService,
   ) {
+    this.platformAddress = this.configService.get<string>('crichain.platformAddress')
   }
   async create(createOrderDto: CreateOrderDto, userId: number) {
     // 开启事务
@@ -269,9 +273,13 @@ export class OrderService {
       })
       order.status = '2';
 
-      const pattern = { cmd: 'hello' }
-      const mintDto = new MintDto()
-      this.client.send(pattern, mintDto)
+      const pattern = { cmd: 'mintA' }
+      const mintDto = new MintADto()
+      mintDto.address = this.platformAddress
+      mintDto.tokenId = this.randomTokenId().toString()
+      mintDto.contractId = 0
+      const result = this.client.emit(pattern, mintDto)
+      this.logger.log(result)
 
     } else if (order.type === '1') { // 二级市场资产交易
       // 把资产切换到新的用户就可以了
@@ -280,6 +288,10 @@ export class OrderService {
     }
 
     return order;
+  }
+
+  private randomTokenId(): number {
+    return Math.floor((Math.random() * 999999999) + 1000000000);
   }
 
   async buyAsset(id: number, userId: number, userName: string) {

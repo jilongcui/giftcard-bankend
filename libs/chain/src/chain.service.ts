@@ -3,11 +3,12 @@ import { ConfigService } from '@nestjs/config';
 // import * as crichain from 'crichain';
 var crichain = require('crichain');
 // import * as crichain from '@app/crichain';
-import { DestroyDto, MintDto, RealAuthDto, TransferDto } from './dto/request-chain.dto';
+import { DestroyDto, MintADto, RealAuthDto, TransferDto } from './dto/request-chain.dto';
 
 @Injectable()
 export class ChainService {
     logger = new Logger(ChainService.name)
+    tokenUrl: string
     contractAddr: string
     platformPrivateKey: string
     constructor(
@@ -18,6 +19,7 @@ export class ChainService {
             // baseUrl: "http://localhost:3001",
             contract: { path: "../../contracts/abi/NFT_A.json", code: "NFT_A" }
         });
+        this.tokenUrl = this.configService.get<string>('crichain.tokenUrl')
         this.contractAddr = this.configService.get<string>('crichain.contractAddr')
         this.platformPrivateKey = this.configService.get<string>('crichain.platformPrivateKey')
     }
@@ -57,10 +59,16 @@ export class ChainService {
     }
 
     // 铸造NFT
-    async mint(mintDto: MintDto) {
+    // 提供tokenId
+    async mintA(mintDto: MintADto) {
+        // Create a transaction record
+        // Do the transaction.
+        // Check the transaction.
         const kp = await this.decodePrivate()
-        let result = await crichain.Contract.safeMint(kp, this.contractAddr, mintDto.address, mintDto.tokenId, mintDto.url);
-        console.log("safeMint", result);
+        const url = this.tokenUrl + mintDto.tokenId
+        let result = await crichain.Contract.safeMint(kp, this.contractAddr, mintDto.address, mintDto.tokenId, url);
+        // console.log("safeMint", result);
+        return result
     }
 
     // 转移所有权

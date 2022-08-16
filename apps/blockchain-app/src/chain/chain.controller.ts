@@ -1,9 +1,9 @@
 import { ChainService } from '@app/chain';
-import { DestroyDto, MintDto, RealAuthDto, TransferDto } from '@app/chain/dto/request-chain.dto';
+import { DestroyDto, MintADto, RealAuthDto, TransferDto } from '@app/chain/dto/request-chain.dto';
 import { ResAddressCreateDto } from '@app/chain/dto/response-chain.dto';
 import { ResAddressDto } from '@app/modules/wallet/address/dto/res-address.dto';
 import { Controller } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { EventPattern, MessagePattern } from '@nestjs/microservices';
 
 @Controller('chain')
 export class ChainController {
@@ -27,9 +27,9 @@ export class ChainController {
         return await this.chainService.getAccountInfo(data)
     }
 
-    @MessagePattern({ cmd: 'mint' })
-    async mint(data: MintDto) {
-        return await this.chainService.mint(data)
+    @EventPattern({ cmd: 'mintA' })
+    async mint(data: MintADto) {
+        return await this.chainService.mintA(data)
     }
 
     @MessagePattern({ cmd: 'transfer' })

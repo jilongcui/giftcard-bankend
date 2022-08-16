@@ -5,11 +5,10 @@ export class RealAuthDto {
     userCardId: string
 }
 
-export class MintDto {
+export class MintADto {
     contractId: number;
     address: string;
     tokenId: string;
-    url: string;
 }
 
 export class TransferDto {
