@@ -82,6 +82,12 @@ export interface IConfig {
         SignName: string,
     }
 
+    crichain?: {
+        platformAddress: string,
+        platformPrivateKey: string,
+        contractAddress: string,
+    }
+
     /* 是否演示环境 */
     isDemoEnvironment?: Boolean;
 }
