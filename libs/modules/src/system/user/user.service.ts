@@ -28,11 +28,7 @@ import { RoleService } from '../role/role.service';
 import { ReqAddUserDto, ReqUpdataSelfDto, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
 import { ResAuthRoleDto, ResHasRoleDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
-import { CreateAddressDto } from '@app/modules/address/dto/request-address.dto';
-import { ClientProxy } from '@nestjs/microservices';
 import { AddressService } from '@app/modules/wallet/address/address.service';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
-import { ResAddressCreateDto } from '@app/chain/dto/response-chain.dto';
 import { ReqAddressCreateDto } from '@app/modules/wallet/address/dto/req-address.dto';
 
 @Injectable()
@@ -196,7 +192,7 @@ export class UserService {
 
         // Create address record.
         const createAddressDto = new ReqAddressCreateDto()
-        createAddressDto.appId = '0'
+        createAddressDto.appId = 0
         createAddressDto.addressType = 'CRI'
         createAddressDto.userId = user.userId
         await this.addressService.addressCreate(createAddressDto)

@@ -1,12 +1,10 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { Public } from '@app/common/decorators/public.decorator';
-import { ReqAddressCreateDto } from './dto/req-address.dto';
+import { ReqAddressCreateDto, ReqAddressList } from './dto/req-address.dto';
 import { ResAddressDto } from './dto/res-address.dto';
 import { AddressService } from './address.service';
 import { Address } from './entities/address.entity';
-import { ReqAddressList } from './dto/req-address-list.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
-import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -17,7 +15,7 @@ export class AddressController {
     ) { }
 
     // @RequiresPermissions('system:address:query')
-    @Get()
+    @Get('list')
     @Public()
     @ApiPaginatedResponse(Address)
     list(@Query(PaginationPipe) reqAddressList: ReqAddressList) {

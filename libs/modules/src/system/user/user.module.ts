@@ -20,6 +20,7 @@ import { DeptModule } from '../dept/dept.module';
 import { storage } from '@app/modules/common/upload/upload.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { Account } from '@app/modules/account/entities/account.entity';
+import { AddressModule } from '@app/modules/wallet/address/address.module';
 
 @Module({
     imports: [
@@ -30,7 +31,8 @@ import { Account } from '@app/modules/account/entities/account.entity';
         MulterModule.register({
             storage: storage,
             preservePath: false,
-        })
+        }),
+        AddressModule,
     ],
     controllers: [
         UserController,],

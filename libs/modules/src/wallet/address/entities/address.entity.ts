@@ -66,14 +66,12 @@ export class Address {
     status: number
 
     /* 创建时间 */
-    @Column({ name: 'createtime', comment: '创建时间' })
-    // @Excel({
-    //     name: '创建时间',
-    //     type: ExcelTypeEnum.EXPORT,
-    //     dateFormat: 'YYYY-MM-DD HH:mm:ss',
-    //     sort: 99
-    // })
-    createTime: Number
+    @ApiHideProperty()
+    @CreateDateColumn({
+        name: 'create_time',
+        comment: '创建时间'
+    })
+    createTime: number
 }
 
 @Entity('address_btc')
@@ -86,4 +84,8 @@ export class AddressETH extends Address {
 
 @Entity('address_tron')
 export class AddressTRC extends Address {
+}
+
+@Entity('address_cri')
+export class AddressCRI extends Address {
 }

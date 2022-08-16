@@ -1,6 +1,7 @@
 import { ChainService } from '@app/chain';
 import { DestroyDto, MintDto, RealAuthDto, TransferDto } from '@app/chain/dto/request-chain.dto';
 import { ResAddressCreateDto } from '@app/chain/dto/response-chain.dto';
+import { ResAddressDto } from '@app/modules/wallet/address/dto/res-address.dto';
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 
@@ -11,8 +12,8 @@ export class ChainController {
         private readonly chainService: ChainService
     ) { }
 
-    @MessagePattern({ cmd: 'createAccount' })
-    async createAccount(): Promise<ResAddressCreateDto> {
+    @MessagePattern({ cmd: 'createAddress' })
+    async createAccount(): Promise<ResAddressDto> {
         return await this.chainService.initAccount()
     }
 

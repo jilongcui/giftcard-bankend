@@ -1,15 +1,15 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ResAddressDto } from './dto/res-address.dto';
-import { ReqAddressCreateDto } from './dto/req-address.dto';
+import { ReqAddressAddDto, ReqAddressCreateDto, ReqAddressList } from './dto/req-address.dto';
 import * as jaysonPromise from 'jayson/promise';
-import { ReqAddressList } from './dto/req-address-list.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
-import { Address, AddressBTC, AddressETH, AddressTRC } from './entities/address.entity';
+import { Address, AddressBTC, AddressCRI, AddressETH, AddressTRC } from './entities/address.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateAddressDto } from '@app/modules/address/dto/request-address.dto';
 import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
+import { ApiTags } from '@nestjs/swagger';
+import { ApiException } from '@app/common/exceptions/api.exception';
 
 @Injectable()
 export class AddressService implements OnModuleInit {
@@ -20,6 +20,7 @@ export class AddressService implements OnModuleInit {
         @InjectRepository(AddressETH) private readonly addressEthRepository: Repository<AddressETH>,
         @InjectRepository(AddressBTC) private readonly addressBtcRepository: Repository<AddressETH>,
         @InjectRepository(AddressTRC) private readonly addressTrcRepository: Repository<AddressTRC>,
+        @InjectRepository(AddressCRI) private readonly addressCriRepository: Repository<AddressCRI>,
         @Inject('CHAIN_SERVICE') private client: ClientProxy,
     ) { }
 
@@ -34,17 +35,51 @@ export class AddressService implements OnModuleInit {
     }
 
     async addressCreate(data: ReqAddressCreateDto): Promise<ResAddressDto> {
-        // return this.addressRpcService.addressCreate(data)
+        // Check if exist 
+        let exist = false;
+        if (data.addressType === 'CRI') {
+            if (await this.addressCriRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === 'TRC') {
+            if (await this.addressTrcRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === 'BTC') {
+            if (await this.addressBtcRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === 'ETH') {
+            if (await this.addressCriRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+                exist = true;
+        }
+
+        if (exist) {
+            throw new ApiException('User address exist.')
+        }
+        let response: ResAddressDto;
         if (data.addressType === 'CRI') {
             // Get address from chain microservice
             const pattern = { cmd: 'createAddress' }
-            const createAddrDto = new CreateAddressDto
-            const resAddressCreateDto = await firstValueFrom(this.client.send<ResAddressDto>(pattern, createAddrDto))
-            return resAddressCreateDto
+            response = await firstValueFrom(this.client.send<ResAddressDto>(pattern, {}))
+
         } else {
-            const response = await this.rpcClient.request('addressCreate', data);
-            return response;
+            response = await this.rpcClient.request('addressCreate', data);
         }
+        const reqAddrAddDto = new ReqAddressAddDto()
+        reqAddrAddDto.address = response.address
+        reqAddrAddDto.privateKey = response.privatekeyEncode
+        reqAddrAddDto.appId = 0
+        reqAddrAddDto.userId = data.userId
+        if (data.addressType === 'CRI')
+            await this.addressCriRepository.save(reqAddrAddDto)
+        else if (data.addressType === 'ETH')
+            await this.addressEthRepository.save(reqAddrAddDto)
+        else if (data.addressType === 'TRC')
+            await this.addressTrcRepository.save(reqAddrAddDto)
+        else if (data.addressType === 'BTC')
+            await this.addressBtcRepository.save(reqAddrAddDto)
+        return response
     }
 
     /* 分页查询 */
