@@ -5,10 +5,12 @@ https://docs.nestjs.com/modules
 
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
-import { join } from 'path';
+import { extname, join } from 'path';
 import * as fs from 'fs';
 import * as moment from 'moment'
 import * as multer from 'multer';
+import { SharedModule } from '@app/shared';
+import { UploadService } from './upload.service';
 
 
 export let storage = multer.diskStorage({
@@ -31,18 +33,22 @@ export let storage = multer.diskStorage({
     filename: (req, file, cd) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
         // 挂载文件存储的路径
-        req.query.fileName = req.query.fileName + '/' + uniqueSuffix + '-' + file.originalname
-        cd(null, uniqueSuffix + '-' + file.originalname)
+        const extName = extname(file.originalname)
+        req.query.fileName = uniqueSuffix + extName
+        cd(null, uniqueSuffix + extName)
     }
 })
 
 @Module({
-    imports: [MulterModule.register({
-        storage: storage,
-        preservePath: false,
-    })],
+    imports: [
+        SharedModule,
+        MulterModule.register({
+            storage: storage,
+            preservePath: false,
+        })],
     controllers: [
         UploadController,],
-    providers: [MulterModule],
+    providers: [MulterModule, UploadService],
+    exports: [UploadService]
 })
 export class UploadModule { }

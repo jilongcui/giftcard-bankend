@@ -17,7 +17,7 @@ import { User } from './entities/user.entity';
 import { RoleModule } from '../role/role.module';
 import { PostModule } from '../post/post.module';
 import { DeptModule } from '../dept/dept.module';
-import { storage } from '@app/modules/common/upload/upload.module';
+import { storage, UploadModule } from '@app/modules/common/upload/upload.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { Account } from '@app/modules/account/entities/account.entity';
 import { AddressModule } from '@app/modules/wallet/address/address.module';
@@ -33,6 +33,7 @@ import { AddressModule } from '@app/modules/wallet/address/address.module';
             preservePath: false,
         }),
         AddressModule,
+        UploadModule,
     ],
     controllers: [
         UserController,],

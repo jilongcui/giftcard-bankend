@@ -26,6 +26,7 @@ import { DataScope } from '@app/common/decorators/datascope.decorator';
 import { DataScopeSql } from '@app/common/decorators/data-scope-sql.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
+import { UploadService } from '@app/modules/common/upload/upload.service';
 
 @ApiTags('用户管理')
 @ApiBearerAuth()
@@ -35,8 +36,10 @@ export class UserController {
         private readonly userService: UserService,
         private readonly postService: PostService,
         private readonly excelService: ExcelService,
+        private readonly uploadService: UploadService,
         @Inject(forwardRef(() => RoleService)) private readonly roleService: RoleService
-    ) { }
+    ) {
+    }
 
     /* 分页查询用户列表 */
     @Get('list')
@@ -117,11 +120,13 @@ export class UserController {
     @Post('profile/avatar')
     @UseInterceptors(FileInterceptor('avatarfile'))
     async avatar(@UploadedFile() file: Express.Multer.File, @Query('fileName') fileName, @UserDec(UserEnum.userId) userId: number) {
+        const url = await this.uploadService.uploadToCos(file.filename, file.path)
+
         const reqUpdataSelfDto = new ReqUpdataSelfDto()
-        reqUpdataSelfDto.avatar = fileName
+        reqUpdataSelfDto.avatar = url
         await this.userService.updataProfile(reqUpdataSelfDto, userId)
         return {
-            imgUrl: fileName,
+            imgUrl: url,
         }
     }
 
