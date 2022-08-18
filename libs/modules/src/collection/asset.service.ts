@@ -63,6 +63,7 @@ export class AssetService {
         price: true,
         updateTime: true,
         createTime: true,
+        userId: true,
         user: {
           nickName: true,
           avatar: true,
@@ -110,6 +111,7 @@ export class AssetService {
         assetNo: true,
         price: true,
         createTime: true,
+        userId: true,
         user: {
           nickName: true,
           avatar: true,
@@ -152,6 +154,7 @@ export class AssetService {
         assetNo: true,
         price: true,
         updateTime: true,
+        userId: true,
         user: {
           nickName: true,
           avatar: true,
@@ -188,6 +191,7 @@ export class AssetService {
         id: true,
         assetNo: true,
         price: true,
+        userId: true,
         user: {
           nickName: true,
           avatar: true,
