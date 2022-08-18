@@ -57,10 +57,30 @@ export class AssetService {
     where.userId = userId;
 
     result = await this.assetRepository.findAndCount({
-      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
-      // select: ['assetId', "user", "collection"],
-      relations: ["user", "collection"],
-      where,
+      select: {
+        id: true,
+        assetNo: true,
+        price: true,
+        updateTime: true,
+        user: {
+          nickName: true,
+          avatar: true,
+        },
+        collection: {
+          name: true,
+          desc: true,
+          supply: true,
+          images: true,
+          author: {
+            nickName: true,
+            avatar: true,
+          },
+        }
+      },
+      relations: {
+        user: true,
+        collection: true
+      },
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -84,8 +104,7 @@ export class AssetService {
     }
 
     result = await this.assetRepository.findAndCount({
-      where,
-      relations: {
+      select: {
         id: true,
         assetNo: true,
         price: true,
@@ -94,16 +113,17 @@ export class AssetService {
           avatar: true,
         },
         collection: {
-          author: {
-            nickName: true,
-            avatar: true,
-          },
           name: true,
           desc: true,
           supply: true,
           images: true,
-          contract: true,
+          // contract: true,
         }
+      },
+      where,
+      relations: {
+        user: true,
+        collection: true
       },
       skip: paginationDto.skip,
       take: paginationDto.take,
@@ -125,9 +145,27 @@ export class AssetService {
     let result: any;
 
     result = await this.assetRepository.findAndCount({
-      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
-      // select: ['assetId', "user", "collection"],
-      relations: ["user", "collection"],
+      select: {
+        id: true,
+        assetNo: true,
+        price: true,
+        updateTime: true,
+        user: {
+          nickName: true,
+          avatar: true,
+        },
+        collection: {
+          name: true,
+          desc: true,
+          supply: true,
+          images: true,
+          // contract: true,
+        }
+      },
+      relations: {
+        user: true,
+        collection: true
+      },
       where,
       skip: 0,
       take: 6,
@@ -144,7 +182,7 @@ export class AssetService {
 
   findOne(id: number) {
     return this.assetRepository.findOne({
-      where: { id }, relations: {
+      select: {
         id: true,
         assetNo: true,
         price: true,
@@ -161,7 +199,20 @@ export class AssetService {
           desc: true,
           supply: true,
           images: true,
+          contract: {
+            chain: true,
+            standard: true,
+            address: true,
+          },
+        }
+      },
+      where: { id },
+      relations: {
+        user: true,
+        collection: {
+          author: true,
           contract: true,
+
         }
       }
     })
