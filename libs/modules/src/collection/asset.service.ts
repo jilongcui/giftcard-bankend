@@ -57,6 +57,7 @@ export class AssetService {
     where.userId = userId;
 
     result = await this.assetRepository.findAndCount({
+      where,
       select: {
         id: true,
         assetNo: true,
@@ -64,6 +65,7 @@ export class AssetService {
         updateTime: true,
         createTime: true,
         userId: true,
+        status: true,
         user: {
           nickName: true,
           avatar: true,
@@ -112,6 +114,7 @@ export class AssetService {
         price: true,
         createTime: true,
         userId: true,
+        status: true,
         user: {
           nickName: true,
           avatar: true,
@@ -155,6 +158,7 @@ export class AssetService {
         price: true,
         updateTime: true,
         userId: true,
+        status: true,
         user: {
           nickName: true,
           avatar: true,
@@ -192,6 +196,7 @@ export class AssetService {
         assetNo: true,
         price: true,
         userId: true,
+        status: true,
         user: {
           nickName: true,
           avatar: true,
