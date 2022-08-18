@@ -38,7 +38,7 @@ export class UploadService {
             FilePath: localPath // 本地文件地址，需自行替换
         });
 
-        return join(this.cosDomain, fileName)
+        return this.cosDomain + '/' + fileName
     }
 
     async thumbnail(fileName: string, scale: string) {
