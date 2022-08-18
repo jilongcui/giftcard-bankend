@@ -76,6 +76,9 @@ export interface IConfig {
     tencentSMS?: {
         SecretId: string,
         SecretKey: string,
+        CosDomain: string,
+        CosRegion: string,
+        CosBucket: string,
         SmsSdkAppId: string,
         TemplateLoginId: string,
         TemplateRegId: string,

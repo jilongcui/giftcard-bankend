@@ -27,6 +27,7 @@ import { DataScopeSql } from '@app/common/decorators/data-scope-sql.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { UploadService } from '@app/modules/common/upload/upload.service';
+import { join } from 'path';
 
 @ApiTags('用户管理')
 @ApiBearerAuth()
@@ -120,7 +121,7 @@ export class UserController {
     @Post('profile/avatar')
     @UseInterceptors(FileInterceptor('avatarfile'))
     async avatar(@UploadedFile() file: Express.Multer.File, @Query('fileName') fileName, @UserDec(UserEnum.userId) userId: number) {
-        const url = await this.uploadService.uploadToCos(file.filename, file.path)
+        const url = await this.uploadService.uploadToCos(fileName, file.path)
 
         const reqUpdataSelfDto = new ReqUpdataSelfDto()
         reqUpdataSelfDto.avatar = url

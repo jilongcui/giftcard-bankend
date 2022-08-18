@@ -70,7 +70,7 @@ export class UploadController {
     @UseInterceptors(FileInterceptor('file'))
     async uploadFileCos(@UploadedFile() file: Express.Multer.File, @Query('fileName') fileName) {
 
-        const url = await this.uploadService.uploadToCos(file.filename, file.path)
+        const url = await this.uploadService.uploadToCos(fileName, file.path)
 
         return {
             fileName,

@@ -42,6 +42,9 @@ export default defineConfig({
   tencentSMS: {
     SecretId: process.env.SecretId,
     SecretKey: process.env.SecretKey,
+    CosDomain: 'img.startland.top',
+    CosBucket: 'startland-1312838165',
+    CosRegion: 'ap-shanghai',
     SmsSdkAppId: '1400706961',
     TemplateLoginId: '1473029',
     TemplateRegId: '1473032',

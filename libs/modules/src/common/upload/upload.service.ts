@@ -5,37 +5,40 @@ import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Repository, FindOptionsWhere } from 'typeorm';
 import * as COS from 'cos-nodejs-sdk-v5';
 import { ConfigService } from '@nestjs/config';
+import path, { join } from 'path';
 
 @Injectable()
 export class UploadService {
     cos: COS
     bucket: string
     region: string
+    cosDomain: string
 
     constructor(
         private readonly configService: ConfigService,
     ) {
         const secretId = this.configService.get<string>('tencentSMS.SecretId')
         const secretKey = this.configService.get<string>('tencentSMS.SecretKey')
+        this.cosDomain = this.configService.get<string>('tencentSMS.CosDomain')
+        this.bucket = this.configService.get<string>('tencentSMS.CosBucket')
+        this.region = this.configService.get<string>('tencentSMS.CosRegion')
         this.cos = new COS({
             SecretId: secretId,
             SecretKey: secretKey,
         });
 
-        this.bucket = 'startland-1312838165';
-        this.region = 'ap-shanghai';
     }
 
     async uploadToCos(fileName: string, localPath: string): Promise<string> {
         // 分片上传
-        const result = await this.cos.sliceUploadFile({
+        await this.cos.sliceUploadFile({
             Bucket: this.bucket,
             Region: this.region,
             Key: fileName,
             FilePath: localPath // 本地文件地址，需自行替换
         });
 
-        return "https://" + result.Location
+        return join(this.cosDomain, fileName)
     }
 
     async thumbnail(fileName: string, scale: string) {
