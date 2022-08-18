@@ -69,7 +69,7 @@ export class ActivityService {
   async topList(): Promise<PaginatedDto<Activity>> {
     let where: FindOptionsWhere<Activity> = {}
     let result: any;
-    where = { top: '1' };
+    where = { top: '1', status: '1' };
     result = await this.activityRepository.findAndCount({
       // select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
       where,
