@@ -51,7 +51,7 @@ export class NoticeController {
     @Public()
     // @RequiresPermissions('system:notice:query')
     @ApiDataResponse(typeEnum.object, Notice)
-    async one(@Param('noticeId') noticeId: number | string) {
+    async one(@Param('noticeId') noticeId: string) {
         const notice = await this.noticeService.findById(+noticeId)
         return notice
     }
