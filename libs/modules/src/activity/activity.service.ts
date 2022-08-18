@@ -7,7 +7,7 @@ import { ACTIVITY_ORDER_TEMPLATE_KEY, ACTIVITY_PRESTART_TIME, ACTIVITY_START_TIM
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
-import { FindOptionsWhere, Repository, } from 'typeorm';
+import { FindOptionsWhere, In, Repository, } from 'typeorm';
 import { CreateActivityDto, ListActivityDto, UpdateActivityDto } from './dto/request-activity.dto';
 import { Activity } from './entities/activity.entity';
 
@@ -43,10 +43,11 @@ export class ActivityService {
   async list(listActivityList: ListActivityDto, paginationDto: PaginationDto): Promise<PaginatedDto<Activity>> {
     let where: FindOptionsWhere<Activity> = {}
     let result: any;
-    // where = {
-    //   ... listActivityList
-    // }
-    where = listActivityList
+    where = {
+      ...listActivityList,
+      status: In(['1', '2'])
+    }
+    // where = listActivityList
     where.authorName = listActivityList.authorName;
     result = await this.activityRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
@@ -69,7 +70,7 @@ export class ActivityService {
   async topList(): Promise<PaginatedDto<Activity>> {
     let where: FindOptionsWhere<Activity> = {}
     let result: any;
-    where = { top: '1', status: '1' };
+    where = { top: '1', status: In(['1', '2']) };
     result = await this.activityRepository.findAndCount({
       // select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
       where,
