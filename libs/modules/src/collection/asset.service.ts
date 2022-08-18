@@ -84,10 +84,27 @@ export class AssetService {
     }
 
     result = await this.assetRepository.findAndCount({
-      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
-      // select: ['assetId', "user", "collection"],
-      relations: ["user", "collection"],
       where,
+      relations: {
+        id: true,
+        assetNo: true,
+        price: true,
+        user: {
+          nickName: true,
+          avatar: true,
+        },
+        collection: {
+          author: {
+            nickName: true,
+            avatar: true,
+          },
+          name: true,
+          desc: true,
+          supply: true,
+          images: true,
+          contract: true,
+        }
+      },
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -126,7 +143,28 @@ export class AssetService {
   }
 
   findOne(id: number) {
-    return this.assetRepository.findOne({ where: { id }, relations: ["user", "collection"] })
+    return this.assetRepository.findOne({
+      where: { id }, relations: {
+        id: true,
+        assetNo: true,
+        price: true,
+        user: {
+          nickName: true,
+          avatar: true,
+        },
+        collection: {
+          author: {
+            nickName: true,
+            avatar: true,
+          },
+          name: true,
+          desc: true,
+          supply: true,
+          images: true,
+          contract: true,
+        }
+      }
+    })
   }
 
   update(id: number, updateAssetDto: UpdateAssetDto) {
