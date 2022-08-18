@@ -71,7 +71,7 @@ export class OrderService {
       }
 
       const countKey = COLLECTION_ORDER_COUNT + ":" + createOrderDto.activityId;
-      const [execError] = await this.redis.multi().decr(countKey).exec()
+      const [execError] = await this.redis.multi().decrby(countKey, createOrderDto.count).exec()
       orderCount = execError[1]
       if (orderCount < 0) {
         // await this.redis.unwatch()
