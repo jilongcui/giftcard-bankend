@@ -9,6 +9,7 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { Order } from './entities/order.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 @ApiTags('订单')
 @ApiBearerAuth()
 @Controller('order')
@@ -16,6 +17,7 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) { }
 
   @Post()
+  @RepeatSubmit({ interval: 60 * 5 })
   async create(@Body() createOrderDto: CreateOrderDto, @UserDec(UserEnum.userId) userId: number) {
     return await this.orderService.create(createOrderDto, userId);
   }

@@ -32,12 +32,14 @@ export class RepeatSubmitGuard implements CanActivate {
     const repeatSubmitOption: RepeatSubmitOption = this.reflector.get(REOEATSUBMIT_METADATA, context.getHandler())
     if (!repeatSubmitOption) return true
     const request: Request = context.switchToHttp().getRequest()
-    const cache = await this.redis.get(request.url)
-    const data = { body: request.body, prams: request.params, query: request.query }
-    const dataString = JSON.stringify(data)
+
+    const cache = await this.redis.get(request.url + request.body.userId)
+    // const data = { body: request.body, prams: request.params, query: request.query }
+    // const dataString = JSON.stringify(data)
+    const dataString = '1';
     if (!cache) {   //没有缓存数据
       if (dataString) {
-        await this.redis.set(request.url, dataString, 'EX', repeatSubmitOption.interval)
+        await this.redis.set(request.url + request.body.userId, dataString, 'EX', repeatSubmitOption.interval)
       }
     } else {
       if (dataString && cache === dataString) {

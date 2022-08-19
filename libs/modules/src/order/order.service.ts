@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import { Inject, Injectable, Logger, ParseArrayPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
-import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_SUPPLY, ACTIVITY_START_TIME, ACTIVITY_PRESTART_TIME } from '@app/common/contants/redis.contant';
+import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_SUPPLY, ACTIVITY_START_TIME, ACTIVITY_PRESTART_TIME, ACTIVITY_USER_ORDER_KEY } from '@app/common/contants/redis.contant';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
@@ -47,9 +47,16 @@ export class OrderService {
     // 否则，就失败
     let activity: Activity
     let orderCount: any
+    const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + createOrderDto.activityId + ":" + userId;
 
     if (createOrderDto.type === '0') { // 一级市场活动创建订单
       let startTime: string;
+      // // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
+      // const unpayOrder = await this.redis.get(unpayOrderKey)
+      // if (unpayOrder) {
+      //   return unpayOrder
+      // }
+      // 没有缓存，开始创建订单
       // 如果时间大于开始时间，那么直接就开始了
       // 否则才会读取预售时间，然后再判断预售开始了没有。
       // 如果预售也开始了，那么就判单这个用户是否具有预售权限。
@@ -90,9 +97,9 @@ export class OrderService {
         const jsonObject: any = JSON.parse(activityJson)
         activity = <Activity>jsonObject;
         order.activityId = createOrderDto.activityId;
-        order.realPrice = activity.price * createOrderDto.count;
+        order.count = createOrderDto.count % 11; // 1～10
+        order.realPrice = activity.price * order.count;
         order.totalPrice = order.realPrice;
-        order.count = createOrderDto.count;
         order.image = activity.coverImage;
         order.desc = activity.title;
         order.invalidTime = moment().add(5, 'minute').toDate()
@@ -108,6 +115,8 @@ export class OrderService {
         order.image = asset.collection.images[0]
         order.invalidTime = moment().add(5, 'minute').toDate()
       }
+      // 5 分钟
+      // await this.redis.set(unpayOrderKey, JSON.stringify(order), 'EX', 60 * 5)
 
       await manager.save(order);
       // orderCount--;
@@ -148,7 +157,7 @@ export class OrderService {
     }
   }
 
-  /* 分页查询 */
+  /* 我的订单查询 */
   async mylist(userId: number, listMyOrderDto: ListMyOrderDto, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
     let where: FindOptionsWhere<ListOrderDto> = {}
     let result: any;
