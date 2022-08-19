@@ -70,7 +70,7 @@ export class Order {
 
     @Column({
         name: 'activity_id',
-        default: null,
+        default: 0,
         comment: '订单关联的活动'
     })
     @IsOptional()
@@ -80,7 +80,7 @@ export class Order {
 
     @Column({
         name: 'asset_id',
-        default: null,
+        default: 0,
         comment: '订单关联的活动'
     })
     @IsOptional()

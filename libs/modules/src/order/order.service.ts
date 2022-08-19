@@ -364,21 +364,29 @@ export class OrderService {
     let totalCount: number = 0;
     const orderArray = await this.orderRepository.find({ where })
     orderArray.map(async order => {
-      await this.orderRepository.manager.transaction(async manager => {
-        // Set invalid status
+      if (order.type === '0') {
         this.logger.debug(`activityId: ${order.activityId}`)
-        where.activityId = order.activityId
-        order.status = '3'
+        await this.orderRepository.manager.transaction(async manager => {
+          // Set invalid status
+          where.activityId = order.activityId
+          order.status = '3'
+          totalCount += order.count
+          manager.save(order)
+        })
         const countKey = COLLECTION_ORDER_COUNT + ":" + order.activityId;
         const [execError] = await this.redis.multi().incrby(countKey, order.count).exec()
-        totalCount += order.count
-        manager.save(order)
-        // const { sum } = await this.orderRepository
-        //   .createQueryBuilder("order")
-        //   .select("SUM(order.count)", "sum")
-        //   .where(where)
-        //   .getRawOne();
-      })
+      } else if (order.type === '1') {
+        this.logger.debug(`assetId: ${order.assetId}`)
+        await this.orderRepository.manager.transaction(async manager => {
+          // Set invalid status
+          where.assetId = order.assetId
+          order.status = '3'
+          totalCount += order.count
+          manager.save(order)
+          await manager.update(Asset, { id: order.assetId }, { status: '1' }) // Unlocked.
+        })
+      }
+
     })
     return totalCount;
   }
