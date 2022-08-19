@@ -63,7 +63,7 @@ export class Asset {
 
     @Column({
         name: 'status',
-        comment: '状态(0:下架 1: 上架)',
+        comment: '状态(0:下架 1: 上架 2:锁定)',
         type: 'char',
         default: '0'
     })
