@@ -18,3 +18,11 @@ export class ListMyOrderDto {
     @IsString()
     status?: string
 }
+
+/* 同步失效的订单 */
+export class SyncInvalidOrderDto {
+    /* 所属activityId */
+    @IsNumber()
+    @IsOptional()
+    activityId?: number
+}

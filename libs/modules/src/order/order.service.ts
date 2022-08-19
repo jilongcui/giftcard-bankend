@@ -7,7 +7,7 @@ import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_S
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
-import { Repository, FindOptionsWhere, EntityManager, getManager, MoreThanOrEqual } from 'typeorm';
+import { Repository, FindOptionsWhere, EntityManager, getManager, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 import { Account } from '../account/entities/account.entity';
 import { Activity } from '../activity/entities/activity.entity';
 import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
@@ -316,8 +316,35 @@ export class OrderService {
     })
   }
 
-  async hello(name: string) {
-    const pattern = { cmd: 'hello' }
-    return this.client.send<number>(pattern, name)
+  /* 更新过期订单状态 */
+  async syncInvalidOrder(activityId?: number) {
+    let where: FindOptionsWhere<Order> = {}
+    let result: any;
+    where =
+    {
+      activityId,
+      status: '1',
+      invalidTime: LessThanOrEqual(moment(moment.now()).toDate())
+    }
+    let totalCount: number = 0;
+    const orderArray = await this.orderRepository.find({ where })
+    orderArray.map(async order => {
+      await this.orderRepository.manager.transaction(async manager => {
+        // Set invalid status
+        this.logger.debug(`activityId: ${order.activityId}`)
+        where.activityId = order.activityId
+        order.status = '3'
+        const countKey = COLLECTION_ORDER_COUNT + ":" + order.activityId;
+        const [execError] = await this.redis.multi().decrby(countKey, order.count).exec()
+        totalCount += order.count
+        manager.save(order)
+        // const { sum } = await this.orderRepository
+        //   .createQueryBuilder("order")
+        //   .select("SUM(order.count)", "sum")
+        //   .where(where)
+        //   .getRawOne();
+      })
+    })
+    return totalCount;
   }
 }

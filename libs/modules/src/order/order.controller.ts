@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
+import { CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, SyncInvalidOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
@@ -73,9 +73,9 @@ export class OrderController {
     return await this.orderService.payWithBalance(+id, userId, nickName);
   }
 
-  @Put('hello/:name')
-  @Public()
-  async hello(@Param('name') name: string) {
-    return await this.orderService.hello(name);
+  @Post('syncInvalidOrder')
+  // @RequiresPermissions('system:order:sync')
+  async syncInvaldateOrder(@Body() syncInvalidOrder: SyncInvalidOrderDto) {
+    return await this.orderService.syncInvalidOrder(syncInvalidOrder.activityId)
   }
 }
