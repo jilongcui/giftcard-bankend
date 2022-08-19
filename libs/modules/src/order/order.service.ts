@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import { Inject, Injectable, Logger, ParseArrayPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
-import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_SUPPLY, ACTIVITY_START_TIME, ACTIVITY_PRESTART_TIME, ACTIVITY_USER_ORDER_KEY } from '@app/common/contants/redis.contant';
+import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_SUPPLY, ACTIVITY_START_TIME, ACTIVITY_PRESTART_TIME, ACTIVITY_USER_ORDER_KEY, ASSET_ORDER_KEY } from '@app/common/contants/redis.contant';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
@@ -47,15 +47,16 @@ export class OrderService {
     // 否则，就失败
     let activity: Activity
     let orderCount: any
-    const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + createOrderDto.activityId + ":" + userId;
+    let unpayOrderKey: string;
 
     if (createOrderDto.type === '0') { // 一级市场活动创建订单
+      unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + createOrderDto.activityId + ":" + userId
       let startTime: string;
-      // // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
-      // const unpayOrder = await this.redis.get(unpayOrderKey)
-      // if (unpayOrder) {
-      //   return unpayOrder
-      // }
+      // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
+      const unpayOrder = await this.redis.get(unpayOrderKey)
+      if (unpayOrder) {
+        throw new ApiException('有未完成订单', 403)
+      }
       // 没有缓存，开始创建订单
       // 如果时间大于开始时间，那么直接就开始了
       // 否则才会读取预售时间，然后再判断预售开始了没有。
@@ -86,6 +87,13 @@ export class OrderService {
       }
       // this.logger.log(execError[0])
       // this.logger.log(orderCount)
+    } else {
+      unpayOrderKey = ASSET_ORDER_KEY + ":" + (createOrderDto.assetId || createOrderDto.activityId)
+      // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
+      const unpayOrder = await this.redis.get(unpayOrderKey)
+      if (unpayOrder) {
+        throw new ApiException('无法创建订单', 401)
+      }
     }
     return await this.orderRepository.manager.transaction(async manager => {
       const order = new Order();
@@ -97,7 +105,7 @@ export class OrderService {
         const jsonObject: any = JSON.parse(activityJson)
         activity = <Activity>jsonObject;
         order.activityId = createOrderDto.activityId;
-        order.count = createOrderDto.count % 11; // 1～10
+        order.count = Math.min(createOrderDto.count, 5); // 1～10
         order.realPrice = activity.price * order.count;
         order.totalPrice = order.realPrice;
         order.image = activity.coverImage;
@@ -105,10 +113,10 @@ export class OrderService {
         order.invalidTime = moment().add(5, 'minute').toDate()
         order.collections = activity.collections;
       } else if (order.type === '1') { // 交易市场创建的订单
-        const asset = await this.assetRepository.findOne({ where: { id: createOrderDto.activityId, status: '1' }, relations: ['collection'] })
+        order.assetId = createOrderDto.assetId || createOrderDto.activityId
+        const asset = await this.assetRepository.findOne({ where: { id: order.assetId, status: '1' }, relations: ['collection'] })
         if (!asset)
           throw new ApiException('市场上未发现此藏品')
-        order.activityId = createOrderDto.activityId;
         order.realPrice = asset.price
         order.totalPrice = asset.price
         order.desc = asset.collection.name;
@@ -116,7 +124,7 @@ export class OrderService {
         order.invalidTime = moment().add(5, 'minute').toDate()
       }
       // 5 分钟
-      // await this.redis.set(unpayOrderKey, JSON.stringify(order), 'EX', 60 * 5)
+      await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 5)
 
       await manager.save(order);
       // orderCount--;
@@ -230,93 +238,109 @@ export class OrderService {
   }
 
   async payWithBalance(id: number, userId: number, userName: string) {
-    return await this.orderRepository.manager.transaction(async manager => {
-      const order = await this.orderRepository.findOne({ where: { id: id, status: '1', userId: userId } })
-      if (order == null) {
-        throw new ApiException('订单状态错误')
-      }
-      // if (order.status != '1') {
-      //   throw new ApiException('订单状态错误')
-      // }
-      // let updateStatusDto = { status: '2' }
-      // const { affected } = await this.orderRepository.update({ id: id, status:'1', userId: userId }, updateStatusDto)
-      // if (affected == 0) {
-      //   throw new ApiException('订单更新失败')
-      // }
+    // 在transaction里只做和冲突相关的，和冲突不相关的要放在外面
+    // transaction里很有可能会失败，保证失败时是可以回退的，
+    const order = await this.orderRepository.findOne({ where: { id: id, status: '1', userId: userId } })
+    if (order == null) {
+      throw new ApiException('订单状态错误')
+    }
+    let asset: Asset
 
-      const result = await this.accountRepository.decrement({ user: { userId: userId }, usable: MoreThanOrEqual(order.realPrice) }, "usable", order.realPrice);
+    if (order.type === '1') {
+      asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+      if (asset.userId === userId)
+        throw new ApiException("不能购买自己的资产")
+    }
+
+    await this.orderRepository.manager.transaction(async manager => {
+      const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(order.realPrice) }, "usable", order.realPrice);
       // this.logger.log(JSON.stringify(result));
       if (!result.affected) {
         throw new ApiException('支付失败')
       }
+      order.status = '2';
+      // 把Order的状态改成2: 已支付
+      await manager.update(Order, { id: order.id }, { status: '2' })
 
-      if (order.type === '0') { // 一级市场活动
-        // Create assetes for user.
-        const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
-        // First we need get all collections of orders, but we only get one collection.
-        if (!activity.collections || activity.collections.length <= 0) {
-          return order;
-        }
-        let collection: Collection;
-        if (activity.type === '1') {
-          // 首发盲盒, 我们需要随机寻找一个。
-          const index = Math.floor((Math.random() * activity.collections.length));
-          collection = activity.collections[index]
-        } else {
-          // 其他类型，我们只需要取第一个
-          collection = activity.collections[0];
-        }
+      if (order.type === '1') {
+        await manager.increment(Account, { userId: asset.user.userId }, "usable", order.realPrice * 95 / 100)
+        await manager.increment(Account, { userId: 1 }, "usable", order.realPrice * 5 / 100)
+        await manager.update(Asset, { id: order.assetId }, { userId: userId, status: '0' })
+      }
+
+    })
+
+    if (order.type === '0') { // 一级市场活动
+      // Create assetes for user.
+      const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
+      // First we need get all collections of orders, but we only get one collection.
+      if (!activity.collections || activity.collections.length <= 0) {
+        return order;
+      }
+      let collection: Collection;
+      if (activity.type === '1') {
+        // 首发盲盒, 我们需要随机寻找一个。
+        const index = Math.floor((Math.random() * activity.collections.length));
+        collection = activity.collections[index]
+      } else {
+        // 其他类型，我们只需要取第一个
+        collection = activity.collections[0];
+      }
+      // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+      await this.collectionRepository.manager.transaction(async manager => {
+        await manager.increment(Collection, { id: collection.id }, "current", order.count);
+      })
+      let tokenId: number
+      for (let i = 0; i < order.count; i++) {
+        tokenId = this.randomTokenId()
         let createAssetDto = new CreateAssetDto()
         createAssetDto.price = order.realPrice
-        createAssetDto.assetNo = collection.current
+        createAssetDto.assetNo = tokenId
         createAssetDto.userId = userId
         createAssetDto.collectionId = collection.id
 
         await this.assetRepository.save(createAssetDto)
-        // 把collection里的个数减少一个，这个时候需要通过交易完成，防止出现多发问题
-        await this.collectionRepository.increment({ id: collection.id }, "current", 1);
         // 记录交易记录
         await this.assetRecordRepository.save({
           type: '2', // Buy
-          assetId: id,
+          assetId: tokenId,
           price: order.realPrice,
           toId: userId,
           toName: userName
         })
-        order.status = '2';
 
         const pattern = { cmd: 'mintA' }
         const mintDto = new MintADto()
         mintDto.address = this.platformAddress
-        mintDto.tokenId = this.randomTokenId().toString()
+        mintDto.tokenId = tokenId.toString()
         mintDto.contractId = 8
         this.client.emit(pattern, mintDto)
         // this.logger.debug(await firstValueFrom(result))
-
-      } else if (order.type === '1') { // 二级市场资产交易
-        // 把资产切换到新的用户就可以了
-        await this.buyAsset(order.activityId, userId, userName)
-        order.status = '2';
       }
-      await manager.save(order);
-      return order;
-    })
+
+
+    } else if (order.type === '1') { // 二级市场资产交易
+      // 把资产切换到新的用户就可以了
+      await this.buyAsset(asset, userId, userName)
+      // 还需要转移资产
+    }
+    // await manager.save(order);
+    return order;
+    // })
   }
 
   private randomTokenId(): number {
     return Math.floor((Math.random() * 999999999) + 1000000000);
   }
 
-  async buyAsset(id: number, userId: number, userName: string) {
-    const asset = await this.assetRepository.findOne({ where: { id: id }, relations: { user: true } })
+  async buyAsset(asset: Asset, userId: number, userName: string) {
+
     const fromId = asset.user.userId
     const fromName = asset.user.userName
-    if (fromId === userId)
-      throw new ApiException("不能购买自己的资产")
-    await this.assetRepository.update(id, { userId: userId })
+
     await this.assetRecordRepository.save({
       type: '2', // Buy
-      assetId: id,
+      assetId: asset.id,
       price: asset.price,
       fromId: fromId,
       fromName: fromName,
@@ -331,7 +355,7 @@ export class OrderService {
     let result: any;
     where =
     {
-      activityId,
+      activityId: activityId ?? undefined,
       status: '1',
       invalidTime: LessThanOrEqual(moment(moment.now()).toDate())
     }
@@ -344,7 +368,7 @@ export class OrderService {
         where.activityId = order.activityId
         order.status = '3'
         const countKey = COLLECTION_ORDER_COUNT + ":" + order.activityId;
-        const [execError] = await this.redis.multi().decrby(countKey, order.count).exec()
+        const [execError] = await this.redis.multi().incrby(countKey, order.count).exec()
         totalCount += order.count
         manager.save(order)
         // const { sum } = await this.orderRepository

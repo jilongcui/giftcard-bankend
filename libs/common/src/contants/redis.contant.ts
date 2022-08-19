@@ -22,4 +22,5 @@ export const ACTIVITY_PRESTART_TIME = "ACTIVITY:PRESTART:TIME"  // 活动开始�
 export const COLLECTION_ORDER_COUNT = "COLLECTION:ORDER:COUNT"  // 订单统计
 export const COLLECTION_ORDER_SUPPLY = "COLLECTION:ORDER:SUPPLY"  // 订单统计
 export const ACTIVITY_USER_ORDER_KEY = "ACTIVITY:USER:ORDER:KEY"  // 订单统计
+export const ASSET_ORDER_KEY = "ASSET:ORDER:KEY"  // 订单统计
 export const ACTIVITY_ORDER_TEMPLATE_KEY = "ACTIVITY:ORDER:TEMPLATE"  // 订单模版

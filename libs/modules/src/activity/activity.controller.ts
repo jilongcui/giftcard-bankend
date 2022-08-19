@@ -52,7 +52,15 @@ export class ActivityController {
     return await this.activityService.topList();
   }
 
-  /* 产品列表 */
+  /* 更多活动列表 */
+  @Get('more')
+  @Public()
+  @ApiPaginatedResponse(Activity)
+  async more(@Query() listActivityDto: ListActivityDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.activityService.more(listActivityDto, paginationDto);
+  }
+
+  /* 活动列表 */
   @Get('list')
   @Public()
   @ApiPaginatedResponse(Activity)

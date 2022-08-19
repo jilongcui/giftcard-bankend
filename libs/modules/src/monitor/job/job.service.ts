@@ -16,7 +16,6 @@ import { ReqAddJob, ReqChangStatusDto, ReqJobListDto, ReqJobLogList } from './dt
 import { Job } from './entities/job.entity';
 import { JobLog } from './entities/job_log.entity';
 
-
 @Injectable()
 export class JobService {
     constructor(

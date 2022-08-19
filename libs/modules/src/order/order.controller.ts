@@ -17,7 +17,7 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) { }
 
   @Post()
-  @RepeatSubmit({ interval: 60 * 5 })
+  // @RepeatSubmit({ interval: 60 * 1 })
   async create(@Body() createOrderDto: CreateOrderDto, @UserDec(UserEnum.userId) userId: number) {
     return await this.orderService.create(createOrderDto, userId);
   }

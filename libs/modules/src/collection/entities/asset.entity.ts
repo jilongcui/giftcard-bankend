@@ -1,9 +1,10 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsNumber, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsString } from "class-validator";
 import { User } from "../../system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Collection } from "./collection.entity";
+import { Order } from "@app/modules/order/entities/order.entity";
 
 @Entity()
 export class Asset {
@@ -79,4 +80,9 @@ export class Asset {
     @UpdateDateColumn({ name: 'update_time', comment: '更新时间' })
     @ApiHideProperty()
     updateTime: Date
+
+    // @ApiHideProperty()
+    // @IsOptional()
+    // @OneToMany(() => Order, order => order.asset)
+    // orders?: Order[]
 }

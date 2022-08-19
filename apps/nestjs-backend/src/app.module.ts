@@ -32,9 +32,10 @@ import { BannerModule } from '@app/modules/system/banner/banner.module';
 import { MarketModule } from '@app/modules/market/market.module';
 import { AirdropModule } from '@app/modules/assistant/airdrop/airdrop.module';
 import { PreemptionModule } from '@app/modules/assistant/preemption/preemption.module';
+import { OrderService } from '@app/modules/order/order.service';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
-const providers = [JobService]
+const providers = [JobService, OrderService]
 function createAliasProviders(): ExistingProvider[] {
   const aliasProviders: ExistingProvider[] = [];
   for (const p of providers) {

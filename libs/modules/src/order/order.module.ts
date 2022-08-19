@@ -21,6 +21,7 @@ import { ChainModule } from '@app/chain';
   ],
 
   controllers: [OrderController],
-  providers: [OrderService]
+  providers: [OrderService],
+  exports: [OrderService]
 })
 export class OrderModule { }

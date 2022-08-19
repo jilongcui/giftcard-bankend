@@ -1,9 +1,11 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsArray, IsNumber, IsString } from "class-validator";
+import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
 import { Activity } from "../../activity/entities/activity.entity";
 import { Collection } from "../../collection/entities/collection.entity";
 import { User } from "../../system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Type } from "class-transformer";
+import { Asset } from "@app/modules/collection/entities/asset.entity";
 
 @Entity()
 export class Order {
@@ -68,10 +70,30 @@ export class Order {
 
     @Column({
         name: 'activity_id',
+        default: null,
         comment: '订单关联的活动'
     })
+    @IsOptional()
+    @Type()
     @IsNumber()
-    activityId: number
+    activityId?: number
+
+    @Column({
+        name: 'asset_id',
+        default: null,
+        comment: '订单关联的活动'
+    })
+    @IsOptional()
+    @Type()
+    @IsNumber()
+    assetId?: number
+
+    // @Column({
+    //     name: 'collection_id',
+    //     comment: '订单关联的藏品'
+    // })
+    // @IsNumber()
+    // collectionId: number
 
     @Column({
         name: 'user_id',
@@ -104,12 +126,22 @@ export class Order {
     // })
     // images: string[]
 
+    /* 一级市场 */
     @ApiHideProperty()
     @ManyToOne(() => Activity, activity => activity.orders)
+    @IsOptional()
     @JoinColumn({
         name: 'activity_id',
     })
-    activity: Activity
+    activity?: Activity
+
+    /* 二级市场 */
+    // @ApiHideProperty()
+    // @ManyToOne(() => Asset)
+    // @JoinColumn({
+    //     name: 'asset_id',
+    // })
+    // asset?: Asset
 
     @ApiHideProperty()
     @ManyToOne(() => User, user => user.orders)
@@ -119,6 +151,7 @@ export class Order {
     user: User
 
     @ApiHideProperty()
+    @IsOptional()
     @ManyToMany(() => Collection, collection => collection.orders)
-    collections: Collection[]
+    collections?: Collection[]
 }

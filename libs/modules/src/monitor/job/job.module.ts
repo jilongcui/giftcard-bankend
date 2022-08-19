@@ -20,7 +20,7 @@ import { PostService } from '@app/modules/system/post/post.service';
         JobController,],
     providers: [
         JobService,
-        JobConsumer,
+        JobConsumer
     ],
     exports: [JobService, JobConsumer]
 })

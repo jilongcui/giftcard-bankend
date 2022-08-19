@@ -43,6 +43,30 @@ export class ActivityService {
   async list(listActivityList: ListActivityDto, paginationDto: PaginationDto): Promise<PaginatedDto<Activity>> {
     let where: FindOptionsWhere<Activity> = {}
     let result: any;
+
+    where = listActivityList
+    where.authorName = listActivityList.authorName;
+    result = await this.activityRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      where,
+      relations: ['collections'],
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 'DESC'
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  /* 分页查询 */
+  async more(listActivityList: ListActivityDto, paginationDto: PaginationDto): Promise<PaginatedDto<Activity>> {
+    let where: FindOptionsWhere<Activity> = {}
+    let result: any;
     where = {
       ...listActivityList,
       status: In(['1', '2'])
