@@ -1,7 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto, UpdatePaymentDto } from './dto/request-payment.dto';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('支付')
+@ApiBearerAuth()
+@Controller('bankcard')
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) { }

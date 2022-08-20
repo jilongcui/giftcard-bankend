@@ -3,10 +3,11 @@ import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
 import { Activity } from "../../activity/entities/activity.entity";
 import { Collection } from "../../collection/entities/collection.entity";
 import { User } from "../../system/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Type } from "class-transformer";
 import { Asset } from "@app/modules/collection/entities/asset.entity";
 import { Bankcard } from "@app/modules/bankcard/entities/bankCard.entity";
+import { Payment } from "@app/modules/payment/entities/payment.entity";
 
 @Entity()
 export class Order {
@@ -126,6 +127,11 @@ export class Order {
     //     type: 'simple-array',
     // })
     // images: string[]
+
+    @ApiHideProperty()
+    @OneToOne(() => Payment, payment => payment.order)
+    @IsOptional()
+    payment?: Payment
 
     /* 一级市场 */
     @ApiHideProperty()

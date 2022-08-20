@@ -3,11 +3,11 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Column } from "typeorm";
 import { Payment } from "../entities/payment.entity";
 
-export class CreatePaymentDto extends OmitType(Payment, ['id', 'image', 'status', 'userId', 'desc', 'realPrice', 'totalPrice'] as const) { }
+export class CreatePaymentDto extends OmitType(Payment, ['id', 'status', 'userId',] as const) { }
 export class UpdateAllPaymentDto extends Payment { }
 export class UpdatePaymentDto extends PartialType(CreatePaymentDto) { }
 export class UpdatePaymentStatusDto extends PickType(Payment, ['status']) { }
-export class ListPaymentDto extends PartialType(OmitType(Payment, ['activity', 'user', 'collections'] as const)) { }
+export class ListPaymentDto extends PartialType(OmitType(Payment, ['user', 'order', 'bankcard'] as const)) { }
 export class ListUnpayPaymentDto {
     @IsOptional()
     @IsNumber()

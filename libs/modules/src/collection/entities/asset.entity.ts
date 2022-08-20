@@ -78,7 +78,6 @@ export class Asset {
     /* 更新时间 */
     @ApiHideProperty()
     @UpdateDateColumn({ name: 'update_time', comment: '更新时间' })
-    @ApiHideProperty()
     updateTime: Date
 
     // @ApiHideProperty()
