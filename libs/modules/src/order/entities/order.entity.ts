@@ -6,6 +6,7 @@ import { User } from "../../system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Type } from "class-transformer";
 import { Asset } from "@app/modules/collection/entities/asset.entity";
+import { Bankcard } from "@app/modules/bankcard/entities/bankCard.entity";
 
 @Entity()
 export class Order {
@@ -134,6 +135,13 @@ export class Order {
         name: 'activity_id',
     })
     activity?: Activity
+
+    @ApiHideProperty()
+    @ManyToOne(() => Bankcard)
+    @JoinColumn({
+        name: 'bankcard_id',
+    })
+    bankcard: Bankcard
 
     /* 二级市场 */
     // @ApiHideProperty()
