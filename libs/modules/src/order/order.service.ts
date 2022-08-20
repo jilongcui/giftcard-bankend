@@ -56,7 +56,7 @@ export class OrderService {
       const unpayOrder = await this.redis.get(unpayOrderKey)
       this.logger.debug(unpayOrder)
       if (unpayOrder != null) {
-        throw new ApiException('有未完成订单', 403)
+        throw new ApiException('有未完成订单', 401)
       }
       // 没有缓存，开始创建订单
       // 如果时间大于开始时间，那么直接就开始了
@@ -92,7 +92,7 @@ export class OrderService {
       unpayOrderKey = ASSET_ORDER_KEY + ":" + (createOrderDto.assetId || createOrderDto.activityId)
       // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
       const unpayOrder = await this.redis.get(unpayOrderKey)
-      if (unpayOrder) {
+      if (unpayOrder != null) {
         throw new ApiException('无法创建订单', 401)
       }
     }
@@ -302,11 +302,11 @@ export class OrderService {
         createAssetDto.userId = userId
         createAssetDto.collectionId = collection.id
 
-        await this.assetRepository.save(createAssetDto)
+        const asset = await this.assetRepository.save(createAssetDto)
         // 记录交易记录
         await this.assetRecordRepository.save({
           type: '2', // Buy
-          assetId: tokenId,
+          assetId: asset.id,
           price: order.realPrice,
           toId: userId,
           toName: userName

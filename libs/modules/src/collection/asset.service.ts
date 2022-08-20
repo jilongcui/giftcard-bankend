@@ -91,8 +91,7 @@ export class AssetService {
       take: paginationDto.take,
       order: {
         price: paginationDto.orderByColumn === 'price' ? orderBy : undefined,
-        updateTime: paginationDto.orderByColumn === 'updateTime' ? orderBy : undefined,
-        createTime: 'DESC',
+        updateTime: paginationDto.orderByColumn === 'updateTime' ? orderBy : 'DESC',
       }
     })
 
