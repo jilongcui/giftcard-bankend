@@ -37,7 +37,7 @@ export class RepeatSubmitGuard implements CanActivate {
     const cache = await this.redis.get(request.url + request.ip)
     // const data = { body: request.body, prams: request.params, query: request.query }
     // const dataString = JSON.stringify(data)
-    // this.logger.debug(request.url + request.ip)
+    this.logger.debug(request.url + request.ip)
     const dataString = '1';
     if (!cache) {   //没有缓存数据
       if (dataString) {

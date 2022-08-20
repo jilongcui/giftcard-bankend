@@ -88,7 +88,6 @@ export class UserController {
         await this.userService.updataProfile(reqUpdataSelfDto, userId)
     }
 
-    @RepeatSubmit()
     @Get('account')
     async getAccount(@UserDec(UserEnum.userId) userId: number) {
         return await this.userService.findAccount(userId)

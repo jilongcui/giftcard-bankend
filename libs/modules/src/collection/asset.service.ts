@@ -25,7 +25,7 @@ export class AssetService {
   async list(listAssetDto: ListAssetDto, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
     let where: FindOptionsWhere<Asset> = {}
     let result: any;
-
+    const orderBy = paginationDto.isAsc === 'true' ? 'ASC' : 'DESC'
     where = {
       ...listAssetDto,
     };
@@ -38,7 +38,9 @@ export class AssetService {
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
-        createTime: 1,
+        price: paginationDto.orderByColumn === 'price' ? orderBy : undefined,
+        updateTime: paginationDto.orderByColumn === 'updateTime' ? orderBy : undefined,
+        createTime: 'DESC',
       }
     })
 
@@ -55,7 +57,7 @@ export class AssetService {
 
     where = listAssetList;
     where.userId = userId;
-
+    const orderBy = paginationDto.isAsc === 'true' ? 'ASC' : 'DESC'
     result = await this.assetRepository.findAndCount({
       where,
       select: {
@@ -88,7 +90,9 @@ export class AssetService {
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
-        createTime: 1,
+        price: paginationDto.orderByColumn === 'price' ? orderBy : undefined,
+        updateTime: paginationDto.orderByColumn === 'updateTime' ? orderBy : undefined,
+        createTime: 'DESC',
       }
     })
 
@@ -102,6 +106,7 @@ export class AssetService {
   async flow(flowAssetDto: FlowAssetDto, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
     let where: FindOptionsWhere<Asset> = {}
     let result: any;
+    const orderBy = paginationDto.isAsc === 'true' ? 'ASC' : 'DESC'
     where = {
       ...flowAssetDto,
       status: '1'
@@ -112,6 +117,7 @@ export class AssetService {
         id: true,
         assetNo: true,
         price: true,
+        updateTime: true,
         createTime: true,
         userId: true,
         status: true,
@@ -135,7 +141,9 @@ export class AssetService {
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
-        createTime: 1,
+        price: paginationDto.orderByColumn === 'price' ? orderBy : undefined,
+        updateTime: paginationDto.orderByColumn === 'updateTime' ? orderBy : undefined,
+        createTime: 'DESC',
       }
     })
 

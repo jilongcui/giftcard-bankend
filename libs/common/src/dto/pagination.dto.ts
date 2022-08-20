@@ -9,7 +9,7 @@
  */
 import { ApiHideProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
-import { IsNumber, IsOptional, IsString } from "class-validator"
+import { IsBoolean, IsBooleanString, IsNumber, IsOptional, IsString } from "class-validator"
 
 export class PaginationDto {
 
@@ -33,7 +33,6 @@ export class PaginationDto {
 
     /* 排序方式 */
     @IsOptional()
-    @Type()
     @IsString()
     public isAsc?: string
 

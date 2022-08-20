@@ -52,7 +52,7 @@ export class LogService {
         const queryBuilder = this.operLogRepository.createQueryBuilder('operLog')
             .where(where)
         if (reqOperLogDto.orderByColumn) {  //后端排序
-            const order = reqOperLogDto.isAsc === 'descending' ? "DESC" : 'ASC'
+            const order = reqOperLogDto.isAsc === 'true' ? 'ASC' : "DESC"
             queryBuilder.orderBy(`operLog.${reqOperLogDto.orderByColumn}`, order)
         }
         const result = await queryBuilder.addOrderBy('operLog.operTime', "DESC").skip(reqOperLogDto.skip).take(reqOperLogDto.take).getManyAndCount()
@@ -117,7 +117,7 @@ export class LogService {
         const queryBuilder = this.logininforRepository.createQueryBuilder('logininfor')
             .where(where)
         if (reqLogininforDto.orderByColumn) {  //后端排序
-            const order = reqLogininforDto.isAsc === 'descending' ? "DESC" : 'ASC'
+            const order = reqLogininforDto.isAsc === 'true' ? 'ASC' : "DESC"
             queryBuilder.orderBy(`logininfor.${reqLogininforDto.orderByColumn}`, order)
         }
         const result = await queryBuilder.skip(reqLogininforDto.skip).take(reqLogininforDto.take).getManyAndCount()

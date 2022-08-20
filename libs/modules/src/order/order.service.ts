@@ -54,7 +54,8 @@ export class OrderService {
       let startTime: string;
       // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
       const unpayOrder = await this.redis.get(unpayOrderKey)
-      if (unpayOrder) {
+      this.logger.debug(unpayOrder)
+      if (unpayOrder != null) {
         throw new ApiException('有未完成订单', 403)
       }
       // 没有缓存，开始创建订单
