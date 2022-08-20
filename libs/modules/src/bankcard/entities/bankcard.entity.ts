@@ -2,8 +2,6 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { User } from "../../system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Type } from "class-transformer";
-import { Order } from "@app/modules/order/entities/order.entity";
 
 @Entity()
 export class Bankcard {
@@ -52,15 +50,15 @@ export class Bankcard {
     bankName: string
 
     @Column({
-        name: 'type',
+        name: 'card_type',
         comment: '银行卡类型 0: 储蓄卡 1: 信用卡',
     })
     @IsOptional()
     @IsString()
-    card_type?: number
+    cardType?: number
 
     @Column({
-        name: 'type',
+        name: 'bank_type',
         comment: '银行类型 ',
     })
     @IsOptional()

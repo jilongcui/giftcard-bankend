@@ -11,7 +11,7 @@ import { Role } from "../../role/entities/role.entity";
 import { Identity } from "@app/modules/identity/entities/identity.entity";
 import { Order } from "@app/modules/order/entities/order.entity";
 import { Account } from "@app/modules/account/entities/account.entity";
-import { Bankcard } from "@app/modules/bankcard/entities/bankCard.entity";
+import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 
 @Entity()
 export class User extends BaseEntity {

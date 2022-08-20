@@ -28,8 +28,8 @@ export class BankcardService {
   platformAddress: string
   constructor(
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
-    @InjectRedis() private readonly redis: Redis,
-    @Inject('CHAIN_SERVICE') private client: ClientProxy,
+    // @InjectRedis() private readonly redis: Redis,
+    // @Inject('CHAIN_SERVICE') private client: ClientProxy,
     private readonly configService: ConfigService,
   ) {
     this.platformAddress = this.configService.get<string>('crichain.platformAddress')

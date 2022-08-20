@@ -4,7 +4,7 @@ import { User } from "../../system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Type } from "class-transformer";
 import { Order } from "@app/modules/order/entities/order.entity";
-import { Bankcard } from "@app/modules/bankcard/entities/bankCard.entity";
+import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 
 @Entity()
 export class Payment {

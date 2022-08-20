@@ -1,7 +1,7 @@
 import { OmitType, PartialType, PickType } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Column } from "typeorm";
-import { Bankcard } from "../entities/bankCard.entity";
+import { Bankcard } from "../entities/bankcard.entity";
 
 export class CreateBankcardDto extends OmitType(Bankcard, ['id', 'status', 'userId'] as const) { }
 export class UpdateAllBankcardDto extends Bankcard { }

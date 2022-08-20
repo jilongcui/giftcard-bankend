@@ -6,7 +6,7 @@ import { User } from "../../system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Type } from "class-transformer";
 import { Asset } from "@app/modules/collection/entities/asset.entity";
-import { Bankcard } from "@app/modules/bankcard/entities/bankCard.entity";
+import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 import { Payment } from "@app/modules/payment/entities/payment.entity";
 
 @Entity()
