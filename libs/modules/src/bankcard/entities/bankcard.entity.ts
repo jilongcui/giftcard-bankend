@@ -63,7 +63,16 @@ export class Bankcard {
     })
     @IsOptional()
     @IsString()
-    bankType?: number
+    bankType?: string
+
+    @ApiHideProperty()
+    @Column({
+        name: 'sign_no',
+        comment: '银行卡签约号 不要展示，后台记录',
+    })
+    @IsOptional()
+    @IsString()
+    signNo?: string
 
     @Column({
         name: 'status',

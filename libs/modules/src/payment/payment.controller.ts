@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto, UpdatePaymentDto } from './dto/request-payment.dto';
+import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('支付')
@@ -33,5 +34,11 @@ export class PaymentController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.paymentService.remove(+id);
+  }
+
+  @Post('webSign')
+  webSign(@Body() bankId: number, @UserDec(UserEnum.userId) userId: number,) {
+
+    return this.paymentService.webSign(userId, bankId)
   }
 }
