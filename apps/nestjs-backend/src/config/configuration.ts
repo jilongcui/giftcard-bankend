@@ -92,6 +92,14 @@ export interface IConfig {
         contractAddress: string,
     }
 
+    payment?: {
+        baseUrl: string
+        platformPublicKey: string,
+        merchSecretKey: string,
+        merchPublicKey: string,
+        merchId: string,
+    }
+
     /* 是否演示环境 */
     isDemoEnvironment?: Boolean;
 }

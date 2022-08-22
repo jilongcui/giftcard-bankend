@@ -33,6 +33,8 @@ import { MarketModule } from '@app/modules/market/market.module';
 import { AirdropModule } from '@app/modules/assistant/airdrop/airdrop.module';
 import { PreemptionModule } from '@app/modules/assistant/preemption/preemption.module';
 import { OrderService } from '@app/modules/order/order.service';
+import { BankcardModule } from '@app/modules/bankcard/bankcard.module';
+import { PaymentModule } from '@app/modules/payment/payment.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService, OrderService]
@@ -88,8 +90,9 @@ const aliasProviders = createAliasProviders();
     BannerModule,
     MarketModule,
     AirdropModule,
-    PreemptionModule
-
+    PreemptionModule,
+    BankcardModule,
+    PaymentModule
   ],
   providers: [...aliasProviders]
 })

@@ -13,16 +13,13 @@ export class ListUnpayPaymentDto {
     @IsNumber()
     activityId?: number
 }
-export class ListMyPaymentDto {
-    @IsOptional()
-    @IsString()
-    status?: string
-}
-
-/* 同步失效的订单 */
-export class SyncInvalidPaymentDto {
-    /* 所属activityId */
-    @IsNumber()
-    @IsOptional()
-    activityId?: number
+export class ReqSubmitPayDto {
+    agent_bill_id: string
+    agent_bill_time: string
+    pay_amt: number
+    goods_name: string
+    hy_auth_uid: string
+    user_ip: string
+    notify_url: string
+    return_url?: string
 }
