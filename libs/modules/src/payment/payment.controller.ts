@@ -3,6 +3,7 @@ import { PaymentService } from './payment.service';
 import { CreatePaymentDto, UpdatePaymentDto, WebSignDto } from './dto/request-payment.dto';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Public } from '@app/common/decorators/public.decorator';
 
 @ApiTags('支付')
 @ApiBearerAuth()
@@ -39,5 +40,11 @@ export class PaymentController {
   webSign(@Body() webSignDto: WebSignDto, @UserDec(UserEnum.userId) userId: number,) {
 
     return this.paymentService.webSign(webSignDto, userId)
+  }
+
+  @Post('webSignNotify')
+  @Public()
+  webSignNotify(@Body() webSignDto: any) {
+    return this.paymentService.webSignNotify(webSignDto)
   }
 }

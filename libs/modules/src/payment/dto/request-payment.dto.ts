@@ -13,6 +13,15 @@ export class WebSignDto {
     @IsNumber()
     bankId?: number
 }
+
+export class WebSignNotifyDto {
+    merch_id: string
+    out_trade_no: string
+    out_trade_time: string
+    sign_no: string
+    sign: string
+}
+
 export class ListUnpayPaymentDto {
     @IsOptional()
     @IsNumber()

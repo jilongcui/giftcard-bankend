@@ -7,7 +7,7 @@ const fs = require("fs");
 import * as querystring from 'querystring';
 import { createPublicKey, X509Certificate } from 'crypto';
 import { BankcardService } from '../bankcard/bankcard.service';
-import { CreatePaymentDto, ReqSubmitPayDto, UpdatePaymentDto, WebSignDto } from './dto/request-payment.dto';
+import { CreatePaymentDto, ReqSubmitPayDto, UpdatePaymentDto, WebSignDto, WebSignNotifyDto } from './dto/request-payment.dto';
 import { PayResponse, WebSignResponse } from './dto/response-payment.dto';
 import { RES_CODE_SUCCESS, RES_NET_CODE } from './payment.const';
 
@@ -118,8 +118,8 @@ export class PaymentService {
       mobile: "18905170811",
       merch_user_id: userId.toString(),
       // from_user_ip: "219.143.153.103",
-      return_url: 'http://www.baidu.com',
-      notify_url: 'http://www.baidu.com',
+      // return_url: 'https://',
+      notify_url: 'https://www.startland.top/api/payment/webSignNotify',
       out_trade_no: tradeNo,
       out_trade_time: moment().format("YYYY-MM-DD HH:mm:ss"),
     }
@@ -131,6 +131,11 @@ export class PaymentService {
     if (bizResult.merch_id != this.merchId) throw new ApiException("商户ID错误")
     if (bizResult.out_trade_no !== tradeNo) throw new ApiException("网签编号错误")
     return bizResult.sign_url;
+  }
+
+  // 网关签约接口
+  async webSignNotify(webSignNotifyeDto: WebSignNotifyDto) {
+    this.logger.debug(webSignNotifyeDto)
   }
 
   // 网关签约查询
