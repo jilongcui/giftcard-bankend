@@ -2,6 +2,7 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { User } from "../../system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Identity } from "@app/modules/identity/entities/identity.entity";
 
 @Entity()
 export class Bankcard {
@@ -18,14 +19,6 @@ export class Bankcard {
     @IsString()
     cardNo: string
 
-    /* 持卡人姓名 */
-    @Column({
-        name: 'user_name',
-        length: 50,
-        comment: '持卡人姓名'
-    })
-    @IsString()
-    userName: string
 
     /* 持卡人预留手机号 */
     @Column({
@@ -35,15 +28,6 @@ export class Bankcard {
     })
     @IsString()
     mobile: string
-
-    /* 持卡人身份证号 */
-    @Column({
-        name: 'cert_no',
-        length: 50,
-        comment: '持卡人身份证号'
-    })
-    @IsString()
-    certNo: string
 
     /* 银行名称 */
     @Column({
@@ -92,7 +76,7 @@ export class Bankcard {
     @IsString()
     signTradeTime?: string
 
-    /* 银行卡签约号 */
+    /* 银行卡签约号 用于支付使用*/
     @Column({
         name: 'sign_no',
         default: '',
@@ -105,14 +89,25 @@ export class Bankcard {
     @Column({
         name: 'status',
         default: '0',
-        comment: '签约状态 0: 未签约 1: 已经签约'
+        comment: '签约状态 0: 未签约 1: 已经签约 2:签约失败'
     })
     @IsString()
     status: string
 
-    // @ApiHideProperty()
-    // @OneToMany(() => Order, order => order.bankcard)
-    // orders: Order[]
+    /* 实名认证的Id */
+    @Column({
+        name: 'identity_id',
+        comment: '银行卡的实名'
+    })
+    @IsNumber()
+    identityId: number
+
+    @ApiHideProperty()
+    @ManyToOne(() => Identity)
+    @JoinColumn({
+        name: 'identity_id',
+    })
+    identity: Identity
 
     @Column({
         name: 'user_id',
