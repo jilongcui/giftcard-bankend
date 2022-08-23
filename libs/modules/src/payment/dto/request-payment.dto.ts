@@ -11,7 +11,7 @@ export class ListPaymentDto extends PartialType(OmitType(Payment, ['user', 'orde
 export class WebSignDto {
     @IsOptional()
     @IsNumber()
-    bankId?: number
+    bankcardId?: number
 }
 
 export class WebSignNotifyDto {

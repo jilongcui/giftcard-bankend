@@ -98,7 +98,7 @@ export class PaymentService {
     const method = 'heepay.agreement.bank.sign.page'
     const requestUri = 'API/PageSign/Index.aspx?'
     const tradeNo = this.randomTradeNo().toString()
-    const bankcard = await this.bankcardService.findOne(webSignDto.bankId)
+    const bankcard = await this.bankcardService.findOne(webSignDto.bankcardId)
     this.logger.debug(bankcard)
     if (bankcard == null) {
       throw new ApiException('没有此银行卡')
