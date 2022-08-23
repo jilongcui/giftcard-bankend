@@ -30,6 +30,7 @@ import { ResAuthRoleDto, ResHasRoleDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
 import { AddressService } from '@app/modules/wallet/address/address.service';
 import { ReqAddressCreateDto } from '@app/modules/wallet/address/dto/req-address.dto';
+import { update } from 'lodash';
 
 @Injectable()
 export class UserService {
@@ -180,7 +181,13 @@ export class UserService {
             reqAddUserDto.salt = this.sharedService.generateUUID()
             reqAddUserDto.password = this.sharedService.md5(reqAddUserDto.password + reqAddUserDto.salt)
         }
+
         const user = await this.userRepository.save(reqAddUserDto)
+
+        if (reqAddUserDto.nickName == undefined || reqAddUserDto.nickName == '') {
+            const nickName = `用户${user.userId}`
+            await this.userRepository.update(user.userId, { nickName: nickName })
+        }
 
         // Create user account.
         let createAccountDto = new CreateAccountDto()
