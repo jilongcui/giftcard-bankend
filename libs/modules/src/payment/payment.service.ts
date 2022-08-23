@@ -7,12 +7,16 @@ const fs = require("fs");
 import * as querystring from 'querystring';
 import { createPublicKey, X509Certificate } from 'crypto';
 import { BankcardService } from '../bankcard/bankcard.service';
-import { CreatePaymentDto, ReqSubmitPayDto, UpdatePaymentDto, WebSignDto, WebSignNotifyDto } from './dto/request-payment.dto';
-import { PayResponse, WebSignResponse } from './dto/response-payment.dto';
+import { CreatePaymentDto, ReqSendSMSDto, ReqSubmitPayDto, UpdatePaymentDto, WebSignDto, WebSignNotifyDto } from './dto/request-payment.dto';
+import { CryptoResponse, PayResponse, SendSMSResponse, WebSignResponse } from './dto/response-payment.dto';
 import { RES_CODE_SUCCESS, RES_NET_CODE } from './payment.const';
 
 import { generateKeyPairSync, createSign, publicEncrypt } from 'crypto';
 import { OrderService } from '../order/order.service';
+import { APP_FILTER } from '@nestjs/core';
+import { Payment } from './entities/payment.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
   // encryptionScheme: 'pkcs1', // Here is ignored after importing the key
@@ -35,6 +39,7 @@ export class PaymentService {
     private readonly configService: ConfigService,
     private readonly bankcardService: BankcardService,
     private readonly orderService: OrderService,
+    @InjectRepository(Payment) private readonly paymentRepository: Repository<Payment>,
   ) {
     this.baseUrl = this.configService.get<string>('payment.baseUrl')
 
@@ -183,12 +188,55 @@ export class PaymentService {
     bizContent.notify_url = 'http://www.baidu.com'
     bizContent.return_url = 'http://www.baidu.com'
 
-    this.sendCryptoRequest(requestUri, bizContent)
+    await this.sendCryptoRequest(requestUri, bizContent)
   }
 
-  // 发送支付短信
-  async sendPaySMS() {
+  // 创建支付订单，然后给用户发送短信。
+  async sendPaySMS(orderId: number, bankcardId: number, userIp: string) {
+    const requestUri = 'WithholdAuthPay/SendPaySMS.aspx'
+    const order = await this.orderService.findOne(orderId)
+    const bankcard = await this.bankcardService.findOne(bankcardId)
 
+    if (bankcard.signNo === undefined || bankcard.signNo === '') {
+      throw new ApiException('此银行卡没有实名或者')
+    }
+    const bizContent = new ReqSendSMSDto()
+
+    bizContent.agent_bill_id = order.id.toString()
+    bizContent.agent_bill_time = moment().format("YYYYMMDDHHmmss")
+    bizContent.goods_name = order.desc
+    bizContent.pay_amt = order.realPrice
+    bizContent.hy_auth_uid = bankcard.signNo
+    bizContent.user_ip = userIp
+    bizContent.notify_url = 'https://www.startland.top/api/payment/sendpayNotify'
+    // bizContent.return_url = 'http://www.baidu.com'
+    const bizResult = await this.sendCryptoRequest<SendSMSResponse>(requestUri, bizContent)
+    this.logger.debug(bizResult)
+
+    if (bizResult.agent_id.toString() != this.merchId) throw new ApiException("商户ID错误")
+    if (bizResult.ret_code !== RES_CODE_SUCCESS) throw new ApiException("错误: " + bizResult.ret_msg)
+    // 我们需要把这个支付订单创建成功的标记
+    const payment = new Payment()
+    payment.type = '1' // 银行卡支付
+    payment.bankcardId = bankcard.id
+    payment.orderId = orderId
+    payment.orderTokenId = bizResult.hy_token_id
+    payment.userId = order.userId
+
+    this.paymentRepository.save(payment)
+
+    return;
+  }
+
+  // 发送短信通知
+  async sendSMSNotify(webSignNotifyDto: any) {
+    // sign_no 是加密的，我们需要解密
+    const decryptedData = key2.decrypt(webSignNotifyDto.encrypt_data, 'utf8');
+    this.logger.debug("sendSMSNotify")
+    this.logger.debug(decryptedData)
+    // 验证签名
+    // return JSON.parse(decryptedData);
+    // 我们需要把这个signNo保存到数据库里
   }
 
   // 确认支付
@@ -273,43 +321,45 @@ export class PaymentService {
   /* 发送请求的通用接口 */
   async sendCryptoRequest<T>(
     requestUri: string, bizContent: any
-  ): Promise<boolean> {
+  ): Promise<T> {
 
 
     // 业务参数进行加密
     // 使用支付平台公钥加密bizConent这个json格式的字符串
-    const encryptData = publicEncrypt(this.platformPublicKey, Buffer.from(JSON.stringify(bizContent)));
-
-    let options = {
-      headers: {
-        "agent_id": this.merchId,
-        "version": '1',
-        // "Content-Type": "application/x-www-form-urlencoded"  
-      }
-    }
+    // const encryptData = publicEncrypt(this.platformPublicKey, Buffer.from(JSON.stringify(bizContent)));
+    // Get bizContent string
+    const bizContentStr = this.compactJsonToString(bizContent)
+    // Encrypt bizContent
+    const encryptData = key.encrypt(bizContentStr).toString('base64');
+    this.logger.debug(encryptData)
 
     // 对请求字符串进行签名
     const sign = createSign('RSA-SHA1');
-    sign.update(encryptData);
+    sign.update(bizContentStr);
     sign.end();
     const signContent = sign.sign(this.merchSecretKey).toString('base64');
 
+    let options = {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    }
     let body = {
       agent_id: this.merchId,
       encrypt_data: encryptData,
       sign: signContent
     }
-
-    this.logger.debug(encryptData);
-    this.logger.debug(signContent);
-
     const remoteUrl = this.baseUrl + requestUri
-    let res = await this.httpService.axiosRef.post<T>(remoteUrl, body, options);
-    const responseData: any = res.data
-    if (responseData.code == RES_CODE_SUCCESS) {
-      return responseData
+    let res = await this.httpService.axiosRef.post<CryptoResponse>(remoteUrl, body, options);
+    const responseData = res.data
+    this.logger.debug(responseData)
+    if (responseData.ret_code == RES_CODE_SUCCESS) {
+      const decryptedData = key2.decrypt(responseData.encrypt_data, 'utf8');
+      this.logger.debug(decryptedData)
+      // 验证签名
+      return JSON.parse(decryptedData);
     }
-    throw new ApiException('加密请求失败: ' + responseData.ret_msg)
+    throw new ApiException('签约请求失败: ' + responseData.ret_msg)
   }
 
   // Creating a function to encrypt string

@@ -232,6 +232,10 @@ export class OrderService {
     return this.orderRepository.update(id, updateOrderDto)
   }
 
+  updatePaymentStatus(id: number, updateOrderDto: UpdateOrderDto) {
+    return this.orderRepository.update(id, updateOrderDto)
+  }
+
   deleteOne(id: number) {
     return this.orderRepository.delete(id)
   }

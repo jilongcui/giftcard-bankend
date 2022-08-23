@@ -37,3 +37,15 @@ export class ReqSubmitPayDto {
     notify_url: string
     return_url?: string
 }
+
+export class ReqSendSMSDto {
+    version: string
+    agent_bill_id: string
+    agent_bill_time: string
+    pay_amt: number
+    goods_name: string
+    hy_auth_uid: string // signNo
+    user_ip: string
+    notify_url: string
+    return_url?: string
+}

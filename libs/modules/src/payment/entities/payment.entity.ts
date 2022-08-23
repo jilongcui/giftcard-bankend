@@ -13,15 +13,9 @@ export class Payment {
     id: number
 
     @Column({
-        name: 'desc',
-        comment: '订单描述'
-    })
-    @IsString()
-    desc: string
-
-    @Column({
         name: 'type',
-        comment: '支付种类 0: 余额支付 1:银行卡支付 2:余额充值',
+        default: '0',
+        comment: '支付种类 0: 余额支付 1:银行卡支付',
         type: 'char',
         length: 1
     })
@@ -31,12 +25,23 @@ export class Payment {
     /* 订单状态 0: 订单取消，1:未支付 2: 订单完成 3: 订单过期*/
     @Column({
         name: 'status',
+        default: '0',
         comment: '订单状态 0:未支付 1: 支付完成 3: 支付失败',
         type: 'char',
         length: 1
     })
     @IsString()
     status: string
+
+    /* 来自支付平台的 支付订单创建成功标志 */
+    @Column({
+        name: 'order_token_id',
+        comment: '订单状态 0:未支付 1: 支付完成 3: 支付失败',
+        type: 'char',
+        length: 1
+    })
+    @IsString()
+    orderTokenId: string
 
     @Column({
         name: 'order_id',
