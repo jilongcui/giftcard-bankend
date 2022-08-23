@@ -19,7 +19,7 @@ export class SmscodeController {
 
     }
 
-    @RepeatSubmit()
+    // @RepeatSubmit()
     @Public()
     // @UseGuards(ImageCaptchaGuard)
     @Post("reg")
@@ -29,7 +29,7 @@ export class SmscodeController {
         return this.smscodeService.sendRegCode(reqSmscodeSendDto.phone);
     }
 
-    @RepeatSubmit()
+    // @RepeatSubmit()
     @Public()
     // @UseGuards(ImageCaptchaGuard)
     @Post("login")

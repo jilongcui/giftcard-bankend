@@ -108,14 +108,15 @@ export class PaymentService {
       throw new ApiException('非本人银行卡')
     }
     const bizContent = {
-      // bank_card_no: bankcard.cardNo,
-      // bank_card_type: bankcard.cardType,
-      // bank_user_name: bankcard.userName,
+      bank_card_no: bankcard.cardNo,
+      bank_card_type: bankcard.cardType,
+      bank_user_name: bankcard.userName,
       bank_type: "0",
-      bank_card_no: "6225880134229876",
-      bank_user_name: "崔吉龙",
-      cert_no: "340321197907014717",
-      mobile: "18905170811",
+      // bank_card_no: "6225880134229876",
+      // bank_user_name: "崔吉龙",
+      // cert_no: "340321197907014717",
+      cert_no: bankcard.certNo,
+      mobile: bankcard.mobile,
       merch_user_id: userId.toString(),
       // from_user_ip: "219.143.153.103",
       // return_url: 'https://',
@@ -130,12 +131,36 @@ export class PaymentService {
 
     if (bizResult.merch_id != this.merchId) throw new ApiException("商户ID错误")
     if (bizResult.out_trade_no !== tradeNo) throw new ApiException("网签编号错误")
+    await this.bankcardService.update(bankcard.id, { signTradeNo: bizContent.out_trade_no, signTradeTime: bizContent.out_trade_time })
     return bizResult.sign_url;
   }
 
+
   // 网关签约接口
-  async webSignNotify(webSignNotifyeDto: WebSignNotifyDto) {
-    this.logger.debug(webSignNotifyeDto)
+  async webSignNotify(webSignNotifyDto: WebSignNotifyDto) {
+    // { 
+    //   "merch_id": 1664502,
+    //   "out_trade_no": "1778172474",
+    //   "out_trade_time": "2022-08-23 18:06:49",
+    //   "sign_url": "https://pay.heepay.com/API/PageSign/www/index.html#/?pre_sign_uid=sn-22082318061002870374a07c594f40abde48c162734545E&merch_id=1664502&timespan=637968748038777025&sign=0954030f12699504565f10494e8183fc"
+    // }
+    // 通知返回的结果
+    // { 
+    //   "merch_id": "1664502",
+    //   "out_trade_no": "1778172474",
+    //   "out_trade_time": "2022-08-23 18:06:49",
+    //   "sign_no": "DuqSTSI4gvcwr+hTj8d4smrP6Nany3ouOTylrDK5tmHEP++3fs6sisPCshu5iV7bcfYvY3ES4luoIxzp9wr2mowz4bY7H26+ONPA0PQDFdq2w7QJ9mF/+qKGVRLDUEtxtiKr3qF1uSgv5TlBs4N07BxgFUUoXIM/XZ6K8BdqHathmUMzpQD9Hhz8AoKwcpbBN/waphyGWUQzec9do5rnfyi/WGIxpqkxPNzdoLY78wFXDV1Hlyd+5JUd89PwRriKDuSNa9d77SJUpimCBfv6cUGz8FOBaggVER2QhP9fbdOxTyfmf1gs8e0phh2RVPdWj7FopX6FCevUnbGQzy2dPA==",
+    //   "sign": "kKAxbAeWmbIgEM+HQt5du2jP9mutEi4EFHpmeh87enAyLZjt3EAIa9uAbBRjknFMB6CNCJHrn2+SXrXnSXzp+ZO0etnaUXOetwwWOdyAy6io1fQugC8BnG+TXpLJOIIUVeayFdlo43nISC7N3444ytcDcBR/FoCVjBtp3TXYYPXamzYoHgct+/vfgqKdJJgDjKjjIO4rgQf5yletWXiECrUg0hxWMoAARLTOj0BWVt8C+7v1S99bXPIilxWcY5EklikwcId5LR9pMbqNVvj00YXPEhT5K0u9qF/aWUZHWB0bdL8b2XdnbX7TfepBuymBbDWPuw9Aiwh/O+RHZuZlSw=="
+    // }
+    //
+    // sign_no 是加密的，我们需要解密
+    const signNo = key2.decrypt(webSignNotifyDto.sign_no, 'utf8');
+    this.logger.debug(signNo)
+    // 验证签名
+    // return JSON.parse(decryptedData);
+
+    // 我们需要把这个signNo保存到数据库里
+    this.bankcardService.updateWithTradeNo(webSignNotifyDto.out_trade_no, webSignNotifyDto.out_trade_time, { status: '1', signNo: signNo })
   }
 
   // 网关签约查询

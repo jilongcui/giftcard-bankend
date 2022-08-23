@@ -72,8 +72,27 @@ export class Bankcard {
     // @IsString()
     // bankType?: string
 
+    /* 签约事务编号 */
+    @Column({
+        name: 'sign_trade_no',
+        default: '',
+        comment: '银行卡验证签名编号，后台记录',
+    })
+    @IsOptional()
+    @IsString()
+    signTradeNo?: string
+
+    /* 签约事务编号 */
+    @Column({
+        name: 'sign_trade_time',
+        default: '',
+        comment: '银行卡验证签名时间，后台记录',
+    })
+    @IsOptional()
+    @IsString()
+    signTradeTime?: string
+
     /* 银行卡签约号 */
-    @ApiHideProperty()
     @Column({
         name: 'sign_no',
         default: '',
