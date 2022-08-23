@@ -9,6 +9,7 @@ export class Bankcard {
     @IsNumber()
     id: number
 
+    /* 持卡人银行卡号 */
     @Column({
         name: 'card_no',
         length: 50,
@@ -17,14 +18,16 @@ export class Bankcard {
     @IsString()
     cardNo: string
 
+    /* 持卡人姓名 */
     @Column({
-        name: 'card_name',
+        name: 'user_name',
         length: 50,
         comment: '持卡人姓名'
     })
     @IsString()
-    cardName: string
+    userName: string
 
+    /* 持卡人预留手机号 */
     @Column({
         name: 'mobile',
         length: 11,
@@ -33,41 +36,47 @@ export class Bankcard {
     @IsString()
     mobile: string
 
+    /* 持卡人身份证号 */
     @Column({
         name: 'cert_no',
-        length: 11,
+        length: 50,
         comment: '持卡人身份证号'
     })
     @IsString()
     certNo: string
 
+    /* 银行名称 */
     @Column({
         name: 'bank_name',
-        length: 11,
+        length: 50,
         comment: '银行名称'
     })
     @IsString()
     bankName: string
 
+    /* 银行卡类型 0: 储蓄卡 1: 信用卡 */
     @Column({
         name: 'card_type',
+        default: '0',
         comment: '银行卡类型 0: 储蓄卡 1: 信用卡',
     })
     @IsOptional()
     @IsString()
-    cardType?: number
+    cardType?: string
 
-    @Column({
-        name: 'bank_type',
-        comment: '银行类型 ',
-    })
-    @IsOptional()
-    @IsString()
-    bankType?: string
+    // @Column({
+    //     name: 'bank_type',
+    //     comment: '银行类型 ',
+    // })
+    // @IsOptional()
+    // @IsString()
+    // bankType?: string
 
+    /* 银行卡签约号 */
     @ApiHideProperty()
     @Column({
         name: 'sign_no',
+        default: '',
         comment: '银行卡签约号 不要展示，后台记录',
     })
     @IsOptional()
@@ -76,7 +85,8 @@ export class Bankcard {
 
     @Column({
         name: 'status',
-        comment: '签约状态'
+        default: '0',
+        comment: '签约状态 0: 未签约 1: 已经签约'
     })
     @IsString()
     status: string

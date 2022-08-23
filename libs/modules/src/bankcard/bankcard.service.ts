@@ -36,7 +36,11 @@ export class BankcardService {
   }
 
   async create(createBankcardDto: CreateBankcardDto, userId: number) {
-    return this.bankcardRepository.save(createBankcardDto)
+    const bankcard = {
+      ...createBankcardDto,
+      userId
+    }
+    return this.bankcardRepository.save(bankcard)
   }
 
   /* 新增或编辑 */

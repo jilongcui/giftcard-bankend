@@ -8,6 +8,11 @@ export class UpdateAllPaymentDto extends Payment { }
 export class UpdatePaymentDto extends PartialType(CreatePaymentDto) { }
 export class UpdatePaymentStatusDto extends PickType(Payment, ['status']) { }
 export class ListPaymentDto extends PartialType(OmitType(Payment, ['user', 'order', 'bankcard'] as const)) { }
+export class WebSignDto {
+    @IsOptional()
+    @IsNumber()
+    bankId?: number
+}
 export class ListUnpayPaymentDto {
     @IsOptional()
     @IsNumber()

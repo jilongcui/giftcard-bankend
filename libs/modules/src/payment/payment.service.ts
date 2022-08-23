@@ -2,32 +2,33 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { isDev } from 'apps/nestjs-backend/src/config/configuration';
-import { json } from 'body-parser';
-import { random } from 'lodash';
-import moment from 'moment';
+import * as moment from 'moment';
+const fs = require("fs");
 import * as querystring from 'querystring';
+import { createPublicKey, X509Certificate } from 'crypto';
 import { BankcardService } from '../bankcard/bankcard.service';
-import { CreatePaymentDto, ReqSubmitPayDto, UpdatePaymentDto } from './dto/request-payment.dto';
+import { CreatePaymentDto, ReqSubmitPayDto, UpdatePaymentDto, WebSignDto } from './dto/request-payment.dto';
 import { PayResponse, WebSignResponse } from './dto/response-payment.dto';
 import { RES_CODE_SUCCESS, RES_NET_CODE } from './payment.const';
 
-import { generateKeyPairSync, privateEncrypt, publicDecrypt, createSign } from 'crypto';
-import { enc } from 'crypto-js';
+import { generateKeyPairSync, createSign, publicEncrypt } from 'crypto';
 import { OrderService } from '../order/order.service';
-import { USER_CID_KEY } from '@app/common/contants/redis.contant';
-
+const NodeRSA = require('node-rsa');
+var key = new NodeRSA({
+  // encryptionScheme: 'pkcs1', // Here is ignored after importing the key
+  ENVIRONMENT: 'node',
+});
+var key2 = new NodeRSA({
+  ENVIRONMENT: 'node',
+});
 @Injectable()
 export class PaymentService {
-  logger = new Logger(PayResponse.name)
+  logger = new Logger(PaymentService.name)
   baseUrl: string
   platformPublicKey: string
   merchSecretKey: string
   merchPublicKey: string
   merchId: string
-  // publicKey: string
-  // privateKey: string
-  // Basic initialization
 
   constructor(
     private readonly httpService: HttpService,
@@ -36,33 +37,42 @@ export class PaymentService {
     private readonly orderService: OrderService,
   ) {
     this.baseUrl = this.configService.get<string>('payment.baseUrl')
-    this.platformPublicKey = this.configService.get<string>('payment.platformPublicKey')
-    this.merchSecretKey = this.configService.get<string>('payment.merchSecretKey')
-    this.merchPublicKey = this.configService.get<string>('payment.merchPublicKey')
+
     this.merchId = this.configService.get<string>('payment.merchId')
 
+    this.platformPublicKey = this.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
+    this.merchSecretKey = this.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
+    this.merchPublicKey = this.getPublicPemFromString(this.configService.get<string>('payment.merchPublicKey'))
 
-    // const { publicKey, privateKey } = generateKeyPairSync('rsa', {
-    //   modulusLength: 2048,
-    //   publicKeyEncoding: {
-    //     type: 'spki',
-    //     format: 'pem'
-    //   },
-    //   privateKeyEncoding: {
-    //     type: 'pkcs8',
-    //     format: 'pem',
-    //     cipher: 'aes-256-cbc',
-    //     passphrase: 'top secret'
-    //   }
-    // });
-    // this.publicKey = publicKey
-    // this.privateKey = privateKey
+    key.importKey(this.platformPublicKey, 'pkcs8-public');
+    key.setOptions({ encryptionScheme: 'pkcs1' });
+    key.setOptions({
+      signingScheme: {
+        hash: 'sha1',
+      },
+    })
 
+    key2.importKey(this.merchSecretKey, 'pkcs8-private');
+    key2.setOptions({ encryptionScheme: 'pkcs1' });
 
-    // // Increase amount of entropy
-    // var entropy = 'Random string, integer or float';
-    // var crypt = new Crypt({ entropy: entropy });
+    // this.logger.debug(key.getMaxMessageSize())
+
+    // Getting object of a PEM encoded X509 Certificate. 
+    // const x509 = new X509Certificate(this.platformPublicKey);
+    // const value = x509.publicKey
+    // console.log("Type of public key :- " + value.asymmetricKeyType)
+
+    // this.logger.debug(publicKey)
+    // this.logger.debug(privateKey)
+    // this.platformPublicKey = createPublicKey(platformPublicKey)
+    // this.platformPublicKey = platformPublicKey
+    // this.logger.debug(this.platformPublicKey)
+    // this.merchSecretKey = createSecretKey(Buffer.from(merchSecretKey, 'utf8'))
+    // this.logger.debug(this.merchSecretKey)
+    // this.merchPublicKey = createSecretKey(Buffer.from(merchPublicKey, 'utf8'))
+    // this.logger.debug(this.merchPublicKey)
   }
+
   create(createPaymentDto: CreatePaymentDto) {
     return 'This action adds a new payment';
   }
@@ -84,11 +94,12 @@ export class PaymentService {
   }
 
   // 网关签约接口
-  async webSign(userId: number, bankId: number) {
+  async webSign(webSignDto: WebSignDto, userId: number) {
     const method = 'heepay.agreement.bank.sign.page'
     const requestUri = 'API/PageSign/Index.aspx?'
     const tradeNo = this.randomTradeNo().toString()
-    const bankcard = await this.bankcardService.findOne(bankId)
+    const bankcard = await this.bankcardService.findOne(webSignDto.bankId)
+    this.logger.debug(bankcard)
     if (bankcard == null) {
       throw new ApiException('没有此银行卡')
     }
@@ -97,19 +108,27 @@ export class PaymentService {
       throw new ApiException('非本人银行卡')
     }
     const bizContent = {
+      // bank_card_no: bankcard.cardNo,
+      // bank_card_type: bankcard.cardType,
+      // bank_user_name: bankcard.userName,
+      bank_type: "0",
+      bank_card_no: "6225880134229876",
+      bank_user_name: "崔吉龙",
+      cert_no: "340321197907014717",
+      mobile: "18905170811",
+      merch_user_id: userId.toString(),
+      // from_user_ip: "219.143.153.103",
+      return_url: 'http://www.baidu.com',
+      notify_url: 'http://www.baidu.com',
       out_trade_no: tradeNo,
       out_trade_time: moment().format("YYYY-MM-DD HH:mm:ss"),
-      merch_user_id: userId,
-      bank_card_type: bankcard.cardType,
-      notify_url: 'http://',
-      bank_card_no: bankcard.cardNo,
-      bank_card_name: bankcard.cardName,
-      cert_no: bankcard.certNo,
-      mobile: bankcard.mobile,
     }
-    this.logger.debug(bizContent);
+    this.logger.debug(JSON.stringify(bizContent));
+
     const bizResult = await this.sendJsonRequest<WebSignResponse>(method, requestUri, bizContent)
-    if (bizResult.merch_id !== this.merchId) throw new ApiException("商户ID错误")
+    this.logger.debug(bizResult)
+
+    if (bizResult.merch_id != this.merchId) throw new ApiException("商户ID错误")
     if (bizResult.out_trade_no !== tradeNo) throw new ApiException("网签编号错误")
     return bizResult.sign_url;
   }
@@ -164,58 +183,62 @@ export class PaymentService {
     method: string, requestUri: string, bizContent: any
   ): Promise<T> {
 
+    // Get bizContent string
+    const bizContentStr = JSON.stringify(bizContent)
+    // Encrypt bizContent
+    const encryptData = key.encrypt(JSON.stringify(bizContent)).toString('base64');
+    this.logger.debug(encryptData)
+
     let body = {
-      biz_content: bizContent,
-      merch_id: this.merchId,
-      method: method,
-      timestamp: moment().format("YYYY-MM-DD HH:mm:ss"),
-      version: '1.0',
-      sign: undefined,
+      "biz_content": bizContentStr,
+      "merch_id": this.merchId,
+      "method": method,
+      "timestamp": moment().format("YYYY-MM-DD HH:mm:ss"),
+      "version": "1.0",
     }
 
-    // 业务参数进行加密
-    // 使用支付平台公钥加密bizConent这个json格式的字符串
-    const encryptData = privateEncrypt(this.platformPublicKey, Buffer.from(JSON.stringify(bizContent)));
-
-    // 对公共请求参数进行签名，这部分是公用的，所以我们放在这里
-    const bodyString = querystring.stringify(body)
+    // Construct raw request body.
+    const bodyString = this.compactJsonToString(body)
     this.logger.debug(bodyString)
 
-    // 使用商家私钥对请求字符串进行签名
+    // 使用商户私钥对请求字符串进行签名
     const sign = createSign('RSA-SHA1');
     sign.update(bodyString);
     sign.end();
     const signContent = sign.sign(this.merchSecretKey).toString('base64');
-    body.sign = signContent
-
-    // 把bizContent换成加密后的内容
     body.biz_content = encryptData
+
+    // body2 add sign.
+    const body2 = {
+      ...body,
+      sign: signContent
+    }
+    this.logger.debug(body2)
 
     let options = {
       // headers: {
-      //   "Authorization": auth,
-      //   "Content-Type": "application/x-www-form-urlencoded"
+      //   // 'Content-Type': 'application/json; charset=utf-8'
       // }
     }
 
+    // Call request.
     const remoteUrl = this.baseUrl + requestUri
-    let res = await this.httpService.axiosRef.post<PayResponse<T>>(remoteUrl, JSON.stringify(body), options);
+    let res = await this.httpService.axiosRef.post<PayResponse<T>>(remoteUrl, body2, options);
+
     const responseData = res.data
-    this.logger.debug(responseData.code)
-    this.logger.debug(responseData.msg)
-    this.logger.debug(responseData.sub_code)
-    this.logger.debug(responseData.data)
-    this.logger.debug(responseData.sign)
+    // this.logger.debug(responseData.code)
+    // this.logger.debug(responseData.msg)
+    // this.logger.debug(responseData.sub_code)
+    // this.logger.debug(responseData.data)
+    // this.logger.debug(responseData.sign)
     if (responseData.code == RES_NET_CODE) {
-      // if (responseData.sub_code === '') {
-      //   //  success for identity.
-      // }
-      // 返回的data没有加密，但是包含签名
+
+
+      const decryptedData = key2.decrypt(responseData.data, 'utf8');
+      this.logger.debug(decryptedData)
       // 验证签名
       // 对公共请求参数进行验证签名，这部分是公用的，所以我们放在这里
-      const bodyString = querystring.stringify(body)
-      this.logger.debug(bodyString)
-      return responseData.data;
+      return JSON.parse(decryptedData);
     }
     throw new ApiException('签约请求失败: ' + responseData.msg)
   }
@@ -228,7 +251,7 @@ export class PaymentService {
 
     // 业务参数进行加密
     // 使用支付平台公钥加密bizConent这个json格式的字符串
-    const encryptData = privateEncrypt(this.platformPublicKey, Buffer.from(JSON.stringify(bizContent)));
+    const encryptData = publicEncrypt(this.platformPublicKey, Buffer.from(JSON.stringify(bizContent)));
 
     let options = {
       headers: {
@@ -260,6 +283,86 @@ export class PaymentService {
       return responseData
     }
     throw new ApiException('加密请求失败: ' + responseData.ret_msg)
+  }
+
+  // Creating a function to encrypt string
+  encryptString(plaintext, publicKeyFile) {
+    const publicKey = fs.readFileSync(publicKeyFile, "utf8");
+
+    // publicEncrypt() method with its parameters
+    const encrypted = publicEncrypt(
+      publicKey, Buffer.from(plaintext));
+    return encrypted.toString("base64");
+  }
+
+  // Using a function generateKeyFiles
+  generateKeyFiles() {
+
+    const keyPair = generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem'
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem',
+        cipher: 'aes-256-cbc',
+        passphrase: ''
+      }
+    });
+
+    // Creating public key file 
+    fs.writeFileSync("./public_key", keyPair.publicKey);
+    fs.writeFileSync("./private_key", keyPair.privateKey);
+  }
+
+  compactJsonToString(data: Object) {
+    let sign = '';
+    for (let key in data) {
+      sign += '&' + key + '=' + data[key]
+    }
+    return sign.slice(1)
+  }
+  getPublicX905FromString(str: string) {
+    const rawcert = this.stringChunks(str, 64)
+    const cert = "-----BEGIN CERTIFICATE-----\n" + rawcert + "\n-----END CERTIFICATE-----";
+    return cert
+  }
+
+  getPublicPemFromString(str: string) {
+    const rawcert = this.stringChunks(str, 64)
+    const cert = "-----BEGIN PUBLIC KEY-----\n" + rawcert + "\n-----END PUBLIC KEY-----";
+    return cert
+  }
+
+  getPrivateFromString(str: string) {
+    const rawcert = this.stringChunks(str, 64)
+    const cert = "-----BEGIN PRIVATE KEY-----\n" + rawcert + "\n-----END PRIVATE KEY-----";
+    return cert
+  }
+
+  stringChunks(str, chunkSize) {
+    chunkSize = (typeof chunkSize === "undefined") ? 140 : chunkSize;
+    let resultString = "";
+
+    if (str.length > 0) {
+      let resultArray = [];
+      let chunk = "";
+      for (let i = 0; i < str.length; i = (i + chunkSize)) {
+        chunk = str.substring(i, i + chunkSize);
+        if (chunk.trim() != "") {
+          resultArray.push(chunk);
+        }
+      }
+      if (resultArray.length) {
+        resultString = resultArray.join("\n");
+      }
+    } else {
+      resultString = str;
+    }
+
+    return resultString;
   }
 }
 
