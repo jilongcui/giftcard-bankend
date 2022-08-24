@@ -60,7 +60,7 @@ export class PaymentController {
     return this.paymentService.sendPaySMS(payWithCard, userId, ipaddr)
   }
 
-  @Post(':confirmCardPay')
+  @Post('confirmCardPay')
   confirmPayWithCard(@Body() confirmPayDto: ConfirmPayWithCardDto, @UserDec(UserEnum.userId) userId: number, userIp) {
 
     return this.paymentService.confirmPayment(confirmPayDto, userId)
