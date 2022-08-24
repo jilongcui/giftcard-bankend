@@ -20,7 +20,7 @@ export class IdentityService {
     logger: LoggerService;
     constructor(
         @InjectRedis() private readonly redis: Redis,
-        @InjectRepository(Identity) private readonly indentityRepository: Repository<Identity>,
+        @InjectRepository(Identity) private readonly identityRepository: Repository<Identity>,
         @Inject('CHAIN_SERVICE') private readonly chainClient: ClientProxy,
         private readonly httpService: HttpService,
     ) {
@@ -29,12 +29,16 @@ export class IdentityService {
         this.remoteUrl = 'https://service-4epp7bin-1300755093.ap-beijing.apigateway.myqcloud.com/release/phone3element';
     }
 
+    findOne(id: number) {
+        return this.identityRepository.findOne({ where: { identityId: id }, relations: { user: true } })
+    }
+
     async identityWith3Element(mobile: string, cardId: string, realName: string, userId: number) {
         let isIdentify = true;
         // let isIdentify = await this.doIdentity3Element(mobile, cardId, realName);
         if (isIdentify) {
             // save to identity respository
-            await this.indentityRepository.save({
+            await this.identityRepository.save({
                 mobile,
                 cardId,
                 realName,
@@ -93,7 +97,7 @@ export class IdentityService {
         let isIdentify = await this.doIdentityWithCrichain(address, cardId, realName)
         if (isIdentify) {
             // save to identity respository
-            await this.indentityRepository.save({
+            await this.identityRepository.save({
                 mobile: address.slice(0, 10),
                 cardId,
                 realName,
@@ -132,7 +136,7 @@ export class IdentityService {
         if (reqIdentityList.cardId) {
             where.cardId = Like(`%${reqIdentityList.cardId}%`)
         }
-        result = await this.indentityRepository.findAndCount({
+        result = await this.identityRepository.findAndCount({
             // select: ['id', 'address', 'privateKey', 'createTime', 'status'],
             where,
             skip: reqIdentityList.skip,

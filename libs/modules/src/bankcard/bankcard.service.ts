@@ -1,26 +1,12 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import Redis from 'ioredis';
-import { Inject, Injectable, Logger, ParseArrayPipe } from '@nestjs/common';
+import { Inject, Injectable, Logger, } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as moment from 'moment';
-import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_SUPPLY, ACTIVITY_START_TIME, ACTIVITY_PRESTART_TIME, ACTIVITY_USER_ORDER_KEY, ASSET_ORDER_KEY } from '@app/common/contants/redis.contant';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
-import { ApiException } from '@app/common/exceptions/api.exception';
-import { Repository, FindOptionsWhere, EntityManager, getManager, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
-import { Account } from '../account/entities/account.entity';
-import { Activity } from '../activity/entities/activity.entity';
-import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
-import { CreateAssetDto } from '../collection/dto/request-asset.dto';
-import { Asset } from '../collection/entities/asset.entity';
-import { Collection } from '../collection/entities/collection.entity';
-import { AssetRecord } from '../market/entities/asset-record.entity';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { CreateBankcardDto, ListMyBankcardDto, ListBankcardDto, UpdateBankcardDto, UpdateBankcardStatusDto } from './dto/request-bankcard.dto';
 import { Bankcard } from './entities/bankcard.entity';
-import { ClientProxy } from '@nestjs/microservices';
-import { MintADto } from '@app/chain';
 import { ConfigService } from '@nestjs/config';
-import { firstValueFrom } from 'rxjs';
+import { IdentityService } from '../identity/identity.service';
 
 @Injectable()
 export class BankcardService {
@@ -28,17 +14,20 @@ export class BankcardService {
   platformAddress: string
   constructor(
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
-    // @InjectRedis() private readonly redis: Redis,
-    // @Inject('CHAIN_SERVICE') private client: ClientProxy,
+    private readonly identityService: IdentityService,
     private readonly configService: ConfigService,
   ) {
     this.platformAddress = this.configService.get<string>('crichain.platformAddress')
   }
 
   async create(createBankcardDto: CreateBankcardDto, userId: number) {
+    const identity = await this.identityService.findOne(userId)
+
     const bankcard = {
       ...createBankcardDto,
-      userId
+      userId,
+      identityId: identity.identityId
+
     }
     return this.bankcardRepository.save(bankcard)
   }

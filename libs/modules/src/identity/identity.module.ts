@@ -16,6 +16,7 @@ import { IdentityService } from './identity.service';
   ]),
   TypeOrmModule.forFeature([Identity])],
   controllers: [IdentityController],
-  providers: [IdentityService]
+  providers: [IdentityService],
+  exports: [IdentityService]
 })
 export class IdentityModule { }
