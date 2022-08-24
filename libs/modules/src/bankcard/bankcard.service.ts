@@ -74,7 +74,7 @@ export class BankcardService {
     result = await this.bankcardRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
-      relations: ["activity", "collections"],
+      relations: { identity: true },
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
