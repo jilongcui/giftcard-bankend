@@ -33,6 +33,10 @@ export class IdentityService {
         return this.identityRepository.findOne({ where: { identityId: id }, relations: { user: true } })
     }
 
+    findOneByUser(userId: number) {
+        return this.identityRepository.findOne({ where: { user: { userId: userId } }, relations: { user: true } })
+    }
+
     async identityWith3Element(mobile: string, cardId: string, realName: string, userId: number) {
         let isIdentify = true;
         // let isIdentify = await this.doIdentity3Element(mobile, cardId, realName);

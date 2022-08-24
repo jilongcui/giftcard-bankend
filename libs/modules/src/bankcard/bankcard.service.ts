@@ -7,6 +7,7 @@ import { CreateBankcardDto, ListMyBankcardDto, ListBankcardDto, UpdateBankcardDt
 import { Bankcard } from './entities/bankcard.entity';
 import { ConfigService } from '@nestjs/config';
 import { IdentityService } from '../identity/identity.service';
+import { ApiException } from '@app/common/exceptions/api.exception';
 
 @Injectable()
 export class BankcardService {
@@ -21,8 +22,11 @@ export class BankcardService {
   }
 
   async create(createBankcardDto: CreateBankcardDto, userId: number) {
-    const identity = await this.identityService.findOne(userId)
-
+    const identity = await this.identityService.findOneByUser(userId)
+    if (identity === null) {
+      throw new ApiException('没有实名认证')
+    }
+    createBankcardDto.cardNo = createBankcardDto.cardNo.replace(/\s*/g, "")
     const bankcard = {
       ...createBankcardDto,
       userId,
