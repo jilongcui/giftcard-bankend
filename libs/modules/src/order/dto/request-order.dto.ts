@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Column } from "typeorm";
 import { Order } from "../entities/order.entity";
 
-export class CreateOrderDto extends OmitType(Order, ['id', 'image', 'status', 'userId', 'desc', 'realPrice', 'totalPrice'] as const) { }
+export class CreateOrderDto extends OmitType(Order, ['id', 'image', 'status', 'userId', 'desc', 'realPrice', 'totalPrice',] as const) { }
 export class UpdateAllOrderDto extends Order { }
 export class UpdateOrderDto extends PartialType(Order) { }
 export class UpdateOrderStatusDto extends PickType(Order, ['status']) { }

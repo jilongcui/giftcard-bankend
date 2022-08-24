@@ -2,11 +2,13 @@
 export class PayResponse<T> {
     code?: string
 
+    data: T
+
     msg?: string
 
     sub_code: string
 
-    data: T
+    sub_msg: string
 
     sign: string
 }

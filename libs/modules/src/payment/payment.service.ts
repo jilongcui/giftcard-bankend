@@ -57,45 +57,7 @@ export class PaymentService {
 
     key2.importKey(this.merchSecretKey, 'pkcs8-private');
     key2.setOptions({ encryptionScheme: 'pkcs1' });
-
-    // this.logger.debug(key.getMaxMessageSize())
-
-    // Getting object of a PEM encoded X509 Certificate. 
-    // const x509 = new X509Certificate(this.platformPublicKey);
-    // const value = x509.publicKey
-    // console.log("Type of public key :- " + value.asymmetricKeyType)
-
-    // this.logger.debug(publicKey)
-    // this.logger.debug(privateKey)
-    // this.platformPublicKey = createPublicKey(platformPublicKey)
-    // this.platformPublicKey = platformPublicKey
-    // this.logger.debug(this.platformPublicKey)
-    // this.merchSecretKey = createSecretKey(Buffer.from(merchSecretKey, 'utf8'))
-    // this.logger.debug(this.merchSecretKey)
-    // this.merchPublicKey = createSecretKey(Buffer.from(merchPublicKey, 'utf8'))
-    // this.logger.debug(this.merchPublicKey)
   }
-
-  // create(createPaymentDto: CreatePaymentDto) {
-  //   return 'This action adds a new payment';
-  // }
-
-  // findAll() {
-  //   return `This action returns all payment`;
-  // }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} payment`;
-  // }
-
-  // update(id: number, updatePaymentDto: UpdatePaymentDto) {
-  //   return `This action updates a #${id} payment`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} payment`;
-  // }
-
 
   // 网关签约接口
   async webSign(webSignDto: WebSignDto, userId: number) {
@@ -139,29 +101,29 @@ export class PaymentService {
 
   // 网关签约接口
   async webSignNotify(webSignNotifyDto: WebSignNotifyDto) {
-    // { 
-    //   "merch_id": 1664502,
-    //   "out_trade_no": "1778172474",
-    //   "out_trade_time": "2022-08-23 18:06:49",
-    //   "sign_url": "https://pay.heepay.com/API/PageSign/www/index.html#/?pre_sign_uid=sn-22082318061002870374a07c594f40abde48c162734545E&merch_id=1664502&timespan=637968748038777025&sign=0954030f12699504565f10494e8183fc"
-    // }
-    // 通知返回的结果
-    // { 
-    //   "merch_id": "1664502",
-    //   "out_trade_no": "1778172474",
-    //   "out_trade_time": "2022-08-23 18:06:49",
-    //   "sign_no": "DuqSTSI4gvcwr+hTj8d4smrP6Nany3ouOTylrDK5tmHEP++3fs6sisPCshu5iV7bcfYvY3ES4luoIxzp9wr2mowz4bY7H26+ONPA0PQDFdq2w7QJ9mF/+qKGVRLDUEtxtiKr3qF1uSgv5TlBs4N07BxgFUUoXIM/XZ6K8BdqHathmUMzpQD9Hhz8AoKwcpbBN/waphyGWUQzec9do5rnfyi/WGIxpqkxPNzdoLY78wFXDV1Hlyd+5JUd89PwRriKDuSNa9d77SJUpimCBfv6cUGz8FOBaggVER2QhP9fbdOxTyfmf1gs8e0phh2RVPdWj7FopX6FCevUnbGQzy2dPA==",
-    //   "sign": "kKAxbAeWmbIgEM+HQt5du2jP9mutEi4EFHpmeh87enAyLZjt3EAIa9uAbBRjknFMB6CNCJHrn2+SXrXnSXzp+ZO0etnaUXOetwwWOdyAy6io1fQugC8BnG+TXpLJOIIUVeayFdlo43nISC7N3444ytcDcBR/FoCVjBtp3TXYYPXamzYoHgct+/vfgqKdJJgDjKjjIO4rgQf5yletWXiECrUg0hxWMoAARLTOj0BWVt8C+7v1S99bXPIilxWcY5EklikwcId5LR9pMbqNVvj00YXPEhT5K0u9qF/aWUZHWB0bdL8b2XdnbX7TfepBuymBbDWPuw9Aiwh/O+RHZuZlSw=="
-    // }
-    //
     // sign_no 是加密的，我们需要解密
     const signNo = key2.decrypt(webSignNotifyDto.sign_no, 'utf8');
     this.logger.debug(signNo)
     // 验证签名
-    // return JSON.parse(decryptedData);
-
+    const verifyData = this.sharedService.compactJsonToString({
+      merch_id: webSignNotifyDto.merch_id,
+      out_trade_no: webSignNotifyDto.out_trade_no,
+      out_trade_time: webSignNotifyDto.out_trade_time,
+      sign_no: signNo,
+    })
+    this.logger.debug(verifyData)
+    // 验证签名
+    const verify = createVerify('RSA-SHA1');
+    verify.write(verifyData);
+    verify.end();
+    const verifyOk = verify.verify(this.platformPublicKey, webSignNotifyDto.sign, 'base64');
+    this.logger.debug(verifyOk)
+    if (!verifyOk) {
+      return 'error'
+    }
     // 我们需要把这个signNo保存到数据库里
     this.bankcardService.updateWithTradeNo(webSignNotifyDto.out_trade_no, webSignNotifyDto.out_trade_time, { status: '1', signNo: signNo })
+    return 'ok'
   }
 
   // 网关签约查询
@@ -224,9 +186,7 @@ export class PaymentService {
     payment.orderTokenId = bizResult.hy_token_id
     payment.userId = order.userId
 
-    await this.paymentRepository.save(payment)
-
-    return;
+    return await this.paymentRepository.save(payment)
   }
 
   // 支付通知
@@ -244,7 +204,7 @@ export class PaymentService {
     // Prints: true
     // 处理支付结果
     if (!isSignOk) {
-      return false
+      return 'error'
     }
     const paymentNotify: ReqPaymentNotify = JSON.parse(decryptedData)
     if (paymentNotify.status === 'SUCCESS') {
@@ -252,10 +212,7 @@ export class PaymentService {
       await this.paymentRepository.update(parseInt(orderId), { status: '1', order: { status: '2' } })
     } else {
     }
-    return true
-
-
-
+    return 'ok'
   }
 
   // 确认支付
@@ -340,21 +297,28 @@ export class PaymentService {
     let res = await this.httpService.axiosRef.post<PayResponse<T>>(remoteUrl, body2, options);
 
     const responseData = res.data
-    // this.logger.debug(responseData.code)
-    // this.logger.debug(responseData.msg)
-    // this.logger.debug(responseData.sub_code)
-    // this.logger.debug(responseData.data)
-    // this.logger.debug(responseData.sign)
+
     if (responseData.code == RES_NET_CODE) {
-
-
       const decryptedData = key2.decrypt(responseData.data, 'utf8');
-      this.logger.debug(decryptedData)
+      this.logger.debug('this')
+      const verifyData = this.sharedService.compactJsonToString({
+        code: responseData.code,
+        data: decryptedData,
+        msg: responseData.msg,
+        sub_code: responseData.sub_code,
+        sub_msg: responseData.sub_msg
+      })
+      this.logger.debug(verifyData)
       // 验证签名
       const verify = createVerify('RSA-SHA1');
-      verify.write(decryptedData);
+      verify.write(verifyData);
       verify.end();
-      verify.verify(this.platformPublicKey, responseData.sign, 'base64');
+      const verifyOk = verify.verify(this.platformPublicKey, responseData.sign, 'base64');
+      this.logger.debug(verifyOk)
+      if (verifyOk) {
+        return JSON.parse(decryptedData)
+      }
+      throw new ApiException('签约请求失败: ' + '签名校验失败')
     }
     throw new ApiException('签约请求失败: ' + responseData.msg)
   }
@@ -401,7 +365,9 @@ export class PaymentService {
       const verify = createVerify('RSA-SHA1');
       verify.write(decryptedData);
       verify.end();
-      verify.verify(this.platformPublicKey, responseData.sign, 'base64');
+      const verifyOk = verify.verify(this.platformPublicKey, responseData.sign, 'base64');
+      this.logger.debug(verifyOk)
+      return JSON.parse(decryptedData)
     }
     throw new ApiException('签约请求失败: ' + responseData.ret_msg)
   }

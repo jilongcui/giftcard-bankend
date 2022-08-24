@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { ConfirmPayWithCardDto, CreatePaymentDto, PayWithBalanceDto, PayWithCardDto, UpdatePaymentDto, WebSignDto } from './dto/request-payment.dto';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '@app/common/decorators/public.decorator';
 import { SharedService } from '@app/shared';
-import { Request } from 'express'
+import { Request, Response } from 'express'
 import { BalancePayService } from './balance-pay.service';
+import { Keep } from '@app/common/decorators/keep.decorator';
 
 @ApiTags('支付')
 @ApiBearerAuth()
@@ -67,14 +68,16 @@ export class PaymentController {
   }
 
   @Post('webSignNotify')
+  @Keep()
   @Public()
   webSignNotify(@Body() webSignNotifyDto: any) {
     return this.paymentService.webSignNotify(webSignNotifyDto)
   }
 
   @Post('paymentNotify')
+  @Keep()
   @Public()
-  paymentNotify(@Body() cryptNotifyDto: any) {
-    return this.paymentService.paymentNotify(cryptNotifyDto)
+  async paymentNotify(@Body() cryptNotifyDto: any,) {
+    return await this.paymentService.paymentNotify(cryptNotifyDto)
   }
 }
