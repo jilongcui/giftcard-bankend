@@ -10,7 +10,7 @@ import { Order } from './entities/order.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
-import { BalancePayService } from '@app/modules/payment/balancepay.service';
+import { BalancePayService } from '@app/modules/payment/balancePay.service';
 @ApiTags('订单')
 @ApiBearerAuth()
 @Controller('order')
