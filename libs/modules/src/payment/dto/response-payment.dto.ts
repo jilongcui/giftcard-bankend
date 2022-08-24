@@ -25,9 +25,17 @@ export class SendSMSResponse {
     hy_token_id: string
 }
 
+export class ConfirmPayResponse {
+    agent_id?: number
+    ret_code: string
+    ret_msg: string
+    hy_bill_no: string
+}
+
 export class CryptoResponse {
     ret_code?: string
     ret_msg: string
     encrypt_data: string
     sign: string
 }
+

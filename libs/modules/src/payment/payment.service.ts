@@ -3,20 +3,18 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as moment from 'moment';
-const fs = require("fs");
-import * as querystring from 'querystring';
-import { createPublicKey, X509Certificate } from 'crypto';
-import { BankcardService } from '../bankcard/bankcard.service';
-import { CreatePaymentDto, ReqSendSMSDto, ReqSubmitPayDto, UpdatePaymentDto, WebSignDto, WebSignNotifyDto } from './dto/request-payment.dto';
-import { CryptoResponse, PayResponse, SendSMSResponse, WebSignResponse } from './dto/response-payment.dto';
-import { RES_CODE_SUCCESS, RES_NET_CODE } from './payment.const';
-
-import { generateKeyPairSync, createSign, publicEncrypt } from 'crypto';
-import { OrderService } from '../order/order.service';
-import { APP_FILTER } from '@nestjs/core';
+import { createSign } from 'crypto';
 import { Payment } from './entities/payment.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SharedService } from '@app/shared';
+import { BankcardService } from '@app/modules/bankcard/bankcard.service';
+import { OrderService } from '@app/modules/order/order.service';
+import { ConfirmPayWithCardDto, PayWithCardDto, ReqConfirmPayDto, ReqCryptoNotifyDto } from './dto/request-payment.dto';
+import { ReqPaymentNotify, ReqSendSMSDto, ReqSubmitPayDto, WebSignDto, WebSignNotifyDto } from './dto/request-payment.dto';
+import { ConfirmPayResponse, CryptoResponse, PayResponse, SendSMSResponse, WebSignResponse } from './dto/response-payment.dto';
+import { RES_CODE_SUCCESS, RES_NET_CODE } from './payment.const';
+
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
   // encryptionScheme: 'pkcs1', // Here is ignored after importing the key
@@ -39,15 +37,15 @@ export class PaymentService {
     private readonly configService: ConfigService,
     private readonly bankcardService: BankcardService,
     private readonly orderService: OrderService,
+    private readonly sharedService: SharedService,
     @InjectRepository(Payment) private readonly paymentRepository: Repository<Payment>,
   ) {
     this.baseUrl = this.configService.get<string>('payment.baseUrl')
 
     this.merchId = this.configService.get<string>('payment.merchId')
-
-    this.platformPublicKey = this.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
-    this.merchSecretKey = this.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
-    this.merchPublicKey = this.getPublicPemFromString(this.configService.get<string>('payment.merchPublicKey'))
+    this.platformPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
+    this.merchSecretKey = this.sharedService.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
+    this.merchPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.merchPublicKey'))
 
     key.importKey(this.platformPublicKey, 'pkcs8-public');
     key.setOptions({ encryptionScheme: 'pkcs1' });
@@ -78,25 +76,26 @@ export class PaymentService {
     // this.logger.debug(this.merchPublicKey)
   }
 
-  create(createPaymentDto: CreatePaymentDto) {
-    return 'This action adds a new payment';
-  }
+  // create(createPaymentDto: CreatePaymentDto) {
+  //   return 'This action adds a new payment';
+  // }
 
-  findAll() {
-    return `This action returns all payment`;
-  }
+  // findAll() {
+  //   return `This action returns all payment`;
+  // }
 
-  findOne(id: number) {
-    return `This action returns a #${id} payment`;
-  }
+  // findOne(id: number) {
+  //   return `This action returns a #${id} payment`;
+  // }
 
-  update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    return `This action updates a #${id} payment`;
-  }
+  // update(id: number, updatePaymentDto: UpdatePaymentDto) {
+  //   return `This action updates a #${id} payment`;
+  // }
 
-  remove(id: number) {
-    return `This action removes a #${id} payment`;
-  }
+  // remove(id: number) {
+  //   return `This action removes a #${id} payment`;
+  // }
+
 
   // 网关签约接口
   async webSign(webSignDto: WebSignDto, userId: number) {
@@ -192,10 +191,10 @@ export class PaymentService {
   }
 
   // 创建支付订单，然后给用户发送短信。
-  async sendPaySMS(orderId: number, bankcardId: number, userIp: string) {
+  async sendPaySMS(payWithCard: PayWithCardDto, userId: number, userIp: string) {
     const requestUri = 'WithholdAuthPay/SendPaySMS.aspx'
-    const order = await this.orderService.findOne(orderId)
-    const bankcard = await this.bankcardService.findOne(bankcardId)
+    const order = await this.orderService.findOne(payWithCard.orderId)
+    const bankcard = await this.bankcardService.findOne(payWithCard.bankcardId)
 
     if (bankcard.signNo === undefined || bankcard.signNo === '') {
       throw new ApiException('此银行卡没有实名或者')
@@ -208,18 +207,20 @@ export class PaymentService {
     bizContent.pay_amt = order.realPrice
     bizContent.hy_auth_uid = bankcard.signNo
     bizContent.user_ip = userIp
-    bizContent.notify_url = 'https://www.startland.top/api/payment/sendpayNotify'
+    bizContent.notify_url = 'https://www.startland.top/api/payment/paymentNotify'
     // bizContent.return_url = 'http://www.baidu.com'
     const bizResult = await this.sendCryptoRequest<SendSMSResponse>(requestUri, bizContent)
     this.logger.debug(bizResult)
 
     if (bizResult.agent_id.toString() != this.merchId) throw new ApiException("商户ID错误")
     if (bizResult.ret_code !== RES_CODE_SUCCESS) throw new ApiException("错误: " + bizResult.ret_msg)
-    // 我们需要把这个支付订单创建成功的标记
+    // 我们需要把这个支付订单创建成功的标记，保存起来
     const payment = new Payment()
     payment.type = '1' // 银行卡支付
+    payment.status = '1' // 支付中
     payment.bankcardId = bankcard.id
-    payment.orderId = orderId
+    payment.orderId = payWithCard.orderId
+    payment.userId = userId
     payment.orderTokenId = bizResult.hy_token_id
     payment.userId = order.userId
 
@@ -228,20 +229,54 @@ export class PaymentService {
     return;
   }
 
-  // 发送短信通知
-  async sendSMSNotify(webSignNotifyDto: any) {
+  // 支付通知
+  async paymentNotify(cryptoNotifyDto: ReqCryptoNotifyDto) {
     // sign_no 是加密的，我们需要解密
-    const decryptedData = key2.decrypt(webSignNotifyDto.encrypt_data, 'utf8');
-    this.logger.debug("sendSMSNotify")
+    const decryptedData = key2.decrypt(cryptoNotifyDto.encrypt_data, 'utf8');
+    this.logger.debug("paymentNotify")
     this.logger.debug(decryptedData)
+    const isSignOk = true
     // 验证签名
     // return JSON.parse(decryptedData);
-    // 我们需要把这个signNo保存到数据库里
+    // 处理支付结果
+    if (!isSignOk) {
+      return false
+    }
+    const paymentNotify: ReqPaymentNotify = JSON.parse(decryptedData)
+    if (paymentNotify.status === 'SUCCESS') {
+      const orderId = paymentNotify.agent_bill_id
+      await this.paymentRepository.update(parseInt(orderId), { status: '1', order: { status: '2' } })
+    } else {
+    }
+    return true
+
+
+
   }
 
   // 确认支付
-  async commitPay() {
+  async confirmPayment(confirmPayDto: ConfirmPayWithCardDto, userId: number) {
+    const requestUri = 'WithholdAuthPay/ConfirmPay.aspx'
+    const payment = await this.paymentRepository.findOneBy({ id: confirmPayDto.paymentId, userId: userId })
+    if (payment === null) {
+      throw new ApiException('未找到支付项')
+    }
+    // if (bankcard.signNo === undefined || bankcard.signNo === '') {
+    //   throw new ApiException('此银行卡没有实名或者')
+    // }
+    const bizContent = new ReqConfirmPayDto()
+    bizContent.version = '1'
+    bizContent.hy_token_id = payment.orderTokenId
+    bizContent.verify_code = confirmPayDto.verifyCode
+    const bizResult = await this.sendCryptoRequest<ConfirmPayResponse>(requestUri, bizContent)
+    this.logger.debug(bizResult)
 
+    if (bizResult.agent_id.toString() != this.merchId) throw new ApiException("商户ID错误")
+    if (bizResult.ret_code !== RES_CODE_SUCCESS) throw new ApiException("错误: " + bizResult.ret_msg)
+    // 我们需要把这个支付订单创建成功的标记
+    await this.paymentRepository.update(confirmPayDto.paymentId, { orderBillNo: bizResult.hy_bill_no })
+
+    return;
   }
 
   // 交易查询
@@ -273,7 +308,7 @@ export class PaymentService {
     }
 
     // Construct raw request body.
-    const bodyString = this.compactJsonToString(body)
+    const bodyString = this.sharedService.compactJsonToString(body)
     this.logger.debug(bodyString)
 
     // 使用商户私钥对请求字符串进行签名
@@ -328,7 +363,7 @@ export class PaymentService {
     // 使用支付平台公钥加密bizConent这个json格式的字符串
     // const encryptData = publicEncrypt(this.platformPublicKey, Buffer.from(JSON.stringify(bizContent)));
     // Get bizContent string
-    const bizContentStr = this.compactJsonToString(bizContent)
+    const bizContentStr = this.sharedService.compactJsonToString(bizContent)
     // Encrypt bizContent
     const encryptData = key.encrypt(bizContentStr).toString('base64');
     this.logger.debug(encryptData)
@@ -361,86 +396,6 @@ export class PaymentService {
     }
     throw new ApiException('签约请求失败: ' + responseData.ret_msg)
   }
-
-  // Creating a function to encrypt string
-  encryptString(plaintext, publicKeyFile) {
-    const publicKey = fs.readFileSync(publicKeyFile, "utf8");
-
-    // publicEncrypt() method with its parameters
-    const encrypted = publicEncrypt(
-      publicKey, Buffer.from(plaintext));
-    return encrypted.toString("base64");
-  }
-
-  // Using a function generateKeyFiles
-  generateKeyFiles() {
-
-    const keyPair = generateKeyPairSync('rsa', {
-      modulusLength: 2048,
-      publicKeyEncoding: {
-        type: 'spki',
-        format: 'pem'
-      },
-      privateKeyEncoding: {
-        type: 'pkcs8',
-        format: 'pem',
-        cipher: 'aes-256-cbc',
-        passphrase: ''
-      }
-    });
-
-    // Creating public key file 
-    fs.writeFileSync("./public_key", keyPair.publicKey);
-    fs.writeFileSync("./private_key", keyPair.privateKey);
-  }
-
-  compactJsonToString(data: Object) {
-    let sign = '';
-    for (let key in data) {
-      sign += '&' + key + '=' + data[key]
-    }
-    return sign.slice(1)
-  }
-  getPublicX905FromString(str: string) {
-    const rawcert = this.stringChunks(str, 64)
-    const cert = "-----BEGIN CERTIFICATE-----\n" + rawcert + "\n-----END CERTIFICATE-----";
-    return cert
-  }
-
-  getPublicPemFromString(str: string) {
-    const rawcert = this.stringChunks(str, 64)
-    const cert = "-----BEGIN PUBLIC KEY-----\n" + rawcert + "\n-----END PUBLIC KEY-----";
-    return cert
-  }
-
-  getPrivateFromString(str: string) {
-    const rawcert = this.stringChunks(str, 64)
-    const cert = "-----BEGIN PRIVATE KEY-----\n" + rawcert + "\n-----END PRIVATE KEY-----";
-    return cert
-  }
-
-  stringChunks(str, chunkSize) {
-    chunkSize = (typeof chunkSize === "undefined") ? 140 : chunkSize;
-    let resultString = "";
-
-    if (str.length > 0) {
-      let resultArray = [];
-      let chunk = "";
-      for (let i = 0; i < str.length; i = (i + chunkSize)) {
-        chunk = str.substring(i, i + chunkSize);
-        if (chunk.trim() != "") {
-          resultArray.push(chunk);
-        }
-      }
-      if (resultArray.length) {
-        resultString = resultArray.join("\n");
-      }
-    } else {
-      resultString = str;
-    }
-
-    return resultString;
-  }
+  //
 }
-
-
+//

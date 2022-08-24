@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, Inject, forwardRef } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, SyncInvalidOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
 import { DataObj } from '@app/common/class/data-obj.class';
@@ -10,11 +10,14 @@ import { Order } from './entities/order.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
+import { BalancePayService } from '@app/modules/payment/balancepay.service';
 @ApiTags('订单')
 @ApiBearerAuth()
 @Controller('order')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) { }
+  constructor(private readonly orderService: OrderService,
+
+    @Inject(forwardRef(() => BalancePayService)) private readonly balancePayService: BalancePayService) { }
 
   @Post()
   // @RepeatSubmit({ interval: 60 * 1 })
@@ -72,7 +75,7 @@ export class OrderController {
 
   @Post(':id/innerPay')
   async payWithBalance(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) nickName: string) {
-    return await this.orderService.payWithBalance(+id, userId, nickName);
+    return await this.balancePayService.payWithBalance(+id, userId, nickName);
   }
 
   @Post('syncInvalidOrder')

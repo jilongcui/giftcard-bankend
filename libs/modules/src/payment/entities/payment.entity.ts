@@ -22,11 +22,11 @@ export class Payment {
     @IsString()
     type: string
 
-    /* 订单状态 0: 订单取消，1:未支付 2: 订单完成 3: 订单过期*/
+    /* 支付状态 0: 未支付 1: 支付中 2: 支付完成 3: 支付失败 */
     @Column({
         name: 'status',
         default: '0',
-        comment: '订单状态 0:未支付 1: 支付完成 3: 支付失败',
+        comment: '支付状态 0: 未支付 1: 支付中 2: 支付完成 3: 支付失败',
         type: 'char',
         length: 1
     })
@@ -36,12 +36,22 @@ export class Payment {
     /* 来自支付平台的 支付订单创建成功标志 */
     @Column({
         name: 'order_token_id',
-        comment: '订单状态 0:未支付 1: 支付完成 3: 支付失败',
-        type: 'char',
-        length: 1
+        comment: '来自支付平台的 支付订单创建成功标志',
+        length: 50
     })
+    @IsOptional()
     @IsString()
-    orderTokenId: string
+    orderTokenId?: string
+
+    /* 来自支付平台的 确认订单后，汇付宝单据号 */
+    @Column({
+        name: 'order_bill_no',
+        comment: '来自支付平台的 确认订单后，汇付宝单据号',
+        length: 50
+    })
+    @IsOptional()
+    @IsString()
+    orderBillNo?: string
 
     @Column({
         name: 'order_id',
@@ -83,15 +93,16 @@ export class Payment {
         name: 'user_id',
         comment: '订单所属用户'
     })
+    @IsOptional()
     @IsNumber()
-    userId: number
+    userId?: number
 
     @ApiHideProperty()
     @ManyToOne(() => User)
     @JoinColumn({
         name: 'user_id',
     })
-    user: User
+    user?: User
 
     @ApiHideProperty()
     @CreateDateColumn({

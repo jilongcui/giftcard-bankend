@@ -53,10 +53,10 @@ export class Order {
     @IsNumber()
     count: number
 
-    /* 订单状态 0: 订单取消，1:未支付 2: 订单完成 3: 订单过期*/
+    /* 订单状态 0: 订单取消，1:支付中 2: 订单完成 3: 订单过期*/
     @Column({
         name: 'status',
-        comment: '订单状态 0: 订单取消，1:未支付 2: 订单完成 3: 订单过期',
+        comment: '订单状态 0: 订单取消 1: 支付中 2: 订单完成 3: 订单过期',
         type: 'char',
         length: 1
     })

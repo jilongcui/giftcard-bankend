@@ -20,6 +20,8 @@ import { CAPTCHA_IMG_KEY } from '@app/common/contants/redis.contant';
 import { isEmpty } from 'lodash';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { ApiException } from '@app/common/exceptions/api.exception';
+import { generateKeyPairSync, publicEncrypt } from 'crypto';
+const fs = require("fs");
 
 
 @Injectable()
@@ -167,5 +169,83 @@ export class SharedService {
             return false
         await this.redis.del(`${CAPTCHA_IMG_KEY}:${uuid}`)
         return true
+    }
+
+    compactJsonToString(data: Object) {
+        let sign = '';
+        for (let key in data) {
+            sign += '&' + key + '=' + data[key]
+        }
+        return sign.slice(1)
+    }
+    getPublicX905FromString(str: string) {
+        const rawcert = this.stringChunks(str, 64)
+        const cert = "-----BEGIN CERTIFICATE-----\n" + rawcert + "\n-----END CERTIFICATE-----";
+        return cert
+    }
+
+    getPublicPemFromString(str: string) {
+        const rawcert = this.stringChunks(str, 64)
+        const cert = "-----BEGIN PUBLIC KEY-----\n" + rawcert + "\n-----END PUBLIC KEY-----";
+        return cert
+    }
+
+    getPrivateFromString(str: string) {
+        const rawcert = this.stringChunks(str, 64)
+        const cert = "-----BEGIN PRIVATE KEY-----\n" + rawcert + "\n-----END PRIVATE KEY-----";
+        return cert
+    }
+
+    stringChunks(str, chunkSize) {
+        chunkSize = (typeof chunkSize === "undefined") ? 140 : chunkSize;
+        let resultString = "";
+
+        if (str.length > 0) {
+            let resultArray = [];
+            let chunk = "";
+            for (let i = 0; i < str.length; i = (i + chunkSize)) {
+                chunk = str.substring(i, i + chunkSize);
+                if (chunk.trim() != "") {
+                    resultArray.push(chunk);
+                }
+            }
+            if (resultArray.length) {
+                resultString = resultArray.join("\n");
+            }
+        } else {
+            resultString = str;
+        }
+
+        return resultString;
+    }
+
+    // Creating a function to encrypt string
+    encryptString(plaintext, publicKeyFile) {
+        const publicKey = fs.readFileSync(publicKeyFile, "utf8");
+        // publicEncrypt() method with its parameters
+        const encrypted = publicEncrypt(
+            publicKey, Buffer.from(plaintext));
+        return encrypted.toString("base64");
+    }
+
+    // Using a function generateKeyFiles
+    generateKeyFiles() {
+        const keyPair = generateKeyPairSync('rsa', {
+            modulusLength: 2048,
+            publicKeyEncoding: {
+                type: 'spki',
+                format: 'pem'
+            },
+            privateKeyEncoding: {
+                type: 'pkcs8',
+                format: 'pem',
+                cipher: 'aes-256-cbc',
+                passphrase: ''
+            }
+        });
+
+        // Creating public key file 
+        fs.writeFileSync("./public_key", keyPair.publicKey);
+        fs.writeFileSync("./private_key", keyPair.privateKey);
     }
 }

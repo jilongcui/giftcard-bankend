@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { OrderController } from './order.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,15 +9,11 @@ import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
 import { AssetRecord } from '../market/entities/asset-record.entity';
 import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ChainModule } from '@app/chain';
+import { PaymentModule } from '@app/modules/payment/payment.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, Activity, Account, Asset, Collection, AssetRecord, PreemptionWhitelist]),
-    ClientsModule.register([
-      { name: 'CHAIN_SERVICE', transport: Transport.TCP, options: { port: 4000 } },
-    ]),
-    ChainModule,
+    forwardRef(() => PaymentModule)
   ],
 
   controllers: [OrderController],

@@ -37,7 +37,7 @@ export class MarketController {
 
   /* 资产转移 */
   @Put('asset/:id/transfer')
-  async buyAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
+  async transferAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
     return await this.marketService.transferAsset(+id, userId, userName);
   }
 
