@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import { BankcardModule } from '../bankcard/bankcard.module';
 import { OrderModule } from '../order/order.module';
-import { BalancePayService } from './balancePay.service';
+import { BalancePayService } from './balance-pay.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ChainModule } from '@app/chain';
 import { Account } from '../account/entities/account.entity';

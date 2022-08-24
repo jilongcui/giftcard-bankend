@@ -6,7 +6,7 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '@app/common/decorators/public.decorator';
 import { SharedService } from '@app/shared';
 import { Request } from 'express'
-import { BalancePayService } from './balancePay.service';
+import { BalancePayService } from './balance-pay.service';
 
 @ApiTags('支付')
 @ApiBearerAuth()
