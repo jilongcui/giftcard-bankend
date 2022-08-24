@@ -8,8 +8,9 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { ListOrderDto, ListMyOrderDto } from '../order/dto/request-order.dto';
-import { Order } from '../order/entities/order.entity';
+import { ListBankcardDto, ListMyBankcardDto } from './dto/request-bankcard.dto';
+import { Bankcard } from './entities/bankcard.entity';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 
 @ApiTags('银行卡')
 @ApiBearerAuth()
@@ -24,17 +25,17 @@ export class BankcardController {
 
   /* 银行卡列表 */
   @Get('list')
-  @Public()
-  @ApiPaginatedResponse(Order)
-  async list(@Query() listOrderDto: ListOrderDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return await this.bankcardService.list(listOrderDto, paginationDto);
+  @RequiresPermissions('system:bankcard:list')
+  @ApiPaginatedResponse(Bankcard)
+  async list(@Query() listBankcardDto: ListBankcardDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.bankcardService.list(listBankcardDto, paginationDto);
   }
 
   /* 我的银行卡列表 */
   @Get('myList')
-  @ApiPaginatedResponse(Order)
-  async mylist(@Query() listMyOrderDto: ListMyOrderDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return await this.bankcardService.mylist(userId, listMyOrderDto, paginationDto);
+  @ApiPaginatedResponse(Bankcard)
+  async mylist(@Query() listMyBankcardDto: ListMyBankcardDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.bankcardService.mylist(userId, listMyBankcardDto, paginationDto);
   }
 
   @Get(':id')
