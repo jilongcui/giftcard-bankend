@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as moment from 'moment';
-import { createSign } from 'crypto';
+import { createSign, createVerify } from 'crypto';
 import { Payment } from './entities/payment.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -224,7 +224,7 @@ export class PaymentService {
     payment.orderTokenId = bizResult.hy_token_id
     payment.userId = order.userId
 
-    this.paymentRepository.save(payment)
+    await this.paymentRepository.save(payment)
 
     return;
   }
@@ -235,9 +235,13 @@ export class PaymentService {
     const decryptedData = key2.decrypt(cryptoNotifyDto.encrypt_data, 'utf8');
     this.logger.debug("paymentNotify")
     this.logger.debug(decryptedData)
-    const isSignOk = true
+    let isSignOk = true
     // 验证签名
-    // return JSON.parse(decryptedData);
+    const verify = createVerify('RSA-SHA1');
+    verify.write(decryptedData);
+    verify.end();
+    isSignOk = verify.verify(this.platformPublicKey, cryptoNotifyDto.sign, 'base64');
+    // Prints: true
     // 处理支付结果
     if (!isSignOk) {
       return false
@@ -347,8 +351,10 @@ export class PaymentService {
       const decryptedData = key2.decrypt(responseData.data, 'utf8');
       this.logger.debug(decryptedData)
       // 验证签名
-      // 对公共请求参数进行验证签名，这部分是公用的，所以我们放在这里
-      return JSON.parse(decryptedData);
+      const verify = createVerify('RSA-SHA1');
+      verify.write(decryptedData);
+      verify.end();
+      verify.verify(this.platformPublicKey, responseData.sign, 'base64');
     }
     throw new ApiException('签约请求失败: ' + responseData.msg)
   }
@@ -392,7 +398,10 @@ export class PaymentService {
       const decryptedData = key2.decrypt(responseData.encrypt_data, 'utf8');
       this.logger.debug(decryptedData)
       // 验证签名
-      return JSON.parse(decryptedData);
+      const verify = createVerify('RSA-SHA1');
+      verify.write(decryptedData);
+      verify.end();
+      verify.verify(this.platformPublicKey, responseData.sign, 'base64');
     }
     throw new ApiException('签约请求失败: ' + responseData.ret_msg)
   }
