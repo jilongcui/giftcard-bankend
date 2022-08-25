@@ -48,9 +48,10 @@ export class Bankcard {
     @IsString()
     cardType?: string
 
+    /* 银行类型: 只用于展示图标用途 */
     @Column({
         name: 'bank_type',
-        comment: '银行类型 ',
+        comment: '银行类型: 只用于展示图标用途',
     })
     @IsOptional()
     @IsString()
