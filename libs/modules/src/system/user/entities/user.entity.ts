@@ -145,6 +145,15 @@ export class User extends BaseEntity {
 
     @ApiHideProperty()
     @Column({
+        name: 'invite_code',
+        comment: '邀请码',
+        length: 6,
+        default: ''
+    })
+    inviteCode: string
+
+    @ApiHideProperty()
+    @Column({
         name: 'del_flag',
         comment: '删除标志（0代表存在 2代表删除）',
         type: 'char',
