@@ -248,4 +248,20 @@ export class SharedService {
         fs.writeFileSync("./public_key", keyPair.publicKey);
         fs.writeFileSync("./private_key", keyPair.privateKey);
     }
+
+    // Get bank type from bank name
+    getBankType(bankName: string) {
+        if (bankName.search('工商') >= 0) return ['1', '#B12117,#9D180D']
+        if (bankName.search('建设') >= 0) return ['2', '#3766C9,#2954B1']
+        if (bankName.search('农业') >= 0) return ['3', '#B12117,#9D180D']
+        if (bankName.search('中国银行') >= 0) return ['4', '#B12117,#9D180D']
+        if (bankName.search('交通') >= 0) return ['5', '#284879,#172945']
+        if (bankName.search('招商') >= 0) return ['6', '#CD2C2F,#C52A2D']
+        if (bankName.search('兴业') >= 0) return ['7', '#153A73,#102E5D']
+        if (bankName.search('邮政') >= 0) return ['8', '#295E34,#285E34']
+        if (bankName.search('中信') >= 0) return ['9', '#295E34,#285E34']
+        if (bankName.search('民生') >= 0) return ['10', '#4AA495,#24569C']
+        if (bankName.search('其它') >= 0) return ['11', '#AB14AF-#7149CE']
+    }
+
 }

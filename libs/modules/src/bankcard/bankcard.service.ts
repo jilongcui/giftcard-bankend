@@ -8,6 +8,7 @@ import { Bankcard } from './entities/bankcard.entity';
 import { ConfigService } from '@nestjs/config';
 import { IdentityService } from '../identity/identity.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
+import { SharedService } from '@app/shared/shared.service';
 
 @Injectable()
 export class BankcardService {
@@ -17,6 +18,8 @@ export class BankcardService {
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
     private readonly identityService: IdentityService,
     private readonly configService: ConfigService,
+    private readonly sharedService: SharedService,
+
   ) {
     this.platformAddress = this.configService.get<string>('crichain.platformAddress')
   }
@@ -26,12 +29,15 @@ export class BankcardService {
     if (identity === null) {
       throw new ApiException('没有实名认证')
     }
+    const [bankType, bgColor] = this.sharedService.getBankType(createBankcardDto.bankName)
+
     createBankcardDto.cardNo = createBankcardDto.cardNo.replace(/\s*/g, "")
     const bankcard = {
       ...createBankcardDto,
       userId,
-      identityId: identity.identityId
-
+      bankType: bankType,
+      bgColor: bgColor,
+      identityId: identity.identityId,
     }
     return this.bankcardRepository.save(bankcard)
   }

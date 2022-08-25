@@ -48,13 +48,13 @@ export class Bankcard {
     @IsString()
     cardType?: string
 
-    // @Column({
-    //     name: 'bank_type',
-    //     comment: '银行类型 ',
-    // })
-    // @IsOptional()
-    // @IsString()
-    // bankType?: string
+    @Column({
+        name: 'bank_type',
+        comment: '银行类型 ',
+    })
+    @IsOptional()
+    @IsString()
+    bankType?: string
 
     /* 签约事务编号 */
     @Column({
@@ -101,6 +101,14 @@ export class Bankcard {
     })
     @IsNumber()
     identityId: number
+
+    @Column({
+        name: 'bg_color',
+        default: '#AB14AF,#7149CE',
+        comment: '银行卡背景'
+    })
+    @IsNumber()
+    bgColor: string
 
     @ApiHideProperty()
     @ManyToOne(() => Identity)
