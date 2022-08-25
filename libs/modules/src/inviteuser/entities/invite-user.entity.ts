@@ -26,6 +26,7 @@ export class InviteUser {
 
     @Column({
         name: 'user_profile',
+        type: 'simple-json'
     })
     @IsOptional()
     userProfile?: JSON

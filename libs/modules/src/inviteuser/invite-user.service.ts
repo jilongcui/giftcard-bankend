@@ -3,11 +3,12 @@ import { Repository } from 'typeorm';
 import { User } from '@app/modules/system/user/entities/user.entity';
 import { InviteUser } from './entities/invite-user.entity';
 import { ApiException } from '@app/common/exceptions/api.exception';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class InviteUserService {
     constructor(
-        private readonly inviteUserRepository: Repository<InviteUser>
+        @InjectRepository(InviteUser) private readonly inviteUserRepository: Repository<InviteUser>
     ) { }
 
     async bindParent(user: User, parentId: number) {
