@@ -29,7 +29,7 @@ export class ReqUserListDto {
 }
 
 /* 新增用户 */
-export class ReqAddUserDto extends OmitType(User, ['userId'] as const) {
+export class ReqAddUserDto extends OmitType(User, ['userId', 'inviteCode'] as const) {
     /* 部门Id */
     @IsOptional()
     @Type()

@@ -143,7 +143,6 @@ export class User extends BaseEntity {
     })
     status: string
 
-    @ApiHideProperty()
     @Column({
         name: 'invite_code',
         comment: '邀请码',

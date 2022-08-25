@@ -197,7 +197,7 @@ export class UserService {
         // Add invite code.
         const userDto = {
             ...reqAddUserDto,
-            inviteCode: strRandom(5)
+            inviteCode: strRandom(6).toLowerCase()
         }
         const user = await this.userRepository.save(userDto)
 
