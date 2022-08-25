@@ -16,7 +16,7 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { User, UserEnum } from '@app/common/decorators/user.decorator';
 import { LocalAuthGuard } from '@app/common/guards/local-auth.guard';
 import { Router } from '../system/menu/dto/res-menu.dto';
-import { ReqLoginDto, ReqMobileLoginDto, ReqMobileRegDto } from './dto/req-login.dto';
+import { QueryInviteUserDto, ReqLoginDto, ReqMobileLoginDto, ReqMobileRegDto } from './dto/req-login.dto';
 import { ResImageCaptchaDto, ResLoginDto } from './dto/res-login.dto';
 import { LoginService } from './login.service';
 import { Request } from 'express';
@@ -65,8 +65,8 @@ export class LoginController {
     @Post('mregister')
     @Public()
     @UseGuards(SmsCodeGuard)
-    async register(@Body() reqRegDto: ReqMobileRegDto, @Query('invite') inviteCode: string, @Req() req: Request): Promise<ResLoginDto> {
-        return await this.loginService.register(reqRegDto, inviteCode, req)
+    async register(@Body() reqRegDto: ReqMobileRegDto, @Query() queryInviteCode: QueryInviteUserDto, @Req() req: Request): Promise<ResLoginDto> {
+        return await this.loginService.register(reqRegDto, queryInviteCode, req)
     }
 
     /* 获取用户信息 */

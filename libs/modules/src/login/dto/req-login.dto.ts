@@ -39,3 +39,10 @@ export class ReqMobileRegDto {
     @IsString()
     code: string
 }
+
+export class QueryInviteUserDto {
+    /* 邀请码 */
+    @IsOptional()
+    @IsString()
+    invite?: string
+}

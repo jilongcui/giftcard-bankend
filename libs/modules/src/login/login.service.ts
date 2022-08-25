@@ -24,7 +24,7 @@ import { Request } from 'express';
 import { LogService } from '../monitor/log/log.service';
 import { ConfigService } from '@nestjs/config';
 import { Captcha } from 'captcha.gif';
-import { ReqMobileRegDto } from './dto/req-login.dto';
+import { QueryInviteUserDto, ReqMobileRegDto } from './dto/req-login.dto';
 import { ReqAddUserDto } from '../system/user/dto/req-user.dto';
 import { isPhoneNumber } from 'class-validator';
 import { InviteUserService } from '@app/modules/inviteuser/invite-user.service';
@@ -64,7 +64,7 @@ export class LoginService {
     }
 
     /* 注册 */
-    async register(reqMobileRegDto: ReqMobileRegDto, inviteCode: string, request: Request) {
+    async register(reqMobileRegDto: ReqMobileRegDto, queryInviteUserDto: QueryInviteUserDto, request: Request) {
         let user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
         if (user) throw new ApiException('该用户名已存在')
 
@@ -83,8 +83,8 @@ export class LoginService {
         if (!user) throw new ApiException('创建用户失败')
 
         // Add invite relationship.
-        if (inviteCode !== undefined || inviteCode !== '') {
-            const parentUser = await this.userService.findOneByInviteCode(inviteCode)
+        if (queryInviteUserDto.invite !== undefined || queryInviteUserDto.invite !== '') {
+            const parentUser = await this.userService.findOneByInviteCode(queryInviteUserDto.invite)
             if (parentUser !== null)
                 throw new ApiException('邀请码不存在')
             // Add invite relation ship.
