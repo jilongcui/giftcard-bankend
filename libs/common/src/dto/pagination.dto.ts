@@ -36,6 +36,10 @@ export class PaginationDto {
     @IsString()
     public isAsc?: string
 
+    /* 搜索关键字 */
+    @IsOptional()
+    @IsString()
+    public keywords?: string
 
     /* mysql忽略条数 */
     @ApiHideProperty()

@@ -369,7 +369,7 @@ export class PaymentService {
       this.logger.debug(verifyOk)
       return JSON.parse(decryptedData)
     }
-    throw new ApiException('签约请求失败: ' + responseData.ret_msg)
+    throw new ApiException('发送请求失败: ' + responseData.ret_msg)
   }
   //
 }

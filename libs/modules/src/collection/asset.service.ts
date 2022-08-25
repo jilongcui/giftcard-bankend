@@ -108,7 +108,10 @@ export class AssetService {
     const orderBy = paginationDto.isAsc === 'true' ? 'ASC' : 'DESC'
     where = {
       ...flowAssetDto,
-      status: '1'
+      status: '1',
+      collection: {
+        name: Like(`%${paginationDto.keywords}%`),
+      }
     }
 
     result = await this.assetRepository.findAndCount({

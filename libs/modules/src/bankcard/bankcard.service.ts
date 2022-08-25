@@ -29,14 +29,13 @@ export class BankcardService {
     if (identity === null) {
       throw new ApiException('没有实名认证')
     }
-    const [bankType, bgColor] = this.sharedService.getBankType(createBankcardDto.bankName)
-
+    // const [bankType, bgColor] = this.sharedService.getBankType(createBankcardDto.bankName)
     createBankcardDto.cardNo = createBankcardDto.cardNo.replace(/\s*/g, "")
     const bankcard = {
       ...createBankcardDto,
       userId,
-      bankType: bankType,
-      bgColor: bgColor,
+      // bankType: bankType,
+      // bgColor: bgColor,
       identityId: identity.identityId,
     }
     return this.bankcardRepository.save(bankcard)

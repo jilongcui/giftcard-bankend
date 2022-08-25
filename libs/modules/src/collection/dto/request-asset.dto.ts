@@ -1,6 +1,6 @@
 import { OmitType, PartialType } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsNumber, IsObject, IsOptional } from "class-validator";
+import { IsNumber, IsObject, IsOptional, IsString } from "class-validator";
 import { Asset } from "../entities/asset.entity";
 
 

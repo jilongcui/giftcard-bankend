@@ -52,6 +52,7 @@ export class Bankcard {
     @Column({
         name: 'bank_type',
         comment: '银行类型: 只用于展示图标用途',
+        length: '6'
     })
     @IsOptional()
     @IsString()
@@ -106,6 +107,7 @@ export class Bankcard {
     @Column({
         name: 'bg_color',
         default: '#AB14AF,#7149CE',
+        length: '20',
         comment: '银行卡背景'
     })
     @IsNumber()
