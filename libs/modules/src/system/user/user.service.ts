@@ -30,7 +30,7 @@ import { ResAuthRoleDto, ResHasRoleDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
 import { AddressService } from '@app/modules/wallet/address/address.service';
 import { ReqAddressCreateDto } from '@app/modules/wallet/address/dto/req-address.dto';
-import { update } from 'lodash';
+const strRandom = require('string-random');
 
 @Injectable()
 export class UserService {
@@ -79,6 +79,18 @@ export class UserService {
                 phonenumber: phone,
                 delFlag: '0',
                 status: '0'
+            })
+            .getOne()
+        return user
+    }
+
+    /* 通过用户名获取用户,排除停用和删除的,用于登录 */
+    async findOneByInviteCode(inviteCode: string) {
+        const user = await this.userRepository.createQueryBuilder('user')
+            .select('user.userId')
+            .where({
+                inviteCode: inviteCode,
+                delFlag: '0',
             })
             .getOne()
         return user
@@ -189,13 +201,15 @@ export class UserService {
             await this.userRepository.update(user.userId, { nickName: nickName })
         }
 
+        // Add invite code.
+        reqAddUserDto.inviteCode = strRandom(5)
+
         // Create user account.
         let createAccountDto = new CreateAccountDto()
         createAccountDto.userId = user.userId
         createAccountDto.currencyId = 1
         createAccountDto.status = '0'
         await this.accountRepository.save(createAccountDto)
-
 
         // Create address record.
         const createAddressDto = new ReqAddressCreateDto()

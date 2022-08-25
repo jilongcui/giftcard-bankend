@@ -137,12 +137,22 @@ export class User extends BaseEntity {
         default: '0'
     })
     @IsString()
-    @IsString()
     @Excel({
         name: '帐号状态',
         dictType: 'sys_normal_disable'
     })
     status: string
+
+    /* 帐号状态 */
+    @Column({
+        name: 'invite_code',
+        comment: '邀请码',
+        length: '6',
+        default: ''
+    })
+    @IsOptional()
+    @IsString()
+    inviteCode?: string
 
     @ApiHideProperty()
     @Column({

@@ -62,7 +62,7 @@ export class LoginService {
     }
 
     /* 注册 */
-    async register(reqMobileRegDto: ReqMobileRegDto, request: Request) {
+    async register(reqMobileRegDto: ReqMobileRegDto, inviteCode: string, request: Request) {
         let user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
         if (user) throw new ApiException('该用户名已存在')
 
@@ -73,6 +73,14 @@ export class LoginService {
         reqAddUserDto.userType = '01'; // normal user.
         reqAddUserDto.postIds = [];
         reqAddUserDto.roleIds = [];
+
+        // Check invite code.
+        if (reqAddUserDto.inviteCode !== undefined || reqAddUserDto.inviteCode !== '') {
+            const parentUser = await this.userService.findOneByInviteCode(reqAddUserDto.inviteCode)
+            if (parentUser !== null)
+                throw new ApiException('邀请码不正确')
+            // Add invite relation ship.
+        }
 
         reqAddUserDto.createBy = reqAddUserDto.updateBy = 'admin'
         await this.userService.addUser(reqAddUserDto)

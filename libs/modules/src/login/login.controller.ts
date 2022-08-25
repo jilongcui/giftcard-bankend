@@ -8,7 +8,7 @@
  * You can you up，no can no bb！！
  */
 
-import { Body, Controller, Get, Post, Req, UseGuards, Headers } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards, Headers, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
@@ -65,8 +65,8 @@ export class LoginController {
     @Post('mregister')
     @Public()
     @UseGuards(SmsCodeGuard)
-    async register(@Body() reqRegDto: ReqMobileRegDto, @Req() req: Request): Promise<ResLoginDto> {
-        return await this.loginService.register(reqRegDto, req)
+    async register(@Body() reqRegDto: ReqMobileRegDto, @Query('invite') inviteCode: string, @Req() req: Request): Promise<ResLoginDto> {
+        return await this.loginService.register(reqRegDto, inviteCode, req)
     }
 
     /* 获取用户信息 */
