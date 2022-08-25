@@ -143,17 +143,6 @@ export class User extends BaseEntity {
     })
     status: string
 
-    /* 帐号状态 */
-    @Column({
-        name: 'invite_code',
-        comment: '邀请码',
-        length: '6',
-        default: ''
-    })
-    @IsOptional()
-    @IsString()
-    inviteCode?: string
-
     @ApiHideProperty()
     @Column({
         name: 'del_flag',

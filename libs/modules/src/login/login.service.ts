@@ -27,6 +27,7 @@ import { Captcha } from 'captcha.gif';
 import { ReqMobileRegDto } from './dto/req-login.dto';
 import { ReqAddUserDto } from '../system/user/dto/req-user.dto';
 import { isPhoneNumber } from 'class-validator';
+import { InviteUserService } from '@app/modules/inviteuser/invite-user.service';
 
 @Injectable()
 export class LoginService {
@@ -38,7 +39,8 @@ export class LoginService {
         private readonly userService: UserService,
         private readonly menuService: MenuService,
         private readonly logService: LogService,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
+        private readonly inviteUserService: InviteUserService
     ) {
         this.logger = new Logger(LogService.name)
     }
@@ -74,19 +76,20 @@ export class LoginService {
         reqAddUserDto.postIds = [];
         reqAddUserDto.roleIds = [];
 
-        // Check invite code.
-        if (reqAddUserDto.inviteCode !== undefined || reqAddUserDto.inviteCode !== '') {
-            const parentUser = await this.userService.findOneByInviteCode(reqAddUserDto.inviteCode)
-            if (parentUser !== null)
-                throw new ApiException('邀请码不正确')
-            // Add invite relation ship.
-        }
-
         reqAddUserDto.createBy = reqAddUserDto.updateBy = 'admin'
         await this.userService.addUser(reqAddUserDto)
 
         user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
         if (!user) throw new ApiException('创建用户失败')
+
+        // Add invite relationship.
+        if (inviteCode !== undefined || inviteCode !== '') {
+            const parentUser = await this.userService.findOneByInviteCode(inviteCode)
+            if (parentUser !== null)
+                throw new ApiException('邀请码不存在')
+            // Add invite relation ship.
+            await this.inviteUserService.bindParent(user, parentUser.userId)
+        }
 
         const payload = { userId: user.userId, pv: 1, };
         //生成token
