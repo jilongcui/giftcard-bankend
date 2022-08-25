@@ -110,7 +110,7 @@ export class Bankcard {
         length: '20',
         comment: '银行卡背景'
     })
-    @IsNumber()
+    @IsString()
     bgColor: string
 
     @ApiHideProperty()

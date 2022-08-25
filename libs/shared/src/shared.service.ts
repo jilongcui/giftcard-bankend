@@ -264,4 +264,24 @@ export class SharedService {
         if (bankName.search('其它') >= 0) return ['11', '#AB14AF-#7149CE']
     }
 
+    bankBgColor = {
+        "ICBC": '#B12117,#9D180D',
+        "CCB": '#3766C9,#2954B1',
+        "ABC": '#B12117,#9D180D',
+        "BOC": '#B12117,#9D180D',
+        "BC": '#284879,#172945',
+        "CMB": '#CD2C2F,#C52A2D',
+        "CIB": '#153A73,#102E5D',
+        "PSBC": '#295E34,#285E34',
+        "CITIC": '#295E34,#285E34',
+    }
+
+    // Get bank type from bank name
+    getBankBgColor(bankType: string) {
+        if (this.bankBgColor[bankType] !== undefined) {
+            return this.bankBgColor[bankType]
+        }
+        return '#AB14AF-#7149CE'
+    }
+
 }
