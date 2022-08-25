@@ -18,6 +18,7 @@ import { AuthModule } from '../system/auth/auth.module';
 import { UserModule } from '../system/user/user.module';
 import { MenuModule } from '../system/menu/menu.module';
 import { LogModule } from '../monitor/log/log.module';
+import { InviteUserModule } from '../inviteuser/invite-user.module';
 
 @Module({
     imports: [
@@ -28,7 +29,8 @@ import { LogModule } from '../monitor/log/log.module';
         AuthModule,
         UserModule,
         MenuModule,
-        LogModule
+        LogModule,
+        InviteUserModule
     ],
     controllers: [
         LoginController,],

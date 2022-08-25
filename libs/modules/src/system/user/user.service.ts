@@ -194,15 +194,17 @@ export class UserService {
             reqAddUserDto.password = this.sharedService.md5(reqAddUserDto.password + reqAddUserDto.salt)
         }
 
-        const user = await this.userRepository.save(reqAddUserDto)
+        // Add invite code.
+        const userDto = {
+            ...reqAddUserDto,
+            inviteCode: strRandom(5)
+        }
+        const user = await this.userRepository.save(userDto)
 
         if (reqAddUserDto.nickName == undefined || reqAddUserDto.nickName == '') {
             const nickName = `用户${user.userId}`
             await this.userRepository.update(user.userId, { nickName: nickName })
         }
-
-        // Add invite code.
-        reqAddUserDto.inviteCode = strRandom(5)
 
         // Create user account.
         let createAccountDto = new CreateAccountDto()
