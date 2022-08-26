@@ -58,7 +58,7 @@ export class ReqSubmitPayDto {
 }
 
 export class ReqSendSMSDto {
-    version: string
+    version: number
     agent_bill_id: string
     agent_bill_time: string
     pay_amt: number

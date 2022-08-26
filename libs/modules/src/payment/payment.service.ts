@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as moment from 'moment';
+import * as querystring from 'querystring';
 import { createSign, createVerify } from 'crypto';
 import { Payment } from './entities/payment.entity';
 import { Repository } from 'typeorm';
@@ -46,7 +47,8 @@ export class PaymentService {
     this.platformPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
     this.merchSecretKey = this.sharedService.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
     this.merchPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.merchPublicKey'))
-
+    this.logger.debug(this.merchId)
+    // this.logger.debug(this.platformPublicKey)
     key.importKey(this.platformPublicKey, 'pkcs8-public');
     key.setOptions({ encryptionScheme: 'pkcs1' });
     key.setOptions({
@@ -65,7 +67,7 @@ export class PaymentService {
     const requestUri = 'API/PageSign/Index.aspx?'
     const tradeNo = this.randomTradeNo().toString()
     const bankcard = await this.bankcardService.findOne(webSignDto.bankcardId)
-    this.logger.debug(bankcard)
+    // this.logger.debug(bankcard)
     if (bankcard == null) {
       throw new ApiException('没有此银行卡')
     }
@@ -87,7 +89,7 @@ export class PaymentService {
       out_trade_no: tradeNo,
       out_trade_time: moment().format("YYYY-MM-DD HH:mm:ss"),
     }
-    this.logger.debug(JSON.stringify(bizContent));
+    // this.logger.debug(JSON.stringify(bizContent));
 
     const bizResult = await this.sendJsonRequest<WebSignResponse>(method, requestUri, bizContent)
     this.logger.debug(bizResult)
@@ -162,15 +164,17 @@ export class PaymentService {
       throw new ApiException('此银行卡没有实名或者')
     }
     const bizContent = new ReqSendSMSDto()
-
     bizContent.agent_bill_id = order.id.toString()
     bizContent.agent_bill_time = moment().format("YYYYMMDDHHmmss")
     bizContent.goods_name = order.desc
-    bizContent.pay_amt = order.realPrice
     bizContent.hy_auth_uid = bankcard.signNo
-    bizContent.user_ip = userIp
     bizContent.notify_url = 'https://www.startland.top/api/payment/paymentNotify'
+    bizContent.pay_amt = order.realPrice
+    bizContent.user_ip = userIp
+    bizContent.version = 1
     // bizContent.return_url = 'http://www.baidu.com'
+    this.logger.debug(JSON.stringify(bizContent))
+
     const bizResult = await this.sendCryptoRequest<SendSMSResponse>(requestUri, bizContent)
     this.logger.debug(bizResult)
 
@@ -334,6 +338,7 @@ export class PaymentService {
     // const encryptData = publicEncrypt(this.platformPublicKey, Buffer.from(JSON.stringify(bizContent)));
     // Get bizContent string
     const bizContentStr = this.sharedService.compactJsonToString(bizContent)
+    this.logger.debug(bizContentStr)
     // Encrypt bizContent
     const encryptData = key.encrypt(bizContentStr).toString('base64');
     this.logger.debug(encryptData)
@@ -355,7 +360,8 @@ export class PaymentService {
       sign: signContent
     }
     const remoteUrl = this.baseUrl + requestUri
-    let res = await this.httpService.axiosRef.post<CryptoResponse>(remoteUrl, body, options);
+    // this.logger.debug(querystring.stringify(body))
+    let res = await this.httpService.axiosRef.post<CryptoResponse>(remoteUrl, querystring.stringify(body), options);
     const responseData = res.data
     this.logger.debug(responseData)
     if (responseData.ret_code == RES_CODE_SUCCESS) {
