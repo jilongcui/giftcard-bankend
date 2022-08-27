@@ -15,6 +15,7 @@ export class Order {
     @IsNumber()
     id: number
 
+    /* 订单描述 */
     @Column({
         name: 'desc',
         comment: '订单描述'
@@ -22,15 +23,17 @@ export class Order {
     @IsString()
     desc: string
 
+    /* 订单种类 0: 活动 1:市场 2: 充值订单 */
     @Column({
         name: 'type',
-        comment: '订单种类 0: 活动 1:市场',
+        comment: '订单种类 0: 活动 1:市场 2: 充值订单',
         type: 'char',
         length: 1
     })
     @IsString()
     type: string
 
+    /* 订单总金额 */
     @Column({
         name: 'total_price',
         type: "decimal", precision: 10, scale: 2, default: 0,
@@ -39,21 +42,25 @@ export class Order {
     @IsNumber()
     totalPrice: number
 
+    /* 订单金额 */
     @Column({
         name: 'real_price',
         type: "decimal", precision: 10, scale: 2, default: 0,
         comment: '订单真实金额'
     })
+    @IsOptional()
     @IsNumber()
-    realPrice: number
+    realPrice?: number
 
+    /* 订单数量 */
     @Column({
         name: 'count',
         default: '0',
         comment: '订单数量'
     })
+    @IsOptional()
     @IsNumber()
-    count: number
+    count?: number
 
     /* 订单状态 0: 订单取消，1:支付中 2: 订单完成 3: 订单过期*/
     @Column({
@@ -65,6 +72,7 @@ export class Order {
     @IsString()
     status: string
 
+    /* 订单图片 */
     @Column({
         name: 'image',
         comment: '订单图片'
@@ -72,6 +80,7 @@ export class Order {
     @IsString()
     image: string
 
+    /* 关联的活动 */
     @Column({
         name: 'activity_id',
         default: null,
@@ -82,10 +91,11 @@ export class Order {
     @IsNumber()
     activityId?: number
 
+    /* 订单关联的资产 */
     @Column({
         name: 'asset_id',
         default: null,
-        comment: '订单关联的活动'
+        comment: '订单关联的资产'
     })
     @IsOptional()
     @Type()
@@ -99,12 +109,21 @@ export class Order {
     // @IsNumber()
     // collectionId: number
 
+    /* 订单所属用户 */
     @Column({
         name: 'user_id',
         comment: '订单所属用户'
     })
     @IsNumber()
     userId: number
+
+    @Column({
+        name: 'user_name',
+        default: '',
+        comment: '订单所属用户'
+    })
+    @IsString()
+    userName: string
 
     @ApiHideProperty()
     @CreateDateColumn({
@@ -144,12 +163,12 @@ export class Order {
     })
     activity?: Activity
 
-    @ApiHideProperty()
-    @ManyToOne(() => Bankcard)
-    @JoinColumn({
-        name: 'bankcard_id',
-    })
-    bankcard: Bankcard
+    // @ApiHideProperty()
+    // @ManyToOne(() => Bankcard)
+    // @JoinColumn({
+    //     name: 'bankcard_id',
+    // })
+    // bankcard: Bankcard
 
     /* 二级市场 */
     // @ApiHideProperty()

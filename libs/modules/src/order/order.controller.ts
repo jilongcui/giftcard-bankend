@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, Inject, forwardRef } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, SyncInvalidOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
-import { DataObj } from '@app/common/class/data-obj.class';
+import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, RechargeOrderDto, SyncInvalidOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -9,7 +8,6 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { Order } from './entities/order.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
-import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { BalancePayService } from '@app/modules/payment/balance-pay.service';
 @ApiTags('订单')
 @ApiBearerAuth()
@@ -20,14 +18,37 @@ export class OrderController {
     @Inject(forwardRef(() => BalancePayService)) private readonly balancePayService: BalancePayService) { }
 
   @Post()
-  // @RepeatSubmit({ interval: 60 * 1 })
-  async create(@Body() createOrderDto: CreateOrderDto, @UserDec(UserEnum.userId) userId: number) {
-    return await this.orderService.create(createOrderDto, userId);
+  async create(@Body() createOrderDto: CreateOrderDto, @UserDec(UserEnum.userId) userId: number,
+    @UserDec(UserEnum.userName) userName: string, @UserDec(UserEnum.avatar) avatar: string) {
+    return await this.orderService.create(createOrderDto, userId, userName, avatar);
+  }
+
+  @Post('createLv1')
+  async createLv1(@Body() createOrderDto: CreateLv1OrderDto, @UserDec(UserEnum.userId) userId: number,
+    @UserDec(UserEnum.userName) userName: string, @UserDec(UserEnum.avatar) avatar: string) {
+    return await this.orderService.createLv1Order(createOrderDto, userId, userName, avatar);
+  }
+
+  @Post('createLv2')
+  async createLv2(@Body() createOrderDto: CreateLv2OrderDto, @UserDec(UserEnum.userId) userId: number,
+    @UserDec(UserEnum.userName) userName: string, @UserDec(UserEnum.avatar) avatar: string) {
+    return await this.orderService.createLv2Order(createOrderDto, userId, userName, avatar);
+  }
+
+  @Post('recharge')
+  async recharge(@Body() createOrderDto: RechargeOrderDto, @UserDec(UserEnum.userId) userId: number,
+    @UserDec(UserEnum.userName) userName: string, @UserDec(UserEnum.avatar) avatar: string) {
+    return await this.orderService.rechargeOrder(createOrderDto, userId, userName, avatar);
   }
 
   @Put(':id')
   async updateAll(@Param('id') id: string, @Body() updateAllOrderDto: UpdateAllOrderDto) {
     return await this.orderService.addOrUpdateAll(updateAllOrderDto);
+  }
+
+  @Put(':id/cancel')
+  async cancel(@Param('id') id: string,) {
+    return await this.orderService.cancel(+id);
   }
 
   @Patch(':id')

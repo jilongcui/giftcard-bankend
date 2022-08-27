@@ -10,6 +10,7 @@ export enum UserEnum {
   "nickName" = "nickName",
   "deptId" = "deptId",
   "deptName" = "deptName",
+  "avatar" = "avatar",
 }
 
 // 设置在参数中 获取 哪些用户信息

@@ -14,10 +14,11 @@ import { PreemptionWhitelist } from '../assistant/preemption/entities/preemption
 import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
 import { AssetRecord } from '../market/entities/asset-record.entity';
-import { CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
+import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, RechargeOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
 import { Order } from './entities/order.entity';
 import { ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { User } from '../system/user/entities/user.entity';
 
 @Injectable()
 export class OrderService {
@@ -26,13 +27,125 @@ export class OrderService {
   constructor(
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(PreemptionWhitelist) private readonly preemptionWhitelistRepository: Repository<PreemptionWhitelist>,
     @InjectRedis() private readonly redis: Redis,
     private readonly configService: ConfigService,
   ) {
     this.platformAddress = this.configService.get<string>('crichain.platformAddress')
   }
-  async create(createOrderDto: CreateOrderDto, userId: number) {
+  async createLv1Order(createOrderDto: CreateLv1OrderDto, userId: number, userName: string, avatar: string) {
+    // 开启事务
+    // 判断当前剩余
+    // 如果有剩余，那么就生成订单
+    // 否则，就失败
+    let activity: Activity
+    let unpayOrderKey: string;
+    const orderType = '0'
+
+    // 一级市场活动创建订单
+    return await this.orderRepository.manager.transaction(async manager => {
+      const order = new Order();
+      order.type = orderType;
+      order.status = '1';
+      order.userId = userId;
+      order.userName = userName
+      // 一级市场活动创建订单
+      const activityJson = await this.redis.get(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${createOrderDto.activityId}`)
+      const jsonObject: any = JSON.parse(activityJson)
+      activity = <Activity>jsonObject;
+      order.activityId = createOrderDto.activityId;
+      order.count = Math.min(createOrderDto.count, 5); // 1～10
+      order.realPrice = activity.price * order.count;
+      order.totalPrice = order.realPrice;
+      order.image = activity.coverImage;
+      order.desc = activity.title;
+      order.invalidTime = moment().add(5, 'minute').toDate()
+      order.collections = activity.collections;
+
+      // 5 分钟
+      await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 5)
+      await manager.save(order);
+      await manager.update(Asset, { id: order.assetId }, { status: '2' }) // Asset is locked.
+      // orderCount--;
+      // if (orderCount % 100 === 0) {
+      //   activity.current = activity.current + 1;
+      //   await manager.save(activity)
+      // }
+      return order;
+    });
+  }
+
+  async createLv2Order(createOrderDto: CreateLv2OrderDto, userId: number, userName: string, avatar: string) {
+    let unpayOrderKey: string;
+    const orderType = '1'
+
+    unpayOrderKey = ASSET_ORDER_KEY + ":" + (createOrderDto.assetId)
+    // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
+    const unpayOrder = await this.redis.get(unpayOrderKey)
+    if (unpayOrder != null) {
+      throw new ApiException('无法创建订单', 401)
+    }
+    return await this.orderRepository.manager.transaction(async manager => {
+      const order = new Order()
+      order.type = orderType
+      order.status = '1'
+      order.userId = userId
+      order.userName = userName
+
+      order.assetId = createOrderDto.assetId
+      const asset = await this.assetRepository.findOne({ where: { id: order.assetId, status: '1' }, relations: ['collection'] })
+      if (!asset)
+        throw new ApiException('市场上未发现此藏品')
+      order.realPrice = asset.price
+      order.totalPrice = asset.price
+      order.count = 1
+      order.desc = asset.collection.name;
+      order.image = asset.collection.images[0]
+      order.invalidTime = moment().add(5, 'minute').toDate()
+
+      // 5 分钟
+      await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 5)
+
+      await manager.save(order);
+
+      await manager.update(Asset, { id: order.assetId }, { status: '2' }) // Asset is locked.
+      // orderCount--;
+      // if (orderCount % 100 === 0) {
+      //   activity.current = activity.current + 1;
+      //   await manager.save(activity)
+      // }
+      return order;
+    });
+  }
+
+  async rechargeOrder(createOrderDto: RechargeOrderDto, userId: number, userName: string, avatar: string) {
+    // 开启事务
+    // 判断当前剩余
+    // 如果有剩余，那么就生成订单
+    // 否则，就失败
+    const orderType = '2'
+    return await this.orderRepository.manager.transaction(async manager => {
+      const order = new Order()
+      order.type = orderType
+      order.status = '1'
+      order.userId = userId
+      order.userName = userName
+
+      order.realPrice = createOrderDto.realPrice
+      order.totalPrice = createOrderDto.realPrice
+      order.count = 1
+      order.desc = '充值订单';
+      order.image = avatar
+      order.invalidTime = moment().add(10, 'minute').toDate()
+
+      await manager.save(order);
+      await manager.update(Asset, { id: order.assetId }, { status: '2' }) // Asset is locked.
+      return order;
+    });
+  }
+
+  async create(createOrderDto: CreateOrderDto, userId: number, userName: string, avatar: string) {
     // 开启事务
     // 判断当前剩余
     // 如果有剩余，那么就生成订单
@@ -40,6 +153,7 @@ export class OrderService {
     let activity: Activity
     let orderCount: any
     let unpayOrderKey: string;
+    let user: User
 
     if (createOrderDto.type === '0') { // 一级市场活动创建订单
       unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + createOrderDto.activityId + ":" + userId
@@ -80,19 +194,27 @@ export class OrderService {
       }
       // this.logger.log(execError[0])
       // this.logger.log(orderCount)
-    } else {
+    } else if (createOrderDto.type === '1') {
       unpayOrderKey = ASSET_ORDER_KEY + ":" + (createOrderDto.assetId || createOrderDto.activityId)
       // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
       const unpayOrder = await this.redis.get(unpayOrderKey)
       if (unpayOrder != null) {
         throw new ApiException('无法创建订单', 401)
       }
+    } else if (createOrderDto.type === '2') { // 创建充值订单
+      // unpayOrderKey = ASSET_ORDER_KEY + ":" + (createOrderDto.assetId || createOrderDto.activityId)
+      // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
+      // const unpayOrder = await this.redis.get(unpayOrderKey)
+      // if (unpayOrder != null) {
+      // throw new ApiException('无法创建订单', 401)
+      // }
     }
     return await this.orderRepository.manager.transaction(async manager => {
       const order = new Order();
       order.type = createOrderDto.type;
       order.status = '1';
       order.userId = userId;
+      order.userName = userName
       if (order.type == '0') { // 一级市场活动创建订单
         const activityJson = await this.redis.get(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${createOrderDto.activityId}`)
         const jsonObject: any = JSON.parse(activityJson)
@@ -112,9 +234,17 @@ export class OrderService {
           throw new ApiException('市场上未发现此藏品')
         order.realPrice = asset.price
         order.totalPrice = asset.price
+        order.count = 1
         order.desc = asset.collection.name;
         order.image = asset.collection.images[0]
         order.invalidTime = moment().add(5, 'minute').toDate()
+      } else if (order.type === '2') { // 交易市场创建的订单
+        order.realPrice = createOrderDto.realPrice
+        order.totalPrice = createOrderDto.realPrice
+        order.count = 1
+        order.desc = '充值订单';
+        order.image = avatar
+        order.invalidTime = moment().add(10, 'minute').toDate()
       }
       // 5 分钟
       await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 5)
@@ -234,6 +364,10 @@ export class OrderService {
 
   async delete(noticeIdArr: number[] | string[]) {
     return this.orderRepository.delete(noticeIdArr)
+  }
+
+  async cancel(id: number,) {
+    return this.orderRepository.update(id, { status: '1' })
   }
 
   // /* 更新过期订单状态 */

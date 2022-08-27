@@ -1,13 +1,15 @@
 import { OmitType, PartialType, PickType } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString } from "class-validator";
-import { Column } from "typeorm";
 import { Order } from "../entities/order.entity";
 
-export class CreateOrderDto extends OmitType(Order, ['id', 'image', 'status', 'userId', 'desc', 'realPrice', 'totalPrice',] as const) { }
+export class CreateOrderDto extends OmitType(Order, ['id', 'image', 'status', 'userId', 'userName', 'desc', 'totalPrice',] as const) { }
+export class CreateLv1OrderDto extends OmitType(Order, ['id', 'type', 'image', 'status', 'userId', 'userName', 'assetId', 'desc', 'realPrice', 'totalPrice',] as const) { }
+export class CreateLv2OrderDto extends OmitType(Order, ['id', 'type', 'image', 'status', 'userId', 'userName', 'count', 'activityId', 'desc', 'realPrice', 'totalPrice',] as const) { }
+export class RechargeOrderDto extends OmitType(Order, ['id', 'type', 'image', 'status', 'userId', 'userName', 'count', 'assetId', 'activityId', 'desc', 'totalPrice',] as const) { }
 export class UpdateAllOrderDto extends Order { }
 export class UpdateOrderDto extends PartialType(Order) { }
 export class UpdateOrderStatusDto extends PickType(Order, ['status']) { }
-export class ListOrderDto extends PartialType(OmitType(Order, ['activity', 'user', 'collections', 'bankcard', 'payment'] as const)) { }
+export class ListOrderDto extends PartialType(OmitType(Order, ['activity', 'user', 'collections', 'payment'] as const)) { }
 export class ListUnpayOrderDto {
     @IsOptional()
     @IsNumber()
