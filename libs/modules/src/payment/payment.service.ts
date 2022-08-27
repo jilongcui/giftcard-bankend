@@ -183,7 +183,7 @@ export class PaymentService {
     bizContent.agent_bill_time = moment().format("YYYYMMDDHHmmss")
     bizContent.goods_name = order.desc
     bizContent.hy_auth_uid = bankcard.signNo
-    bizContent.notify_url = 'https://www.startland.top/api/payment/notify'
+    bizContent.notify_url = 'https://www.startland.top/payment/notify'
     bizContent.pay_amt = order.realPrice
     bizContent.user_ip = userIp
     bizContent.version = 1

@@ -39,6 +39,15 @@
         "tsConfigPath": "apps/blockchain-app/tsconfig.app.json"
       }
     },
+    "payment": {
+      "type": "application",
+      "root": "apps/payment",
+      "entryFile": "main",
+      "sourceRoot": "apps/payment/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/payment/tsconfig.app.json"
+      }
+    },
     "chain": {
       "type": "library",
       "root": "libs/chain",
