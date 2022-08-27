@@ -83,12 +83,14 @@ export class LoginService {
         if (!user) throw new ApiException('创建用户失败')
 
         // Add invite relationship.
-        if (queryInviteUserDto.invite !== undefined || queryInviteUserDto.invite !== '') {
+        if (queryInviteUserDto.invite !== undefined && queryInviteUserDto.invite !== '') {
             const parentUser = await this.userService.findOneByInviteCode(queryInviteUserDto.invite)
-            if (parentUser !== null)
+            this.logger.debug(parentUser)
+            if (!parentUser)
                 throw new ApiException('邀请码不存在')
             // Add invite relation ship.
-            await this.inviteUserService.bindParent(user, parentUser.userId)
+            const inviteInfo = await this.inviteUserService.bindParent(user, parentUser.userId)
+            this.logger.debug(inviteInfo)
         }
 
         const payload = { userId: user.userId, pv: 1, };

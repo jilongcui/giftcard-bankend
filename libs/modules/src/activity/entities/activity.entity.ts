@@ -92,6 +92,7 @@ export class Activity {
     /* 正式价格 */
     @Column({
         name: 'price',
+        type: "decimal", precision: 10, scale: 2, default: 0,
         comment: '正式价格'
     })
     @IsNumber()

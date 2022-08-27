@@ -46,7 +46,7 @@ export class OrderService {
       let startTime: string;
       // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
       const unpayOrder = await this.redis.get(unpayOrderKey)
-      this.logger.debug(unpayOrder)
+      // this.logger.debug(unpayOrder)
       if (unpayOrder != null) {
         throw new ApiException('有未完成订单', 401)
       }

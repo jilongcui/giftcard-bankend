@@ -25,6 +25,7 @@ export class Asset {
 
     @Column({
         name: 'price',
+        type: "decimal", precision: 10, scale: 2, default: 0,
         comment: '当前价值(单位人民币)'
     })
     @Type()

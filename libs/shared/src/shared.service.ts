@@ -22,6 +22,10 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { generateKeyPairSync, publicEncrypt } from 'crypto';
 const fs = require("fs");
+const xml2js = require('xml2js');
+const parser = new xml2js.Parser({
+    explicitArray: false
+});
 
 
 @Injectable()
@@ -284,4 +288,14 @@ export class SharedService {
         return '#AB14AF-#7149CE'
     }
 
+    async xmlToJson<T>(data: string): Promise<T> {
+        const res = await new Promise<T>((resolve, reject) => {
+            parser.parseString(data, function (err, result) {
+                if (result) {
+                    resolve(result.root)
+                }
+            });
+        })
+        return res
+    }
 }

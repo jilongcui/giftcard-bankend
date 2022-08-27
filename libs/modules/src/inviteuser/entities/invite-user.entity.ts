@@ -9,7 +9,7 @@ import {
 } from "typeorm"
 
 @Entity()
-@Tree("nested-set")
+@Tree("materialized-path")
 export class InviteUser {
     @PrimaryGeneratedColumn()
     id: number
@@ -24,12 +24,13 @@ export class InviteUser {
     })
     userName: string
 
-    @Column({
-        name: 'user_profile',
-        type: 'simple-json'
-    })
-    @IsOptional()
-    userProfile?: JSON
+    // @Column({
+    //     name: 'user_profile',
+    //     default: '',
+    //     type: 'simple-json'
+    // })
+    // @IsOptional()
+    // userProfile?: JSON
 
     @TreeChildren()
     children: InviteUser[]

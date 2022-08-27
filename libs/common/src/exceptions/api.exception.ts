@@ -13,7 +13,7 @@ export class ApiException extends HttpException {
   private errCode: number
   constructor(msg: string, errCode?: number) {
     //权限问题一律使用401错误码
-    if (errCode && errCode == 401) {
+    if (errCode && (errCode == 401 || errCode == 403)) {
       super(msg, 200)
       this.errCode = 401
     } else {

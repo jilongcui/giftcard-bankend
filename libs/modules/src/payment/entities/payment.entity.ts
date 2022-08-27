@@ -46,6 +46,7 @@ export class Payment {
     /* 来自支付平台的 确认订单后，汇付宝单据号 */
     @Column({
         name: 'order_bill_no',
+        default: '',
         comment: '来自支付平台的 确认订单后，汇付宝单据号',
         length: 50
     })

@@ -38,8 +38,8 @@ export class IdentityService {
     }
 
     async identityWith3Element(mobile: string, cardId: string, realName: string, userId: number) {
-        let isIdentify = true;
-        // let isIdentify = await this.doIdentity3Element(mobile, cardId, realName);
+        // let isIdentify = true;
+        let isIdentify = await this.doIdentity3Element(mobile, cardId, realName);
         if (isIdentify) {
             // save to identity respository
             await this.identityRepository.save({

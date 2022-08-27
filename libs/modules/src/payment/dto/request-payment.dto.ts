@@ -28,9 +28,11 @@ export class PayWithBalanceDto {
 }
 
 export class ConfirmPayWithCardDto {
+    @IsNumber()
     paymentId: number
 
-    verifyCode?: string
+    @IsString()
+    verifyCode: string
 }
 
 export class WebSignNotifyDto {
@@ -70,15 +72,15 @@ export class ReqSendSMSDto {
 }
 
 export class ReqConfirmPayDto {
-    version: string
+    version: number
     hy_token_id: string
     verify_code: string
 }
 
 export class ReqCryptoNotifyDto {
-    agent_id: number
-    encrypt_data: string
-    sign: string
+    agent_id?: string
+    encrypt_data?: string
+    sign?: string
 }
 
 export class ReqPaymentNotify {

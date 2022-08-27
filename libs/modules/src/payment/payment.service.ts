@@ -1,6 +1,6 @@
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
@@ -11,10 +11,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
 import { BankcardService } from '@app/modules/bankcard/bankcard.service';
 import { OrderService } from '@app/modules/order/order.service';
+
 import { ConfirmPayWithCardDto, PayWithCardDto, ReqConfirmPayDto, ReqCryptoNotifyDto } from './dto/request-payment.dto';
 import { ReqPaymentNotify, ReqSendSMSDto, ReqSubmitPayDto, WebSignDto, WebSignNotifyDto } from './dto/request-payment.dto';
 import { ConfirmPayResponse, CryptoResponse, PayResponse, SendSMSResponse, WebSignResponse } from './dto/response-payment.dto';
 import { RES_CODE_SUCCESS, RES_NET_CODE } from './payment.const';
+import { Collection } from '../collection/entities/collection.entity';
+import { CreateAssetDto } from '../collection/dto/request-asset.dto';
+import { MintADto } from '@app/chain';
+import { ClientProxy } from '@nestjs/microservices';
+import { Activity } from '../activity/entities/activity.entity';
+import { Asset } from '../collection/entities/asset.entity';
+import { AssetRecord } from '../market/entities/asset-record.entity';
+import { Order } from '../order/entities/order.entity';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -32,6 +41,7 @@ export class PaymentService {
   merchSecretKey: string
   merchPublicKey: string
   merchId: string
+  platformAddress: string
 
   constructor(
     private readonly httpService: HttpService,
@@ -40,14 +50,20 @@ export class PaymentService {
     private readonly orderService: OrderService,
     private readonly sharedService: SharedService,
     @InjectRepository(Payment) private readonly paymentRepository: Repository<Payment>,
+    @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
+    @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
+    @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
+    @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
+    @Inject('CHAIN_SERVICE') private client: ClientProxy,
   ) {
     this.baseUrl = this.configService.get<string>('payment.baseUrl')
-
     this.merchId = this.configService.get<string>('payment.merchId')
     this.platformPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
     this.merchSecretKey = this.sharedService.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
     this.merchPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.merchPublicKey'))
     this.logger.debug(this.merchId)
+    this.platformAddress = this.configService.get<string>('crichain.platformAddress')
     // this.logger.debug(this.platformPublicKey)
     key.importKey(this.platformPublicKey, 'pkcs8-public');
     key.setOptions({ encryptionScheme: 'pkcs1' });
@@ -56,7 +72,6 @@ export class PaymentService {
         hash: 'sha1',
       },
     })
-
     key2.importKey(this.merchSecretKey, 'pkcs8-private');
     key2.setOptions({ encryptionScheme: 'pkcs1' });
   }
@@ -168,7 +183,7 @@ export class PaymentService {
     bizContent.agent_bill_time = moment().format("YYYYMMDDHHmmss")
     bizContent.goods_name = order.desc
     bizContent.hy_auth_uid = bankcard.signNo
-    bizContent.notify_url = 'https://www.startland.top/api/payment/paymentNotify'
+    bizContent.notify_url = 'https://www.startland.top/api/payment/notify'
     bizContent.pay_amt = order.realPrice
     bizContent.user_ip = userIp
     bizContent.version = 1
@@ -196,31 +211,42 @@ export class PaymentService {
   // 支付通知
   async paymentNotify(cryptoNotifyDto: ReqCryptoNotifyDto) {
     // sign_no 是加密的，我们需要解密
-    const decryptedData = key2.decrypt(cryptoNotifyDto.encrypt_data, 'utf8');
-    this.logger.debug("paymentNotify")
-    this.logger.debug(decryptedData)
-    let isSignOk = true
-    // 验证签名
-    const verify = createVerify('RSA-SHA1');
-    verify.write(decryptedData);
-    verify.end();
-    isSignOk = verify.verify(this.platformPublicKey, cryptoNotifyDto.sign, 'base64');
-    // Prints: true
-    // 处理支付结果
-    if (!isSignOk) {
+    try {
+      this.logger.debug("paymentNotify")
+      this.logger.debug(JSON.stringify(cryptoNotifyDto))
+      const decryptedData = key2.decrypt(cryptoNotifyDto.encrypt_data, 'utf8');
+      this.logger.debug(decryptedData)
+      let isSignOk
+      // 验证签名
+      const verify = createVerify('RSA-SHA1');
+      verify.write(decryptedData);
+      verify.end();
+      isSignOk = verify.verify(this.platformPublicKey, cryptoNotifyDto.sign, 'base64');
+      // Prints: true
+      // 处理支付结果
+      if (!isSignOk) {
+        return 'error'
+      }
+      const paymentNotify: any = querystring.parse(decryptedData)
+      if (paymentNotify.status === 'SUCCESS') {
+        const orderId = paymentNotify.agent_bill_id
+        await this.paymentRepository.update({ orderId: parseInt(orderId) }, { status: '1' })
+        await this.orderRepository.update({ id: parseInt(orderId) }, { status: '2' })
+      } else {
+        this.logger.error("Payment Notice not success.")
+        return 'error'
+      }
+    } catch (error) {
+      this.logger.error("Payment Notice : " + error)
       return 'error'
     }
-    const paymentNotify: ReqPaymentNotify = JSON.parse(decryptedData)
-    if (paymentNotify.status === 'SUCCESS') {
-      const orderId = paymentNotify.agent_bill_id
-      await this.paymentRepository.update(parseInt(orderId), { status: '1', order: { status: '2' } })
-    } else {
-    }
+
     return 'ok'
   }
 
   // 确认支付
-  async confirmPayment(confirmPayDto: ConfirmPayWithCardDto, userId: number) {
+  async confirmPayment(confirmPayDto: ConfirmPayWithCardDto, userId: number, userName: string) {
+    this.logger.debug(confirmPayDto)
     const requestUri = 'WithholdAuthPay/ConfirmPay.aspx'
     const payment = await this.paymentRepository.findOneBy({ id: confirmPayDto.paymentId, userId: userId })
     if (payment === null) {
@@ -230,9 +256,10 @@ export class PaymentService {
     //   throw new ApiException('此银行卡没有实名或者')
     // }
     const bizContent = new ReqConfirmPayDto()
-    bizContent.version = '1'
+    bizContent.version = 1
     bizContent.hy_token_id = payment.orderTokenId
     bizContent.verify_code = confirmPayDto.verifyCode
+    this.logger.debug(bizContent)
     const bizResult = await this.sendCryptoRequest<ConfirmPayResponse>(requestUri, bizContent)
     this.logger.debug(bizResult)
 
@@ -240,6 +267,68 @@ export class PaymentService {
     if (bizResult.ret_code !== RES_CODE_SUCCESS) throw new ApiException("错误: " + bizResult.ret_msg)
     // 我们需要把这个支付订单创建成功的标记
     await this.paymentRepository.update(confirmPayDto.paymentId, { orderBillNo: bizResult.hy_bill_no })
+
+    const order = await this.orderService.findOne(payment.orderId)
+    let asset: Asset
+    if (order.type === '1') {
+      asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+      if (asset.userId === userId)
+        throw new ApiException("不能购买自己的资产")
+    }
+    if (order.type === '0') { // 一级市场活动
+      // Create assetes for user.
+      const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
+      // First we need get all collections of orders, but we only get one collection.
+      if (!activity.collections || activity.collections.length <= 0) {
+        return order;
+      }
+      let collection: Collection;
+      if (activity.type === '1') {
+        // 首发盲盒, 我们需要随机寻找一个。
+        const index = Math.floor((Math.random() * activity.collections.length));
+        collection = activity.collections[index]
+      } else {
+        // 其他类型，我们只需要取第一个
+        collection = activity.collections[0];
+      }
+      // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+      await this.collectionRepository.manager.transaction(async manager => {
+        await manager.increment(Collection, { id: collection.id }, "current", order.count);
+      })
+      let tokenId: number
+      for (let i = 0; i < order.count; i++) {
+        tokenId = this.randomTokenId()
+        let createAssetDto = new CreateAssetDto()
+        createAssetDto.price = order.realPrice
+        createAssetDto.assetNo = tokenId
+        createAssetDto.userId = userId
+        createAssetDto.collectionId = collection.id
+
+        const asset = await this.assetRepository.save(createAssetDto)
+        // 记录交易记录
+        await this.assetRecordRepository.save({
+          type: '2', // Buy
+          assetId: asset.id,
+          price: order.realPrice,
+          toId: userId,
+          toName: userName
+        })
+
+        const pattern = { cmd: 'mintA' }
+        const mintDto = new MintADto()
+        mintDto.address = this.platformAddress
+        mintDto.tokenId = tokenId.toString()
+        mintDto.contractId = 8
+        this.client.emit(pattern, mintDto)
+        // this.logger.debug(await firstValueFrom(result))
+      }
+
+
+    } else if (order.type === '1') { // 二级市场资产交易
+      // 把资产切换到新的用户就可以了
+      await this.buyAssetRecord(asset, userId, userName)
+      // 还需要转移资产
+    }
 
     return;
   }
@@ -330,7 +419,7 @@ export class PaymentService {
   /* 发送请求的通用接口 */
   async sendCryptoRequest<T>(
     requestUri: string, bizContent: any
-  ): Promise<T> {
+  ): Promise<any> {
 
 
     // 业务参数进行加密
@@ -361,8 +450,10 @@ export class PaymentService {
     }
     const remoteUrl = this.baseUrl + requestUri
     // this.logger.debug(querystring.stringify(body))
-    let res = await this.httpService.axiosRef.post<CryptoResponse>(remoteUrl, querystring.stringify(body), options);
-    const responseData = res.data
+    let res = await this.httpService.axiosRef.post(remoteUrl, querystring.stringify(body), options);
+
+    const responseData = await this.sharedService.xmlToJson<CryptoResponse>(res.data)
+
     this.logger.debug(responseData)
     if (responseData.ret_code == RES_CODE_SUCCESS) {
       const decryptedData = key2.decrypt(responseData.encrypt_data, 'utf8');
@@ -373,10 +464,29 @@ export class PaymentService {
       verify.end();
       const verifyOk = verify.verify(this.platformPublicKey, responseData.sign, 'base64');
       this.logger.debug(verifyOk)
-      return JSON.parse(decryptedData)
+      return querystring.parse(decryptedData)
     }
     throw new ApiException('发送请求失败: ' + responseData.ret_msg)
   }
   //
+  private randomTokenId(): number {
+    return Math.floor((Math.random() * 999999999) + 1000000000);
+  }
+
+  async buyAssetRecord(asset: Asset, userId: number, userName: string) {
+
+    const fromId = asset.user.userId
+    const fromName = asset.user.userName
+
+    await this.assetRecordRepository.save({
+      type: '2', // Buy
+      assetId: asset.id,
+      price: asset.price,
+      fromId: fromId,
+      fromName: fromName,
+      toId: userId,
+      toName: userName
+    })
+  }
 }
 //

@@ -1,23 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, Query, Logger, Header, Render, All } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { ConfirmPayWithCardDto, CreatePaymentDto, PayWithBalanceDto, PayWithCardDto, UpdatePaymentDto, WebSignDto } from './dto/request-payment.dto';
+import { ConfirmPayWithCardDto, CreatePaymentDto, PayWithBalanceDto, PayWithCardDto, ReqCryptoNotifyDto, UpdatePaymentDto, WebSignDto } from './dto/request-payment.dto';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { Public } from '@app/common/decorators/public.decorator';
 import { SharedService } from '@app/shared';
 import { Request, Response } from 'express'
 import { BalancePayService } from './balance-pay.service';
 import { Keep } from '@app/common/decorators/keep.decorator';
+import { Accepts } from '@app/common/guards/accepts.decorator';
+import { PostService } from '../system/post/post.service';
 
 @ApiTags('支付')
 @ApiBearerAuth()
 @Controller('payment')
 export class PaymentController {
+  logger: Logger
   constructor(
     private readonly paymentService: PaymentService,
     private readonly balancePayService: BalancePayService,
     private readonly sharedService: SharedService,
-  ) { }
+  ) {
+    this.logger = new Logger(PaymentController.name)
+  }
 
   // @Post()
   // create(@Body() createPaymentDto: CreatePaymentDto) {
@@ -44,6 +49,13 @@ export class PaymentController {
   //   return this.paymentService.remove(+id);
   // }
 
+  @Get()
+  index(@Res() response: Response) {
+    response.set({ 'Content-Type': 'text/plain; charset=utf-8' });
+
+    response.send(`The request IP is:"`);
+  }
+
   @Post('webSign')
   webSign(@Body() webSignDto: WebSignDto, @UserDec(UserEnum.userId) userId: number,) {
 
@@ -62,22 +74,36 @@ export class PaymentController {
   }
 
   @Post('confirmCardPay')
-  confirmPayWithCard(@Body() confirmPayDto: ConfirmPayWithCardDto, @UserDec(UserEnum.userId) userId: number, userIp) {
-
-    return this.paymentService.confirmPayment(confirmPayDto, userId)
+  confirmPayWithCard(@Body() confirmPayDto: ConfirmPayWithCardDto, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.userName) userName: string, userIp) {
+    return this.paymentService.confirmPayment(confirmPayDto, userId, userName)
   }
 
   @Post('webSignNotify')
-  @Keep()
+  // @Keep()
   @Public()
   webSignNotify(@Body() webSignNotifyDto: any) {
     return this.paymentService.webSignNotify(webSignNotifyDto)
   }
 
-  @Post('paymentNotify')
+  @Get('notify')
   @Keep()
   @Public()
-  async paymentNotify(@Body() cryptNotifyDto: any,) {
-    return await this.paymentService.paymentNotify(cryptNotifyDto)
+  @Header('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
+  // @Header('Content-Type', 'application/json; charset=utf-8')
+  // @Accepts('application/x-www-form-urlencoded', 'application/json', 'text/html')
+  async notify(@Req() request: Request, @Res() response: Response) {
+    let cryptNotifyDto: ReqCryptoNotifyDto
+    // this.logger.debug(JSON.stringify(request.body))
+    // this.logger.debug(JSON.stringify(request.params))
+    // this.logger.debug(JSON.stringify(request.headers))
+    // this.logger.debug(JSON.stringify(request.query))
+
+    this.logger.debug(JSON.stringify(cryptNotifyDto))
+
+    cryptNotifyDto = request.query
+    this.logger.debug(cryptNotifyDto.agent_id)
+    this.logger.debug(cryptNotifyDto.encrypt_data)
+    this.logger.debug(cryptNotifyDto.sign)
+    response.end(await this.paymentService.paymentNotify(cryptNotifyDto))
   }
 }

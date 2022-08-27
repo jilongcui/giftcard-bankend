@@ -33,6 +33,7 @@ export class Order {
 
     @Column({
         name: 'total_price',
+        type: "decimal", precision: 10, scale: 2, default: 0,
         comment: '订单总金额'
     })
     @IsNumber()
@@ -40,6 +41,7 @@ export class Order {
 
     @Column({
         name: 'real_price',
+        type: "decimal", precision: 10, scale: 2, default: 0,
         comment: '订单真实金额'
     })
     @IsNumber()

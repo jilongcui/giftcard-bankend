@@ -8,7 +8,7 @@
  * You can you up，no can no bb！！
  */
 
-import { Body, Controller, Get, Post, Req, UseGuards, Headers, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards, Headers, Query, Logger } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
@@ -29,10 +29,13 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 @ApiBearerAuth()
 @Controller()
 export class LoginController {
+    logger: Logger;
     constructor(
         private readonly loginService: LoginService,
         private readonly sharedService: SharedService
-    ) { }
+    ) {
+        this.logger = new Logger(LoginController.name)
+    }
 
     /* 获取图片验证码 */
     @Get('captchaImage')
@@ -66,6 +69,7 @@ export class LoginController {
     @Public()
     @UseGuards(SmsCodeGuard)
     async register(@Body() reqRegDto: ReqMobileRegDto, @Query() queryInviteCode: QueryInviteUserDto, @Req() req: Request): Promise<ResLoginDto> {
+        this.logger.debug(JSON.stringify(queryInviteCode))
         return await this.loginService.register(reqRegDto, queryInviteCode, req)
     }
 

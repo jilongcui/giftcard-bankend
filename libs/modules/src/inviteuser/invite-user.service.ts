@@ -32,6 +32,6 @@ export class InviteUserService {
             inviteUser.parent = parent
         }
 
-        await this.inviteUserRepository.save(inviteUser)
+        return await this.inviteUserRepository.save(inviteUser)
     }
 }
