@@ -24,6 +24,7 @@ export class OrderService {
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
     @InjectRepository(PreemptionWhitelist) private readonly preemptionWhitelistRepository: Repository<PreemptionWhitelist>,
     @InjectRedis() private readonly redis: Redis,
     private readonly configService: ConfigService,
@@ -36,9 +37,59 @@ export class OrderService {
     // 如果有剩余，那么就生成订单
     // 否则，就失败
     let activity: Activity
+    let orderCount: any
     let unpayOrderKey: string;
     const orderType = '0'
+    // const activityJson = await this.redis.get(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${createOrderDto.activityId}`)
+    // const jsonObject: any = JSON.parse(activityJson)
+    // activity = <Activity>jsonObject;
+    // if (!activityJson) {
+    //   activity = await this.activityRepository.findOne(
+    //     { where: { id: createOrderDto.activityId }, relations: { preemption: true } })
+    //   if (!activity) {
+    //     throw new ApiException('藏品活动不存在', 401)
+    //   }
+    //   await this.redis.set(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${activity.id}`, JSON.stringify(activity))
 
+    // }
+    unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + createOrderDto.activityId + ":" + userId
+    let startTime: string;
+    // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
+    const unpayOrder = await this.redis.get(unpayOrderKey)
+    // this.logger.debug(unpayOrder)
+    if (unpayOrder != null) {
+      throw new ApiException('有未完成订单', 401)
+    }
+    // 没有缓存，开始创建订单
+    // 如果时间大于开始时间，那么直接就开始了
+    // 否则才会读取预售时间，然后再判断预售开始了没有。
+    // 如果预售也开始了，那么就判单这个用户是否具有预售权限。
+    const startTimeKey = ACTIVITY_START_TIME + ":" + createOrderDto.activityId;
+    startTime = await this.redis.get(startTimeKey)
+    const now = moment.now()
+    if (now < parseInt(startTime)) {
+      const preStartTimeKey = ACTIVITY_PRESTART_TIME + ":" + createOrderDto.activityId;
+      startTime = await this.redis.get(preStartTimeKey)
+      if (!startTime || now < parseInt(startTime)) {
+        throw new ApiException('没开始')
+      }
+      // 可以预售
+      // 判断用户预售权限
+      const preemption = await this.preemptionWhitelistRepository.findOneBy({ userId: userId, activityId: createOrderDto.activityId })
+      if (!preemption) {
+        throw new ApiException('没有预售权限')
+      }
+    }
+
+    const countKey = COLLECTION_ORDER_COUNT + ":" + createOrderDto.activityId;
+    const [execError] = await this.redis.multi().decrby(countKey, createOrderDto.count).exec()
+    orderCount = execError[1]
+    if (orderCount < 0) {
+      // await this.redis.unwatch()
+      throw new ApiException('已售完')
+    }
+    // this.logger.log(execError[0])
+    // this.logger.log(orderCount)
     // 一级市场活动创建订单
     return await this.orderRepository.manager.transaction(async manager => {
       const order = new Order();
@@ -48,8 +99,19 @@ export class OrderService {
       order.userName = userName
       // 一级市场活动创建订单
       const activityJson = await this.redis.get(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${createOrderDto.activityId}`)
-      const jsonObject: any = JSON.parse(activityJson)
-      activity = <Activity>jsonObject;
+
+      if (!activityJson) {
+        activity = await this.activityRepository.findOne(
+          { where: { id: createOrderDto.activityId }, relations: { preemption: true } })
+        if (!activity) {
+          throw new ApiException('藏品活动不存在', 401)
+        }
+        await this.redis.set(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${activity.id}`, JSON.stringify(activity))
+
+      } else {
+        const jsonObject: any = JSON.parse(activityJson)
+        activity = <Activity>jsonObject;
+      }
       order.activityId = createOrderDto.activityId;
       order.count = Math.min(createOrderDto.count, 5); // 1～10
       order.realPrice = activity.price * order.count;
