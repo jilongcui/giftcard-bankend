@@ -27,6 +27,7 @@ import { Order } from '../order/entities/order.entity';
 import { ACTIVITY_USER_ORDER_KEY } from '@app/common/contants/redis.contant';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { Account } from '../account/entities/account.entity';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -56,6 +57,7 @@ export class PaymentService {
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
+    @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
     @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
     @InjectRedis() private readonly redis: Redis,
@@ -209,15 +211,11 @@ export class PaymentService {
     // this.logger.debug(bizContent)
     const bizResult = await this.sendCryptoRequest<ConfirmPayResponse>(requestUri, bizContent)
     // this.logger.debug(bizResult)
-
     if (bizResult.agent_id.toString() != this.merchId) throw new ApiException("商户ID错误")
     if (bizResult.ret_code !== RES_CODE_SUCCESS) throw new ApiException("错误: " + bizResult.ret_msg)
-
     // 我们需要把这个支付订单创建成功的标记
     await this.paymentRepository.update(confirmPayDto.paymentId, { orderBillNo: bizResult.hy_bill_no })
-
     await this.paymentRepository.update({ orderId: payment.orderId }, { status: '1' })  // 支付中，等待确认
-
   }
 
   // 支付通知
@@ -243,14 +241,21 @@ export class PaymentService {
       if (paymentNotify.status === 'SUCCESS') {
         const orderId = paymentNotify.agent_bill_id
         const order = await this.orderRepository.findOne({ where: { id: parseInt(orderId) }, relations: { user: true, payment: true } })
-        await this.paymentRepository.update({ orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
-        await this.orderRepository.update({ id: parseInt(orderId) }, { status: '2' })
-        const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
+        if (order.type === '0') {
+          await this.paymentRepository.update({ orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
+          await this.orderRepository.update({ id: parseInt(orderId) }, { status: '2' })
+          const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
 
-        await this.doPaymentComfirmed(order.payment, order.userId, order.user.userName)
+          await this.doPaymentComfirmedLv1(order.payment, order.userId, order.user.userName)
 
-        // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
-        await this.redis.del(unpayOrderKey)
+          // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
+          await this.redis.del(unpayOrderKey)
+        } else if (order.type === '1') {
+          await this.doPaymentComfirmedLv2(order.payment, order.userId, order.user.userName)
+        } else if (order.type === '2') {
+          await this.doPaymentComfirmedRecharge(order.payment, order.userId, order.user.userName)
+        }
+
       } else {
         this.logger.error("Payment Notice not success.")
         return 'error'
@@ -399,8 +404,7 @@ export class PaymentService {
     throw new ApiException('发送请求失败: ' + responseData.ret_msg)
   }
 
-  async doPaymentComfirmed(payment: Payment, userId: number, userName: string) {
-
+  async doPaymentComfirmedLv1(payment: Payment, userId: number, userName: string) {
     const order = await this.orderService.findOne(payment.orderId)
     let asset: Asset
     if (order.type === '1') {
@@ -460,7 +464,23 @@ export class PaymentService {
       // 把资产切换到新的用户就可以了
       await this.buyAssetRecord(asset, userId, userName)
       // 还需要转移资产
+    } else if (order.type === '2') {
+      await this.buyAssetRecord(asset, userId, userName)
     }
+  }
+
+  async doPaymentComfirmedLv2(payment: Payment, userId: number, userName: string) {
+    let asset: Asset
+    const order = await this.orderService.findOne(payment.orderId)
+    asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+    if (asset.userId === userId)
+      throw new ApiException("不能购买自己的资产")
+    await this.buyAssetRecord(asset, userId, userName)
+  }
+
+  async doPaymentComfirmedRecharge(payment: Payment, userId: number, userName: string) {
+    const order = await this.orderService.findOne(payment.orderId)
+    await this.accountRepository.increment({ userId: payment.userId }, 'usable', order.realPrice)
   }
 
   private randomTokenId(): number {

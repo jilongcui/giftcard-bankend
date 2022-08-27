@@ -8,15 +8,11 @@ import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { Repository, FindOptionsWhere, EntityManager, getManager, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
-import { Account } from '../account/entities/account.entity';
 import { Activity } from '../activity/entities/activity.entity';
 import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
 import { Asset } from '../collection/entities/asset.entity';
-import { Collection } from '../collection/entities/collection.entity';
-import { AssetRecord } from '../market/entities/asset-record.entity';
 import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, RechargeOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
 import { Order } from './entities/order.entity';
-import { ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../system/user/entities/user.entity';
 
@@ -120,10 +116,6 @@ export class OrderService {
   }
 
   async rechargeOrder(createOrderDto: RechargeOrderDto, userId: number, userName: string, avatar: string) {
-    // 开启事务
-    // 判断当前剩余
-    // 如果有剩余，那么就生成订单
-    // 否则，就失败
     const orderType = '2'
     return await this.orderRepository.manager.transaction(async manager => {
       const order = new Order()
