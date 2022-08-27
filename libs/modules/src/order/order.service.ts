@@ -101,13 +101,7 @@ export class OrderService {
       const activityJson = await this.redis.get(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${createOrderDto.activityId}`)
 
       if (!activityJson) {
-        activity = await this.activityRepository.findOne(
-          { where: { id: createOrderDto.activityId }, relations: { preemption: true } })
-        if (!activity) {
-          throw new ApiException('藏品活动不存在', 401)
-        }
-        await this.redis.set(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${activity.id}`, JSON.stringify(activity))
-
+        throw new ApiException('藏品活动不存在', 401)
       } else {
         const jsonObject: any = JSON.parse(activityJson)
         activity = <Activity>jsonObject;
