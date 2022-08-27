@@ -24,6 +24,9 @@ import { Activity } from '../activity/entities/activity.entity';
 import { Asset } from '../collection/entities/asset.entity';
 import { AssetRecord } from '../market/entities/asset-record.entity';
 import { Order } from '../order/entities/order.entity';
+import { ACTIVITY_USER_ORDER_KEY } from '@app/common/contants/redis.contant';
+import Redis from 'ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -55,6 +58,7 @@ export class PaymentService {
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
     @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
     @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
+    @InjectRedis() private readonly redis: Redis,
     @Inject('CHAIN_SERVICE') private client: ClientProxy,
   ) {
     this.baseUrl = this.configService.get<string>('payment.baseUrl')
@@ -148,27 +152,6 @@ export class PaymentService {
 
   }
 
-  // 提交支付
-  async submitPay(orderId: number, userIp: string) {
-    const requestUri = 'WithholdAuthPay/ConfirmPay.aspx'
-
-    const order = await this.orderService.findOne(orderId)
-
-    const tradeNo = this.randomTradeNo().toString()
-
-    const bizContent = new ReqSubmitPayDto()
-    bizContent.agent_bill_id = order.id.toString()
-    bizContent.agent_bill_time = moment().format("YYYYMMDDHHmmss")
-    bizContent.goods_name = order.desc
-    bizContent.pay_amt = order.realPrice
-    bizContent.hy_auth_uid = ''
-    bizContent.user_ip = userIp
-    bizContent.notify_url = 'http://www.baidu.com'
-    bizContent.return_url = 'http://www.baidu.com'
-
-    await this.sendCryptoRequest(requestUri, bizContent)
-  }
-
   // 创建支付订单，然后给用户发送短信。
   async sendPaySMS(payWithCard: PayWithCardDto, userId: number, userIp: string) {
     const requestUri = 'WithholdAuthPay/SendPaySMS.aspx'
@@ -208,12 +191,41 @@ export class PaymentService {
     return await this.paymentRepository.save(payment)
   }
 
+  // 确认支付
+  async confirmPayment(confirmPayDto: ConfirmPayWithCardDto, userId: number, userName: string) {
+    this.logger.debug(confirmPayDto)
+    const requestUri = 'WithholdAuthPay/ConfirmPay.aspx'
+    const payment = await this.paymentRepository.findOneBy({ id: confirmPayDto.paymentId, userId: userId })
+    if (payment === null) {
+      throw new ApiException('未找到支付项')
+    }
+    // if (bankcard.signNo === undefined || bankcard.signNo === '') {
+    //   throw new ApiException('此银行卡没有实名或者')
+    // }
+    const bizContent = new ReqConfirmPayDto()
+    bizContent.version = 1
+    bizContent.hy_token_id = payment.orderTokenId
+    bizContent.verify_code = confirmPayDto.verifyCode
+    // this.logger.debug(bizContent)
+    const bizResult = await this.sendCryptoRequest<ConfirmPayResponse>(requestUri, bizContent)
+    // this.logger.debug(bizResult)
+
+    if (bizResult.agent_id.toString() != this.merchId) throw new ApiException("商户ID错误")
+    if (bizResult.ret_code !== RES_CODE_SUCCESS) throw new ApiException("错误: " + bizResult.ret_msg)
+
+    // 我们需要把这个支付订单创建成功的标记
+    await this.paymentRepository.update(confirmPayDto.paymentId, { orderBillNo: bizResult.hy_bill_no })
+
+    await this.paymentRepository.update({ orderId: payment.orderId }, { status: '1' })  // 支付中，等待确认
+
+  }
+
   // 支付通知
   async paymentNotify(cryptoNotifyDto: ReqCryptoNotifyDto) {
     // sign_no 是加密的，我们需要解密
     try {
-      this.logger.debug("paymentNotify")
-      this.logger.debug(JSON.stringify(cryptoNotifyDto))
+      // this.logger.debug("paymentNotify")
+      // this.logger.debug(JSON.stringify(cryptoNotifyDto))
       const decryptedData = key2.decrypt(cryptoNotifyDto.encrypt_data, 'utf8');
       this.logger.debug(decryptedData)
       let isSignOk
@@ -230,8 +242,15 @@ export class PaymentService {
       const paymentNotify: any = querystring.parse(decryptedData)
       if (paymentNotify.status === 'SUCCESS') {
         const orderId = paymentNotify.agent_bill_id
-        await this.paymentRepository.update({ orderId: parseInt(orderId) }, { status: '1' })
+        const order = await this.orderRepository.findOne({ where: { id: parseInt(orderId) }, relations: { user: true, payment: true } })
+        await this.paymentRepository.update({ orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
         await this.orderRepository.update({ id: parseInt(orderId) }, { status: '2' })
+        const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
+
+        await this.doPaymentComfirmed(order.payment, order.userId, order.user.userName)
+
+        // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
+        await this.redis.del(unpayOrderKey)
       } else {
         this.logger.error("Payment Notice not success.")
         return 'error'
@@ -242,95 +261,6 @@ export class PaymentService {
     }
 
     return 'ok'
-  }
-
-  // 确认支付
-  async confirmPayment(confirmPayDto: ConfirmPayWithCardDto, userId: number, userName: string) {
-    this.logger.debug(confirmPayDto)
-    const requestUri = 'WithholdAuthPay/ConfirmPay.aspx'
-    const payment = await this.paymentRepository.findOneBy({ id: confirmPayDto.paymentId, userId: userId })
-    if (payment === null) {
-      throw new ApiException('未找到支付项')
-    }
-    // if (bankcard.signNo === undefined || bankcard.signNo === '') {
-    //   throw new ApiException('此银行卡没有实名或者')
-    // }
-    const bizContent = new ReqConfirmPayDto()
-    bizContent.version = 1
-    bizContent.hy_token_id = payment.orderTokenId
-    bizContent.verify_code = confirmPayDto.verifyCode
-    this.logger.debug(bizContent)
-    const bizResult = await this.sendCryptoRequest<ConfirmPayResponse>(requestUri, bizContent)
-    this.logger.debug(bizResult)
-
-    if (bizResult.agent_id.toString() != this.merchId) throw new ApiException("商户ID错误")
-    if (bizResult.ret_code !== RES_CODE_SUCCESS) throw new ApiException("错误: " + bizResult.ret_msg)
-    // 我们需要把这个支付订单创建成功的标记
-    await this.paymentRepository.update(confirmPayDto.paymentId, { orderBillNo: bizResult.hy_bill_no })
-
-    const order = await this.orderService.findOne(payment.orderId)
-    let asset: Asset
-    if (order.type === '1') {
-      asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-      if (asset.userId === userId)
-        throw new ApiException("不能购买自己的资产")
-    }
-    if (order.type === '0') { // 一级市场活动
-      // Create assetes for user.
-      const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
-      // First we need get all collections of orders, but we only get one collection.
-      if (!activity.collections || activity.collections.length <= 0) {
-        return order;
-      }
-      let collection: Collection;
-      if (activity.type === '1') {
-        // 首发盲盒, 我们需要随机寻找一个。
-        const index = Math.floor((Math.random() * activity.collections.length));
-        collection = activity.collections[index]
-      } else {
-        // 其他类型，我们只需要取第一个
-        collection = activity.collections[0];
-      }
-      // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
-      await this.collectionRepository.manager.transaction(async manager => {
-        await manager.increment(Collection, { id: collection.id }, "current", order.count);
-      })
-      let tokenId: number
-      for (let i = 0; i < order.count; i++) {
-        tokenId = this.randomTokenId()
-        let createAssetDto = new CreateAssetDto()
-        createAssetDto.price = order.realPrice
-        createAssetDto.assetNo = tokenId
-        createAssetDto.userId = userId
-        createAssetDto.collectionId = collection.id
-
-        const asset = await this.assetRepository.save(createAssetDto)
-        // 记录交易记录
-        await this.assetRecordRepository.save({
-          type: '2', // Buy
-          assetId: asset.id,
-          price: order.realPrice,
-          toId: userId,
-          toName: userName
-        })
-
-        const pattern = { cmd: 'mintA' }
-        const mintDto = new MintADto()
-        mintDto.address = this.platformAddress
-        mintDto.tokenId = tokenId.toString()
-        mintDto.contractId = 8
-        this.client.emit(pattern, mintDto)
-        // this.logger.debug(await firstValueFrom(result))
-      }
-
-
-    } else if (order.type === '1') { // 二级市场资产交易
-      // 把资产切换到新的用户就可以了
-      await this.buyAssetRecord(asset, userId, userName)
-      // 还需要转移资产
-    }
-
-    return;
   }
 
   // 交易查询
@@ -468,12 +398,76 @@ export class PaymentService {
     }
     throw new ApiException('发送请求失败: ' + responseData.ret_msg)
   }
-  //
+
+  async doPaymentComfirmed(payment: Payment, userId: number, userName: string) {
+
+    const order = await this.orderService.findOne(payment.orderId)
+    let asset: Asset
+    if (order.type === '1') {
+      asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+      if (asset.userId === userId)
+        throw new ApiException("不能购买自己的资产")
+    }
+    if (order.type === '0') { // 一级市场活动
+      // Create assetes for user.
+      const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
+      // First we need get all collections of orders, but we only get one collection.
+      if (!activity.collections || activity.collections.length <= 0) {
+        return order;
+      }
+      let collection: Collection;
+      if (activity.type === '1') {
+        // 首发盲盒, 我们需要随机寻找一个。
+        const index = Math.floor((Math.random() * activity.collections.length));
+        collection = activity.collections[index]
+      } else {
+        // 其他类型，我们只需要取第一个
+        collection = activity.collections[0];
+      }
+      // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+      await this.collectionRepository.manager.transaction(async manager => {
+        await manager.increment(Collection, { id: collection.id }, "current", order.count);
+      })
+      let tokenId: number
+      for (let i = 0; i < order.count; i++) {
+        tokenId = this.randomTokenId()
+        let createAssetDto = new CreateAssetDto()
+        createAssetDto.price = order.realPrice
+        createAssetDto.assetNo = tokenId
+        createAssetDto.userId = userId
+        createAssetDto.collectionId = collection.id
+
+        const asset = await this.assetRepository.save(createAssetDto)
+        // 记录交易记录
+        await this.assetRecordRepository.save({
+          type: '2', // Buy
+          assetId: asset.id,
+          price: order.realPrice,
+          toId: userId,
+          toName: userName
+        })
+
+        const pattern = { cmd: 'mintA' }
+        const mintDto = new MintADto()
+        mintDto.address = this.platformAddress
+        mintDto.tokenId = tokenId.toString()
+        mintDto.contractId = collection.contractId
+        this.client.emit(pattern, mintDto)
+      }
+
+
+    } else if (order.type === '1') { // 二级市场资产交易
+      // 把资产切换到新的用户就可以了
+      await this.buyAssetRecord(asset, userId, userName)
+      // 还需要转移资产
+    }
+  }
+
   private randomTokenId(): number {
     return Math.floor((Math.random() * 999999999) + 1000000000);
   }
 
-  async buyAssetRecord(asset: Asset, userId: number, userName: string) {
+  private async buyAssetRecord(asset: Asset, userId: number, userName: string) {
 
     const fromId = asset.user.userId
     const fromName = asset.user.userName

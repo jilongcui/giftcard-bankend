@@ -17,11 +17,11 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 @ApiBearerAuth()
 @Controller('payment/notify')
 export class NotifyController {
-    // logger: Logger
+    logger: Logger
     constructor(
         private readonly paymentService: PaymentService,
     ) {
-        // this.logger = new Logger(NotifyController.name)
+        this.logger = new Logger(NotifyController.name)
     }
 
     @Get()
@@ -29,12 +29,13 @@ export class NotifyController {
     @Keep()
     async notify(@Req() request: Request, @Res() response: Response) {
         let cryptNotifyDto: ReqCryptoNotifyDto
+        this.logger.debug(JSON.stringify(request.url))
         // this.logger.debug(JSON.stringify(request.body))
         // this.logger.debug(JSON.stringify(request.params))
         // this.logger.debug(JSON.stringify(request.headers))
         // this.logger.debug(JSON.stringify(request.query))
         cryptNotifyDto = request.query
-        // this.logger.debug(JSON.stringify(cryptNotifyDto))
+        this.logger.debug(JSON.stringify(cryptNotifyDto))
         // this.logger.debug(cryptNotifyDto.agent_id)
         // this.logger.debug(cryptNotifyDto.encrypt_data)
         // this.logger.debug(cryptNotifyDto.sign)
