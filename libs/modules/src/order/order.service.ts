@@ -31,7 +31,7 @@ export class OrderService {
   ) {
     this.platformAddress = this.configService.get<string>('crichain.platformAddress')
   }
-  async createLv1Order(createOrderDto: CreateLv1OrderDto, userId: number, userName: string, avatar: string) {
+  async createLv1Order(createOrderDto: CreateLv1OrderDto, userId: number, userName: string) {
     // 开启事务
     // 判断当前剩余
     // 如果有剩余，那么就生成订单
@@ -128,7 +128,7 @@ export class OrderService {
     });
   }
 
-  async createLv2Order(createOrderDto: CreateLv2OrderDto, userId: number, userName: string, avatar: string) {
+  async createLv2Order(createOrderDto: CreateLv2OrderDto, userId: number, userName: string) {
     let unpayOrderKey: string;
     const orderType = '1'
 
@@ -188,7 +188,6 @@ export class OrderService {
       order.invalidTime = moment().add(10, 'minute').toDate()
 
       await manager.save(order);
-      await manager.update(Asset, { id: order.assetId }, { status: '2' }) // Asset is locked.
       return order;
     });
   }
@@ -415,7 +414,7 @@ export class OrderService {
   }
 
   async cancel(id: number,) {
-    return this.orderRepository.update(id, { status: '1' })
+    return this.orderRepository.update(id, { status: '0' })
   }
 
   // /* 更新过期订单状态 */

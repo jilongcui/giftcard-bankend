@@ -10,6 +10,7 @@ export const USER_NICKNAME_KEY = "admin:nickName:token"  // 用昵称 nickName
 export const USER_CID_KEY = "admin:cId:token"  // 用户实名认证的ID
 export const USER_DEPTID_KEY = "admin:deptId:token"  // 用部门id  deptId
 export const USER_DEPTNAME_KEY = "admin:deptName:token"  // 用部门名称  deptName
+export const USER_AVATAR_KEY = "admin:avatar:token"  // 用户头像  avatar
 export const USER_PERMISSIONS_KEY = "admin:permissions:token"  //权限标识
 export const USER_ROLEKEYS_KEY = "admin:roleKeys:token"  //角色标识
 export const USER_ROLEKS_KEY = "admin:role:token"  //角色

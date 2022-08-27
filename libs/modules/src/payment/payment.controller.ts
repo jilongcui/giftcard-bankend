@@ -10,6 +10,7 @@ import { BalancePayService } from './balance-pay.service';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { Accepts } from '@app/common/guards/accepts.decorator';
 import { PostService } from '../system/post/post.service';
+import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 
 @ApiTags('支付')
 @ApiBearerAuth()
@@ -74,7 +75,7 @@ export class PaymentController {
   }
 
   @Post('confirmCardPay')
-  confirmPayWithCard(@Body() confirmPayDto: ConfirmPayWithCardDto, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.userName) userName: string, userIp) {
+  confirmPayWithCard(@Body() confirmPayDto: ConfirmPayWithCardDto, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.userName, UserInfoPipe) userName: string, userIp) {
     return this.paymentService.confirmPayment(confirmPayDto, userId, userName)
   }
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, Inject, forwardRef } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, Inject, forwardRef, Logger } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, RechargeOrderDto, SyncInvalidOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
@@ -9,35 +9,37 @@ import { Order } from './entities/order.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { BalancePayService } from '@app/modules/payment/balance-pay.service';
+import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 @ApiTags('订单')
 @ApiBearerAuth()
 @Controller('order')
 export class OrderController {
+  logger = new Logger(OrderController.name)
   constructor(private readonly orderService: OrderService,
 
     @Inject(forwardRef(() => BalancePayService)) private readonly balancePayService: BalancePayService) { }
 
   @Post()
-  async create(@Body() createOrderDto: CreateOrderDto, @UserDec(UserEnum.userId) userId: number,
-    @UserDec(UserEnum.userName) userName: string, @UserDec(UserEnum.avatar) avatar: string) {
+  async create(@Body() createOrderDto: CreateOrderDto, @UserDec(UserEnum.userId,) userId: number,
+    @UserDec(UserEnum.userName, UserInfoPipe) userName: string, @UserDec(UserEnum.avatar, UserInfoPipe) avatar: string) {
     return await this.orderService.create(createOrderDto, userId, userName, avatar);
   }
 
   @Post('createLv1')
   async createLv1(@Body() createOrderDto: CreateLv1OrderDto, @UserDec(UserEnum.userId) userId: number,
-    @UserDec(UserEnum.userName) userName: string, @UserDec(UserEnum.avatar) avatar: string) {
-    return await this.orderService.createLv1Order(createOrderDto, userId, userName, avatar);
+    @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
+    return await this.orderService.createLv1Order(createOrderDto, userId, userName);
   }
 
   @Post('createLv2')
   async createLv2(@Body() createOrderDto: CreateLv2OrderDto, @UserDec(UserEnum.userId) userId: number,
-    @UserDec(UserEnum.userName) userName: string, @UserDec(UserEnum.avatar) avatar: string) {
-    return await this.orderService.createLv2Order(createOrderDto, userId, userName, avatar);
+    @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
+    return await this.orderService.createLv2Order(createOrderDto, userId, userName);
   }
 
   @Post('recharge')
   async recharge(@Body() createOrderDto: RechargeOrderDto, @UserDec(UserEnum.userId) userId: number,
-    @UserDec(UserEnum.userName) userName: string, @UserDec(UserEnum.avatar) avatar: string) {
+    @UserDec(UserEnum.userName, UserInfoPipe) userName: string, @UserDec(UserEnum.avatar, UserInfoPipe) avatar: string) {
     return await this.orderService.rechargeOrder(createOrderDto, userId, userName, avatar);
   }
 
