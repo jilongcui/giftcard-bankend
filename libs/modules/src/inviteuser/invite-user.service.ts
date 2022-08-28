@@ -97,7 +97,7 @@ export class InviteUserService {
         let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: userId })
         let parents = await this.inviteUserTreeRepository.findAncestors(inviteUser)
         if (inviteUser) {
-            let children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: 2 })
+            let children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: 3 })
             return {
                 parent: parents[0],
                 children: children,
