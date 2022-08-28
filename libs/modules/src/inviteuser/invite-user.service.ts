@@ -39,7 +39,7 @@ export class InviteUserService {
             if (!user) {
                 throw new ApiException('邀请用户没找到')
             }
-            parent.userName = user.nickName
+            parent.nickName = user.nickName
             parent.avatar = user.avatar
             await this.inviteUserTreeRepository.save(parent)
         }
@@ -50,7 +50,7 @@ export class InviteUserService {
             if (!user) {
                 throw new ApiException('被邀请用户没找到')
             }
-            inviteUser.userName = user.nickName
+            inviteUser.nickName = user.nickName
             inviteUser.avatar = user.avatar
             await this.inviteUserTreeRepository.save(inviteUser)
         }

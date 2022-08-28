@@ -23,7 +23,7 @@ export class InviteUser {
     @Column({
         name: 'user_name',
     })
-    userName: string
+    nickName: string
 
     @Column({
         name: 'avatar',
