@@ -109,9 +109,9 @@ export class AssetService {
     where = {
       ...flowAssetDto,
       status: '1',
-      collection: {
-        name: Like(`%${paginationDto.keywords}%`),
-      }
+      // collection: {
+      // name: paginationDto.keywords ?? Like(`%${paginationDto.keywords}%`),
+      // }
     }
 
     result = await this.assetRepository.findAndCount({
