@@ -11,12 +11,14 @@ import { Repository } from 'typeorm';
 import { Asset } from '../collection/entities/asset.entity';
 import { Collection } from '../collection/entities/collection.entity';
 import { AssetRecord } from './entities/asset-record.entity';
+import { User } from '../system/user/entities/user.entity';
 
 @Injectable()
 export class MarketService {
   constructor(
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
     @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
   ) { }
 
@@ -68,25 +70,25 @@ export class MarketService {
     })
   }
 
-  async transferAsset(id: number, userId: number, userName: string) {
+  async transferAsset(id: number, userId: number, toUserId: number) {
     const asset = await this.assetRepository.findOne({ where: { id: id, userId: userId }, relations: ['user'] })
     if (!asset) {
       throw new ApiException("无法操作此资产")
     }
     const fromId = asset.user.userId
-    const fromName = asset.user.userName
-    if (fromId === userId)
+    const fromName = asset.user.nickName
+    if (fromId === toUserId)
       throw new ApiException("不能转移给自己")
-
-    await this.assetRepository.update(id, { userId: userId })
+    const toUser = await this.userRepository.findOneBy({ userId: toUserId })
+    await this.assetRepository.update(id, { userId: toUserId })
     await this.assetRecordRepository.save({
       type: '4', // 转增
       assetId: id,
       price: asset.price,
       fromId: fromId,
       fromName: fromName,
-      toId: userId,
-      toName: userName
+      toId: toUserId,
+      toName: toUser.nickName
     })
   }
 }

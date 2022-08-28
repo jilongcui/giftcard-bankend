@@ -12,6 +12,7 @@ import { AssetRecord } from './entities/asset-record.entity';
 import { Asset } from '../collection/entities/asset.entity';
 import { FlowAssetDto } from '../collection/dto/request-asset.dto';
 import { AssetService } from '../collection/asset.service';
+import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 
 @ApiTags('市场')
 @ApiBearerAuth()
@@ -25,20 +26,20 @@ export class MarketController {
 
   /* 资产出售 */
   @Put('asset/:id/sell')
-  async upAsset(@Param('id') id: string, @Body('price') price: number, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
+  async upAsset(@Param('id') id: string, @Body('price') price: number, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName, UserInfoPipe) userName: string) {
     return await this.marketService.upAsset(+id, price, userId, userName);
   }
 
   /* 资产下架 */
   @Put('asset/:id/down')
-  async downAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
+  async downAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName, UserInfoPipe) userName: string) {
     return await this.marketService.downAsset(+id, userId, userName);
   }
 
   /* 资产转移 */
-  @Put('asset/:id/transfer')
-  async transferAsset(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) userName: string) {
-    return await this.marketService.transferAsset(+id, userId, userName);
+  @Put('asset/:id/transfer/:toUserId')
+  async transferAsset(@Param('id') id: string, @Param('toUserId') toUserId: string, @UserDec(UserEnum.userId) userId: number) {
+    return await this.marketService.transferAsset(+id, userId, +toUserId);
   }
 
   // /* 资产购买 */

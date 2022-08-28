@@ -8,9 +8,10 @@ import { AssetRecord } from './entities/asset-record.entity';
 import { AssetRecordService } from './asset-record.service';
 import { CollectionModule } from '../collection/collection.module';
 import { AssetService } from '../collection/asset.service';
+import { User } from '../system/user/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Collection, Asset, AssetRecord]),
+  imports: [TypeOrmModule.forFeature([Collection, Asset, AssetRecord, User]),
     CollectionModule],
   controllers: [MarketController],
   providers: [MarketService, AssetRecordService, AssetService]
