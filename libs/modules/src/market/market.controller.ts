@@ -37,9 +37,9 @@ export class MarketController {
   }
 
   /* 资产转移 */
-  @Put('asset/:id/transfer/:toUserId')
-  async transferAsset(@Param('id') id: string, @Param('toUserId') toUserId: string, @UserDec(UserEnum.userId) userId: number) {
-    return await this.marketService.transferAsset(+id, userId, +toUserId);
+  @Put('asset/:id/transfer/:toUserName')
+  async transferAsset(@Param('id') id: string, @Param('toUserName') toUserName: string, @UserDec(UserEnum.userId) userId: number) {
+    return await this.marketService.transferAsset(+id, userId, toUserName);
   }
 
   // /* 资产购买 */

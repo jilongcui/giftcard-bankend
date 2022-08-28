@@ -70,16 +70,18 @@ export class MarketService {
     })
   }
 
-  async transferAsset(id: number, userId: number, toUserId: number) {
+  async transferAsset(id: number, userId: number, toUserName: string) {
     const asset = await this.assetRepository.findOne({ where: { id: id, userId: userId }, relations: ['user'] })
     if (!asset) {
       throw new ApiException("无法操作此资产")
     }
+    const toUser = await this.userRepository.findOneBy({ userName: toUserName })
+
     const fromId = asset.user.userId
     const fromName = asset.user.nickName
+    const toUserId = toUser.userId
     if (fromId === toUserId)
       throw new ApiException("不能转移给自己")
-    const toUser = await this.userRepository.findOneBy({ userId: toUserId })
     await this.assetRepository.update(id, { userId: toUserId })
     await this.assetRecordRepository.save({
       type: '4', // 转增
