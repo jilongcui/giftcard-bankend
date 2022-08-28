@@ -88,6 +88,11 @@ export class LoginService {
             this.logger.debug(parentUser)
             if (!parentUser)
                 throw new ApiException('邀请码不存在')
+            // Check if is invited.
+            const parent = await this.inviteUserService.parent(user.userId)
+            if (parent) {
+                throw new ApiException('已经绑定邀请码')
+            }
             // Add invite relation ship.
             const inviteInfo = await this.inviteUserService.bindParent(user, parentUser.userId)
             this.logger.debug(inviteInfo)
