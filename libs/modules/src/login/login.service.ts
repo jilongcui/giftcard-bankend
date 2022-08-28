@@ -94,7 +94,7 @@ export class LoginService {
                 throw new ApiException('已经绑定邀请码')
             }
             // Add invite relation ship.
-            const inviteInfo = await this.inviteUserService.bindParent(user, parentUser.userId)
+            const inviteInfo = await this.inviteUserService.bindParent(user.userId, parentUser.userId)
             this.logger.debug(inviteInfo)
         }
 

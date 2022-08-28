@@ -6,23 +6,24 @@ import {
     PrimaryGeneratedColumn,
     TreeChildren,
     TreeParent,
+    PrimaryColumn,
 } from "typeorm"
 
 @Entity()
-@Tree("materialized-path")
+// @Tree("materialized-path",)
 export class InviteUser {
-    @PrimaryGeneratedColumn()
+    @PrimaryColumn()
     id: number
 
-    @Column({
-        name: 'user_id',
-    })
-    userId: number
+    // @Column({
+    //     name: 'user_id',
+    // })
+    // userId: number
 
-    @Column({
-        name: 'user_name',
-    })
-    userName: string
+    // @Column({
+    //     name: 'user_name',
+    // })
+    // userName: string
 
     // @Column({
     //     name: 'user_profile',
@@ -32,9 +33,9 @@ export class InviteUser {
     // @IsOptional()
     // userProfile?: JSON
 
-    @TreeChildren()
-    children: InviteUser[]
+    // @TreeChildren()
+    // children: InviteUser[]
 
-    @TreeParent()
-    parent: InviteUser
+    // @TreeParent()
+    // parent: InviteUser
 }

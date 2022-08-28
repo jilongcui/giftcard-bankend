@@ -4,7 +4,7 @@ import { IsNumber, IsOptional, IsString, IsEmail, IsPhoneNumber, Allow } from "c
 import { BaseEntity } from "@app/common/entities/base.entity";
 import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { ExcelTypeEnum } from "@app/modules/common/excel/excel.enum";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Tree, TreeChildren, TreeParent } from "typeorm";
 import { Dept } from "../../dept/entities/dept.entity";
 import { Post } from "../../post/entities/post.entity";
 import { Role } from "../../role/entities/role.entity";
@@ -14,6 +14,11 @@ import { Account } from "@app/modules/account/entities/account.entity";
 import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 
 @Entity()
+@Tree("closure-table", {
+    closureTableName: "user_closure",
+    ancestorColumnName: (column) => "ancestor_" + column.databaseName,
+    descendantColumnName: (column) => "descendant_" + column.databaseName,
+})
 export class User extends BaseEntity {
     /* 用户Id */
     @PrimaryGeneratedColumn({
@@ -171,6 +176,12 @@ export class User extends BaseEntity {
     @IsOptional()
     @IsString()
     loginIp?: string
+
+    @TreeChildren()
+    children: User[]
+
+    @TreeParent()
+    parent: User
 
     /* 最后登录时间 */
     @Column({
