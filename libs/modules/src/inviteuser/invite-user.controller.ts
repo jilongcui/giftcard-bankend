@@ -32,6 +32,13 @@ export class InviteUserController {
         return await this.inviteUserService.allTree();
     }
 
+    /* 获取所有关系 */
+    @Get('relation')
+    @Public()
+    async relation(@Query('userId') userId: number) {
+        return await this.inviteUserService.relation(userId);
+    }
+
     /* 列出子用户 / flat列表 */
     @Get('children/flat')
     @Public()
@@ -51,12 +58,5 @@ export class InviteUserController {
     @Public()
     async parent(@Query('userId') userId: number) {
         return await this.inviteUserService.parent(userId);
-    }
-
-    /* 获取所有关系 */
-    @Get('relation')
-    @Public()
-    async relationship(@Query('userId') userId: number) {
-        return await this.inviteUserService.relationship(userId);
     }
 }

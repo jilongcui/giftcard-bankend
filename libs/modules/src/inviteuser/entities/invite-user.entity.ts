@@ -10,7 +10,7 @@ import {
 } from "typeorm"
 
 @Entity()
-// @Tree("materialized-path",)
+@Tree("materialized-path",)
 export class InviteUser {
     @PrimaryColumn()
     id: number
@@ -33,9 +33,9 @@ export class InviteUser {
     // @IsOptional()
     // userProfile?: JSON
 
-    // @TreeChildren()
-    // children: InviteUser[]
+    @TreeChildren()
+    children: InviteUser[]
 
-    // @TreeParent()
-    // parent: InviteUser
+    @TreeParent()
+    parent: InviteUser
 }

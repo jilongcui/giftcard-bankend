@@ -14,11 +14,11 @@ import { Account } from "@app/modules/account/entities/account.entity";
 import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 
 @Entity()
-@Tree("closure-table", {
-    closureTableName: "user_closure",
-    ancestorColumnName: (column) => "ancestor_" + column.databaseName,
-    descendantColumnName: (column) => "descendant_" + column.databaseName,
-})
+// @Tree("closure-table", {
+//     closureTableName: "user_closure",
+//     ancestorColumnName: (column) => "ancestor_" + column.databaseName,
+//     descendantColumnName: (column) => "descendant_" + column.databaseName,
+// })
 export class User extends BaseEntity {
     /* 用户Id */
     @PrimaryGeneratedColumn({
@@ -27,10 +27,6 @@ export class User extends BaseEntity {
     })
     @Type()
     @IsNumber()
-    @Excel({
-        name: '用户Id',
-        type: ExcelTypeEnum.EXPORT
-    })
     userId: number
 
     /* 用户账号 */
@@ -177,11 +173,11 @@ export class User extends BaseEntity {
     @IsString()
     loginIp?: string
 
-    @TreeChildren()
-    children: User[]
+    // @TreeChildren()
+    // children: User[]
 
-    @TreeParent()
-    parent: User
+    // @TreeParent()
+    // parent: User
 
     /* 最后登录时间 */
     @Column({

@@ -86,14 +86,7 @@ export class UserService {
 
     /* 通过用户名获取用户,排除停用和删除的,用于登录 */
     async findOneByInviteCode(inviteCode: string) {
-        const user = await this.userRepository.createQueryBuilder('user')
-            .select('user.userId')
-            .where({
-                inviteCode: inviteCode,
-                delFlag: '0',
-            })
-            .getOne()
-        return user
+        return await this.userRepository.findOne({ where: { inviteCode: inviteCode } })
     }
 
     /* 通过用户名获取用户,排除删除的 */

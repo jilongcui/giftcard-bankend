@@ -8,7 +8,7 @@ import { UserModule } from '../system/user/user.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, InviteUser]),
     UserModule
   ],
   providers: [InviteUserService],

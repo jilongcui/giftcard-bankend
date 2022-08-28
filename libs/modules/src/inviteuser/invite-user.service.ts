@@ -1,19 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, Repository, TreeRepository } from 'typeorm';
-import { User } from '@app/modules/system/user/entities/user.entity';
+// import { User } from '@app/modules/system/user/entities/user.entity';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../system/user/user.service';
+import { InviteUser } from './entities/invite-user.entity';
 
 @Injectable()
 export class InviteUserService {
     logger = new Logger(InviteUserService.name)
-    inviteUserTreeRepository: TreeRepository<User>
+    inviteUserTreeRepository: TreeRepository<InviteUser>
     constructor(
-        @InjectDataSource() private readonly dataSource: DataSource,
+        @InjectRepository(InviteUser) private readonly userRepository: Repository<InviteUser>,
         private readonly userService: UserService,
     ) {
-        this.inviteUserTreeRepository = this.dataSource.manager.getTreeRepository<User>(User)
+        this.inviteUserTreeRepository = this.userRepository.manager.getTreeRepository(InviteUser)
     }
 
     async bindInviteCode(userId: number, code: string) {
@@ -22,12 +23,13 @@ export class InviteUserService {
             throw new ApiException('邀请码不存在')
         }
         this.logger.debug(userId)
-        const user = await this.userService.findById(userId)
+        // const user = await this.userService.findById(userId)
         return await this.bindParent(userId, parent.userId)
     }
+
     async bindParent(userId: number, parentId: number) {
-        let inviteUser = await this.inviteUserTreeRepository.findOneBy({ userId: userId })
-        const parent = await this.inviteUserTreeRepository.findOneBy({ userId: parentId })
+        let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: userId })
+        const parent = await this.inviteUserTreeRepository.findOneBy({ id: parentId })
         if (!parent) {
             throw new ApiException('邀请用户没找到')
         }
@@ -39,7 +41,7 @@ export class InviteUserService {
         // initParent.userName = 'admin'
         // await this.inviteUserRepository.save(initParent)
         // }
-        // inviteUser.parent = parent
+        inviteUser.parent = parent
 
         return await this.inviteUserTreeRepository.save(inviteUser)
     }
@@ -51,9 +53,9 @@ export class InviteUserService {
     }
 
     async treeChildren(userId: number) {
-        let inviteUser = await this.inviteUserTreeRepository.findOneBy({ userId: userId })
+        let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: userId })
         if (inviteUser) {
-            this.logger.debug(inviteUser.userId)
+            this.logger.debug(inviteUser.id)
             const children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: 3 })
             return children
         }
@@ -61,7 +63,7 @@ export class InviteUserService {
     }
 
     async flatChildren(userId: number) {
-        let inviteUser = await this.inviteUserTreeRepository.findOneBy({ userId: userId })
+        let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: userId })
         if (inviteUser) {
             const children = await this.inviteUserTreeRepository.findDescendants(inviteUser, { depth: 3 })
             return children
@@ -70,7 +72,7 @@ export class InviteUserService {
     }
 
     async parent(userId: number) {
-        let inviteUser = await this.inviteUserTreeRepository.findOneBy({ userId: userId })
+        let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: userId })
         let parents = await this.inviteUserTreeRepository.findAncestors(inviteUser, { depth: 1 })
         if (parents) {
             return parents[0]
@@ -78,8 +80,8 @@ export class InviteUserService {
         return null
     }
 
-    async relationship(userId: number) {
-        let inviteUser = await this.inviteUserTreeRepository.findOneBy({ userId: userId })
+    async relation(userId: number) {
+        let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: userId })
         let parents = await this.inviteUserTreeRepository.findAncestors(inviteUser)
         if (inviteUser) {
             let children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: 2 })
