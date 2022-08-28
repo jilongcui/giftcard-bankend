@@ -18,11 +18,10 @@ export class AssetRecordService {
     return 'This action adds a new market';
   }
 
-
   async list(id: number, paginationDto: PaginationDto): Promise<PaginatedDto<AssetRecord>> {
     let where: FindOptionsWhere<AssetRecord> = {}
     let result: any;
-    // where = { top: '1' };
+    where = { assetId: id };
     result = await this.assetRecordRepository.findAndCount({
       // select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
       where,
