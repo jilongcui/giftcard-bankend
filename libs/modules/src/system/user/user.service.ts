@@ -174,6 +174,10 @@ export class UserService {
         return user
     }
 
+    private randomId(): number {
+        return Math.floor((Math.random() * 9999999) + 10000000);
+    }
+
     /* 新增用户 */
     async addUser(reqAddUserDto: ReqAddUserDto) {
         const dept = await this.deptService.findById(reqAddUserDto.deptId)
@@ -190,6 +194,7 @@ export class UserService {
         // Add invite code.
         const userDto = {
             ...reqAddUserDto,
+            userId: this.randomId(),
             inviteCode: strRandom(6).toLowerCase()
         }
         const user = await this.userRepository.save(userDto)

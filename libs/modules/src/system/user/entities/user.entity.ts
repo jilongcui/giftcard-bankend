@@ -4,7 +4,7 @@ import { IsNumber, IsOptional, IsString, IsEmail, IsPhoneNumber, Allow } from "c
 import { BaseEntity } from "@app/common/entities/base.entity";
 import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { ExcelTypeEnum } from "@app/modules/common/excel/excel.enum";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Tree, TreeChildren, TreeParent } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn, Tree, TreeChildren, TreeParent } from "typeorm";
 import { Dept } from "../../dept/entities/dept.entity";
 import { Post } from "../../post/entities/post.entity";
 import { Role } from "../../role/entities/role.entity";
@@ -21,7 +21,7 @@ import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 // })
 export class User extends BaseEntity {
     /* 用户Id */
-    @PrimaryGeneratedColumn({
+    @PrimaryColumn({
         name: 'user_id',
         comment: '用户ID'
     })
