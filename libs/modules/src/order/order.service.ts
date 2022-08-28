@@ -414,7 +414,48 @@ export class OrderService {
   }
 
   async cancel(id: number,) {
-    return this.orderRepository.update(id, { status: '0' })
+    let where: FindOptionsWhere<Order> = {}
+    let result: any;
+    let order = await this.orderRepository.findOneBy({ id: id })
+    let activityId = order.activityId
+    // where =
+    // {
+    //   activityId: activityId ?? undefined,
+    //   status: '1',
+    //   invalidTime: LessThanOrEqual(moment(moment.now()).toDate())
+    // }
+    // 清理缓存
+    if (order.type === '0') {
+      // this.logger.debug(`activityId: ${order.activityId}`)
+      await this.orderRepository.manager.transaction(async manager => {
+        // Set invalid status
+        // where.activityId = order.activityId
+        order.status = '0'
+        // totalCount += order.count
+        manager.save(order)
+      })
+      const countKey = COLLECTION_ORDER_COUNT + ":" + order.activityId;
+      const [execError] = await this.redis.multi().incrby(countKey, order.count).exec()
+    } else if (order.type === '1') {
+      // this.logger.debug(`assetId: ${order.assetId}`)
+      await this.orderRepository.manager.transaction(async manager => {
+        // Set invalid status
+        // where.assetId = order.assetId
+        order.status = '0'
+        // totalCount += order.count
+        manager.save(order)
+        await manager.update(Asset, { id: order.assetId }, { status: '1' }) // Unlocked.
+      })
+    } else if (order.type === '2') {
+      // this.logger.debug(`assetId: ${order.assetId}`)
+      await this.orderRepository.manager.transaction(async manager => {
+        // Set invalid status
+        // where.assetId = order.assetId
+        order.status = '0'
+        // totalCount += order.count
+        manager.save(order)
+      })
+    }
   }
 
   // /* 更新过期订单状态 */
