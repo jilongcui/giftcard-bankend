@@ -48,7 +48,7 @@ export default defineConfig({
     SmsSdkAppId: '1400706961',
     TemplateLoginId: '1473029',
     TemplateRegId: '1473032',
-    SignName: '启洲数字'
+    SignName: 'Startland'
   },
 
   crichain: {

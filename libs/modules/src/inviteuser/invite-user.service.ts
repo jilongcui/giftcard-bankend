@@ -5,16 +5,18 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../system/user/user.service';
 import { InviteUser } from './entities/invite-user.entity';
+import { User } from '../system/user/entities/user.entity';
 
 @Injectable()
 export class InviteUserService {
     logger = new Logger(InviteUserService.name)
     inviteUserTreeRepository: TreeRepository<InviteUser>
     constructor(
-        @InjectRepository(InviteUser) private readonly userRepository: Repository<InviteUser>,
+        @InjectRepository(InviteUser) private readonly inviteRepository: Repository<InviteUser>,
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
         private readonly userService: UserService,
     ) {
-        this.inviteUserTreeRepository = this.userRepository.manager.getTreeRepository(InviteUser)
+        this.inviteUserTreeRepository = this.inviteRepository.manager.getTreeRepository(InviteUser)
     }
 
     async bindInviteCode(userId: number, code: string) {
@@ -29,18 +31,29 @@ export class InviteUserService {
 
     async bindParent(userId: number, parentId: number) {
         let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: userId })
-        const parent = await this.inviteUserTreeRepository.findOneBy({ id: parentId })
+        let parent = await this.inviteUserTreeRepository.findOneBy({ id: parentId })
         if (!parent) {
-            throw new ApiException('邀请用户没找到')
+            parent = new InviteUser()
+            parent.id = parentId
+            const user = await this.userRepository.findOneBy({ userId: parentId })
+            if (!user) {
+                throw new ApiException('邀请用户没找到')
+            }
+            parent.userName = user.userName
+            parent.avatar = user.avatar
+            await this.inviteUserTreeRepository.save(parent)
         }
         if (!inviteUser) {
-            throw new ApiException('被邀请用户没找到')
+            inviteUser = new InviteUser()
+            inviteUser.id = userId
+            const user = await this.userRepository.findOneBy({ userId: userId })
+            if (!user) {
+                throw new ApiException('被邀请用户没找到')
+            }
+            inviteUser.userName = user.userName
+            inviteUser.avatar = user.avatar
+            await this.inviteUserTreeRepository.save(inviteUser)
         }
-        // const initParent = new InviteUser()
-        // initParent.userId = parentId
-        // initParent.userName = 'admin'
-        // await this.inviteUserRepository.save(initParent)
-        // }
         inviteUser.parent = parent
 
         return await this.inviteUserTreeRepository.save(inviteUser)

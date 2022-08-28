@@ -1,12 +1,17 @@
-import { IsOptional } from "class-validator"
+import { User } from "@app/modules/system/user/entities/user.entity"
+import { ApiHideProperty } from "@nestjs/swagger"
+import { IsNumber, IsOptional, IsString } from "class-validator"
 import {
     Entity,
     Tree,
-    Column,
     PrimaryGeneratedColumn,
     TreeChildren,
     TreeParent,
     PrimaryColumn,
+    JoinColumn,
+    OneToOne,
+    Column,
+    CreateDateColumn,
 } from "typeorm"
 
 @Entity()
@@ -15,23 +20,29 @@ export class InviteUser {
     @PrimaryColumn()
     id: number
 
-    // @Column({
-    //     name: 'user_id',
-    // })
-    // userId: number
+    @Column({
+        name: 'user_name',
+    })
+    userName: string
 
-    // @Column({
-    //     name: 'user_name',
-    // })
-    // userName: string
+    @Column({
+        name: 'avatar',
+    })
+    avatar: string
 
-    // @Column({
-    //     name: 'user_profile',
-    //     default: '',
-    //     type: 'simple-json'
-    // })
-    // @IsOptional()
-    // userProfile?: JSON
+    @ApiHideProperty()
+    @CreateDateColumn({
+        name: 'create_time',
+        comment: '创建时间'
+    })
+    createTime: number
+
+    @OneToOne(type => User)
+    @IsOptional()
+    @JoinColumn({
+        name: 'id',
+    })
+    user: User
 
     @TreeChildren()
     children: InviteUser[]
