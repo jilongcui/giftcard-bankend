@@ -244,12 +244,12 @@ export class PaymentService {
           const orderId = paymentNotify.agent_bill_id
           const order = await manager.findOne(Order, { where: { id: parseInt(orderId), status: '1' }, relations: { user: true, payment: true } })
           if (!order) return 'ok'
+          await manager.update(Payment, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
+          await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
           if (order.type === '0') {
-            await manager.update(Payment, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
-            await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
             const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
 
-            await this.doPaymentComfirmedLv1(manager, order.payment, order.userId, order.user.userName)
+            await this.doPaymentComfirmedLv1(order.payment, order.userId, order.user.userName)
 
             // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
             await this.redis.del(unpayOrderKey)
@@ -407,7 +407,7 @@ export class PaymentService {
     throw new ApiException('发送请求失败: ' + responseData.ret_msg)
   }
 
-  async doPaymentComfirmedLv1(manage: EntityManager, payment: Payment, userId: number, userName: string) {
+  async doPaymentComfirmedLv1(payment: Payment, userId: number, userName: string) {
     const order = await this.orderService.findOne(payment.orderId)
     let asset: Asset
     // if (order.type === '1') {
@@ -432,7 +432,7 @@ export class PaymentService {
         collection = activity.collections[0];
       }
       // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
-      await manage.increment(Collection, { id: collection.id, }, "current", order.count);
+      await this.collectionRepository.increment({ id: collection.id, }, "current", order.count);
       let tokenId: number
       for (let i = 0; i < order.count; i++) {
         tokenId = this.randomTokenId()

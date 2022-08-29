@@ -478,8 +478,12 @@ export class OrderService {
       invalidTime: LessThanOrEqual(moment(moment.now()).toDate())
     }
     let totalCount: number = 0;
-    const orderArray = await this.orderRepository.find({ where })
+    const orderArray = await this.orderRepository.find({ where, relations: { payment: true } },)
     orderArray.map(async order => {
+      if (order.payment.status !== '0') {
+        return
+      }
+
       if (order.type === '0') {
         this.logger.debug(`activityId: ${order.activityId}`)
         await this.orderRepository.manager.transaction(async manager => {
