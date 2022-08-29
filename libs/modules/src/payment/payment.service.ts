@@ -6,7 +6,7 @@ import * as moment from 'moment';
 import * as querystring from 'querystring';
 import { createSign, createVerify } from 'crypto';
 import { Payment } from './entities/payment.entity';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
 import { BankcardService } from '@app/modules/bankcard/bankcard.service';
@@ -105,7 +105,7 @@ export class PaymentService {
       mobile: bankcard.mobile,
       merch_user_id: userId.toString(),
       // from_user_ip: "219.143.153.103",
-      // return_url: 'https://',
+      return_url: 'https://www.startland.top',
       notify_url: 'https://www.startland.top/api/payment/webSignNotify',
       out_trade_no: tradeNo,
       out_trade_time: moment().format("YYYY-MM-DD HH:mm:ss"),
@@ -172,7 +172,7 @@ export class PaymentService {
     bizContent.pay_amt = order.realPrice
     bizContent.user_ip = userIp
     bizContent.version = 1
-    // bizContent.return_url = 'http://www.baidu.com'
+    bizContent.return_url = 'https://www.startland.top'
     this.logger.debug(JSON.stringify(bizContent))
 
     const bizResult = await this.sendCryptoRequest<SendSMSResponse>(requestUri, bizContent)
@@ -239,23 +239,26 @@ export class PaymentService {
       }
       const paymentNotify: any = querystring.parse(decryptedData)
       if (paymentNotify.status === 'SUCCESS') {
-        const orderId = paymentNotify.agent_bill_id
-        const order = await this.orderRepository.findOne({ where: { id: parseInt(orderId) }, relations: { user: true, payment: true } })
-        if (order.type === '0') {
-          await this.paymentRepository.update({ orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
-          await this.orderRepository.update({ id: parseInt(orderId) }, { status: '2' })
-          const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
+        // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+        await this.orderRepository.manager.transaction(async manager => {
+          const orderId = paymentNotify.agent_bill_id
+          const order = await manager.findOne(Order, { where: { id: parseInt(orderId), status: '1' }, relations: { user: true, payment: true } })
+          if (!order) return 'ok'
+          if (order.type === '0') {
+            await manager.update(Payment, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
+            await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
+            const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
 
-          await this.doPaymentComfirmedLv1(order.payment, order.userId, order.user.userName)
+            await this.doPaymentComfirmedLv1(manager, order.payment, order.userId, order.user.userName)
 
-          // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
-          await this.redis.del(unpayOrderKey)
-        } else if (order.type === '1') {
-          await this.doPaymentComfirmedLv2(order.payment, order.userId, order.user.userName)
-        } else if (order.type === '2') {
-          await this.doPaymentComfirmedRecharge(order.payment, order.userId, order.user.userName)
-        }
-
+            // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
+            await this.redis.del(unpayOrderKey)
+          } else if (order.type === '1') {
+            await this.doPaymentComfirmedLv2(order.payment, order.userId, order.user.userName)
+          } else if (order.type === '2') {
+            await this.doPaymentComfirmedRecharge(order.payment, order.userId, order.user.userName)
+          }
+        })
       } else {
         this.logger.error("Payment Notice not success.")
         return 'error'
@@ -404,14 +407,14 @@ export class PaymentService {
     throw new ApiException('发送请求失败: ' + responseData.ret_msg)
   }
 
-  async doPaymentComfirmedLv1(payment: Payment, userId: number, userName: string) {
+  async doPaymentComfirmedLv1(manage: EntityManager, payment: Payment, userId: number, userName: string) {
     const order = await this.orderService.findOne(payment.orderId)
     let asset: Asset
-    if (order.type === '1') {
-      asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-      if (asset.userId === userId)
-        throw new ApiException("不能购买自己的资产")
-    }
+    // if (order.type === '1') {
+    //   asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+    //   if (asset.userId === userId)
+    //     throw new ApiException("不能购买自己的资产")
+    // }
     if (order.type === '0') { // 一级市场活动
       // Create assetes for user.
       const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
@@ -429,9 +432,7 @@ export class PaymentService {
         collection = activity.collections[0];
       }
       // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
-      await this.collectionRepository.manager.transaction(async manager => {
-        await manager.increment(Collection, { id: collection.id }, "current", order.count);
-      })
+      await manage.increment(Collection, { id: collection.id, }, "current", order.count);
       let tokenId: number
       for (let i = 0; i < order.count; i++) {
         tokenId = this.randomTokenId()
@@ -465,7 +466,7 @@ export class PaymentService {
       await this.buyAssetRecord(asset, userId, userName)
       // 还需要转移资产
     } else if (order.type === '2') {
-      await this.buyAssetRecord(asset, userId, userName)
+      // await this.buyAssetRecord(asset, userId, userName)
     }
   }
 

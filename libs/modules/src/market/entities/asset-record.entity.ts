@@ -30,7 +30,7 @@ export class AssetRecord {
 
     @Column({
         name: 'price',
-        default: 0,
+        type: "decimal", precision: 10, scale: 2, default: 0,
         comment: '金额'
     })
     @IsOptional()

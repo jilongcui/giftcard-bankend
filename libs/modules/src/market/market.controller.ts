@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, UseGuards } from '@nestjs/common';
 import { MarketService } from './market.service';
 import { AssetRecordService } from './asset-record.service';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -13,9 +13,11 @@ import { Asset } from '../collection/entities/asset.entity';
 import { FlowAssetDto } from '../collection/dto/request-asset.dto';
 import { AssetService } from '../collection/asset.service';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
+import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 
 @ApiTags('市场')
 @ApiBearerAuth()
+@UseGuards(ThrottlerBehindProxyGuard)
 @Controller('market')
 export class MarketController {
   constructor(

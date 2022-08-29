@@ -24,6 +24,7 @@ import { RepeatSubmitGuard } from '@app/common/guards/repeat-submit.guard';
 import { DemoEnvironmentGuard } from '@app/common/guards/demo-environment.guard';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Global()
 @Module({
@@ -63,7 +64,11 @@ import Redis from 'ioredis';
             inject: [ConfigService]
 
         }),
-        LogModule
+        LogModule,
+        ThrottlerModule.forRoot({
+            ttl: 10,
+            limit: 50000,
+        }),
     ],
     controllers: [],
     providers: [
@@ -97,6 +102,10 @@ import Redis from 'ioredis';
             useClass: DemoEnvironmentGuard,
         },
 
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard
+        },
 
         /* 操作日志拦截器 。 注：拦截器中的 handle 从下往上执行（ReponseTransformInterceptor ----> OperationLogInterceptor），返回值值依次传递 */
         {
@@ -113,6 +122,7 @@ import Redis from 'ioredis';
             provide: APP_INTERCEPTOR,
             useClass: DataScopeInterceptor
         },
+
     ],
     exports: [
         SharedService,

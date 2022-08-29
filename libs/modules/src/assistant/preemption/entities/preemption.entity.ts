@@ -10,13 +10,6 @@ export class Preemption {
     id: number
 
     @Column({
-        name: 'activity_id',
-        comment: '关联的活动'
-    })
-    @IsNumber()
-    activityId: number
-
-    @Column({
         name: 'desc',
         comment: '优先购活动的描述'
     })

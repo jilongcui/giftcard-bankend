@@ -38,6 +38,10 @@ export class ReqMobileRegDto {
     /* 验证码code */
     @IsString()
     code: string
+
+    @IsOptional()
+    @IsString()
+    invite?: string
 }
 
 export class QueryInviteUserDto {

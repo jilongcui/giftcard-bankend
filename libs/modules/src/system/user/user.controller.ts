@@ -2,7 +2,7 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Body, Controller, Delete, forwardRef, Get, Inject, Param, Post, Put, Query, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, forwardRef, Get, Inject, Param, Post, Put, Query, StreamableFile, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { UserEnum } from '@app/common/decorators/user.decorator';
@@ -28,9 +28,11 @@ import { RequiresPermissions } from '@app/common/decorators/requires-permissions
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { UploadService } from '@app/modules/common/upload/upload.service';
 import { join } from 'path';
+import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 
 @ApiTags('用户管理')
 @ApiBearerAuth()
+@UseGuards(ThrottlerBehindProxyGuard)
 @Controller('system/user')
 export class UserController {
     constructor(

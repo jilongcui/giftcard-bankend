@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
@@ -8,9 +8,11 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { ActivityService } from './activity.service';
 import { CreateActivityDto, ListActivityDto, UpdateActivityDto, UpdateAllActivityDto } from './dto/request-activity.dto';
 import { Activity } from './entities/activity.entity';
+import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 
 @ApiTags('活动')
 @ApiBearerAuth()
+@UseGuards(ThrottlerBehindProxyGuard)
 @Controller('activity')
 export class ActivityController {
   constructor(private readonly activityService: ActivityService) { }

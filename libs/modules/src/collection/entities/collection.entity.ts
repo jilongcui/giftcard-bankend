@@ -99,6 +99,9 @@ export class Collection extends BaseEntity {
 
     @ApiHideProperty()
     @ManyToOne(() => Activity, activity => activity.collections)
+    @JoinColumn({
+        name: 'activity_id',
+    })
     activity: Activity
 
     @ApiHideProperty()

@@ -21,11 +21,10 @@ import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 // })
 export class User extends BaseEntity {
     /* 用户Id */
-    @PrimaryColumn({
+    @PrimaryGeneratedColumn({
         name: 'user_id',
         comment: '用户ID'
     })
-    @Type()
     @IsNumber()
     userId: number
 

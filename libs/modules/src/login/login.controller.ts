@@ -25,8 +25,10 @@ import { MobileAuthGuard } from '@app/common/guards/mobile-auth.guard';
 import { ImageCaptchaGuard } from '@app/common/guards/image-captcha.guard';
 import { SharedService } from '@app/shared/shared.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
+import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 @ApiTags('登录')
 @ApiBearerAuth()
+@UseGuards(ThrottlerBehindProxyGuard)
 @Controller()
 export class LoginController {
     logger: Logger;
@@ -68,9 +70,8 @@ export class LoginController {
     @Post('mregister')
     @Public()
     @UseGuards(SmsCodeGuard)
-    async register(@Body() reqRegDto: ReqMobileRegDto, @Query() queryInviteCode: QueryInviteUserDto, @Req() req: Request): Promise<ResLoginDto> {
-        this.logger.debug(JSON.stringify(queryInviteCode))
-        return await this.loginService.register(reqRegDto, queryInviteCode, req)
+    async register(@Body() reqRegDto: ReqMobileRegDto, @Req() req: Request): Promise<ResLoginDto> {
+        return await this.loginService.register(reqRegDto, req)
     }
 
     /* 获取用户信息 */

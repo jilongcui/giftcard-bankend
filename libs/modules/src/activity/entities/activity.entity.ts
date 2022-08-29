@@ -142,11 +142,11 @@ export class Activity {
     @IsString()
     avatar?: string
 
-    // @ApiHideProperty()
-    @OneToOne(() => Preemption, { cascade: true })
-    @JoinColumn({
-        name: 'preemption_id',
-    })
+    @ApiHideProperty()
+    @OneToOne(() => Preemption)
+    // @JoinColumn({
+    //     name: 'preemption_id',
+    // })
     @IsOptional()
     preemption?: Preemption
 

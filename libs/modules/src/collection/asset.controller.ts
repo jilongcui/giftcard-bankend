@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Logger, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Logger, Put, UseGuards } from '@nestjs/common';
 import { AssetService } from './asset.service';
 import { CreateAssetDto, FlowAssetDto, ListAssetDto, UpdateAssetDto } from './dto/request-asset.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -13,9 +13,11 @@ import { Log, BusinessTypeEnum } from '@app/common/decorators/log.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
+import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 
 @ApiTags('资产')
 @Controller('asset')
+@UseGuards(ThrottlerBehindProxyGuard)
 @ApiBearerAuth()
 export class AssetController {
   logger = new Logger(AssetController.name);

@@ -42,7 +42,7 @@ export class LoginService {
         private readonly configService: ConfigService,
         private readonly inviteUserService: InviteUserService
     ) {
-        this.logger = new Logger(LogService.name)
+        this.logger = new Logger(LoginService.name)
     }
 
     /* 创建验证码图片 */
@@ -64,7 +64,7 @@ export class LoginService {
     }
 
     /* 注册 */
-    async register(reqMobileRegDto: ReqMobileRegDto, queryInviteUserDto: QueryInviteUserDto, request: Request) {
+    async register(reqMobileRegDto: ReqMobileRegDto, request: Request) {
         let user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
         if (user) throw new ApiException('该用户名已存在')
 
@@ -83,8 +83,8 @@ export class LoginService {
         if (!user) throw new ApiException('创建用户失败')
 
         // Add invite relationship.
-        if (queryInviteUserDto.invite !== undefined && queryInviteUserDto.invite !== '') {
-            const parentUser = await this.userService.findOneByInviteCode(queryInviteUserDto.invite)
+        if (reqMobileRegDto.invite !== undefined && reqMobileRegDto.invite !== '') {
+            const parentUser = await this.userService.findOneByInviteCode(reqMobileRegDto.invite)
             this.logger.debug(parentUser)
             if (!parentUser)
                 throw new ApiException('邀请码不存在')

@@ -27,10 +27,12 @@ export class ActivityService {
     const key = COLLECTION_ORDER_COUNT + ':' + activityId
     const value = await this.cacheManager.get(key);
     if (value != undefined) return value;
-    const valueStr = await this.redis.get(key)
+    let valueStr = await this.redis.get(key)
     if (valueStr != null) {
       await this.cacheManager.set(key, valueStr, { ttl: 5 })
     }
+    if (parseInt(valueStr) < 0)
+      valueStr = '0'
     return valueStr;
   }
 
@@ -98,7 +100,7 @@ export class ActivityService {
     result = await this.activityRepository.findAndCount({
       // select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
       where,
-      relations: ['collections', 'collections.author', 'preemption'],
+      relations: ['collections', 'collections.author',],
       order: {
         type: 'ASC',
         createTime: 'DESC'
@@ -135,7 +137,7 @@ export class ActivityService {
 
   async start(id: number) {
     const activity = await this.activityRepository.findOne(
-      { where: { id }, relations: { preemption: true } })
+      { where: { id }, relations: { preemption: false } })
     if (activity.status === '1') {
       throw new ApiException('活动已开启');
     }

@@ -10,33 +10,40 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { BalancePayService } from '@app/modules/payment/balance-pay.service';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 @ApiTags('订单')
 @ApiBearerAuth()
+@SkipThrottle()
 @Controller('order')
+
 export class OrderController {
   logger = new Logger(OrderController.name)
   constructor(private readonly orderService: OrderService,
 
     @Inject(forwardRef(() => BalancePayService)) private readonly balancePayService: BalancePayService) { }
 
+  @Throttle(2, 2000)
   @Post()
   async create(@Body() createOrderDto: CreateOrderDto, @UserDec(UserEnum.userId,) userId: number,
     @UserDec(UserEnum.userName, UserInfoPipe) userName: string, @UserDec(UserEnum.avatar, UserInfoPipe) avatar: string) {
     return await this.orderService.create(createOrderDto, userId, userName, avatar);
   }
 
+  @Throttle(2, 2000)
   @Post('createLv1')
   async createLv1(@Body() createOrderDto: CreateLv1OrderDto, @UserDec(UserEnum.userId) userId: number,
     @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
     return await this.orderService.createLv1Order(createOrderDto, userId, userName);
   }
 
+  @Throttle(2, 2000)
   @Post('createLv2')
   async createLv2(@Body() createOrderDto: CreateLv2OrderDto, @UserDec(UserEnum.userId) userId: number,
     @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
     return await this.orderService.createLv2Order(createOrderDto, userId, userName);
   }
 
+  @Throttle(2, 2000)
   @Post('recharge')
   async recharge(@Body() createOrderDto: RechargeOrderDto, @UserDec(UserEnum.userId) userId: number,
     @UserDec(UserEnum.userName, UserInfoPipe) userName: string, @UserDec(UserEnum.avatar, UserInfoPipe) avatar: string) {
@@ -49,8 +56,8 @@ export class OrderController {
   }
 
   @Put(':id/cancel')
-  async cancel(@Param('id') id: string,) {
-    return await this.orderService.cancel(+id);
+  async cancel(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+    return await this.orderService.cancel(+id, userId);
   }
 
   @Patch(':id')
