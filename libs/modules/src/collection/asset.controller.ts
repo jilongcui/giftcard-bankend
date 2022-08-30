@@ -14,6 +14,7 @@ import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
+import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 
 @ApiTags('资产')
 @Controller('asset')
@@ -29,6 +30,7 @@ export class AssetController {
     title: ' 资产',
     businessType: BusinessTypeEnum.insert
   })
+  @RequiresRoles(['admin', 'system'])
   async create(@Body() createAssetDto: CreateAssetDto, @UserDec(UserEnum.userId) userId: number) {
     return this.assetService.create(createAssetDto);
   }
@@ -64,12 +66,13 @@ export class AssetController {
   }
 
   /* 更新 资产 */
-  @RepeatSubmit()
+  // @RepeatSubmit()
   @Put()
   @Log({
     title: ' 资产',
     businessType: BusinessTypeEnum.update
   })
+  @RequiresRoles(['admin', 'system'])
   async update(@Body() asset: Asset) {
     return await this.assetService.addOrUpdate(asset)
   }
@@ -82,6 +85,7 @@ export class AssetController {
     title: ' 资产',
     businessType: BusinessTypeEnum.delete
   })
+  @RequiresRoles(['admin', 'system'])
   async delete(@Param('ids') ids: string) {
     return await this.assetService.delete(ids.split(','))
   }

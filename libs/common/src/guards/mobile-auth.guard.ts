@@ -32,8 +32,6 @@ export class MobileAuthGuard extends AuthGuard('mobile') {
 
     /* 主动处理错误,进行日志记录 */
     handleRequest(err, user, info) {
-        this.logger.debug(err)
-        this.logger.debug(user)
         if (err || !user) {
             const request = this.context.switchToHttp().getRequest()
             request.user = user

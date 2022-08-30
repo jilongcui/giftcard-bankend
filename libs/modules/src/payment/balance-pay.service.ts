@@ -14,6 +14,7 @@ import { MintADto } from '@app/chain';
 import { Order } from '@app/modules/order/entities/order.entity';
 import { ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { ACTIVITY_USER_ORDER_KEY } from '@app/common/contants/redis.contant';
 
 @Injectable()
 export class BalancePayService {
@@ -24,6 +25,7 @@ export class BalancePayService {
         @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
         @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
         @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
+        @InjectRedis() private readonly redis: Redis,
         @Inject('CHAIN_SERVICE') private client: ClientProxy,
         private readonly configService: ConfigService,
     ) {
@@ -82,6 +84,7 @@ export class BalancePayService {
             await this.collectionRepository.manager.transaction(async manager => {
                 await manager.increment(Collection, { id: collection.id }, "current", order.count);
             })
+            const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
             let tokenId: number
             for (let i = 0; i < order.count; i++) {
                 tokenId = this.randomTokenId()
@@ -109,7 +112,7 @@ export class BalancePayService {
                 this.client.emit(pattern, mintDto)
                 // this.logger.debug(await firstValueFrom(result))
             }
-
+            await this.redis.del(unpayOrderKey)
 
         } else if (order.type === '1') { // 二级市场资产交易
             // 把资产切换到新的用户就可以了

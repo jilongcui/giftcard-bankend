@@ -13,6 +13,7 @@ import { Log, BusinessTypeEnum } from '@app/common/decorators/log.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
+import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 
 @ApiTags('藏品集合')
 @Controller('collection')
@@ -23,10 +24,11 @@ export class CollectionController {
 
   /* 新增产品 */
   @Post()
-  @Log({
-    title: '藏品集合',
-    businessType: BusinessTypeEnum.insert
-  })
+  // @Log({
+  //   title: '藏品集合',
+  //   businessType: BusinessTypeEnum.insert
+  // })
+  @RequiresRoles(['admin', 'system'])
   async create(@Body() createCollectionDto: CreateCollectionDto, @UserDec(UserEnum.userId) userId: number) {
     return this.collectionService.create(createCollectionDto);
   }
@@ -46,12 +48,13 @@ export class CollectionController {
   }
 
   /* 更新产品 */
-  @RepeatSubmit()
+  // @RepeatSubmit()
   @Put()
-  @Log({
-    title: '藏品集合',
-    businessType: BusinessTypeEnum.update
-  })
+  // @Log({
+  //   title: '藏品集合',
+  //   businessType: BusinessTypeEnum.update
+  // })
+  @RequiresRoles(['admin', 'system'])
   async update(@Body() collection: UpdateCollectionDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
     collection.updateBy = userName
     await this.collectionService.addOrUpdate(collection)
@@ -60,10 +63,11 @@ export class CollectionController {
   /* 删除产品 */
   @Delete(':ids')
   @RequiresPermissions('system:collection:remove')
-  @Log({
-    title: '藏品集合',
-    businessType: BusinessTypeEnum.delete
-  })
+  // @Log({
+  //   title: '藏品集合',
+  //   businessType: BusinessTypeEnum.delete
+  // })
+  @RequiresRoles(['admin', 'system'])
   async delete(@Param('ids') ids: string) {
     return await this.collectionService.delete(ids.split(','))
   }

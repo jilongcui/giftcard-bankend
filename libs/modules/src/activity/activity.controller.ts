@@ -9,6 +9,7 @@ import { ActivityService } from './activity.service';
 import { CreateActivityDto, ListActivityDto, UpdateActivityDto, UpdateAllActivityDto } from './dto/request-activity.dto';
 import { Activity } from './entities/activity.entity';
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
+import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 
 @ApiTags('活动')
 @ApiBearerAuth()
@@ -23,26 +24,31 @@ export class ActivityController {
   }
 
   @Put(':id')
+  @RequiresRoles(['admin', 'system'])
   async updateAll(@Param('id') id: string, @Body() updateAllActivityDto: UpdateAllActivityDto) {
     return await this.activityService.addOrUpdateAll(updateAllActivityDto);
   }
 
   @Put(':id/start')
+  @RequiresRoles(['admin', 'system'])
   async start(@Param('id') id: string) {
     return await this.activityService.start(+id);
   }
 
   @Put(':id/sellout')
+  @RequiresRoles(['admin', 'system'])
   async sellout(@Param('id') id: string) {
     return await this.activityService.sellout(+id);
   }
 
   @Put(':id/finish')
+  @RequiresRoles(['admin', 'system'])
   async finish(@Param('id') id: string) {
     return await this.activityService.finish(+id);
   }
 
   @Patch(':id')
+  @RequiresRoles(['admin', 'system'])
   async update(@Param('id') id: string, @Body() updateActivityDto: UpdateActivityDto) {
     return await this.activityService.update(+id, updateActivityDto);
   }
@@ -83,21 +89,25 @@ export class ActivityController {
   }
 
   @Delete(':id')
+  @RequiresRoles(['admin', 'system'])
   async removeOne(@Param('id') id: string) {
     return await this.activityService.deleteOne(+id);
   }
 
   @Delete(':ids')
+  @RequiresRoles(['admin', 'system'])
   async remove(@Param('ids') ids: string) {
     return await this.activityService.delete(ids.split(','));
   }
 
   @Put(':id/collection/:collectionId')
+  @RequiresRoles(['admin', 'system'])
   async addCollection(@Param('id') id: string, @Param('collectionId') collectionId: string) {
     return await this.activityService.addCollection(+id, +collectionId);
   }
 
   @Delete(':id/collection/:collectionId')
+  @RequiresRoles(['admin', 'system'])
   async removeCollection(@Param('id') id: string, @Param('collectionId') collectionId: string) {
     return await this.activityService.deleteCollection(+id, +collectionId);
   }

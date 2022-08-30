@@ -11,6 +11,7 @@ import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator
 import { BalancePayService } from '@app/modules/payment/balance-pay.service';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 @ApiTags('订单')
 @ApiBearerAuth()
 @SkipThrottle()
@@ -51,6 +52,7 @@ export class OrderController {
   }
 
   @Put(':id')
+  @RequiresRoles(['admin', 'system'])
   async updateAll(@Param('id') id: string, @Body() updateAllOrderDto: UpdateAllOrderDto) {
     return await this.orderService.addOrUpdateAll(updateAllOrderDto);
   }
@@ -61,6 +63,7 @@ export class OrderController {
   }
 
   @Patch(':id')
+  @RequiresRoles(['admin', 'system'])
   async update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return await this.orderService.update(+id, updateOrderDto);
   }
@@ -94,11 +97,13 @@ export class OrderController {
   }
 
   @Delete(':id')
+  @RequiresRoles(['admin', 'system'])
   async removeOne(@Param('id') id: string) {
     return await this.orderService.deleteOne(+id);
   }
 
   @Delete(':ids')
+  @RequiresRoles(['admin', 'system'])
   async remove(@Param('ids') ids: string) {
     return await this.orderService.delete(ids.split(','));
   }

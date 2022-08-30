@@ -86,9 +86,10 @@ export class OrderService {
     orderCount = execError[1]
     if (orderCount < 0) {
       // await this.redis.unwatch()
-      const [execError] = await this.redis.multi().set(countKey, 0).exec()
-      throw new ApiException('已售完')
+      await this.redis.multi().incrby(countKey, createOrderDto.count).exec()
+      throw new ApiException('创建失败')
     }
+    Math.min(createOrderDto.count, 3); // 1～10
     // this.logger.log(execError[0])
     // this.logger.log(orderCount)
     // 一级市场活动创建订单
@@ -108,8 +109,8 @@ export class OrderService {
         activity = <Activity>jsonObject;
       }
       order.activityId = createOrderDto.activityId;
-      order.count = Math.min(createOrderDto.count, 5); // 1～10
-      order.realPrice = activity.price * order.count;
+      order.count = createOrderDto.count
+      order.realPrice = activity.price * createOrderDto.count;
       order.totalPrice = order.realPrice;
       order.image = activity.coverImage;
       order.desc = activity.title;
@@ -210,7 +211,7 @@ export class OrderService {
       const unpayOrder = await this.redis.get(unpayOrderKey)
       // this.logger.debug(unpayOrder)
       if (unpayOrder != null) {
-        throw new ApiException('有未完成订单', 401)
+        throw new ApiException('有未完成订单或5分钟内只能抢购一次', 401)
       }
       // 没有缓存，开始创建订单
       // 如果时间大于开始时间，那么直接就开始了
@@ -475,47 +476,47 @@ export class OrderService {
     {
       activityId: activityId ?? undefined,
       status: '1',
-      invalidTime: LessThanOrEqual(moment(moment.now()).toDate())
+      invalidTime: LessThanOrEqual(moment(moment.now() + 120).toDate())
     }
     let totalCount: number = 0;
-    const orderArray = await this.orderRepository.find({ where, relations: { payment: true } },)
-    orderArray.map(async order => {
-      if (order.payment.status !== '0') {
-        return
-      }
+    const order = await this.orderRepository.findOne({ where },)
+    if (!order) return
+    // if (order.payment && order.payment.status !== '0') {
+    //   return
+    // }
 
-      if (order.type === '0') {
-        this.logger.debug(`activityId: ${order.activityId}`)
-        await this.orderRepository.manager.transaction(async manager => {
-          // Set invalid status
-          where.activityId = order.activityId
-          order.status = '3'
-          totalCount += order.count
-          manager.save(order)
-        })
-        const countKey = COLLECTION_ORDER_COUNT + ":" + order.activityId;
-        const [execError] = await this.redis.multi().incrby(countKey, order.count).exec()
-      } else if (order.type === '1') {
-        this.logger.debug(`assetId: ${order.assetId}`)
-        await this.orderRepository.manager.transaction(async manager => {
-          // Set invalid status
-          where.assetId = order.assetId
-          order.status = '3'
-          totalCount += order.count
-          manager.save(order)
-          await manager.update(Asset, { id: order.assetId }, { status: '1' }) // Unlocked.
-        })
-      } else if (order.type === '2') {
-        await this.orderRepository.manager.transaction(async manager => {
-          // Set invalid status
-          // where.assetId = order.assetId
-          order.status = '3'
-          // totalCount += order.count
-          manager.save(order)
-        })
-      }
+    if (order.type === '0') {
+      this.logger.debug(`activityId: ${order.activityId}`)
 
-    })
+      const countKey = COLLECTION_ORDER_COUNT + ":" + order.activityId;
+      const [execError] = await this.redis.multi().incrby(countKey, order.count).exec()
+      await this.orderRepository.manager.transaction(async manager => {
+        // Set invalid status
+        where.activityId = order.activityId
+        order.status = '3'
+        // totalCount += order.count
+        await manager.save(order)
+      })
+    } else if (order.type === '1') {
+      this.logger.debug(`assetId: ${order.assetId}`)
+      await this.orderRepository.manager.transaction(async manager => {
+        // Set invalid status
+        // where.assetId = order.assetId
+        order.status = '3'
+        // totalCount += order.count
+        await manager.save(order)
+        await manager.update(Asset, { id: order.assetId }, { status: '1' }) // Unlocked.
+      })
+    } else if (order.type === '2') {
+      await this.orderRepository.manager.transaction(async manager => {
+        // Set invalid status
+        // where.assetId = order.assetId
+        order.status = '3'
+        // totalCount += order.count
+        await manager.save(order)
+      })
+    }
+
     return totalCount;
   }
 }

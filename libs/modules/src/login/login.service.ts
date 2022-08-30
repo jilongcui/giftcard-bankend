@@ -57,8 +57,8 @@ export class LoginService {
             img: buffer.toString('base64'),
             uuid: this.sharedService.generateUUID(),
         }
-        this.logger.debug("Image Code")
-        this.logger.debug(token)
+        // this.logger.debug("Image Code")
+        // this.logger.debug(token)
         await this.redis.set(`${CAPTCHA_IMG_KEY}:${result.uuid}`, token, 'EX', 60 * 5)
         return result
     }

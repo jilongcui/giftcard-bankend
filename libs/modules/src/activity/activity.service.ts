@@ -46,7 +46,10 @@ export class ActivityService {
     let where: FindOptionsWhere<Activity> = {}
     let result: any;
 
-    where = listActivityList
+    where = {
+      ...listActivityList,
+      status: In(['1', '2', '3'])
+    }
     where.authorName = listActivityList.authorName;
     result = await this.activityRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
@@ -144,7 +147,7 @@ export class ActivityService {
     const updateActivityDto = new UpdateActivityDto()
     updateActivityDto.status = '1' // start
     const result = await this.activityRepository.update(id, updateActivityDto)
-    await this.redis.set(`${COLLECTION_ORDER_COUNT}:${activity.id}`, activity.supply)
+    await this.redis.set(`${COLLECTION_ORDER_COUNT}:${activity.id}`, activity.supply - activity.current)
     await this.redis.set(`${ACTIVITY_START_TIME}:${activity.id}`, activity.startTime.getUTCMilliseconds())
     if (activity.preemption)
       await this.redis.set(`${ACTIVITY_PRESTART_TIME}:${activity.id}`, activity.preemption.startTime.getUTCMilliseconds())

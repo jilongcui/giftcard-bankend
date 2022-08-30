@@ -8,6 +8,7 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { AccountService } from './account.service';
 import { CreateAccountDto, ListAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
 import { Account } from './entities/account.entity';
+import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 
 @ApiTags('账户')
 @ApiBearerAuth()
@@ -16,16 +17,19 @@ export class AccountController {
   constructor(private readonly activityService: AccountService) { }
 
   @Post()
+  @RequiresRoles(['admin', 'system'])
   async create(@Body() createAccountDto: CreateAccountDto) {
     return await this.activityService.create(createAccountDto);
   }
 
   @Put(':id')
+  @RequiresRoles(['admin', 'system'])
   async updateAll(@Param('id') id: string, @Body() updateAllAccountDto: UpdateAllAccountDto) {
     return await this.activityService.addOrUpdateAll(updateAllAccountDto);
   }
 
   @Patch(':id')
+  @RequiresRoles(['admin', 'system'])
   async update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
     return await this.activityService.update(+id, updateAccountDto);
   }
@@ -44,11 +48,13 @@ export class AccountController {
   }
 
   @Delete(':id')
+  @RequiresRoles(['admin', 'system'])
   async removeOne(@Param('id') id: string) {
     return await this.activityService.deleteOne(+id);
   }
 
   @Delete(':ids')
+  @RequiresRoles(['admin', 'system'])
   async remove(@Param('ids') ids: string) {
     return await this.activityService.delete(ids.split(','));
   }
