@@ -113,8 +113,8 @@ export class OrderService {
       }
       order.activityId = createOrderDto.activityId;
       order.count = count
-      order.realPrice = activity.price * count;
-      order.totalPrice = order.realPrice;
+      order.realPrice = activity.price
+      order.totalPrice = activity.price * count;
       order.image = activity.coverImage;
       order.desc = activity.title;
       order.invalidTime = moment().add(5, 'minute').toDate()
@@ -184,134 +184,15 @@ export class OrderService {
       order.status = '1'
       order.userId = userId
       order.userName = userName
-
       order.realPrice = createOrderDto.realPrice
       order.totalPrice = createOrderDto.realPrice
       order.count = 1
       order.desc = '充值订单';
       order.image = avatar
       order.invalidTime = moment().add(10, 'minute').toDate()
-
       await manager.save(order);
       return order;
     });
-  }
-
-  async create(createOrderDto: CreateOrderDto, userId: number, userName: string, avatar: string) {
-    // 开启事务
-    // 判断当前剩余
-    // 如果有剩余，那么就生成订单
-    // 否则，就失败
-    let activity: Activity
-    let orderCount: any
-    let unpayOrderKey: string;
-    let user: User
-
-    if (createOrderDto.type === '0') { // 一级市场活动创建订单
-      unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + createOrderDto.activityId + ":" + userId
-      let startTime: string;
-      // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
-      const unpayOrder = await this.redis.get(unpayOrderKey)
-      // this.logger.debug(unpayOrder)
-      if (unpayOrder != null) {
-        throw new ApiException('有未完成订单或5分钟内只能抢购一次', 401)
-      }
-      // 没有缓存，开始创建订单
-      // 如果时间大于开始时间，那么直接就开始了
-      // 否则才会读取预售时间，然后再判断预售开始了没有。
-      // 如果预售也开始了，那么就判单这个用户是否具有预售权限。
-      const startTimeKey = ACTIVITY_START_TIME + ":" + createOrderDto.activityId;
-      startTime = await this.redis.get(startTimeKey)
-      const now = moment.now()
-      if (now < parseInt(startTime)) {
-        const preStartTimeKey = ACTIVITY_PRESTART_TIME + ":" + createOrderDto.activityId;
-        startTime = await this.redis.get(preStartTimeKey)
-        if (!startTime || now < parseInt(startTime)) {
-          throw new ApiException('没开始')
-        }
-        // 可以预售
-        // 判断用户预售权限
-        const preemption = await this.preemptionWhitelistRepository.findOneBy({ userId: userId, activityId: createOrderDto.activityId })
-        if (!preemption) {
-          throw new ApiException('没有预售权限')
-        }
-      }
-
-      const countKey = COLLECTION_ORDER_COUNT + ":" + createOrderDto.activityId;
-      const [execError] = await this.redis.multi().decrby(countKey, createOrderDto.count).exec()
-      orderCount = execError[1]
-      if (orderCount < 0) {
-        // await this.redis.unwatch()
-        throw new ApiException('已售完')
-      }
-      // this.logger.log(execError[0])
-      // this.logger.log(orderCount)
-    } else if (createOrderDto.type === '1') {
-      unpayOrderKey = ASSET_ORDER_KEY + ":" + (createOrderDto.assetId || createOrderDto.activityId)
-      // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
-      const unpayOrder = await this.redis.get(unpayOrderKey)
-      if (unpayOrder != null) {
-        throw new ApiException('无法创建订单', 401)
-      }
-    } else if (createOrderDto.type === '2') { // 创建充值订单
-      // unpayOrderKey = ASSET_ORDER_KEY + ":" + (createOrderDto.assetId || createOrderDto.activityId)
-      // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
-      // const unpayOrder = await this.redis.get(unpayOrderKey)
-      // if (unpayOrder != null) {
-      // throw new ApiException('无法创建订单', 401)
-      // }
-    }
-    return await this.orderRepository.manager.transaction(async manager => {
-      const order = new Order();
-      order.type = createOrderDto.type;
-      order.status = '1';
-      order.userId = userId;
-      order.userName = userName
-      if (order.type == '0') { // 一级市场活动创建订单
-        const activityJson = await this.redis.get(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${createOrderDto.activityId}`)
-        const jsonObject: any = JSON.parse(activityJson)
-        activity = <Activity>jsonObject;
-        order.activityId = createOrderDto.activityId;
-        order.count = Math.min(createOrderDto.count, 5); // 1～10
-        order.realPrice = activity.price * order.count;
-        order.totalPrice = order.realPrice;
-        order.image = activity.coverImage;
-        order.desc = activity.title;
-        order.invalidTime = moment().add(5, 'minute').toDate()
-        order.collections = activity.collections;
-      } else if (order.type === '1') { // 交易市场创建的订单
-        order.assetId = createOrderDto.assetId || createOrderDto.activityId
-        const asset = await this.assetRepository.findOne({ where: { id: order.assetId, status: '1' }, relations: ['collection'] })
-        if (!asset)
-          throw new ApiException('市场上未发现此藏品')
-        order.realPrice = asset.price
-        order.totalPrice = asset.price
-        order.count = 1
-        order.desc = asset.collection.name;
-        order.image = asset.collection.images[0]
-        order.invalidTime = moment().add(5, 'minute').toDate()
-      } else if (order.type === '2') { // 交易市场创建的订单
-        order.realPrice = createOrderDto.realPrice
-        order.totalPrice = createOrderDto.realPrice
-        order.count = 1
-        order.desc = '充值订单';
-        order.image = avatar
-        order.invalidTime = moment().add(10, 'minute').toDate()
-      }
-      // 5 分钟
-      await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 5)
-
-      await manager.save(order);
-
-      await manager.update(Asset, { id: order.assetId }, { status: '2' }) // Asset is locked.
-      // orderCount--;
-      // if (orderCount % 100 === 0) {
-      //   activity.current = activity.current + 1;
-      //   await manager.save(activity)
-      // }
-      return order;
-    });
-
   }
 
   /* 新增或编辑 */

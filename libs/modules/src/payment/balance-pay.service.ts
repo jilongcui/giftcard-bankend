@@ -47,7 +47,7 @@ export class BalancePayService {
         }
 
         await this.orderRepository.manager.transaction(async manager => {
-            const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(order.realPrice) }, "usable", order.realPrice);
+            const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(order.totalPrice) }, "usable", order.totalPrice);
             // this.logger.log(JSON.stringify(result));
             if (!result.affected) {
                 throw new ApiException('支付失败')
@@ -57,8 +57,8 @@ export class BalancePayService {
             await manager.update(Order, { id: order.id }, { status: '2' })
 
             if (order.type === '1') {
-                await manager.increment(Account, { userId: asset.user.userId }, "usable", order.realPrice * 95 / 100)
-                await manager.increment(Account, { userId: 1 }, "usable", order.realPrice * 5 / 100)
+                await manager.increment(Account, { userId: asset.user.userId }, "usable", order.totalPrice * 95 / 100)
+                await manager.increment(Account, { userId: 1 }, "usable", order.totalPrice * 5 / 100)
                 await manager.update(Asset, { id: order.assetId }, { userId: userId, status: '0' })
             }
 

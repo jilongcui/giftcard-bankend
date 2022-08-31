@@ -482,7 +482,7 @@ export class PaymentService {
 
   async doPaymentComfirmedRecharge(payment: Payment, userId: number, userName: string) {
     const order = await this.orderService.findOne(payment.orderId)
-    await this.accountRepository.increment({ userId: payment.userId }, 'usable', order.realPrice)
+    await this.accountRepository.increment({ userId: payment.userId }, 'usable', order.totalPrice)
   }
 
   private randomTokenId(): number {

@@ -23,12 +23,12 @@ export class OrderController {
 
     @Inject(forwardRef(() => BalancePayService)) private readonly balancePayService: BalancePayService) { }
 
-  @Throttle(2, 2000)
-  @Post()
-  async create(@Body() createOrderDto: CreateOrderDto, @UserDec(UserEnum.userId,) userId: number,
-    @UserDec(UserEnum.userName, UserInfoPipe) userName: string, @UserDec(UserEnum.avatar, UserInfoPipe) avatar: string) {
-    return await this.orderService.create(createOrderDto, userId, userName, avatar);
-  }
+  // @Throttle(2, 2000)
+  // @Post()
+  // async create(@Body() createOrderDto: CreateOrderDto, @UserDec(UserEnum.userId,) userId: number,
+  //   @UserDec(UserEnum.userName, UserInfoPipe) userName: string, @UserDec(UserEnum.avatar, UserInfoPipe) avatar: string) {
+  //   return await this.orderService.create(createOrderDto, userId, userName, avatar);
+  // }
 
   @Throttle(2, 2000)
   @Post('createLv1')
