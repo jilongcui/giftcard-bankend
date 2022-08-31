@@ -4,6 +4,6 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  await app.listen(3100);
+  await app.listen(process.env.PAYMENT_PORT || 3100);
 }
 bootstrap();

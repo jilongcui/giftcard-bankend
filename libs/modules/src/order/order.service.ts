@@ -82,14 +82,17 @@ export class OrderService {
     }
 
     const countKey = COLLECTION_ORDER_COUNT + ":" + createOrderDto.activityId;
-    const [execError] = await this.redis.multi().decrby(countKey, createOrderDto.count).exec()
+    const count = Math.min(createOrderDto.count, 5); // 1～5
+
+    const [execError] = await this.redis.multi().decrby(countKey, count).exec()
     orderCount = execError[1]
     if (orderCount < 0) {
       // await this.redis.unwatch()
-      await this.redis.multi().incrby(countKey, createOrderDto.count).exec()
+      await this.redis.multi().set(countKey, 0).exec()
+      // await this.redis.multi().incrby(countKey, count).exec()
       throw new ApiException('创建失败')
     }
-    Math.min(createOrderDto.count, 3); // 1～10
+
     // this.logger.log(execError[0])
     // this.logger.log(orderCount)
     // 一级市场活动创建订单
@@ -109,8 +112,8 @@ export class OrderService {
         activity = <Activity>jsonObject;
       }
       order.activityId = createOrderDto.activityId;
-      order.count = createOrderDto.count
-      order.realPrice = activity.price * createOrderDto.count;
+      order.count = count
+      order.realPrice = activity.price * count;
       order.totalPrice = order.realPrice;
       order.image = activity.coverImage;
       order.desc = activity.title;
@@ -476,7 +479,7 @@ export class OrderService {
     {
       activityId: activityId ?? undefined,
       status: '1',
-      invalidTime: LessThanOrEqual(moment(moment.now() + 120).toDate())
+      invalidTime: LessThanOrEqual(moment(moment.now() + 1000 * 10).toDate())
     }
     let totalCount: number = 0;
     const order = await this.orderRepository.findOne({ where },)
@@ -488,14 +491,19 @@ export class OrderService {
     if (order.type === '0') {
       this.logger.debug(`activityId: ${order.activityId}`)
 
-      const countKey = COLLECTION_ORDER_COUNT + ":" + order.activityId;
-      const [execError] = await this.redis.multi().incrby(countKey, order.count).exec()
+
       await this.orderRepository.manager.transaction(async manager => {
-        // Set invalid status
-        where.activityId = order.activityId
-        order.status = '3'
-        // totalCount += order.count
-        await manager.save(order)
+        const order = await this.orderRepository.findOne({ where },)
+        if (order) {
+          // Set invalid status
+          // where.activityId = order.activityId
+          // totalCount += order.count
+          const result = await manager.update(Order, { id: order.id, status: '1' }, { status: '3' }) // 失效.
+          if (result.affected > 0) {
+            const countKey = COLLECTION_ORDER_COUNT + ":" + order.activityId;
+            const [execError] = await this.redis.multi().incrby(countKey, order.count).exec()
+          }
+        }
       })
     } else if (order.type === '1') {
       this.logger.debug(`assetId: ${order.assetId}`)

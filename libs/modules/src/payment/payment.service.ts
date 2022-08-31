@@ -163,7 +163,7 @@ export class PaymentService {
     const bankcard = await this.bankcardService.findOne(payWithCard.bankcardId)
 
     if (bankcard.signNo === undefined || bankcard.signNo === '') {
-      throw new ApiException('此银行卡没有实名或者')
+      throw new ApiException('此银行卡没有实名')
     }
     const bizContent = new ReqSendSMSDto()
     bizContent.agent_bill_id = order.id.toString()
@@ -171,7 +171,7 @@ export class PaymentService {
     bizContent.goods_name = order.desc
     bizContent.hy_auth_uid = bankcard.signNo
     bizContent.notify_url = 'https://www.startland.top/payment/notify'
-    bizContent.pay_amt = order.realPrice
+    bizContent.pay_amt = order.totalPrice
     bizContent.user_ip = userIp
     bizContent.version = 1
     bizContent.return_url = 'https://www.startland.top'
@@ -216,20 +216,14 @@ export class PaymentService {
     if (bizResult.agent_id.toString() != this.merchId) throw new ApiException("商户ID错误")
     if (bizResult.ret_code !== RES_CODE_SUCCESS) throw new ApiException("错误: " + bizResult.ret_msg)
     // 我们需要把这个支付订单创建成功的标记
-    await this.paymentRepository.update(confirmPayDto.paymentId, { orderBillNo: bizResult.hy_bill_no })
-    await this.paymentRepository.update({ orderId: payment.orderId }, { status: '1' })  // 支付中，等待确认
+    // 支付中，等待确认
+    await this.paymentRepository.update(confirmPayDto.paymentId, { orderBillNo: bizResult.hy_bill_no, status: '1' })
+    // await this.paymentRepository.update({ orderId: payment.orderId }, { status: '1' })
   }
 
   // 支付通知
   async paymentNotify(cryptoNotifyDto: ReqCryptoNotifyDto) {
     // sign_no 是加密的，我们需要解密
-    this.platformPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
-    this.merchSecretKey = this.sharedService.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
-    this.merchPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.merchPublicKey'))
-    this.logger.debug(this.platformPublicKey)
-    this.logger.debug(this.merchSecretKey)
-    this.logger.debug(this.merchPublicKey)
-
     try {
       // this.logger.debug("paymentNotify")
       // this.logger.debug(JSON.stringify(cryptoNotifyDto))
@@ -258,13 +252,11 @@ export class PaymentService {
           await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
           if (order.type === '0') {
             const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
-
-            await this.doPaymentComfirmedLv1(order.payment, order.userId, order.user.userName)
-
+            await this.doPaymentComfirmedLv1(order, order.userId, order.user.userName)
             // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
             await this.redis.del(unpayOrderKey)
           } else if (order.type === '1') {
-            await this.doPaymentComfirmedLv2(order.payment, order.userId, order.user.userName)
+            await this.doPaymentComfirmedLv2(order, order.userId, order.user.userName)
           } else if (order.type === '2') {
             await this.doPaymentComfirmedRecharge(order.payment, order.userId, order.user.userName)
           }
@@ -417,8 +409,8 @@ export class PaymentService {
     throw new ApiException('发送请求失败: ' + responseData.ret_msg)
   }
 
-  async doPaymentComfirmedLv1(payment: Payment, userId: number, userName: string) {
-    const order = await this.orderService.findOne(payment.orderId)
+  async doPaymentComfirmedLv1(order: Order, userId: number, userName: string) {
+    // const order = await this.orderService.findOne(payment.orderId)
     let asset: Asset
     // if (order.type === '1') {
     //   asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
@@ -480,9 +472,8 @@ export class PaymentService {
     }
   }
 
-  async doPaymentComfirmedLv2(payment: Payment, userId: number, userName: string) {
+  async doPaymentComfirmedLv2(order: Order, userId: number, userName: string) {
     let asset: Asset
-    const order = await this.orderService.findOne(payment.orderId)
     asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
     if (asset.userId === userId)
       throw new ApiException("不能购买自己的资产")
