@@ -48,7 +48,7 @@ export class ActivityService {
 
     where = {
       ...listActivityList,
-      status: In(['1', '2', '3'])
+      status: In(['0', '1', '2', '3'])
     }
     where.authorName = listActivityList.authorName;
     result = await this.activityRepository.findAndCount({
