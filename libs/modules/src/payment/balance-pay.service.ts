@@ -108,7 +108,7 @@ export class BalancePayService {
                 const mintDto = new MintADto()
                 mintDto.address = this.platformAddress
                 mintDto.tokenId = tokenId.toString()
-                mintDto.contractId = 8
+                mintDto.contractId = collection.contractId
                 this.client.emit(pattern, mintDto)
                 // this.logger.debug(await firstValueFrom(result))
             }

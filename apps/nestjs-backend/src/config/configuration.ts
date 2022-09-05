@@ -86,10 +86,10 @@ export interface IConfig {
     }
 
     crichain?: {
+        apiUrl: string,
         tokenUrl: string,
         platformAddress: string,
         platformPrivateKey: string,
-        contractAddress: string,
     }
 
     payment?: {

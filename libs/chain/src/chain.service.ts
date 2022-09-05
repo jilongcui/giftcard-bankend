@@ -15,7 +15,7 @@ export class ChainService {
         private readonly configService: ConfigService,
     ) {
         crichain.Config.init({
-            baseUrl: "http://test.open-api.crichain.cn",
+            baseUrl: this.tokenUrl = this.configService.get<string>('crichain.apiUrl'),
             // baseUrl: "http://localhost:3001",
             contract: { path: "../../contracts/abi/NFT_A.json", code: "NFT_A" }
         });
