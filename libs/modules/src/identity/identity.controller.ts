@@ -1,10 +1,7 @@
 import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ReqIdentify2ElementDto, ReqIdentify3ElementDto } from './dto/req-identity-3e.dto';
+import { ReqIdentify3ElementDto } from './dto/req-identity-3e.dto';
 import { IdentityService } from './identity.service';
-import { Request } from 'express';
-import { Public } from '@app/common/decorators/public.decorator';
-import { ReqAddressCreateDto } from '../wallet/address/dto/req-address.dto';
 import { User, UserEnum } from '@app/common/decorators/user.decorator';
 import { Identity } from './entities/identity.entity';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
@@ -31,10 +28,5 @@ export class IdentityController {
     @Post()
     async identityWith3Element(@Body() reqId3Element: ReqIdentify3ElementDto, @User(UserEnum.userId) userId: number) {
         return this.identityService.identityWith3Element(reqId3Element.mobile, reqId3Element.cardId, reqId3Element.realName, userId);
-    }
-
-    @Post('idCrichain')
-    async identityWithCrichain(@Body() reqId2Element: ReqIdentify2ElementDto, @User(UserEnum.userId) userId: number) {
-        return this.identityService.identityWithCrichain(reqId2Element.address, reqId2Element.cardId, reqId2Element.realName, userId);
     }
 }

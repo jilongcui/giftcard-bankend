@@ -1,3 +1,4 @@
+import { Identity } from '@app/modules/identity/entities/identity.entity';
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,7 +8,7 @@ import { AddressBTC, AddressCRI, AddressETH, AddressTRC } from './entities/addre
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AddressETH, AddressBTC, AddressTRC, AddressCRI]),
+    TypeOrmModule.forFeature([AddressETH, AddressBTC, AddressTRC, AddressCRI, Identity]),
     ClientsModule.register([
       { name: 'CHAIN_SERVICE', transport: Transport.TCP, options: { port: 4000 } },
     ])],

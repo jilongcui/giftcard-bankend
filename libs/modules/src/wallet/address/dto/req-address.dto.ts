@@ -25,6 +25,12 @@ export class ReqMyAddressDto {
     addressType: string;
 }
 
+export class ReqBindAddressDto {
+    /*  CRI地址 */
+    @IsString()
+    address: string;
+}
+
 export class ReqAddressAddDto extends OmitType(Address, ['id', 'status', 'createTime', 'addressType'] as const) { }
 
 export class ReqAddressList extends PaginationDto {

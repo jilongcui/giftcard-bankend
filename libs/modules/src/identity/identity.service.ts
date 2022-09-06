@@ -13,6 +13,7 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { RealAuthDto } from '@app/chain';
+import { Address } from '../wallet/address/entities/address.entity';
 
 @Injectable()
 export class IdentityService {
@@ -21,6 +22,7 @@ export class IdentityService {
     constructor(
         @InjectRedis() private readonly redis: Redis,
         @InjectRepository(Identity) private readonly identityRepository: Repository<Identity>,
+        @InjectRepository(Address) private readonly addressRepository: Repository<Address>,
         @Inject('CHAIN_SERVICE') private readonly chainClient: ClientProxy,
         private readonly httpService: HttpService,
     ) {
@@ -94,37 +96,6 @@ export class IdentityService {
             }
         }
         return false;
-    }
-
-    async identityWithCrichain(address: string, cardId: string, realName: string, userId: number) {
-        // let isIdentify = true;
-        let isIdentify = await this.doIdentityWithCrichain(address, cardId, realName)
-        if (isIdentify) {
-            // save to identity respository
-            await this.identityRepository.save({
-                mobile: address.slice(0, 10),
-                cardId,
-                realName,
-                user: { userId: userId }
-            })
-        } else {
-            throw new ApiException("实名认证失败", 403)
-        }
-    }
-    /* 通过手机号三要素获取实名认证 */
-    async doIdentityWithCrichain(
-        address: string, cardId: string, realName: string
-    ): Promise<boolean> {
-
-        const pattern = { cmd: 'realAuth' }
-        const dto = new RealAuthDto()
-        dto.hexAddress = address
-        dto.userCardId = cardId
-        dto.userName = realName
-        const response = await firstValueFrom(this.chainClient.send(pattern, dto))
-        if (!response || !response.result)
-            return false;
-        return true
     }
 
     /* 分页查询 */
