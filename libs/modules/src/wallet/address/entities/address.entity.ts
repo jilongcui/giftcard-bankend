@@ -19,6 +19,7 @@ export class Address {
         name: 'user_id',
         comment: '用户ID',
     })
+    @Type()
     @IsNumber()
     userId: number
 
@@ -26,6 +27,7 @@ export class Address {
         name: 'app_id',
         comment: '用户ID',
     })
+    @Type()
     @IsNumber()
     appId: number
 
@@ -55,15 +57,16 @@ export class Address {
     @IsString()
     addressType: string
 
+    /* 地址状态状态（0正常 1已绑定）*/
     @Column({
         name: 'state',
-        comment: '公告状态（0正常 1关闭）',
+        comment: '地址状态状态（0正常 1已绑定）',
         type: 'char',
         default: '0',
         length: 1
     })
-    @IsNumber()
-    status: number
+    @IsString()
+    status: string
 
     /* 创建时间 */
     @ApiHideProperty()

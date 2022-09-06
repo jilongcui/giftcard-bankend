@@ -1,6 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ResAddressDto } from './dto/res-address.dto';
-import { ReqAddressAddDto, ReqAddressCreateDto, ReqAddressList } from './dto/req-address.dto';
+import { ReqAddressAddDto, ReqAddressCreateDto, ReqAddressList, ReqMyAddressDto } from './dto/req-address.dto';
 import * as jaysonPromise from 'jayson/promise';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { Address, AddressBTC, AddressCRI, AddressETH, AddressTRC } from './entities/address.entity';
@@ -79,6 +79,20 @@ export class AddressService implements OnModuleInit {
             await this.addressTrcRepository.save(reqAddrAddDto)
         else if (data.addressType === 'BTC')
             await this.addressBtcRepository.save(reqAddrAddDto)
+        return response
+    }
+
+    async findOne(userId: number) {
+        let response = { cri: '', eth: '', trc: '', btc: '' }
+        let address: Address
+        address = await this.addressCriRepository.findOne({ where: { userId: userId } })
+        response.cri = address ? address.address : undefined
+        address = await this.addressEthRepository.findOne({ where: { userId: userId } })
+        response.eth = address ? address.address : undefined
+        address = await this.addressTrcRepository.findOne({ where: { userId: userId } })
+        response.trc = address ? address.address : undefined
+        address = await this.addressBtcRepository.findOne({ where: { userId: userId } })
+        response.btc = address ? address.address : undefined
         return response
     }
 

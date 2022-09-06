@@ -17,6 +17,14 @@ export class ReqAddressCreateDto {
     addressType: string;
 }
 
+export class ReqMyAddressDto {
+    // @IsString()
+    // currencyId: string;
+
+    @IsString()
+    addressType: string;
+}
+
 export class ReqAddressAddDto extends OmitType(Address, ['id', 'status', 'createTime', 'addressType'] as const) { }
 
 export class ReqAddressList extends PaginationDto {
