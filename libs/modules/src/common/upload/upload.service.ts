@@ -35,6 +35,7 @@ export class UploadService {
             Bucket: this.bucket,
             Region: this.region,
             Key: fileName,
+            ChunkSize: 2 * 1024 * 1024,
             FilePath: localPath // 本地文件地址，需自行替换
         });
 
