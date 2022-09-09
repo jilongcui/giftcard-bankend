@@ -36,5 +36,6 @@ import { InviteUserModule } from '../inviteuser/invite-user.module';
         LoginController,],
     providers: [
         LoginService,],
+    exports: [LoginService]
 })
 export class LoginModule { }

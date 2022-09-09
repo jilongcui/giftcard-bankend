@@ -36,9 +36,10 @@ import { OrderService } from '@app/modules/order/order.service';
 import { BankcardModule } from '@app/modules/bankcard/bankcard.module';
 import { PaymentModule } from '@app/modules/payment/payment.module';
 import { FundModule } from '@app/modules/fund/fund.module';
+import { LoginService } from '@app/modules/login/login.service';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
-const providers = [JobService, OrderService]
+const providers = [JobService, OrderService, LoginService]
 function createAliasProviders(): ExistingProvider[] {
   const aliasProviders: ExistingProvider[] = [];
   for (const p of providers) {

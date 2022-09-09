@@ -44,7 +44,7 @@ export class Withdraw {
 
     /* 订单手续费 */
     @Column({
-        name: 'total_price',
+        name: 'total_fee',
         type: "decimal", precision: 10, scale: 2, default: 0,
         comment: '订单总金额'
     })

@@ -16,7 +16,7 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { User, UserEnum } from '@app/common/decorators/user.decorator';
 import { LocalAuthGuard } from '@app/common/guards/local-auth.guard';
 import { Router } from '../system/menu/dto/res-menu.dto';
-import { QueryInviteUserDto, ReqLoginDto, ReqMobileLoginDto, ReqMobileRegDto } from './dto/req-login.dto';
+import { QueryInviteUserDto, ReqInnerRegDto, ReqLoginDto, ReqMobileLoginDto, ReqMobileRegDto } from './dto/req-login.dto';
 import { ResImageCaptchaDto, ResLoginDto } from './dto/res-login.dto';
 import { LoginService } from './login.service';
 import { Request } from 'express';
@@ -26,6 +26,7 @@ import { ImageCaptchaGuard } from '@app/common/guards/image-captcha.guard';
 import { SharedService } from '@app/shared/shared.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
+import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 @ApiTags('登录')
 @ApiBearerAuth()
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -72,6 +73,13 @@ export class LoginController {
     @UseGuards(SmsCodeGuard)
     async register(@Body() reqRegDto: ReqMobileRegDto, @Req() req: Request): Promise<ResLoginDto> {
         return await this.loginService.register(reqRegDto, req)
+    }
+
+    @Post('iregister')
+    @Public()
+    @RequiresRoles(['admin', 'system'])
+    async innerRegister(@Body() reqRegDto: ReqInnerRegDto, @Req() req: Request): Promise<ResLoginDto> {
+        return await this.loginService.innerRegister(reqRegDto)
     }
 
     /* 获取用户信息 */

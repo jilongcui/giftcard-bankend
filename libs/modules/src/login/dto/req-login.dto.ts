@@ -44,6 +44,12 @@ export class ReqMobileRegDto {
     invite?: string
 }
 
+export class ReqInnerRegDto {
+    @IsOptional()
+    @IsString()
+    invite?: string
+}
+
 export class QueryInviteUserDto {
     /* 邀请码 */
     @IsOptional()

@@ -38,9 +38,10 @@ import { AddressModule } from '@app/modules/wallet/address/address.module';
 import { CollectModule } from '@app/modules/wallet/collect/collect.module';
 import { JobService } from '@app/modules/monitor/job/job.service';
 import { OrderService } from '@app/modules/order/order.service';
+import { LoginService } from '@app/modules/login/login.service';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
-const providers = [JobService, OrderService]
+const providers = [JobService, OrderService, LoginService]
 function createAliasProviders(): ExistingProvider[] {
   const aliasProviders: ExistingProvider[] = [];
   for (const p of providers) {

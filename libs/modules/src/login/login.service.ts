@@ -24,7 +24,7 @@ import { Request } from 'express';
 import { LogService } from '../monitor/log/log.service';
 import { ConfigService } from '@nestjs/config';
 import { Captcha } from 'captcha.gif';
-import { QueryInviteUserDto, ReqMobileRegDto } from './dto/req-login.dto';
+import { QueryInviteUserDto, ReqInnerRegDto, ReqMobileRegDto } from './dto/req-login.dto';
 import { ReqAddUserDto } from '../system/user/dto/req-user.dto';
 import { isPhoneNumber } from 'class-validator';
 import { InviteUserService } from '@app/modules/inviteuser/invite-user.service';
@@ -116,6 +116,84 @@ export class LoginService {
         // await this.logService.addLogininfor(request, '注册成功', `${USER_TOKEN_KEY}:${user.userId}`)
         return { token: jwtSign }
     }
+
+    private makeRandomPhone(): string {
+        let num = '1',
+            random = Math.random();
+        if (random >= 0.1 && random < 0.2) {//15概率
+            num += '5';
+        } else if (random >= 0.05 && random < 0.1) {//18概率
+            num += '8';
+        } else if (random >= 0 && random < 0.05) {//17概率
+            num += '7';
+        } else {//13概率
+            num += '3';
+        }
+
+        let numLen9 = '';
+        for (let j = 0; j < 9; j++) {
+            numLen9 += Math.floor(Math.random() * 10)
+        }
+
+        // 返回一个号码
+        return num + numLen9;
+    }
+
+    /* 注册 */
+    async innerRegister(reqInnerRegDto: ReqInnerRegDto) {
+        const phone = this.makeRandomPhone();
+        let user = await this.userService.findOneByPhone(phone)
+        if (user) throw new ApiException('该用户名已存在')
+
+        const reqAddUserDto = new ReqAddUserDto()
+        reqAddUserDto.phonenumber = phone;
+        reqAddUserDto.userName = phone;
+        reqAddUserDto.nickName = '';
+        reqAddUserDto.userType = '01'; // normal user.
+        reqAddUserDto.postIds = [];
+        reqAddUserDto.roleIds = [];
+
+        reqAddUserDto.createBy = reqAddUserDto.updateBy = 'admin'
+        await this.userService.addUser(reqAddUserDto)
+
+        user = await this.userService.findOneByPhone(phone)
+        if (!user) throw new ApiException('创建用户失败')
+
+        // Add invite relationship.
+        if (reqInnerRegDto.invite !== undefined && reqInnerRegDto.invite !== '') {
+            const parentUser = await this.userService.findOneByInviteCode(reqInnerRegDto.invite)
+            this.logger.debug(parentUser)
+            if (!parentUser)
+                throw new ApiException('邀请码不存在')
+            // Check if is invited.
+            const parent = await this.inviteUserService.parent(user.userId)
+            if (parent) {
+                throw new ApiException('已经绑定邀请码')
+            }
+            // Add invite relation ship.
+            const inviteInfo = await this.inviteUserService.bindParent(user.userId, parentUser.userId)
+            this.logger.debug(inviteInfo)
+        }
+
+        const payload = { userId: user.userId, pv: 1, };
+        //生成token
+        let jwtSign = this.jwtService.sign(payload)
+        //演示环境 复用 token，取消单点登录。
+        if (this.configService.get<Boolean>('isDemoEnvironment')) {
+            const token = await this.redis.get(`${USER_TOKEN_KEY}:${user.userId}`)
+            if (token) {
+                jwtSign = token
+            }
+        }
+        //存储密码版本号，防止登录期间 密码被管理员更改后 还能继续登录
+        await this.redis.set(`${USER_VERSION_KEY}:${user.userId}`, 1)
+        //存储token, 防止重复登录问题，设置token过期时间(1天后 token 自动过期)，以及主动注销token。
+        await this.redis.set(`${USER_TOKEN_KEY}:${user.userId}`, jwtSign, 'EX', 60 * 60 * 24)
+        //调用存储在线用户接口
+        // await this.logService.addLogininfor(request, '注册成功', `${USER_TOKEN_KEY}:${user.userId}`)
+        return { token: jwtSign }
+    }
+
 
     /* 登录 */
     async login(request: Request) {
