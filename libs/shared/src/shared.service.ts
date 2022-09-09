@@ -12,6 +12,7 @@
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import * as CryptoJS from 'crypto-js';
+import { createCipheriv, createDecipheriv, createHash } from 'crypto'
 import { customAlphabet, nanoid } from 'nanoid';
 import { Request } from 'express'
 import axios from 'axios';
@@ -147,6 +148,11 @@ export class SharedService {
         return CryptoJS.MD5(msg).toString();
     }
 
+    md5Sign(msg: string) {
+        // 加入字符编码
+        var md5 = createHash('md5').update(msg, 'utf-8').digest('hex');
+        return md5;
+    }
     /**
      * @description: 生成一个UUID
      * @param {*}
@@ -154,6 +160,57 @@ export class SharedService {
      */
     generateUUID(): string {
         return nanoid();
+    }
+
+    tripleDesEncryptBuff(msg: any, key: string): string {
+        const iv = null
+        const alg = 'des-ede3'
+        const cipher = createCipheriv(alg, key, iv);
+        cipher.setAutoPadding(true)
+        let ciph = cipher.update(msg)
+        let ciphStr = ciph.toString('hex') + cipher.final('hex')
+        return ciphStr
+    }
+
+    tripleDesEncrypt(msg: string, key: string): string {
+        const iv = null
+        const alg = 'des-ede3'
+        const cipher = createCipheriv(alg, key, iv);
+        cipher.setAutoPadding(true)
+        let ciph = cipher.update(msg, 'utf8', 'hex')
+        ciph += cipher.final('hex')
+        return ciph.toUpperCase()
+    }
+
+    // 3Des-ECB
+    tripleDesEcbDecrypt(data: string, key: string): string {
+        const iv = null
+        const alg = 'des-ede3'
+        const decipher = createDecipheriv(alg, key, iv);
+        decipher.setAutoPadding(true)
+        let text = decipher.update(data, 'utf8', 'hex')
+        text += decipher.final('hex')
+        return text
+    }
+
+    // 3Des-CBC
+    tripleDesCBCEncrypt(msg: string, key: string, iv: string): string {
+        const alg = 'des-ede3-cbc'
+        const cipher = createCipheriv(alg, key, iv);
+        cipher.setAutoPadding(true)
+        let ciph = cipher.update(msg, 'utf8', 'hex')
+        ciph += cipher.final('hex')
+        return ciph
+    }
+
+    // 3Des-CBC
+    tripleDesCBCDecrypt(data: string, key: string, iv: string): string {
+        const alg = 'des-ede3-cbc'
+        const decipher = createDecipheriv(alg, key, iv);
+        decipher.setAutoPadding(true)
+        let text = decipher.update(data, 'utf8', 'hex')
+        text += decipher.final('hex')
+        return text
     }
 
     /**

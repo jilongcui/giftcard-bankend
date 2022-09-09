@@ -66,5 +66,15 @@ export default defineConfig({
     merchId: process.env.MERCH_ID || '1664502',
   },
 
+  fund: {
+    baseCertUrl: 'https://www.heepay.com/',
+    basePayUrl: 'https://Pay.heepay.com/',
+    platformCert3DESKey: '46EEDD027B1E41F88BF4AA38',
+    platformCertMD5Key: '1C3A345D4F1E48B7A02B90AC',
+    platformPay3DESKey: 'B62F36A6DF8C4BC6A0F9B196',
+    platformPayMD5Key: 'D05EC928DE8A459BBD143E55',
+    merchId: process.env.MERCH_ID || '1664502',
+  },
+
   isDemoEnvironment: false,
 });

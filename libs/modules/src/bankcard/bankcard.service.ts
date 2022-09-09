@@ -93,7 +93,7 @@ export class BankcardService {
   }
 
   findOne(id: number) {
-    return this.bankcardRepository.findOne({ where: { id }, relations: { user: true, identity: true } })
+    return this.bankcardRepository.findOne({ where: { id: id }, relations: { user: true, identity: true } })
   }
 
   async update(id: number, updateBankcardDto: UpdateBankcardDto) {

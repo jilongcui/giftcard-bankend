@@ -35,6 +35,7 @@ import { PreemptionModule } from '@app/modules/assistant/preemption/preemption.m
 import { OrderService } from '@app/modules/order/order.service';
 import { BankcardModule } from '@app/modules/bankcard/bankcard.module';
 import { PaymentModule } from '@app/modules/payment/payment.module';
+import { FundModule } from '@app/modules/fund/fund.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService, OrderService]
@@ -92,7 +93,8 @@ const aliasProviders = createAliasProviders();
     AirdropModule,
     PreemptionModule,
     BankcardModule,
-    PaymentModule
+    PaymentModule,
+    FundModule
   ],
   providers: [...aliasProviders]
 })

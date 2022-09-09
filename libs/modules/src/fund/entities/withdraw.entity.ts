@@ -14,63 +14,70 @@ export class Withdraw {
 
     @Column({
         name: 'type',
-        default: '0',
-        comment: '提现种类 0: 余额支付 1:银行卡支付',
+        default: '1',
+        comment: '提现种类 0: 余额提现 1:银行卡提现 2: 微信提现 3: 支付宝提现',
         type: 'char',
         length: 1
     })
     @IsString()
     type: string
 
-    /* 支付状态 0: 未支付 1: 支付中 2: 支付完成 3: 支付失败 */
+    /* 提现状态 0: 未审核 1: 提现中 2: 提现完成 3: 提现失败 */
     @Column({
         name: 'status',
         default: '0',
-        comment: '支付状态 0: 未支付 1: 支付中 2: 支付完成 3: 支付失败',
+        comment: '提现状态 0: 未审核 1: 提现中 2: 提现完成 3: 提现失败',
         type: 'char',
         length: 1
     })
     @IsString()
     status: string
 
-    /* 来自支付平台的 支付订单创建成功标志 */
+    /* 订单总金额 */
     @Column({
-        name: 'order_token_id',
-        comment: '来自支付平台的 支付订单创建成功标志',
-        length: 50
+        name: 'total_price',
+        type: "decimal", precision: 10, scale: 2, default: 0,
+        comment: '订单总金额'
+    })
+    @IsNumber()
+    totalPrice: number
+
+    /* 订单手续费 */
+    @Column({
+        name: 'total_price',
+        type: "decimal", precision: 10, scale: 2, default: 0,
+        comment: '订单总金额'
+    })
+    @IsNumber()
+    totalFee: number
+
+    /* 订单数量 */
+    @Column({
+        name: 'count',
+        default: '0',
+        comment: '订单数量'
     })
     @IsOptional()
-    @IsString()
-    orderTokenId?: string
+    @IsNumber()
+    count?: number
 
-    /* 来自支付平台的 确认订单后，汇付宝单据号 */
     @Column({
-        name: 'order_bill_no',
+        name: 'merch_bill_no',
         default: '',
         comment: '来自支付平台的 确认订单后，汇付宝单据号',
         length: 50
     })
-    @IsOptional()
     @IsString()
-    orderBillNo?: string
+    merchBillNo?: string
 
     @Column({
-        name: 'order_id',
-        comment: '关联的订单'
+        name: 'merch_batch_no',
+        default: '',
+        comment: '来自支付平台的 确认订单后，汇付宝单据号',
+        length: 50
     })
-    @IsOptional()
-    @Type()
-    @IsNumber()
-    orderId?: number
-
-    /* 一级市场 */
-    @ApiHideProperty()
-    @OneToOne(() => Order, order => order.payment)
-    @IsOptional()
-    @JoinColumn({
-        name: 'order_id',
-    })
-    order?: Order
+    @IsString()
+    merchBatchNo?: string
 
     @Column({
         name: 'bankcard_id',
@@ -88,7 +95,6 @@ export class Withdraw {
         name: 'bankcard_id',
     })
     bankcard?: Bankcard
-
 
     @Column({
         name: 'user_id',

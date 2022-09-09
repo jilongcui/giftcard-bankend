@@ -93,10 +93,20 @@ export interface IConfig {
     }
 
     payment?: {
-        baseUrl: string
+        baseUrl: string,
         platformPublicKey: string,
         merchSecretKey: string,
         merchPublicKey: string,
+        merchId: string,
+    }
+
+    fund?: {
+        baseCertUrl: string,
+        basePayUrl: string,
+        platformCert3DESKey: string,
+        platformCertMD5Key: string,
+        platformPay3DESKey: string,
+        platformPayMD5Key: string,
         merchId: string,
     }
 

@@ -65,6 +65,16 @@ export default defineConfig({
     merchPublicKey: process.env.MERCH_PUBLICKEY || 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuV5EeYE0YFiwFHsgr50GQOKXWemslfEfv/ys0Iw1tfEhGhW/4PvW+I1+rclp4hF1mIV6x18k2yOmb8pEaQ9h3zKNQb29TiiFWWChvXISZnHpBirn25kOD8bqMu9iPEIYvM5jtvaUThO5zOxB4IdWmLXKSSAZqvWbnPAXXSJOreAsaOjTLR0m4M1wnKsOu8wkQ8n/Ji2SHPqOTm8zWam6gMA+20VHLQm2JVLplzSWAc20N2jUMWaMNRg8Nt826qj4EVSN4l8jV+RVoqUzFIBg6aOsAxd4Tk9WdMUXbQXxJHU+lMq7kShm21og3fa6Gu+VuJpZrzNMu4O2YblZKGiZ+wIDAQAB',
     merchId: process.env.MERCH_ID || '1664502',
   },
+  fund: {
+    baseCertUrl: 'https://www.heepay.com/',
+    basePayUrl: 'https://Pay.heepay.com/',
+    platformCert3DESKey: process.env.PLATFORM_CERT_3DESKEY,
+    platformCertMD5Key: process.env.PLATFORM_CERT_MD5KEY,
+    platformPay3DESKey: process.env.PLATFORM_PAY_3DESKEY,
+    platformPayMD5Key: process.env.PLATFORM_PAY_MD5KEY,
+    merchId: process.env.MERCH_ID || '1664502',
+  },
+
 
   isDemoEnvironment: false,
 });

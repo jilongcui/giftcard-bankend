@@ -11,6 +11,24 @@ export class Contract {
 
     @IsString()
     @Column({
+        name: 'name',
+        comment: '合约名称',
+        default: '',
+        length: 50
+    })
+    name: string
+
+    @IsString()
+    @Column({
+        name: 'markno',
+        comment: '合约标识',
+        default: '',
+        length: 50
+    })
+    markno: string
+
+    @IsString()
+    @Column({
         name: 'chain',
         comment: '合约所在的链',
         length: 50
