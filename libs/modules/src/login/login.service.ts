@@ -85,7 +85,7 @@ export class LoginService {
         // Add invite relationship.
         if (reqMobileRegDto.invite !== undefined && reqMobileRegDto.invite !== '') {
             const parentUser = await this.userService.findOneByInviteCode(reqMobileRegDto.invite)
-            this.logger.debug(parentUser)
+            // this.logger.debug(parentUser)
             if (!parentUser)
                 throw new ApiException('邀请码不存在')
             // Check if is invited.
@@ -95,7 +95,7 @@ export class LoginService {
             }
             // Add invite relation ship.
             const inviteInfo = await this.inviteUserService.bindParent(user.userId, parentUser.userId)
-            this.logger.debug(inviteInfo)
+            // this.logger.debug(inviteInfo)
         }
 
         const payload = { userId: user.userId, pv: 1, };
@@ -162,7 +162,7 @@ export class LoginService {
         // Add invite relationship.
         if (reqInnerRegDto.invite !== undefined && reqInnerRegDto.invite !== '') {
             const parentUser = await this.userService.findOneByInviteCode(reqInnerRegDto.invite)
-            this.logger.debug(parentUser)
+            // this.logger.debug(parentUser)
             if (!parentUser)
                 throw new ApiException('邀请码不存在')
             // Check if is invited.
@@ -172,7 +172,7 @@ export class LoginService {
             }
             // Add invite relation ship.
             const inviteInfo = await this.inviteUserService.bindParent(user.userId, parentUser.userId)
-            this.logger.debug(inviteInfo)
+            // this.logger.debug(inviteInfo)
         }
 
         const payload = { userId: user.userId, pv: 1, };
