@@ -110,7 +110,7 @@ export class RoleService {
     async allocatedListByRoleId(reqAllocatedListDto: ReqAllocatedListDto, reverse?: boolean) {
         let getUserDto = new ReqUserListDto()
         getUserDto = Object.assign(getUserDto, reqAllocatedListDto)
-        return this.userService.list(getUserDto, reqAllocatedListDto.roleId, reverse)
+        return this.userService.list(getUserDto, null, reqAllocatedListDto.roleId, reverse)
     }
 
     /* 取消角色下的用户 */

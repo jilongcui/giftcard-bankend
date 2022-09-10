@@ -30,12 +30,11 @@ export class StatsService {
             .where(where)
             .orderBy('inviteCount', 'DESC')
             .groupBy('inviteUser.parentId')
-            // .addSelect('ROW_NUMBER () OVER (ORDER BY "inviteCount" DESC)', 'rank')
             .limit(params.count)
-            .cache(5 * 60 * 1000)
         this.logger.debug(myQueryBuilder.getQuery())
         // this.logger.debug(myQueryBuilder.getSql())
 
-        return await myQueryBuilder.getRawMany()
+        const resultArr = await myQueryBuilder.getRawMany()
+        return resultArr.map((item, index) => { item.rank = index + 1; return item })
     }
 }

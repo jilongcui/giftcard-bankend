@@ -29,6 +29,7 @@ import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { UploadService } from '@app/modules/common/upload/upload.service';
 import { join } from 'path';
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
 
 @ApiTags('用户管理')
 @ApiBearerAuth()
@@ -51,8 +52,8 @@ export class UserController {
     })
     @RequiresPermissions('system:user:query')
     @ApiPaginatedResponse(User)
-    async list(@Query(PaginationPipe) reqUserListDto: ReqUserListDto, @DataScopeSql() sataScopeSql: string) {
-        return this.userService.list(reqUserListDto, null, null, sataScopeSql)
+    async list(@Query() reqUserListDto: ReqUserListDto, @Query(PaginationPipe) paginationDto: PaginationDto, @DataScopeSql() sataScopeSql: string) {
+        return this.userService.list(reqUserListDto, paginationDto, null, null, sataScopeSql)
     }
 
     /* 新增用户，获取选项 */
@@ -234,8 +235,8 @@ export class UserController {
         businessType: BusinessTypeEnum.export,
         isSaveResponseData: false
     })
-    async export(@Body(PaginationPipe) reqUserListDto: ReqUserListDto) {
-        const { rows } = await this.userService.list(reqUserListDto)
+    async export(@Body() reqUserListDto: ReqUserListDto, @Body(PaginationPipe) paginationDto: PaginationDto,) {
+        const { rows } = await this.userService.list(reqUserListDto, paginationDto)
         const file = await this.excelService.export(User, rows)
         return new StreamableFile(file)
     }

@@ -30,6 +30,7 @@ import { ResAuthRoleDto, ResHasRoleDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
 import { AddressService } from '@app/modules/wallet/address/address.service';
 import { ReqAddressCreateDto } from '@app/modules/wallet/address/dto/req-address.dto';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
 const strRandom = require('string-random');
 
 @Injectable()
@@ -101,7 +102,7 @@ export class UserService {
     }
 
     /* 分页查询用户列表 */
-    async list(reqUserListDto: ReqUserListDto, roleId?: number, reverse?: Boolean, sataScopeSql?: string): Promise<PaginatedDto<User>> {
+    async list(reqUserListDto: ReqUserListDto, paginationDto: PaginationDto, roleId?: number, reverse?: Boolean, sataScopeSql?: string): Promise<PaginatedDto<User>> {
         let where: FindOptionsWhere<User> = { delFlag: '0' }
         if (reqUserListDto.userName) {
             where.userName = Like(`%${reqUserListDto.userName}%`)
@@ -115,6 +116,7 @@ export class UserService {
         if (reqUserListDto.params) {
             where.createTime = Between(reqUserListDto.params.beginTime, moment(reqUserListDto.params.endTime).add(1, 'day').toDate())
         }
+
         const deptId = reqUserListDto.deptId ?? ''
         const queryBuilde = this.userRepository.createQueryBuilder('user').innerJoin(User, 'user2', "user.createBy = user2.userName")
         if (deptId) {
@@ -122,6 +124,8 @@ export class UserService {
         } else {
             queryBuilde.leftJoinAndSelect("user.dept", "dept")
         }
+        queryBuilde.skip(paginationDto.skip)
+        queryBuilde.take(paginationDto.take)
         if (roleId && !reverse) {
             queryBuilde.innerJoin("user.roles", "role", "role.roleId = :roleId", { roleId })
                 .andWhere("role.delFlag = 0")
@@ -140,6 +144,7 @@ export class UserService {
         if (sataScopeSql) {
             queryBuilde.andWhere(sataScopeSql)
         }
+
         const result = await queryBuilde.andWhere(where).orderBy("user.createTime", 'ASC').getManyAndCount()
         return {
             rows: result[0],
