@@ -35,7 +35,7 @@ export class InviteUser {
         name: 'create_time',
         comment: '创建时间'
     })
-    createTime: number
+    createTime: Date
 
     @OneToOne(type => User)
     @IsOptional()
