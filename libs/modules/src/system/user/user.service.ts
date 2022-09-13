@@ -118,7 +118,7 @@ export class UserService {
         }
 
         const deptId = reqUserListDto.deptId ?? ''
-        const queryBuilde = this.userRepository.createQueryBuilder('user').innerJoin(User, 'user2', "user.createBy = user2.userName")
+        const queryBuilde = this.userRepository.createQueryBuilder('user') // .innerJoin(User, 'user2', "user.createBy = user2.userName")
         if (deptId) {
             queryBuilde.innerJoinAndSelect("user.dept", "dept", "concat('.',dept.mpath) like :v", { v: '%.' + deptId + '.%' })
         } else {
@@ -141,11 +141,11 @@ export class UserService {
                 return "user.userId not in " + subQuery
             })
         }
-        if (sataScopeSql) {
-            queryBuilde.andWhere(sataScopeSql)
-        }
+        // if (sataScopeSql) {
+        //     queryBuilde.andWhere(sataScopeSql)
+        // }
 
-        const result = await queryBuilde.andWhere(where).orderBy("user.createTime", 'ASC').getManyAndCount()
+        const result = await queryBuilde.andWhere(where).orderBy("user.userId", 'DESC').getManyAndCount()
         return {
             rows: result[0],
             total: result[1]

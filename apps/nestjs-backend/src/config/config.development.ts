@@ -55,6 +55,7 @@ export default defineConfig({
     apiUrl: 'http://test.open-api.crichain.cn',
     tokenUrl: 'http://api.startland.top/api/token/',
     platformAddress: '0x8fa5914ae97735b19d5cfaac0bf4e04ab55a4dab',
+    contractAddr: '0xb82c193e2c5ad8bd8e8d5f476a0d529d97b11cf4',
     platformPrivateKey: 'e6779259efd057970aa83ea5cc9db62d72695ce95de9cb117c8b635418605e5d'
   },
 

@@ -88,6 +88,7 @@ export interface IConfig {
     crichain?: {
         apiUrl: string,
         tokenUrl: string,
+        contractAddr: string,
         platformAddress: string,
         platformPrivateKey: string,
     }

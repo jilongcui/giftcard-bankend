@@ -9,6 +9,7 @@ export class Contract {
     @IsNumber()
     id: number
 
+    @IsOptional()
     @IsString()
     @Column({
         name: 'name',
@@ -16,8 +17,9 @@ export class Contract {
         default: '',
         length: 50
     })
-    name: string
+    name?: string
 
+    @IsOptional()
     @IsString()
     @Column({
         name: 'markno',
@@ -25,7 +27,7 @@ export class Contract {
         default: '',
         length: 50
     })
-    markno: string
+    markno?: string
 
     @IsString()
     @Column({

@@ -40,7 +40,7 @@ export class ChainService {
             privateKey = this.platformPrivateKey
         }
         let kp = crichain.Account.genFromPrikey(privateKey);
-        // this.logger.debug(kp)
+        this.logger.debug(kp)
         return kp
     }
 
@@ -67,7 +67,7 @@ export class ChainService {
         const kp = await this.decodePrivate()
         const url = this.tokenUrl + mintDto.tokenId
         let result = await crichain.Contract.safeMint(kp, this.contractAddr, mintDto.address, mintDto.tokenId, url);
-        // console.log("safeMint", result);
+        this.logger.debug("safeMint", result);
         // safeMint {
         //     retCode: 1,
         //     hash: '0x6b530f984225fd37b9d24dcf7922123f880427278b68c00c076b1da1cd3bc538'
