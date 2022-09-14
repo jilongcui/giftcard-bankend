@@ -310,7 +310,7 @@ export class FundService {
     }
 
     async findOne(id: number) {
-        return await this.withdrawRepository.findOne({ where: { id }, relations: { bankcard: true, withdrawRecords: true } })
+        return await this.withdrawRepository.findOne({ where: { id }, relations: { bankcard: true, withdrawFlows: true } })
     }
 
     /* 分页查询 */
