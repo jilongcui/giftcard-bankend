@@ -296,6 +296,10 @@ export class FundService {
         return bizResult
     }
 
+    findOne(id: number) {
+        return this.withdrawRepository.findOne({ where: { id }, relations: { bankcard: true } })
+    }
+
     /* 分页查询 */
     async list(listWithdrawList: ListWithdrawDto, paginationDto: PaginationDto): Promise<PaginatedDto<Withdraw>> {
         let where: FindOptionsWhere<Withdraw> = {}
@@ -331,7 +335,7 @@ export class FundService {
         result = await this.withdrawRepository.findAndCount({
             // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
             where,
-            // relations: { user: true },
+            relations: { bankcard: true },
             skip: paginationDto.skip,
             take: paginationDto.take,
             order: {

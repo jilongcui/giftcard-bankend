@@ -42,6 +42,12 @@ export class FundController {
         return await this.fundService.queryBankCardInfo(queryBankCardInfo, userId);
     }
 
+    @Get('id')
+    @ApiDataResponse(typeEnum.object, Withdraw)
+    async findOne(@Param('id') id: string) {
+        return await this.fundService.findOne(+id);
+    }
+
     /* 订单列表 */
     @Get('list')
     @Public()
