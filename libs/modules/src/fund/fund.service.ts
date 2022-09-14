@@ -244,6 +244,8 @@ export class FundService {
             withdrawFlow.withdrawId = withdraw.id
             await manager.save(withdrawFlow)
         })
+        // toFix
+        await this.doWithdrawWithCard({ bankcardId: withdraw.bankcardId, withdrawId: withdraw.id }, userId)
     }
 
     // 小额支付 API/PayTransit/PayTransferWithSmallAll.aspx
