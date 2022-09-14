@@ -7,19 +7,20 @@ import * as moment from 'moment';
 import * as querystring from 'querystring';
 import { createSign, createVerify } from 'crypto';
 import { Withdraw } from './entities/withdraw.entity';
-import { EntityManager, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { EntityManager, FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
 import { BankcardService } from '@app/modules/bankcard/bankcard.service';
-import { OrderService } from '@app/modules/order/order.service';
 
-import { BankCertifyBizDetail, ConfirmWithdrawDto, CreateWithdrawDto, QueryBankCardInfoDto, ReqBankCertifyDto, ReqWithdrawDto, WithdrawWithCardDto } from './dto/request-fund.dto';
+import { BankCertifyBizDetail, ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqBankCertifyDto, ReqWithdrawDto, WithdrawWithCardDto } from './dto/request-fund.dto';
 import { BankCertifyResponse, ConfirmPayResponse, PayResponse, QueryBankCardResponse, SendSMSResponse, WebSignResponse } from './dto/response-fund.dto';
 import { RES_CODE_SUCCESS, RES_NET_CODE } from './fund.const';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
 import { urlencoded } from 'express';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
 var iconv = require("iconv-lite");
 
 const NodeRSA = require('node-rsa');
@@ -190,16 +191,19 @@ export class FundService {
         let amount = createWithdrawDto.amount
 
         let fee = amount * 1 / 1000
-        if (fee < 1.0) fee == 1.0
+        if (fee < 1.0) fee = 1.0
         amount = amount - fee
 
-        await this.withdrawRepository.manager.transaction(async manager => {
-            const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(createWithdrawDto.amount) }, "usable", amount);
+        return await this.withdrawRepository.manager.transaction(async manager => {
+            const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(createWithdrawDto.amount) }, "usable", createWithdrawDto.amount);
             if (!result.affected) {
                 throw new ApiException('创建提现请求失败')
             }
 
-            await manager.increment(Account, { userId: 1 }, "usable", fee)
+            const result2 = await manager.increment(Account, { user: { userId: userId } }, "freeze", createWithdrawDto.amount);
+            if (!result2.affected) {
+                throw new ApiException('创建提现请求失败')
+            }
 
             const withdraw = new Withdraw()
             withdraw.type = '1' // 银行卡提现
@@ -212,6 +216,7 @@ export class FundService {
             withdraw.merchBillNo = this.randomBillNo()
             withdraw.merchBatchNo = this.randomBatchNo()
             await manager.save(withdraw)
+            return withdraw
         })
     }
 
@@ -243,10 +248,9 @@ export class FundService {
         }
 
         await this.withdrawRepository.manager.transaction(async manager => {
-            // 把Order的状态改成2: 已支付
+            // 把Withdraw的状态改成2: 已支付
             await manager.update(Withdraw, { id: withdraw.id }, { status: '2' })
-
-            await manager.save(withdraw)
+            await manager.increment(Account, { userId: 1 }, "usable", withdraw.totalFee)
             const bankName = bankCardInfo.bank_name
             const bankNo = bankCardInfo.bank_type // 0
             const reason = '结算艺术家分成佣金'
@@ -292,6 +296,125 @@ export class FundService {
         return bizResult
     }
 
+    /* 分页查询 */
+    async list(listWithdrawList: ListWithdrawDto, paginationDto: PaginationDto): Promise<PaginatedDto<Withdraw>> {
+        let where: FindOptionsWhere<Withdraw> = {}
+        let result: any;
+        where = listWithdrawList
+
+        result = await this.withdrawRepository.findAndCount({
+            // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+            where,
+            relations: { user: true },
+            skip: paginationDto.skip,
+            take: paginationDto.take,
+            order: {
+                createTime: 'DESC',
+            }
+        })
+
+        return {
+            rows: result[0],
+            total: result[1]
+        }
+    }
+
+    /* 我的订单查询 */
+    async mylist(userId: number, listMyWithdrawDto: ListMyWithdrawDto, paginationDto: PaginationDto): Promise<PaginatedDto<Withdraw>> {
+        let where: FindOptionsWhere<ListWithdrawDto> = {}
+        let result: any;
+        where = {
+            ...listMyWithdrawDto,
+            userId,
+        }
+
+        result = await this.withdrawRepository.findAndCount({
+            // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+            where,
+            // relations: { user: true },
+            skip: paginationDto.skip,
+            take: paginationDto.take,
+            order: {
+                createTime: 'DESC',
+            }
+        })
+
+        return {
+            rows: result[0],
+            total: result[1]
+        }
+    }
+
+    async cancel(id: number, userId: number) {
+        let where: FindOptionsWhere<Withdraw> = {}
+        let result: any;
+        let withdraw = await this.withdrawRepository.findOneBy({ id: id })
+        this.logger.debug(id)
+        this.logger.debug(JSON.stringify(withdraw))
+        if (withdraw.userId !== userId) {
+            throw new ApiException("非本人提币")
+        }
+        // 银行卡提现 - 取消
+        if (withdraw.type === '1') {
+            await this.withdrawRepository.manager.transaction(async manager => {
+                await manager.update(Withdraw, { id: withdraw.id }, { status: '3' }) // Unlocked.
+                const result = await manager.increment(Account, { user: { userId: userId }, }, "usable", withdraw.totalPrice);
+                if (!result.affected) {
+                    throw new ApiException('未能取消当前提现')
+                }
+                this.logger.debug('Success')
+
+            })
+        }
+        /*
+        else if (withdraw.type === '1') {
+            // this.logger.debug(`assetId: ${withdraw.assetId}`)
+            unpayWithdrawKey = ASSET_ORDER_KEY + ":" + (withdraw.assetId || withdraw.activityId)
+            await this.withdrawRepository.manager.transaction(async manager => {
+                // Set invalid status
+                // where.assetId = withdraw.assetId
+                withdraw.status = '0'
+                // totalCount += withdraw.count
+                manager.save(withdraw)
+                await manager.update(Asset, { id: withdraw.assetId }, { status: '1' }) // Unlocked.
+            })
+            await this.redis.del(unpayWithdrawKey)
+        } else if (withdraw.type === '2') {
+            // this.logger.debug(`assetId: ${withdraw.assetId}`)
+            await this.withdrawRepository.manager.transaction(async manager => {
+                // Set invalid status
+                // where.assetId = withdraw.assetId
+                withdraw.status = '0'
+                // totalCount += withdraw.count
+                manager.save(withdraw)
+            })
+        }
+        */
+    }
+
+    async fail(id: number, userId: number) {
+        let where: FindOptionsWhere<Withdraw> = {}
+        let result: any;
+        let withdraw = await this.withdrawRepository.findOneBy({ id: id })
+        this.logger.debug(id)
+        this.logger.debug(JSON.stringify(withdraw))
+        if (withdraw.userId !== userId) {
+            throw new ApiException("非本人提币")
+        }
+        // 银行卡提现 - 拒绝
+        if (withdraw.type === '1') {
+            await this.withdrawRepository.manager.transaction(async manager => {
+                await manager.update(Withdraw, { id: withdraw.id }, { status: '5' }) // Unlocked.
+                const result = await manager.increment(Account, { user: { userId: userId }, }, "usable", withdraw.totalPrice);
+                if (!result.affected) {
+                    throw new ApiException('未能拒绝当前提现')
+                }
+                this.logger.debug('Success')
+
+            })
+        }
+    }
+
     /*
     // 支付通知
     async fundNotify(cryptoNotifyDto: ReqCryptoNotifyDto) {
@@ -316,17 +439,17 @@ export class FundService {
             const fundNotify: any = querystring.parse(decryptedData)
             if (fundNotify.status === 'SUCCESS') {
                 // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
-                await this.orderRepository.manager.transaction(async manager => {
+                await this.withdrawRepository.manager.transaction(async manager => {
                     const orderId = fundNotify.agent_bill_id
-                    const order = await manager.findOne(Order, { where: { id: parseInt(orderId), status: '1' }, relations: { user: true, fund: true } })
+                    const order = await manager.findOne(Withdraw, { where: { id: parseInt(orderId), status: '1' }, relations: { user: true, fund: true } })
                     if (!order) return 'ok'
                     await manager.update(Withdraw, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
-                    await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
+                    await manager.update(Withdraw, { id: parseInt(orderId) }, { status: '2' })
                     if (order.type === '0') {
-                        const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
+                        const unpayWithdrawKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
                         await this.doFundComfirmedLv1(order, order.userId, order.user.userName)
                         // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
-                        await this.redis.del(unpayOrderKey)
+                        await this.redis.del(unpayWithdrawKey)
                     } else if (order.type === '1') {
                         await this.doFundComfirmedLv2(order, order.userId, order.user.userName)
                     } else if (order.type === '2') {

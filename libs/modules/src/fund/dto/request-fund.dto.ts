@@ -45,6 +45,12 @@ export class ConfirmPayWithCardDto {
     verifyCode: string
 }
 
+export class ListMyWithdrawDto {
+    @IsOptional()
+    @IsString()
+    status?: string
+}
+
 export class WebSignNotifyDto {
     merch_id: string
     out_trade_no: string
@@ -53,11 +59,6 @@ export class WebSignNotifyDto {
     sign: string
 }
 
-export class ListUnpayFundDto {
-    @IsOptional()
-    @IsNumber()
-    activityId?: number
-}
 export class ReqSubmitPayDto {
     agent_bill_id: string
     agent_bill_time: string

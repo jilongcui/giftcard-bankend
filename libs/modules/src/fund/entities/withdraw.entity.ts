@@ -14,19 +14,19 @@ export class Withdraw {
 
     @Column({
         name: 'type',
-        default: '1',
-        comment: '提现种类 0: 余额提现 1:银行卡提现 2: 微信提现 3: 支付宝提现',
+        default: '0',
+        comment: '提现种类 1:提现到银行卡 2: 提现到微信 3: 提现到支付宝',
         type: 'char',
         length: 1
     })
     @IsString()
     type: string
 
-    /* 提现状态 0: 未审核 1: 提现中 2: 提现完成 3: 提现失败 */
+    /* 提现状态 0: 未审核 1: 提现中 2: 提现完成 3:取消提现 4: 提现失败 */
     @Column({
         name: 'status',
         default: '0',
-        comment: '提现状态 0: 未审核 1: 提现中 2: 提现完成 3: 提现失败',
+        comment: '提现状态 0: 未审核 1: 提现中 2: 提现完成 3:取消提现 4: 提现失败 5: 拒绝提现',
         type: 'char',
         length: 1
     })

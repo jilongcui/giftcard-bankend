@@ -13,7 +13,8 @@ export class Account {
     @Column({
         name: 'usable',
         comment: '可用余额',
-        default: 0
+        type: "decimal", precision: 10, scale: 2,
+        default: 0,
     })
     @IsNumber()
     usable: number
@@ -21,6 +22,7 @@ export class Account {
     @Column({
         name: 'freeze',
         comment: '冻结余额',
+        type: "decimal", precision: 10, scale: 2,
         default: 0
     })
     @IsNumber()
