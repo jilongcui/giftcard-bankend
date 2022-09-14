@@ -51,6 +51,7 @@ export class WithdrawController {
     }
 
     @Put(':id/fail')
+    @RequiresRoles(['admin', 'system'])
     async fail(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
         return await this.fundService.fail(+id, userId);
     }

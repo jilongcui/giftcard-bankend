@@ -8,7 +8,7 @@ import { Withdraw } from "../entities/withdraw.entity";
 // export class CreateWithdrawDto extends OmitType(Withdraw, ['id', 'status', 'userId',] as const) { }
 // export class UpdateFundDto extends PartialType(CreateWithdrawDto) { }
 export class UpdateWithdrawStatusDto extends PickType(Withdraw, ['status']) { }
-export class ListWithdrawDto extends PartialType(OmitType(Withdraw, ['user', 'bankcard'] as const)) { }
+export class ListWithdrawDto extends PartialType(OmitType(Withdraw, ['user', 'bankcard', 'withdrawRecords'] as const)) { }
 export class WebSignDto {
     @IsOptional()
     @IsNumber()

@@ -19,6 +19,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
+import { WithdrawRecord } from './entities/withdraw-record.entity';
 var iconv = require("iconv-lite");
 
 const NodeRSA = require('node-rsa');
@@ -213,8 +214,15 @@ export class FundService {
             withdraw.count = 1
             withdraw.merchBillNo = this.randomBillNo()
             withdraw.merchBatchNo = this.randomBatchNo()
-            await manager.save(withdraw)
-            return withdraw
+            const withdraw2 = await manager.save(withdraw)
+
+            const withdrawRecord = new WithdrawRecord()
+            withdrawRecord.step = '0'
+            withdrawRecord.status = '1'
+            withdrawRecord.remark = '发起提现'
+            withdrawRecord.withdrawId = withdraw2.id
+            await manager.save(withdrawRecord)
+            return withdraw2
         })
     }
 
@@ -228,6 +236,13 @@ export class FundService {
         await this.withdrawRepository.manager.transaction(async manager => {
             withdraw.status = '1' // 已审核
             await manager.save(withdraw)
+
+            const withdrawRecord = new WithdrawRecord()
+            withdrawRecord.step = '1'
+            withdrawRecord.status = '1'
+            withdrawRecord.remark = '审核通过'
+            withdrawRecord.withdrawId = withdraw.id
+            await manager.save(withdrawRecord)
         })
     }
 
@@ -295,12 +310,7 @@ export class FundService {
     }
 
     async findOne(id: number) {
-        const withdraw = await this.withdrawRepository.findOne({ where: { id }, relations: { bankcard: true, } })
-        // const records = await this.withdrawRecordRepository.find({ where: { id } })
-        return {
-            withdraw: withdraw,
-            // records: records
-        }
+        return await this.withdrawRepository.findOne({ where: { id }, relations: { bankcard: true, withdrawRecords: true } })
     }
 
     /* 分页查询 */
@@ -373,44 +383,26 @@ export class FundService {
                 }
                 this.logger.debug('Success')
 
+                const withdrawRecord = new WithdrawRecord()
+                withdrawRecord.step = '1'
+                withdrawRecord.status = '2'
+                withdrawRecord.remark = '取消提现'
+                withdrawRecord.withdrawId = withdraw.id
+                await manager.save(withdrawRecord)
             })
         }
-        /*
-        else if (withdraw.type === '1') {
-            // this.logger.debug(`assetId: ${withdraw.assetId}`)
-            unpayWithdrawKey = ASSET_ORDER_KEY + ":" + (withdraw.assetId || withdraw.activityId)
-            await this.withdrawRepository.manager.transaction(async manager => {
-                // Set invalid status
-                // where.assetId = withdraw.assetId
-                withdraw.status = '0'
-                // totalCount += withdraw.count
-                manager.save(withdraw)
-                await manager.update(Asset, { id: withdraw.assetId }, { status: '1' }) // Unlocked.
-            })
-            await this.redis.del(unpayWithdrawKey)
-        } else if (withdraw.type === '2') {
-            // this.logger.debug(`assetId: ${withdraw.assetId}`)
-            await this.withdrawRepository.manager.transaction(async manager => {
-                // Set invalid status
-                // where.assetId = withdraw.assetId
-                withdraw.status = '0'
-                // totalCount += withdraw.count
-                manager.save(withdraw)
-            })
-        }
-        */
     }
 
     async fail(id: number, userId: number) {
         let where: FindOptionsWhere<Withdraw> = {}
         let result: any;
         let withdraw = await this.withdrawRepository.findOneBy({ id: id })
-        this.logger.debug(id)
-        this.logger.debug(JSON.stringify(withdraw))
-        if (withdraw.userId !== userId) {
-            throw new ApiException("非本人提币")
-        }
-        // 银行卡提现 - 拒绝
+        // this.logger.debug(id)
+        // this.logger.debug(JSON.stringify(withdraw))
+        // if (withdraw.userId !== userId) {
+        //     throw new ApiException("非本人提币")
+        // }
+        // 银行卡提现 - 审核未通过
         if (withdraw.type === '1') {
             await this.withdrawRepository.manager.transaction(async manager => {
                 await manager.update(Withdraw, { id: withdraw.id }, { status: '5' }) // Unlocked.
@@ -419,7 +411,12 @@ export class FundService {
                     throw new ApiException('未能拒绝当前提现')
                 }
                 this.logger.debug('Success')
-
+                const withdrawRecord = new WithdrawRecord()
+                withdrawRecord.step = '1'
+                withdrawRecord.status = '2'
+                withdrawRecord.remark = '审核未通过'
+                withdrawRecord.withdrawId = withdraw.id
+                await manager.save(withdrawRecord)
             })
         }
     }
