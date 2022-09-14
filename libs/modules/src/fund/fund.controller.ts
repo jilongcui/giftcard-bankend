@@ -42,14 +42,14 @@ export class FundController {
         return await this.fundService.queryBankCardInfo(queryBankCardInfo, userId);
     }
 
-    @Get('id')
+    @Get('withdraw/id')
     @ApiDataResponse(typeEnum.object, Withdraw)
     async findOne(@Param('id') id: string) {
         return await this.fundService.findOne(+id);
     }
 
     /* 订单列表 */
-    @Get('list')
+    @Get('withdraw/list')
     @Public()
     @ApiPaginatedResponse(Withdraw)
     async list(@Query() listWithdrawDto: ListWithdrawDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
@@ -57,18 +57,18 @@ export class FundController {
     }
 
     /* 我的订单列表 */
-    @Get('myList')
+    @Get('withdraw/myList')
     @ApiPaginatedResponse(Withdraw)
     async mylist(@Query() listMyWithdrawDto: ListMyWithdrawDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
         return await this.fundService.mylist(userId, listMyWithdrawDto, paginationDto);
     }
 
-    @Put(':id/cancel')
+    @Put('withdraw/:id/cancel')
     async cancel(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
         return await this.fundService.cancel(+id, userId);
     }
 
-    @Put(':id/fail')
+    @Put('withdraw/:id/fail')
     async fail(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
         return await this.fundService.fail(+id, userId);
     }
