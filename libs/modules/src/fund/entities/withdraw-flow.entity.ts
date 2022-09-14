@@ -4,7 +4,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, Prim
 import { Withdraw } from "./withdraw.entity";
 
 @Entity()
-export class WithdrawRecord {
+export class WithdrawFlow {
     @PrimaryGeneratedColumn()
     @IsNumber()
     id: number

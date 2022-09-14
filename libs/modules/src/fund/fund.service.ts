@@ -19,7 +19,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
-import { WithdrawRecord } from './entities/withdraw-record.entity';
+import { WithdrawFlow } from './entities/withdraw-flow.entity';
 var iconv = require("iconv-lite");
 
 const NodeRSA = require('node-rsa');
@@ -216,7 +216,7 @@ export class FundService {
             withdraw.merchBatchNo = this.randomBatchNo()
             const withdraw2 = await manager.save(withdraw)
 
-            const withdrawRecord = new WithdrawRecord()
+            const withdrawRecord = new WithdrawFlow()
             withdrawRecord.step = '0'
             withdrawRecord.status = '1'
             withdrawRecord.remark = '发起提现'
@@ -237,7 +237,7 @@ export class FundService {
             withdraw.status = '1' // 已审核
             await manager.save(withdraw)
 
-            const withdrawRecord = new WithdrawRecord()
+            const withdrawRecord = new WithdrawFlow()
             withdrawRecord.step = '1'
             withdrawRecord.status = '1'
             withdrawRecord.remark = '审核通过'
@@ -383,7 +383,7 @@ export class FundService {
                 }
                 this.logger.debug('Success')
 
-                const withdrawRecord = new WithdrawRecord()
+                const withdrawRecord = new WithdrawFlow()
                 withdrawRecord.step = '1'
                 withdrawRecord.status = '2'
                 withdrawRecord.remark = '取消提现'
@@ -411,7 +411,7 @@ export class FundService {
                     throw new ApiException('未能拒绝当前提现')
                 }
                 this.logger.debug('Success')
-                const withdrawRecord = new WithdrawRecord()
+                const withdrawRecord = new WithdrawFlow()
                 withdrawRecord.step = '1'
                 withdrawRecord.status = '2'
                 withdrawRecord.remark = '审核未通过'

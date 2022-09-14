@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Account } from '../account/entities/account.entity';
 import { BankcardModule } from '../bankcard/bankcard.module';
 import { WithdrawController } from './withdraw.controller';
-import { WithdrawRecord } from './entities/withdraw-record.entity';
+import { WithdrawFlow } from './entities/withdraw-flow.entity';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import { WithdrawRecord } from './entities/withdraw-record.entity';
       timeout: 5000,
       maxRedirects: 5,
     }),
-    TypeOrmModule.forFeature([Withdraw, Account, WithdrawRecord]),
+    TypeOrmModule.forFeature([Withdraw, Account, WithdrawFlow]),
     BankcardModule,
   ],
   providers: [FundService],

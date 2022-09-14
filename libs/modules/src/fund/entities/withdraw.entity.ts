@@ -5,7 +5,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, One
 import { Type } from "class-transformer";
 import { Order } from "@app/modules/order/entities/order.entity";
 import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
-import { WithdrawRecord } from "./withdraw-record.entity";
+import { WithdrawFlow } from "./withdraw-flow.entity";
 
 @Entity()
 export class Withdraw {
@@ -114,8 +114,8 @@ export class Withdraw {
 
     @ApiHideProperty()
     @IsOptional()
-    @OneToMany(() => WithdrawRecord, withdrawRecord => withdrawRecord.withdraw)
-    withdrawRecords?: WithdrawRecord[]
+    @OneToMany(() => WithdrawFlow, withdrawRecord => withdrawRecord.withdraw)
+    withdrawRecords?: WithdrawFlow[]
 
     @ApiHideProperty()
     @CreateDateColumn({
