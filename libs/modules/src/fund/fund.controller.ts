@@ -20,17 +20,6 @@ export class FundController {
         private readonly fundService: FundService
     ) { }
 
-    @Post('withdraw')
-    async createWithdraw(@Body() creatWithdrawDto: CreateWithdrawDto, @UserDec(UserEnum.userId) userId: number) {
-        return await this.fundService.createWithdrawRequest(creatWithdrawDto, userId);
-    }
-
-    @Post('confirmWithdraw')
-    @RequiresRoles(['admin', 'system'])
-    async confirmWithdraw(@Body() confirmWithdrawDto: ConfirmWithdrawDto, @UserDec(UserEnum.userId) userId: number) {
-        return await this.fundService.confirmWithdrawRequest(confirmWithdrawDto, userId);
-    }
-
     @Post('bankCertify')
     async bankCertify(@Body() reqBankCertifyDto: ReqBankCertifyDto, @UserDec(UserEnum.userId) userId: number) {
         return await this.fundService.bankCertify(reqBankCertifyDto, userId);
@@ -41,36 +30,4 @@ export class FundController {
     async queryBankInfo(@Query() queryBankCardInfo: QueryBankCardInfoDto, @UserDec(UserEnum.userId) userId: number) {
         return await this.fundService.queryBankCardInfo(queryBankCardInfo, userId);
     }
-
-    @Get('withdraw/id')
-    @ApiDataResponse(typeEnum.object, Withdraw)
-    async findOne(@Param('id') id: string) {
-        return await this.fundService.findOne(+id);
-    }
-
-    /* 订单列表 */
-    @Get('withdraw/list')
-    @Public()
-    @ApiPaginatedResponse(Withdraw)
-    async list(@Query() listWithdrawDto: ListWithdrawDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-        return await this.fundService.list(listWithdrawDto, paginationDto);
-    }
-
-    /* 我的订单列表 */
-    @Get('withdraw/myList')
-    @ApiPaginatedResponse(Withdraw)
-    async mylist(@Query() listMyWithdrawDto: ListMyWithdrawDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
-        return await this.fundService.mylist(userId, listMyWithdrawDto, paginationDto);
-    }
-
-    @Put('withdraw/:id/cancel')
-    async cancel(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
-        return await this.fundService.cancel(+id, userId);
-    }
-
-    @Put('withdraw/:id/fail')
-    async fail(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
-        return await this.fundService.fail(+id, userId);
-    }
-
 }

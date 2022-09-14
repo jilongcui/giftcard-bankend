@@ -5,7 +5,6 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
-import { createSign, createVerify } from 'crypto';
 import { Withdraw } from './entities/withdraw.entity';
 import { EntityManager, FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,7 +17,6 @@ import { RES_CODE_SUCCESS, RES_NET_CODE } from './fund.const';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
-import { urlencoded } from 'express';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 var iconv = require("iconv-lite");
@@ -296,15 +294,22 @@ export class FundService {
         return bizResult
     }
 
-    findOne(id: number) {
-        return this.withdrawRepository.findOne({ where: { id }, relations: { bankcard: true } })
+    async findOne(id: number) {
+        const withdraw = await this.withdrawRepository.findOne({ where: { id }, relations: { bankcard: true, } })
+        // const records = await this.withdrawRecordRepository.find({ where: { id } })
+        return {
+            withdraw: withdraw,
+            // records: records
+        }
     }
 
     /* 分页查询 */
     async list(listWithdrawList: ListWithdrawDto, paginationDto: PaginationDto): Promise<PaginatedDto<Withdraw>> {
         let where: FindOptionsWhere<Withdraw> = {}
         let result: any;
-        where = listWithdrawList
+        where = {
+            ...listWithdrawList
+        }
 
         result = await this.withdrawRepository.findAndCount({
             // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
@@ -328,7 +333,7 @@ export class FundService {
         let where: FindOptionsWhere<ListWithdrawDto> = {}
         let result: any;
         where = {
-            ...listMyWithdrawDto,
+            // ...listMyWithdrawDto,
             userId,
         }
 

@@ -6,6 +6,7 @@ import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Account } from '../account/entities/account.entity';
 import { BankcardModule } from '../bankcard/bankcard.module';
+import { WithdrawController } from './withdraw.controller';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { BankcardModule } from '../bankcard/bankcard.module';
     BankcardModule,
   ],
   providers: [FundService],
-  controllers: [FundController],
+  controllers: [FundController, WithdrawController],
   exports: [FundService]
 })
 export class FundModule { }

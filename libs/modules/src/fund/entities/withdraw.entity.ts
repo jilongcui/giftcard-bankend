@@ -1,7 +1,7 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { User } from "../../system/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Type } from "class-transformer";
 import { Order } from "@app/modules/order/entities/order.entity";
 import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
@@ -26,14 +26,14 @@ export class Withdraw {
     @Column({
         name: 'status',
         default: '0',
-        comment: '提现状态 0: 未审核 1: 提现中 2: 提现完成 3:取消提现 4: 提现失败 5: 拒绝提现',
+        comment: '提现状态 0: 等待审核 1: 提现中 2: 提现完成 3:取消提现 4: 提现失败 5: 审核未通过',
         type: 'char',
         length: 1
     })
     @IsString()
     status: string
 
-    /* 订单总金额 */
+    /* 提现总金额 */
     @Column({
         name: 'total_price',
         type: "decimal", precision: 10, scale: 2, default: 0,
@@ -42,7 +42,7 @@ export class Withdraw {
     @IsNumber()
     totalPrice: number
 
-    /* 订单手续费 */
+    /* 提现手续费 */
     @Column({
         name: 'total_fee',
         type: "decimal", precision: 10, scale: 2, default: 0,
@@ -51,10 +51,10 @@ export class Withdraw {
     @IsNumber()
     totalFee: number
 
-    /* 订单数量 */
+    /* 提现数量 */
     @Column({
         name: 'count',
-        default: '0',
+        default: '1',
         comment: '订单数量'
     })
     @IsOptional()
@@ -110,6 +110,11 @@ export class Withdraw {
         name: 'user_id',
     })
     user?: User
+
+    // @ApiHideProperty()
+    // @IsOptional()
+    // @OneToMany(() => WithdrawRecord, withdrawRecord => withdrawRecord.withdraw)
+    // withdrawRecords?: WithdrawRecord[]
 
     @ApiHideProperty()
     @CreateDateColumn({
