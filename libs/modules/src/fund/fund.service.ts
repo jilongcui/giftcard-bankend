@@ -216,12 +216,12 @@ export class FundService {
             withdraw.merchBatchNo = this.randomBatchNo()
             const withdraw2 = await manager.save(withdraw)
 
-            const withdrawRecord = new WithdrawFlow()
-            withdrawRecord.step = '0'
-            withdrawRecord.status = '1'
-            withdrawRecord.remark = '发起提现'
-            withdrawRecord.withdrawId = withdraw2.id
-            await manager.save(withdrawRecord)
+            const withdrawFlow = new WithdrawFlow()
+            withdrawFlow.step = '0'
+            withdrawFlow.status = '1'
+            withdrawFlow.remark = '发起提现'
+            withdrawFlow.withdrawId = withdraw2.id
+            await manager.save(withdrawFlow)
             return withdraw2
         })
     }
@@ -237,12 +237,12 @@ export class FundService {
             withdraw.status = '1' // 已审核
             await manager.save(withdraw)
 
-            const withdrawRecord = new WithdrawFlow()
-            withdrawRecord.step = '1'
-            withdrawRecord.status = '1'
-            withdrawRecord.remark = '审核通过'
-            withdrawRecord.withdrawId = withdraw.id
-            await manager.save(withdrawRecord)
+            const withdrawFlow = new WithdrawFlow()
+            withdrawFlow.step = '1'
+            withdrawFlow.status = '1'
+            withdrawFlow.remark = '审核通过'
+            withdrawFlow.withdrawId = withdraw.id
+            await manager.save(withdrawFlow)
         })
     }
 
@@ -383,12 +383,12 @@ export class FundService {
                 }
                 this.logger.debug('Success')
 
-                const withdrawRecord = new WithdrawFlow()
-                withdrawRecord.step = '1'
-                withdrawRecord.status = '2'
-                withdrawRecord.remark = '取消提现'
-                withdrawRecord.withdrawId = withdraw.id
-                await manager.save(withdrawRecord)
+                const withdrawFlow = new WithdrawFlow()
+                withdrawFlow.step = '1'
+                withdrawFlow.status = '2'
+                withdrawFlow.remark = '取消提现'
+                withdrawFlow.withdrawId = withdraw.id
+                await manager.save(withdrawFlow)
             })
         }
     }
@@ -411,12 +411,12 @@ export class FundService {
                     throw new ApiException('未能拒绝当前提现')
                 }
                 this.logger.debug('Success')
-                const withdrawRecord = new WithdrawFlow()
-                withdrawRecord.step = '1'
-                withdrawRecord.status = '2'
-                withdrawRecord.remark = '审核未通过'
-                withdrawRecord.withdrawId = withdraw.id
-                await manager.save(withdrawRecord)
+                const withdrawFlow = new WithdrawFlow()
+                withdrawFlow.step = '1'
+                withdrawFlow.status = '2'
+                withdrawFlow.remark = '审核未通过'
+                withdrawFlow.withdrawId = withdraw.id
+                await manager.save(withdrawFlow)
             })
         }
     }

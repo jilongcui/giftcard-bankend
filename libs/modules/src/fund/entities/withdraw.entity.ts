@@ -114,8 +114,8 @@ export class Withdraw {
 
     @ApiHideProperty()
     @IsOptional()
-    @OneToMany(() => WithdrawFlow, withdrawRecord => withdrawRecord.withdraw)
-    withdrawRecords?: WithdrawFlow[]
+    @OneToMany(() => WithdrawFlow, withdrawFlow => withdrawFlow.withdraw)
+    withdrawFlows?: WithdrawFlow[]
 
     @ApiHideProperty()
     @CreateDateColumn({
