@@ -46,11 +46,20 @@ export class Withdraw {
     /* 提现手续费 */
     @Column({
         name: 'total_fee',
-        type: "decimal", precision: 10, scale: 2, default: 0,
+        type: "decimal", precision: 10, scale: 2, default: 0.00,
         comment: '订单总金额'
     })
     @IsNumber()
     totalFee: number
+
+    /* 提现到账 */
+    @Column({
+        name: 'real_price',
+        type: "decimal", precision: 10, scale: 2, default: 0.00,
+        comment: '订单实际金额'
+    })
+    @IsNumber()
+    realPrice: number
 
     /* 提现数量 */
     @Column({

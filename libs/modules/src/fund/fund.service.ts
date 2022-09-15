@@ -189,9 +189,13 @@ export class FundService {
         // }
         let amount = createWithdrawDto.amount
 
-        let fee = amount * 1 / 1000
-        if (fee < 1.0) fee = 1.0
+        let fee = amount * 2 / 1000
+        if (fee < 1.0) fee = 3.0
         amount = amount - fee
+
+        if (createWithdrawDto.amount <= fee) {
+            throw new ApiException('提现金额低于手续费')
+        }
 
         return await this.withdrawRepository.manager.transaction(async manager => {
             const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(createWithdrawDto.amount) }, "usable", createWithdrawDto.amount);
@@ -211,6 +215,7 @@ export class FundService {
             withdraw.userId = userId
             withdraw.totalPrice = createWithdrawDto.amount
             withdraw.totalFee = fee
+            withdraw.realPrice = withdraw.totalPrice - withdraw.totalFee
             withdraw.count = 1
             withdraw.merchBillNo = this.randomBillNo()
             withdraw.merchBatchNo = this.randomBatchNo()
@@ -222,6 +227,10 @@ export class FundService {
             withdrawFlow.remark = '发起提现'
             withdrawFlow.withdrawId = withdraw2.id
             await manager.save(withdrawFlow)
+            withdraw2.bankcard = bankcard
+            withdraw2.bankcard.user = undefined
+            withdraw2.bankcard.identity = undefined
+            withdraw2.bankcard.signTradeNo = undefined
             return withdraw2
         })
     }
@@ -271,7 +280,7 @@ export class FundService {
             const reason = '结算艺术家分成佣金'
             const provice = '江苏省'
             const city = '南京市'
-            const bizContent = `${withdraw.merchBillNo}^${bankNo}^0^${bankcard.cardNo}^${bankcard.identity.realName}^${withdraw.totalPrice}^${reason}^${provice}^${city}^${bankName}^^${bankcard.identity.cardId}`
+            const bizContent = `${withdraw.merchBillNo}^${bankNo}^0^${bankcard.cardNo}^${bankcard.identity.realName}^${withdraw.realPrice}^${reason}^${provice}^${city}^${bankName}^^${bankcard.identity.cardId}`
 
             const bizResult = await this.sendWithdrawRequest<SendSMSResponse>(requestUri, withdraw, bizContent)
             this.logger.debug(bizResult)
@@ -408,7 +417,7 @@ export class FundService {
         if (withdraw.type === '1') {
             await this.withdrawRepository.manager.transaction(async manager => {
                 await manager.update(Withdraw, { id: withdraw.id }, { status: '5' }) // Unlocked.
-                const result = await manager.increment(Account, { user: { userId: userId }, }, "usable", withdraw.totalPrice);
+                const result = await manager.increment(Account, { user: { userId: withdraw.userId }, }, "usable", withdraw.totalPrice);
                 if (!result.affected) {
                     throw new ApiException('未能拒绝当前提现')
                 }
@@ -568,7 +577,7 @@ export class FundService {
         // 对所有的原始参数进行签名
         const params = {
             agent_id: +this.merchId,
-            batch_amt: withdraw.totalPrice,
+            batch_amt: withdraw.realPrice,
             batch_no: withdraw.merchBatchNo, // withdraw.id.toString(),
             batch_num: withdraw.count,
             detail_data: bizContentStr,
@@ -587,7 +596,7 @@ export class FundService {
             version: 3,
             agent_id: +this.merchId,
             batch_no: withdraw.merchBatchNo, // withdraw.id.toString(),
-            batch_amt: withdraw.totalPrice,
+            batch_amt: withdraw.realPrice,
             batch_num: withdraw.count,
             detail_data: encryptData,
             notify_url: 'https://www.startland.top/fund/notify',
