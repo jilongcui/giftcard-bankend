@@ -15,6 +15,12 @@ export class ListUnpayOrderDto {
     @IsNumber()
     activityId?: number
 }
+export class ListRechargeOrderDto {
+    @IsOptional()
+    @IsString()
+    status?: string
+}
+
 export class ListMyOrderDto {
     @IsOptional()
     @IsString()

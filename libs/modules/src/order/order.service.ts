@@ -11,7 +11,7 @@ import { Repository, FindOptionsWhere, EntityManager, getManager, MoreThanOrEqua
 import { Activity } from '../activity/entities/activity.entity';
 import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
 import { Asset } from '../collection/entities/asset.entity';
-import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, RechargeOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
+import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, ListMyOrderDto, ListOrderDto, ListRechargeOrderDto, ListUnpayOrderDto, RechargeOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
 import { Order } from './entities/order.entity';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../system/user/entities/user.entity';
@@ -266,6 +266,33 @@ export class OrderService {
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
       relations: ["activity", "collections"],
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  /* 充值 - 分页查询 */
+  async myRechargeList(userId: number, listUnpayDto: ListRechargeOrderDto, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
+    let where: FindOptionsWhere<Order> = {}
+    let result: any;
+    where =
+    {
+      ...listUnpayDto,
+      userId: userId,
+      type: '2',
+    }
+    result = await this.orderRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      where,
+      // relations: [],
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
