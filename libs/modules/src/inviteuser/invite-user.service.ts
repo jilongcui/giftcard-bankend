@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DataSource, Repository, TreeRepository } from 'typeorm';
+import { Between, DataSource, FindOptionsWhere, Repository, TreeRepository } from 'typeorm';
 // import { User } from '@app/modules/system/user/entities/user.entity';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../system/user/user.service';
 import { InviteUser } from './entities/invite-user.entity';
 import { User } from '../system/user/entities/user.entity';
+import { ReqInviteUserListDto } from './dto/request-inviteuser.dto';
 
 @Injectable()
 export class InviteUserService {
@@ -60,7 +61,7 @@ export class InviteUserService {
     }
 
     async allTree() {
-        let trees = await this.inviteUserTreeRepository.findTrees()
+        let trees = await this.inviteUserTreeRepository.findTrees({ depth: 3 })
 
         return trees
     }
@@ -104,5 +105,18 @@ export class InviteUserService {
             }
         }
         return null
+    }
+
+    async findRelation(reqInviteUserListDto: ReqInviteUserListDto) {
+        let where: FindOptionsWhere<User> = {}
+        let result: any;
+        where =
+        {
+            createTime: Between(reqInviteUserListDto.params.beginTime, reqInviteUserListDto.params.endTime)
+        }
+        let user = await this.userRepository.findOneBy({ userName: reqInviteUserListDto.userName, phonenumber: reqInviteUserListDto.phoneNumber })
+        let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: user.userId })
+        let children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: reqInviteUserListDto.level || 3 })
+        return children
     }
 }

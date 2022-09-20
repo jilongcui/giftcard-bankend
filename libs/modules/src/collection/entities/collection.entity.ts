@@ -25,6 +25,25 @@ export class Collection extends BaseEntity {
     @IsString()
     name: string
 
+    // @Column({
+    //     name: 'type',
+    //     default: '0',
+    //     comment: '藏品类型 0: 普通藏品 1: 盲盒藏品',
+    //     type: 'char',
+    //     length: 1
+    // })
+    // @IsString()
+    // type: string
+
+    // @Column({
+    //     name: 'level',
+    //     default: 0, // 不是藏品
+    //     comment: '盲盒等级 1:N 2:SR 3:SSR 4:UR'
+    // })
+    // @Type()
+    // @IsNumber()
+    // level: number
+
     @Column({
         name: 'supply',
         comment: '总供应量',
