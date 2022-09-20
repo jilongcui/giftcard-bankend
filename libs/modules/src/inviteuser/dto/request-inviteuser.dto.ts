@@ -19,5 +19,5 @@ export class ReqInviteUserListDto {
 
     @IsOptional()
     @IsObject()
-    params: ParamsDto
+    params?: ParamsDto
 }

@@ -7,6 +7,8 @@ import { UserService } from '../system/user/user.service';
 import { InviteUser } from './entities/invite-user.entity';
 import { User } from '../system/user/entities/user.entity';
 import { ReqInviteUserListDto } from './dto/request-inviteuser.dto';
+import * as moment from 'moment';
+import { ApiDataResponse } from '@app/common/decorators/api-data-response.decorator';
 
 @Injectable()
 export class InviteUserService {
@@ -110,13 +112,26 @@ export class InviteUserService {
     async findRelation(reqInviteUserListDto: ReqInviteUserListDto) {
         let where: FindOptionsWhere<User> = {}
         let result: any;
-        where =
-        {
-            createTime: Between(reqInviteUserListDto.params.beginTime, reqInviteUserListDto.params.endTime)
+        let endTime;
+        let beginTime;
+        if (reqInviteUserListDto.params) {
+            endTime = reqInviteUserListDto.params.endTime
+            beginTime = reqInviteUserListDto.params.beginTime
         }
+        endTime = endTime || moment(moment.now()).toDate()
+        if (beginTime)
+            where =
+            {
+                createTime: Between(beginTime, endTime)
+            }
         let user = await this.userRepository.findOneBy({ userName: reqInviteUserListDto.userName, phonenumber: reqInviteUserListDto.phoneNumber })
+        if (!user)
+            throw new ApiException("未发现次用户")
         let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: user.userId })
-        let children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: reqInviteUserListDto.level || 3 })
-        return children
+        if (inviteUser && (inviteUser.id === user.userId)) {
+            const children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: reqInviteUserListDto.level || 3 })
+            return children
+        }
+        return null
     }
 }
