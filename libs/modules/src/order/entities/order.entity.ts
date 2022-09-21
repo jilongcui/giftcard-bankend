@@ -8,11 +8,15 @@ import { Type } from "class-transformer";
 import { Asset } from "@app/modules/collection/entities/asset.entity";
 import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 import { Payment } from "@app/modules/payment/entities/payment.entity";
+import { Excel } from "@app/modules/common/excel/excel.decorator";
 
 @Entity()
 export class Order {
     @PrimaryGeneratedColumn()
     @IsNumber()
+    @Excel({
+        name: '订单ID'
+    })
     id: number
 
     /* 订单描述 */
@@ -21,6 +25,9 @@ export class Order {
         comment: '订单描述'
     })
     @IsString()
+    @Excel({
+        name: '订单描述'
+    })
     desc: string
 
     /* 订单种类 0: 活动 1:市场 2: 充值订单 */
@@ -31,6 +38,12 @@ export class Order {
         length: 1
     })
     @IsString()
+    @Excel({
+        name: '订单类型',
+        readConverterExp: {
+            0: "活动", 1: "市场", 2: "充值订单"
+        }
+    })
     type: string
 
     /* 订单总金额 */
@@ -40,6 +53,9 @@ export class Order {
         comment: '订单总金额'
     })
     @IsNumber()
+    @Excel({
+        name: '订单总金额',
+    })
     totalPrice: number
 
     /* 订单金额 */
@@ -50,6 +66,9 @@ export class Order {
     })
     @IsOptional()
     @IsNumber()
+    @Excel({
+        name: '真实金额',
+    })
     realPrice?: number
 
     /* 订单数量 */
@@ -60,6 +79,9 @@ export class Order {
     })
     @IsOptional()
     @IsNumber()
+    @Excel({
+        name: '订单数量',
+    })
     count?: number
 
     /* 订单状态 0: 订单取消，1:支付中 2: 订单完成 3: 订单过期*/
@@ -70,6 +92,12 @@ export class Order {
         length: 1
     })
     @IsString()
+    @Excel({
+        name: '订单描述',
+        readConverterExp: {
+            0: "订单取消", 1: "支付中", 2: "订单完成", 3: "订单过期"
+        }
+    })
     status: string
 
     /* 订单图片 */
@@ -78,6 +106,9 @@ export class Order {
         comment: '订单图片'
     })
     @IsString()
+    @Excel({
+        name: '订单图片',
+    })
     image: string
 
     /* 关联的活动 */
@@ -89,6 +120,9 @@ export class Order {
     @IsOptional()
     @Type()
     @IsNumber()
+    @Excel({
+        name: '订单活动ID',
+    })
     activityId?: number
 
     /* 订单关联的资产 */
@@ -100,6 +134,9 @@ export class Order {
     @IsOptional()
     @Type()
     @IsNumber()
+    @Excel({
+        name: '订单资产ID',
+    })
     assetId?: number
 
     // @Column({
@@ -115,6 +152,9 @@ export class Order {
         comment: '订单所属用户'
     })
     @IsNumber()
+    @Excel({
+        name: '订单用户ID',
+    })
     userId: number
 
     @Column({
@@ -123,12 +163,18 @@ export class Order {
         comment: '订单所属用户'
     })
     @IsString()
+    @Excel({
+        name: '订单用户名',
+    })
     userName: string
 
     @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',
         comment: '创建时间'
+    })
+    @Excel({
+        name: '创建时间',
     })
     createTime: number
 
@@ -137,6 +183,9 @@ export class Order {
         name: 'invalid_time',
         type: 'datetime',
         comment: '订单失效时间'
+    })
+    @Excel({
+        name: '失效时间',
     })
     invalidTime: Date
 

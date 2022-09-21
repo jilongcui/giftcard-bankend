@@ -126,7 +126,7 @@ export class InviteUserService {
             }
         let user = await this.userRepository.findOneBy({ userName: reqInviteUserListDto.userName, phonenumber: reqInviteUserListDto.phoneNumber })
         if (!user)
-            throw new ApiException("未发现次用户")
+            throw new ApiException("未发现此用户")
         let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: user.userId })
         if (inviteUser && (inviteUser.id === user.userId)) {
             const children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: reqInviteUserListDto.level || 3 })

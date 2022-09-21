@@ -11,6 +11,7 @@ import { AssetRecord } from '../market/entities/asset-record.entity';
 import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
 import { PaymentModule } from '@app/modules/payment/payment.module';
 import { User } from '../system/user/entities/user.entity';
+import { ExcelModule } from '../common/excel/excel.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, Activity, Account, Asset, Collection, AssetRecord, PreemptionWhitelist, User]),

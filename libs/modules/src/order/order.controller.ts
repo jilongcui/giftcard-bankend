@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, Inject, forwardRef, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, Inject, forwardRef, Logger, StreamableFile } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, ListMyOrderDto, ListOrderDto, ListRechargeOrderDto, ListUnpayOrderDto, RechargeOrderDto, SyncInvalidOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
@@ -12,6 +12,10 @@ import { BalancePayService } from '@app/modules/payment/balance-pay.service';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
+import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
+import { Keep } from '@app/common/decorators/keep.decorator';
+import { ExcelService } from '../common/excel/excel.service';
 @ApiTags('订单')
 @ApiBearerAuth()
 @SkipThrottle()
@@ -19,9 +23,11 @@ import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 
 export class OrderController {
   logger = new Logger(OrderController.name)
-  constructor(private readonly orderService: OrderService,
-
-    @Inject(forwardRef(() => BalancePayService)) private readonly balancePayService: BalancePayService) { }
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly excelService: ExcelService,
+    @Inject(forwardRef(() => BalancePayService)) private readonly balancePayService: BalancePayService
+  ) { }
 
   // @Throttle(2, 2000)
   // @Post()
@@ -74,6 +80,17 @@ export class OrderController {
   @ApiPaginatedResponse(Order)
   async list(@Query() listOrderDto: ListOrderDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.orderService.list(listOrderDto, paginationDto);
+  }
+
+  /* 导出订单 */
+  @RepeatSubmit()
+  @Post('export')
+  @RequiresPermissions('monitor:order:export')
+  @Keep()
+  async exportOrder(@Query() listOrderDto: ListOrderDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    const { rows } = await this.orderService.list(listOrderDto, paginationDto);
+    const file = await this.excelService.export(Order, rows)
+    return new StreamableFile(file)
   }
 
   /* 我的订单列表 */
