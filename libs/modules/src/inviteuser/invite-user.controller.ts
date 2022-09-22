@@ -1,8 +1,12 @@
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
+import { Keep } from '@app/common/decorators/keep.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { User, UserEnum } from '@app/common/decorators/user.decorator';
-import { Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
+import { Body, Controller, Get, Param, Post, Query, StreamableFile } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ReqInviteUserListDto } from './dto/request-inviteuser.dto';
 import { InviteUser } from './entities/invite-user.entity';
@@ -67,4 +71,14 @@ export class InviteUserController {
     async parent(@Query('userId') userId: number) {
         return await this.inviteUserService.parent(userId);
     }
+
+    // /* 导出邀请记录 */
+    // @Post('export')
+    // @RequiresPermissions('system:inviteuser:export')
+    // @Keep()
+    // async export(@Body() reqWhitelistDto: ReqInviteUserListDto, @Body(PaginationPipe) paginationDto: PaginationDto,) {
+    //     const { rows } = await this.inviteUserService.list(reqWhitelistDto, paginationDto)
+    //     const file = await this.inviteUserService.export(InviteUser, rows)
+    //     return new StreamableFile(file)
+    // }
 }

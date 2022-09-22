@@ -1,8 +1,14 @@
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
+import { Keep } from '@app/common/decorators/keep.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
-import { CacheInterceptor, CacheKey, CacheTTL, Controller, Get, Query, UseInterceptors } from '@nestjs/common';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
+import { Body, CacheInterceptor, CacheKey, CacheTTL, Controller, Get, Post, Query, StreamableFile, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
+import { AirdropWhitelist } from '../assistant/airdrop/entities/airdrop-whitelist.entity';
+import { ExcelService } from '../common/excel/excel.service';
 import { UserInviteStatsDto } from './dto/request-stats.dto';
 import { ResInviteUserDto } from './dto/response-stats.dto';
 import { StatsService } from './stats.service';
@@ -13,7 +19,8 @@ import { StatsService } from './stats.service';
 @Controller('stats')
 export class StatsController {
     constructor(
-        private readonly statsService: StatsService
+        private readonly statsService: StatsService,
+        private readonly excelService: ExcelService
     ) { }
     @Get('userInviteInfo')
     @Public()
@@ -21,5 +28,15 @@ export class StatsController {
     @ApiDataResponse(typeEnum.objectArr, ResInviteUserDto)
     async userInviteInfo(@Query() userInviteStatsDto: UserInviteStatsDto) {
         return await this.statsService.getUserInviteInfo(userInviteStatsDto);
+    }
+
+    /* 导出邀请记录 */
+    @Post('export')
+    @RequiresPermissions('stats:inviteuser:export')
+    @Keep()
+    async export(@Body() userInviteStatsDto: UserInviteStatsDto, @Body(PaginationPipe) paginationDto: PaginationDto,) {
+        const rows = await this.statsService.getUserInviteInfo(userInviteStatsDto);
+        const file = await this.excelService.export(AirdropWhitelist, rows)
+        return new StreamableFile(file)
     }
 }

@@ -25,6 +25,7 @@ export class StatsService {
         where.createTime = Between(params.beginTime, params.endTime)
         const myQueryBuilder = this.inviteUserRepository.createQueryBuilder('inviteUser')
             .select('count(*)', 'inviteCount')
+            .addSelect('parent.id', 'userId')
             .addSelect('parent.user_name', 'userName')
             .leftJoin('inviteUser.parent', 'parent')
             .where(where)
