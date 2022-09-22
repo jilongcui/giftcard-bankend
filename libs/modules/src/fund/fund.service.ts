@@ -187,10 +187,18 @@ export class FundService {
         // if (bankcard.signNo === undefined || bankcard.signNo === '') {
         //     throw new ApiException('此银行卡没有实名')
         // }
+        if (bankcard.status === '0' || bankcard.status === '2') {
+            throw new ApiException('此银行卡未绑定')
+        }
+        if (bankcard.status === '1' || bankcard.status === '4') {
+            const bankCertitfy = new ReqBankCertifyDto()
+            bankCertitfy.bankcardId = bankcard.id
+            await this.bankCertify(bankCertitfy, userId)
+        }
         let amount = createWithdrawDto.amount
 
-        let fee = amount * 2 / 1000
-        if (fee < 1.0) fee = 3.0
+        let fee = amount * 1 / 1000
+        if (fee < 1.0) fee = 1.0
         amount = amount - fee
 
         if (createWithdrawDto.amount <= fee) {
@@ -240,6 +248,9 @@ export class FundService {
         const withdraw = await this.withdrawRepository.findOneBy({ id: confirmWithdrawDto.withdrawId })
         if (withdraw === null) {
             throw new ApiException('提币记录不存在')
+        }
+        if (withdraw.status !== '0') {
+            throw new ApiException('提币状态不对')
         }
 
         await this.withdrawRepository.manager.transaction(async manager => {
@@ -387,8 +398,11 @@ export class FundService {
         // 银行卡提现 - 取消
         if (withdraw.type === '1') {
             await this.withdrawRepository.manager.transaction(async manager => {
-                await manager.update(Withdraw, { id: withdraw.id }, { status: '3' }) // Unlocked.
-                const result = await manager.increment(Account, { user: { userId: userId }, }, "usable", withdraw.totalPrice);
+                let result = await manager.update(Withdraw, { id: withdraw.id, status: '0' }, { status: '3' }) // Unlocked.
+                if (result.affected <= 0) {
+                    throw new ApiException("未能取消提币")
+                }
+                result = await manager.increment(Account, { user: { userId: userId }, }, "usable", withdraw.totalPrice);
                 if (!result.affected) {
                     throw new ApiException('未能取消当前提现')
                 }
