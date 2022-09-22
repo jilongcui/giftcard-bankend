@@ -5,7 +5,7 @@ import { RequiresPermissions } from '@app/common/decorators/requires-permissions
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { Body, CacheInterceptor, CacheKey, CacheTTL, Controller, Get, Post, Query, StreamableFile, UseInterceptors } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { AirdropWhitelist } from '../assistant/airdrop/entities/airdrop-whitelist.entity';
 import { ExcelService } from '../common/excel/excel.service';
@@ -15,6 +15,7 @@ import { StatsService } from './stats.service';
 
 @ApiTags('统计')
 @SkipThrottle()
+@ApiBearerAuth()
 @UseInterceptors(CacheInterceptor)
 @Controller('stats')
 export class StatsController {
@@ -36,7 +37,7 @@ export class StatsController {
     @Keep()
     async export(@Body() userInviteStatsDto: UserInviteStatsDto, @Body(PaginationPipe) paginationDto: PaginationDto,) {
         const rows = await this.statsService.getUserInviteInfo(userInviteStatsDto);
-        const file = await this.excelService.export(AirdropWhitelist, rows)
+        const file = await this.excelService.export(ResInviteUserDto, rows)
         return new StreamableFile(file)
     }
 }
