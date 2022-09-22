@@ -2,7 +2,7 @@ import { ParamsDto } from '@app/common/dto/params.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import moment from 'moment';
-import { FindOptionsWhere, Between, In, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, Between, In, Like, Repository, IsNull, Not } from 'typeorm';
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { User } from '../system/user/entities/user.entity';
 import { UserInviteStatsDto } from './dto/request-stats.dto';
@@ -23,6 +23,7 @@ export class StatsService {
     async getUserInviteInfo(params: UserInviteStatsDto) {
         let where: FindOptionsWhere<InviteUser> = {}
         where.createTime = Between(params.beginTime, params.endTime)
+        where.parent = Not(IsNull())
         const myQueryBuilder = this.inviteUserRepository.createQueryBuilder('inviteUser')
             .select('count(*)', 'inviteCount')
             .addSelect('parent.id', 'userId')
@@ -36,6 +37,6 @@ export class StatsService {
         // this.logger.debug(myQueryBuilder.getSql())
 
         const resultArr = await myQueryBuilder.getRawMany()
-        return resultArr.map((item, index) => { item.rank = index + 1; return item })
+        return resultArr.map((item, index) => { item.rank = index + 1; if (item.inviteCount >= 1) return item }).filter(l => l != undefined)
     }
 }
