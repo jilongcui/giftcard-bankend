@@ -6,9 +6,13 @@ import { Collection } from './entities/collection.entity';
 import { AssetService } from './asset.service';
 import { AssetController } from './asset.controller';
 import { Asset } from './entities/asset.entity';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Collection, Asset])],
+  imports: [TypeOrmModule.forFeature([Collection, Asset]),
+  ClientsModule.register([
+    { name: 'CHAIN_SERVICE', transport: Transport.TCP, options: { port: 4000 } },
+  ])],
   controllers: [CollectionController, AssetController],
   providers: [CollectionService, AssetService],
   exports: [CollectionService]

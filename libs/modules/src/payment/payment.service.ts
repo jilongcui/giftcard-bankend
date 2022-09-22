@@ -28,6 +28,7 @@ import { ACTIVITY_USER_ORDER_KEY } from '@app/common/contants/redis.contant';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
+import { firstValueFrom } from 'rxjs';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -459,7 +460,7 @@ export class PaymentService {
         mintDto.address = this.platformAddress
         mintDto.tokenId = tokenId.toString()
         mintDto.contractId = collection.contractId
-        this.client.emit(pattern, mintDto)
+        await firstValueFrom(this.client.emit(pattern, mintDto))
       }
 
 

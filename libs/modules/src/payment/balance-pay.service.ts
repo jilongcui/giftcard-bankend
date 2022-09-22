@@ -15,6 +15,7 @@ import { Order } from '@app/modules/order/entities/order.entity';
 import { ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { ACTIVITY_USER_ORDER_KEY } from '@app/common/contants/redis.contant';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class BalancePayService {
@@ -109,7 +110,7 @@ export class BalancePayService {
                 mintDto.address = this.platformAddress
                 mintDto.tokenId = tokenId.toString()
                 mintDto.contractId = collection.contractId
-                this.client.emit(pattern, mintDto)
+                await firstValueFrom(this.client.emit(pattern, mintDto))
                 // this.logger.debug(await firstValueFrom(result))
             }
             await this.redis.del(unpayOrderKey)
