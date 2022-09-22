@@ -21,3 +21,19 @@ export class ResInviteUserDto {
     })
     inviteCount: number
 }
+
+export class StatsNewUserDto {
+    @Excel({
+        name: '用户ID'
+    })
+    userId: number
+    @Excel({
+        name: '用户名'
+    })
+    userName: string
+
+    @Excel({
+        name: '创建时间'
+    })
+    createTime: Date
+}

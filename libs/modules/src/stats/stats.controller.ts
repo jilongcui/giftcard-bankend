@@ -10,7 +10,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { AirdropWhitelist } from '../assistant/airdrop/entities/airdrop-whitelist.entity';
 import { ExcelService } from '../common/excel/excel.service';
 import { UserInviteStatsDto } from './dto/request-stats.dto';
-import { ResInviteUserDto } from './dto/response-stats.dto';
+import { ResInviteUserDto, StatsNewUserDto } from './dto/response-stats.dto';
 import { StatsService } from './stats.service';
 
 @ApiTags('统计')
@@ -31,13 +31,23 @@ export class StatsController {
         return await this.statsService.getUserInviteInfo(userInviteStatsDto);
     }
 
-    /* 导出邀请记录 */
-    @Post('export')
+    /* 导出邀请排名 */
+    @Post('exportInviteRank')
     @RequiresPermissions('stats:inviteuser:export')
     @Keep()
-    async export(@Body() userInviteStatsDto: UserInviteStatsDto, @Body(PaginationPipe) paginationDto: PaginationDto,) {
+    async userInviteLevel(@Body() userInviteStatsDto: UserInviteStatsDto, @Body(PaginationPipe) paginationDto: PaginationDto,) {
         const rows = await this.statsService.getUserInviteInfo(userInviteStatsDto);
         const file = await this.excelService.export(ResInviteUserDto, rows)
+        return new StreamableFile(file)
+    }
+
+    /* 导出新的被邀请用户 */
+    @Post('exportNewUser')
+    @RequiresPermissions('stats:inviteuser:export')
+    @Keep()
+    async newInviteUser(@Body() userInviteStatsDto: UserInviteStatsDto, @Body(PaginationPipe) paginationDto: PaginationDto,) {
+        const rows = await this.statsService.listOfInviteUser(userInviteStatsDto);
+        const file = await this.excelService.export(StatsNewUserDto, rows)
         return new StreamableFile(file)
     }
 }

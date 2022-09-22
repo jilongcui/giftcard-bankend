@@ -39,4 +39,23 @@ export class StatsService {
         const resultArr = await myQueryBuilder.getRawMany()
         return resultArr.map((item, index) => { item.rank = index + 1; if (item.inviteCount >= 1) return item }).filter(l => l != undefined)
     }
+
+    async listOfInviteUser(params: UserInviteStatsDto) {
+        let where: FindOptionsWhere<InviteUser> = {}
+        where.createTime = Between(params.beginTime, params.endTime)
+        where.parent = Not(IsNull())
+        const myQueryBuilder = this.inviteUserRepository.createQueryBuilder('inviteUser')
+            .select('id', 'userId')
+            .addSelect('user_name', 'userName')
+            .addSelect('create_time', 'createTime')
+            // .leftJoin('inviteUser.parent', 'parent')
+            .where(where)
+            .orderBy('create_time', 'ASC')
+        // .limit(params.count)
+        this.logger.debug(myQueryBuilder.getQuery())
+        // this.logger.debug(myQueryBuilder.getSql())
+
+        const resultArr = await myQueryBuilder.getRawMany()
+        return resultArr.filter(l => l != undefined)
+    }
 }
