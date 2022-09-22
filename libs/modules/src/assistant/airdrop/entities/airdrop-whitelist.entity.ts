@@ -32,6 +32,17 @@ export class AirdropWhitelist {
     })
     userId: number
 
+    @Column({
+        name: 'count',
+        default: 1,
+        comment: '空投数量'
+    })
+    @Excel({
+        name: '空投数量'
+    })
+    @IsNumber()
+    count?: number
+
     /* 空投发送状态 0: 未发送 1:发送中 2:发送成功 3:发送失败 */
     @Column({
         name: 'status',
