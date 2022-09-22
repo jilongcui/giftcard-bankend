@@ -6,7 +6,7 @@ export class CreateAirdropWhitelistDto extends OmitType(AirdropWhitelist, ['id',
 export class UpdateAllAirdropWhitelistDto extends AirdropWhitelist { }
 export class UpdateAirdropWhitelistDto extends PartialType(CreateAirdropWhitelistDto) { }
 export class UpdateAirdropWhitelistStatusDto extends PickType(AirdropWhitelist, ['status']) { }
-export class ListAirdropWhitelistDto extends PartialType(OmitType(AirdropWhitelist, ['collection'] as const)) { }
+export class ListAirdropWhitelistDto extends PartialType(OmitType(AirdropWhitelist, ['user', 'collection'] as const)) { }
 export class ListMyAirdropWhitelistDto {
     @IsOptional()
     @IsString()

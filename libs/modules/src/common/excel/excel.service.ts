@@ -27,12 +27,13 @@ export class ExcelService {
     /* 导入 */
     async import<TModel extends Type<any>>(model: TModel, file: Express.Multer.File) {
         try {
+            console.log(file.path)
             const workSheetsFromBuffer = xlsx.parse(fs.readFileSync(file.path))
             const data = workSheetsFromBuffer[0].data
-            if (data.length < 2) throw Error('格式错误')
+            if (data.length < 2) throw Error('格式错误: 数据低于两行')
             const importObjArr = Reflect.getMetadata(EXCEL_ARR_KRY, model) ?? []
             const excelData = await this.formatImport(importObjArr)
-            if (data[0].toString() !== excelData[0].toString()) throw Error('格式错误')
+            if (data[0].toString() !== excelData[0].toString()) throw Error('格式错误：字段错误')
             const objPropertyArr = data[0] as string[]
             const dataArr = data.slice(2)
             const result = []
@@ -45,7 +46,7 @@ export class ExcelService {
             }
             return result;
         } catch (error) {
-            throw new ApiException('文件格式错误')
+            throw new ApiException('文件格式错误', error)
         }
     }
 

@@ -10,6 +10,7 @@ import { Asset } from './entities/asset.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Collection, Asset])],
   controllers: [CollectionController, AssetController],
-  providers: [CollectionService, AssetService]
+  providers: [CollectionService, AssetService],
+  exports: [CollectionService]
 })
 export class CollectionModule { }
