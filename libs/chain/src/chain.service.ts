@@ -11,6 +11,7 @@ export class ChainService {
     tokenUrl: string
     contractAddr: string
     platformPrivateKey: string
+    platformKp: any
     constructor(
         private readonly configService: ConfigService,
     ) {
@@ -22,6 +23,7 @@ export class ChainService {
         this.tokenUrl = this.configService.get<string>('crichain.tokenUrl')
         this.contractAddr = this.configService.get<string>('crichain.contractAddr')
         this.platformPrivateKey = this.configService.get<string>('crichain.platformPrivateKey')
+        this.platformKp = crichain.Account.genFromPrikey(this.platformPrivateKey)
     }
 
     // 初始化账户
@@ -37,9 +39,9 @@ export class ChainService {
         // 解析发行商私钥
         // 0x8fa5914ae97735b19d5cfaac0bf4e04ab55a4dab
         if (!privateKey) {
-            privateKey = this.platformPrivateKey
+            return this.platformKp
         }
-        let kp = crichain.Account.genFromPrikey(privateKey);
+        let kp = await crichain.Account.genFromPrikey(privateKey)
         this.logger.debug(kp)
         return kp
     }
@@ -66,7 +68,7 @@ export class ChainService {
         // Check the transaction.
         const kp = await this.decodePrivate()
         const url = this.tokenUrl + mintDto.tokenId
-        let result = await crichain.Contract.safeMint(kp, this.contractAddr, mintDto.address, mintDto.tokenId, url);
+        let result = await crichain.Contract.safeMint(kp, mintDto.contractAddr, mintDto.address, mintDto.tokenId, url);
         this.logger.debug("safeMint", result);
         // safeMint {
         //     retCode: 1,
@@ -78,7 +80,7 @@ export class ChainService {
     // 转移所有权
     async transfer(tansferDto: TransferDto) {
         const kp = await this.decodePrivate()
-        let result3 = await crichain.Contract.safeTransfer(kp, this.contractAddr, tansferDto.address, tansferDto.tokenId);
+        let result3 = await crichain.Contract.safeTransfer(kp, tansferDto.contractAddr, tansferDto.address, tansferDto.tokenId);
         console.log("safeTransfer", result3);
     }
 
@@ -92,7 +94,7 @@ export class ChainService {
     // 销毁NFT
     async destroy(destroyDto: DestroyDto) {
         const kp = await this.decodePrivate()
-        let result5 = await crichain.Contract.burn(kp, this.contractAddr, destroyDto.tokenId);
+        let result5 = await crichain.Contract.burn(kp, destroyDto.contractAddr, destroyDto.tokenId);
         console.log("burn", result5);
     }
 }

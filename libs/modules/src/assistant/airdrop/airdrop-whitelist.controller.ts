@@ -4,7 +4,7 @@ import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-respo
 import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
-import { AirdropWhitelistService } from './airdrop-whitelist.service';
+import { AirdropWhitelistService } from './airdropWhitelist.service';
 import { CreateAirdropWhitelistDto, ListAirdropWhitelistDto, UpdateAirdropWhitelistDto } from './dto/request-airdrop-whitelist.dto';
 import { AirdropWhitelist } from './entities/airdrop-whitelist.entity';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
@@ -47,6 +47,12 @@ export class AirdropWhitelistController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.airdropService.remove(+id);
+  }
+
+  @Post('syncAirdropWhiteList')
+  // @RequiresPermissions('system:order:sync')
+  async syncAirdropWhiteList() {
+    return await this.airdropService.syncAirdropWhiteList()
   }
 
   /* 导出空投记录 */

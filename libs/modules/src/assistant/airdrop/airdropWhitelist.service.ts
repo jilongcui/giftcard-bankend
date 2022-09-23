@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -8,15 +8,34 @@ import { AirdropWhitelist } from './entities/airdrop-whitelist.entity';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { CollectionService } from '@app/modules/collection/collection.service';
 import { UserService } from '@app/modules/system/user/user.service';
+import { MintADto } from '@app/chain/dto/request-chain.dto';
+import { firstValueFrom } from 'rxjs';
 import * as moment from 'moment';
+import { ConfigService } from '@nestjs/config';
+import { ClientProxy } from '@nestjs/microservices';
+import { Collection } from '@app/modules/collection/entities/collection.entity';
+import { User } from '@app/modules/system/user/entities/user.entity';
+import { CreateAssetDto } from '@app/modules/collection/dto/request-asset.dto';
+import { AssetRecord } from '@app/modules/market/entities/asset-record.entity';
+import { Asset } from '@app/modules/collection/entities/asset.entity';
 
 @Injectable()
 export class AirdropWhitelistService {
+  logger = new Logger(AirdropWhitelistService.name)
+  // platformAddress: string
   constructor(
+    // @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
+    // @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
+    // @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
     private readonly collectionService: CollectionService,
     private readonly userService: UserService,
+    // private readonly configService: ConfigService,
+    // @Inject('CHAIN_SERVICE') private client: ClientProxy,
     @InjectRepository(AirdropWhitelist) private readonly airdropWhitelistRepository: Repository<AirdropWhitelist>
-  ) { }
+  ) {
+    // this.platformAddress = this.configService.get<string>('crichain.platformAddress')
+  }
+
   async create(createAirdropWhitelistDto: CreateAirdropWhitelistDto) {
     return await this.airdropWhitelistRepository.save(createAirdropWhitelistDto)
   }
@@ -89,21 +108,29 @@ export class AirdropWhitelistService {
   }
 
   /* 同步空投白名单记录 */
-  async syncAirdropWhiteList(activityId?: number) {
+  async syncAirdropWhiteList() {
     let where: FindOptionsWhere<AirdropWhitelist> = {}
     let result: any;
+    let totalCount = 0;
     where =
     {
       status: '0',
-      updateTime: MoreThanOrEqual(moment(moment.now()).subtract(1, 'day').toDate())
+      updateTime: LessThanOrEqual(moment(moment.now()).subtract(2, 'minute').toDate())
     }
     // let totalCount: number = 0;
-    const [airdrops, totalCount] = await this.airdropWhitelistRepository.findAndCountBy(where)
-    if (totalCount === 0) return
+    const [airdrops, airdropCount] = await this.airdropWhitelistRepository.findAndCount({ where, take: 50 })
+    this.logger.debug(airdropCount)
+    if (airdropCount === 0) return
 
-    for (let i = 0; i < totalCount; i++) {
+    for (let i = 0; i < airdropCount; i++) {
       const price = 2.0
       const airdrop = airdrops[i]
+      if (airdrop.count > 100) {
+        await this.airdropWhitelistRepository.manager.transaction(async manager => {
+          let result = await manager.update(AirdropWhitelist, { id: airdrop.id, status: '0' }, { status: '3' }) // error
+        })
+        return
+      }
       const collection = await this.collectionService.findOne(airdrop.collectionId)
       if (!collection) continue
       const user = await this.userService.findById(airdrop.userId)
@@ -114,9 +141,47 @@ export class AirdropWhitelistService {
         await this.collectionService.sendChainTransaction(collection, user, airdrop.count, price)
         // 传输完成.
         result = await manager.update(AirdropWhitelist, { id: airdrop.id, status: '1' }, { status: '2' })
+        totalCount = totalCount + airdrop.count
+        const logger = new Logger(AirdropWhitelistService.name)
+        logger.debug('totalCount1', totalCount)
       })
+      this.logger.debug('totalCount2', totalCount)
+      if (totalCount > 200) {
+        return
+      }
+
     }
     return totalCount;
   }
+
+  // async sendChainTransaction(collection: Collection, user: User, count: number, price: number) {
+  //   // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+  //   await this.collectionRepository.increment({ id: collection.id, }, "current", count);
+  //   const tokenId = Math.floor((Math.random() * 999999999) + 1000000000);
+  //   for (let i = 0; i < count; i++) {
+  //     let createAssetDto = new CreateAssetDto()
+  //     createAssetDto.price = price
+  //     createAssetDto.assetNo = tokenId;
+  //     createAssetDto.userId = user.userId
+  //     createAssetDto.collectionId = collection.id
+
+  //     const asset = await this.assetRepository.save(createAssetDto)
+  //     // 记录交易记录
+  //     await this.assetRecordRepository.save({
+  //       type: '2', // Buy
+  //       assetId: asset.id,
+  //       price: price,
+  //       toId: user.userId,
+  //       toName: user.nickName
+  //     })
+
+  //     const pattern = { cmd: 'mintA' }
+  //     const mintDto = new MintADto()
+  //     mintDto.address = this.platformAddress
+  //     mintDto.tokenId = tokenId.toString()
+  //     mintDto.contractId = collection.contractId
+  //     await firstValueFrom(this.client.emit(pattern, mintDto))
+  //   }
+  // }
 
 }

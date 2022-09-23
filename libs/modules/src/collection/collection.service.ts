@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -17,10 +17,11 @@ import { firstValueFrom } from 'rxjs';
 @Injectable()
 export class CollectionService {
   platformAddress: string
+  logger = new Logger(CollectionService.name)
   constructor(
     @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
-    @InjectRepository(Asset) private readonly assetRecordRepository: Repository<AssetRecord>,
+    @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
     private readonly configService: ConfigService,
     @Inject('CHAIN_SERVICE') private client: ClientProxy,
   ) {
@@ -63,7 +64,7 @@ export class CollectionService {
   }
 
   findOne(id: number) {
-    return this.collectionRepository.findOne({ where: { id }, relations: ['author', 'contract'], })
+    return this.collectionRepository.findOne({ where: { id: id }, relations: ['author', 'contract'], })
   }
 
   update(id: number, updateCollectionDto: UpdateCollectionDto) {
@@ -104,7 +105,9 @@ export class CollectionService {
       mintDto.address = this.platformAddress
       mintDto.tokenId = tokenId.toString()
       mintDto.contractId = collection.contractId
-      await firstValueFrom(this.client.emit(pattern, mintDto))
+      mintDto.contractAddr = collection.contract.address
+      const result = await firstValueFrom(this.client.emit(pattern, mintDto))
+      this.logger.debug(result)
     }
   }
 
