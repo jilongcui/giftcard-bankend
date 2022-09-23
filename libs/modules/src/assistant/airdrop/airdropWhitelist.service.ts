@@ -123,7 +123,7 @@ export class AirdropWhitelistService {
     if (airdropCount === 0) return
 
     for (let i = 0; i < airdropCount; i++) {
-      const price = 6.6
+      const price = 0.0
       const airdrop = airdrops[i]
       if (airdrop.count > 500) {
         await this.airdropWhitelistRepository.manager.transaction(async manager => {
