@@ -97,7 +97,7 @@ export class CollectionService {
     }
   }
 
-  /* 分页查询 */
+  /* collection下的asset分页查询*/
   async assetList(collectionId: number, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
     let where: FindOptionsWhere<Asset> = {}
     let result: any;
@@ -109,7 +109,38 @@ export class CollectionService {
         assetNo: true,
         price: true,
         status: true,
+        userId: true,
         createTime: true
+      },
+      where,
+      skip: paginationDto.skip,
+      take: paginationDto.take || 20,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  /* collection下的asset分页查询 */
+  async myAssetList(collectionId: number, userId: number, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
+    let where: FindOptionsWhere<Asset> = {}
+    let result: any;
+
+    where.collectionId = collectionId
+    where.userId = userId
+    result = await this.assetRepository.findAndCount({
+      select: {
+        id: true,
+        assetNo: true,
+        price: true,
+        status: true,
+        userId: true,
+        createTime: true,
       },
       where,
       skip: paginationDto.skip,

@@ -50,11 +50,16 @@ export class CollectionController {
     return await this.collectionService.mylist(userId, listMyCollectionDto, paginationDto);
   }
 
-  @Get(':collectionId/assets')
-  @Public()
+  @Get(':id/assets')
   @ApiPaginatedResponse(Asset)
-  async assetList(@Param('collectionId') id: string, @Query(PaginationPipe) paginationDto: PaginationDto) {
+  async assetList(@Param('collectionId') id: string, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.collectionService.assetList(+id, paginationDto);
+  }
+
+  @Get(':id/myAssets')
+  @ApiPaginatedResponse(Asset)
+  async myAssetList(@Param('collectionId') id: string, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.collectionService.myAssetList(+id, userId, paginationDto);
   }
 
   /* 更新产品 */
