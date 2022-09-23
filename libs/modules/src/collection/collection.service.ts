@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { FindOptionsWhere, In, Like, Repository } from 'typeorm';
-import { CreateCollectionDto, UpdateCollectionDto, ListCollectionDto } from './dto/request-collection.dto';
+import { CreateCollectionDto, UpdateCollectionDto, ListCollectionDto, ListMyCollectionDto } from './dto/request-collection.dto';
 import { Collection } from './entities/collection.entity';
 import { CreateAssetDto } from './dto/request-asset.dto';
 import { User } from '../system/user/entities/user.entity';
@@ -57,6 +57,35 @@ export class CollectionService {
       }
     })
 
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  /* 我的藏品查询 */
+  async mylist(userId: number, listMyCollectionDto: ListMyCollectionDto, paginationDto: PaginationDto): Promise<PaginatedDto<Collection>> {
+    let where: FindOptionsWhere<Collection> = {}
+    let result: any;
+    where = {
+      ...listMyCollectionDto,
+    }
+    // if (listMyCollectionDto.status === '1')
+    //   where.invalidTime = MoreThanOrEqual(moment(moment.now()).toDate())
+
+    const myQueryBuilder = await this.assetRepository.createQueryBuilder('asset')
+      .select('count(*)', 'inviteCount')
+      .addSelect('parent.id', 'userId')
+      .addSelect('parent.user_name', 'userName')
+      .leftJoin('asset.collection', 'collection')
+      .where(where)
+      .orderBy('inviteCount', 'DESC')
+      .groupBy('asset.collection_id')
+    // .limit(params.count)
+    this.logger.debug(myQueryBuilder.getQuery())
+
+    let resultArr = await myQueryBuilder.getRawMany()
+    resultArr = resultArr.map((item, index) => { item.rank = index + 1; if (item.inviteCount >= 1) return item }).filter(l => l != undefined)
     return {
       rows: result[0],
       total: result[1]

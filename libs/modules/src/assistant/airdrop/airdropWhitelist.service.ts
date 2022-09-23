@@ -93,7 +93,7 @@ export class AirdropWhitelistService {
     for await (const iterator of data) {
       let whitelist = new AirdropWhitelist()
       if (!iterator.collectionIds || !iterator.userId) throw new ApiException('藏品ID和用户ID不能为空')
-      const collections = await this.collectionService.findByIds(iterator.collectionIds)
+      const collections = await this.collectionService.findByIds(iterator.collectionIds.toString())
       if (!collections || collections.length === 0) throw new ApiException('藏品不存在')
       const user = await this.userService.findById(iterator.userId)
       if (!user) throw new ApiException('用户不存在')
