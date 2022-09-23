@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Logger, Put } from '@nestjs/common';
 import { CollectionService } from './collection.service';
-import { CreateCollectionDto, ListCollectionDto, UpdateCollectionDto } from './dto/request-collection.dto';
+import { CreateCollectionDto, ListCollectionDto, ListMyCollectionDto, UpdateCollectionDto } from './dto/request-collection.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -39,6 +39,14 @@ export class CollectionController {
   @ApiPaginatedResponse(Collection)
   async list(@Query() listCollectionDto: ListCollectionDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.collectionService.list(listCollectionDto, paginationDto);
+  }
+
+
+  /* 我的订单列表 */
+  @Get('myList')
+  @ApiPaginatedResponse(Collection)
+  async mylist(@Query() listMyCollectionDto: ListMyCollectionDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.collectionService.mylist(userId, listMyCollectionDto, paginationDto);
   }
 
   @Get(':id')

@@ -65,30 +65,35 @@ export class CollectionService {
 
   /* 我的藏品查询 */
   async mylist(userId: number, listMyCollectionDto: ListMyCollectionDto, paginationDto: PaginationDto): Promise<PaginatedDto<Collection>> {
-    let where: FindOptionsWhere<Collection> = {}
+    let where: FindOptionsWhere<Asset> = {}
     let result: any;
     where = {
       ...listMyCollectionDto,
+      userId: userId,
     }
     // if (listMyCollectionDto.status === '1')
     //   where.invalidTime = MoreThanOrEqual(moment(moment.now()).toDate())
 
     const myQueryBuilder = await this.assetRepository.createQueryBuilder('asset')
-      .select('count(*)', 'inviteCount')
-      .addSelect('parent.id', 'userId')
-      .addSelect('parent.user_name', 'userName')
+      .select('count(*)', 'mycount')
+      .addSelect('collection.id', 'id')
+      .addSelect('collection.name', 'name')
+      .addSelect('collection.supply', 'supply')
+      .addSelect('collection.current', 'current')
+      .addSelect('collection.status', 'status')
+      .addSelect('collection.images', 'images')
       .leftJoin('asset.collection', 'collection')
       .where(where)
-      .orderBy('inviteCount', 'DESC')
+      .orderBy('collection.create_time', 'DESC')
       .groupBy('asset.collection_id')
     // .limit(params.count)
     this.logger.debug(myQueryBuilder.getQuery())
 
     let resultArr = await myQueryBuilder.getRawMany()
-    resultArr = resultArr.map((item, index) => { item.rank = index + 1; if (item.inviteCount >= 1) return item }).filter(l => l != undefined)
+    resultArr = resultArr.filter(l => l != undefined)
     return {
-      rows: result[0],
-      total: result[1]
+      rows: resultArr,
+      total: resultArr.length
     }
   }
 
