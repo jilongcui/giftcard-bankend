@@ -14,6 +14,7 @@ import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
+import { Asset } from './entities/asset.entity';
 
 @ApiTags('藏品集合')
 @Controller('collection')
@@ -49,10 +50,11 @@ export class CollectionController {
     return await this.collectionService.mylist(userId, listMyCollectionDto, paginationDto);
   }
 
-  @Get(':id')
+  @Get(':collectionId/assets')
   @Public()
-  async findOne(@Param('id') id: string) {
-    return await this.collectionService.findOne(+id);
+  @ApiPaginatedResponse(Asset)
+  async assetList(@Param('collectionId') id: string, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.collectionService.assetList(+id, paginationDto);
   }
 
   /* 更新产品 */

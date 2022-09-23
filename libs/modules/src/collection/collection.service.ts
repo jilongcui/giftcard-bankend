@@ -87,13 +87,41 @@ export class CollectionService {
       .orderBy('collection.create_time', 'DESC')
       .groupBy('asset.collection_id')
     // .limit(params.count)
-    this.logger.debug(myQueryBuilder.getQuery())
+    // this.logger.debug(myQueryBuilder.getQuery())
 
     let resultArr = await myQueryBuilder.getRawMany()
     resultArr = resultArr.filter(l => l != undefined)
     return {
       rows: resultArr,
       total: resultArr.length
+    }
+  }
+
+  /* 分页查询 */
+  async assetList(collectionId: number, paginationDto: PaginationDto): Promise<PaginatedDto<Asset>> {
+    let where: FindOptionsWhere<Asset> = {}
+    let result: any;
+
+    where.collectionId = collectionId
+    result = await this.assetRepository.findAndCount({
+      select: {
+        id: true,
+        assetNo: true,
+        price: true,
+        status: true,
+        createTime: true
+      },
+      where,
+      skip: paginationDto.skip,
+      take: paginationDto.take || 20,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
     }
   }
 
