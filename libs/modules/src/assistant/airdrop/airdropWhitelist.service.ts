@@ -56,7 +56,7 @@ export class AirdropWhitelistService {
       //     name: true,
       //   }
       // },
-      where: [where, {}],
+      where: where,
       relations: { user: true },
       skip: paginationDto.skip,
       take: paginationDto.take,
