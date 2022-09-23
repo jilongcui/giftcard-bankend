@@ -14,24 +14,24 @@ import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 @ApiBearerAuth()
 @Controller('account')
 export class AccountController {
-  constructor(private readonly activityService: AccountService) { }
+  constructor(private readonly accountService: AccountService) { }
 
   @Post()
   @RequiresRoles(['admin', 'system'])
   async create(@Body() createAccountDto: CreateAccountDto) {
-    return await this.activityService.create(createAccountDto);
+    return await this.accountService.create(createAccountDto);
   }
 
   @Put(':id')
   @RequiresRoles(['admin', 'system'])
   async updateAll(@Param('id') id: string, @Body() updateAllAccountDto: UpdateAllAccountDto) {
-    return await this.activityService.addOrUpdateAll(updateAllAccountDto);
+    return await this.accountService.addOrUpdateAll(updateAllAccountDto);
   }
 
   @Patch(':id')
   @RequiresRoles(['admin', 'system'])
   async update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
-    return await this.activityService.update(+id, updateAccountDto);
+    return await this.accountService.update(+id, updateAccountDto);
   }
 
   /* 产品列表 */
@@ -39,23 +39,23 @@ export class AccountController {
   @Public()
   @ApiPaginatedResponse(Account)
   async list(@Query() listAccountDto: ListAccountDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return await this.activityService.list(listAccountDto, paginationDto);
+    return await this.accountService.list(listAccountDto, paginationDto);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return await this.activityService.findOne(+id);
+    return await this.accountService.findOne(+id);
   }
 
   @Delete(':id')
   @RequiresRoles(['admin', 'system'])
   async removeOne(@Param('id') id: string) {
-    return await this.activityService.deleteOne(+id);
+    return await this.accountService.deleteOne(+id);
   }
 
   @Delete(':ids')
   @RequiresRoles(['admin', 'system'])
   async remove(@Param('ids') ids: string) {
-    return await this.activityService.delete(ids.split(','));
+    return await this.accountService.delete(ids.split(','));
   }
 }

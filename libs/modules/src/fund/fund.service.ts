@@ -286,6 +286,7 @@ export class FundService {
             // 把Withdraw的状态改成2: 已支付
             await manager.update(Withdraw, { id: withdraw.id }, { status: '2' })
             await manager.increment(Account, { userId: 1 }, "usable", withdraw.totalFee)
+            const result2 = await manager.decrement(Account, { user: { userId: userId } }, "freeze", withdraw.totalPrice);
             const bankName = bankCardInfo.bank_name
             const bankNo = bankCardInfo.bank_type // 0
             const reason = '结算艺术家分成佣金'
@@ -406,6 +407,8 @@ export class FundService {
                 if (!result.affected) {
                     throw new ApiException('未能取消当前提现')
                 }
+                const result2 = await manager.decrement(Account, { user: { userId: userId } }, "freeze", withdraw.totalPrice);
+
                 this.logger.debug('Success')
 
                 const withdrawFlow = new WithdrawFlow()
@@ -435,6 +438,7 @@ export class FundService {
                 if (!result.affected) {
                     throw new ApiException('未能拒绝当前提现')
                 }
+                const result2 = await manager.decrement(Account, { user: { userId: userId } }, "freeze", withdraw.totalPrice);
                 this.logger.debug('Success')
                 const withdrawFlow = new WithdrawFlow()
                 withdrawFlow.step = '1'
