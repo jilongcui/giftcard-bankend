@@ -3,7 +3,7 @@ import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { ExcelTypeEnum } from "@app/modules/common/excel/excel.enum";
 import { User } from "@app/modules/system/user/entities/user.entity";
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
@@ -13,14 +13,14 @@ export class AirdropWhitelist {
     id: number
 
     @Column({
-        name: 'collection_id',
+        name: 'collection_ids',
         comment: '空投的藏品集合'
     })
-    @IsNumber()
+    @IsString()
     @Excel({
         name: '藏品ID'
     })
-    collectionId: number
+    collectionIds: string
 
     @Column({
         name: 'user_id',
@@ -31,6 +31,18 @@ export class AirdropWhitelist {
         name: '用户ID'
     })
     userId: number
+
+    @Column({
+        name: 'user_name',
+        comment: '空投用户名',
+        default: '',
+        length: 30
+    })
+    @Excel({
+        name: '用户名'
+    })
+    @IsString()
+    userName?: string
 
     @Column({
         name: 'count',
@@ -60,20 +72,6 @@ export class AirdropWhitelist {
         }
     })
     status: string
-
-    @Column({
-        name: 'tx',
-        default: '',
-        comment: '交易id'
-    })
-    @Excel({
-        type: ExcelTypeEnum.EXPORT,
-        defaultValue: '',
-        name: '交易ID'
-    })
-    @IsOptional()
-    @IsString()
-    tx?: string
 
     /* 领取方式 0: 直接发放，1:需要领取 */
     @Column({
@@ -117,11 +115,11 @@ export class AirdropWhitelist {
     })
     user: User
 
-    @ApiHideProperty()
-    @ManyToOne(() => Collection)
-    @JoinColumn({
-        name: 'collection_id',
-    })
-    collection: Collection
+    // @ApiHideProperty()
+    // @ManyToOne(() => Collection)
+    // @JoinColumn({
+    //     name: 'collection_id',
+    // })
+    // collection: Collection
 }
 

@@ -110,7 +110,7 @@ export class BalancePayService {
                 mintDto.address = this.platformAddress
                 mintDto.tokenId = tokenId.toString()
                 mintDto.contractId = collection.contractId
-                await firstValueFrom(this.client.emit(pattern, mintDto))
+                await firstValueFrom(this.client.send(pattern, mintDto))
                 // this.logger.debug(await firstValueFrom(result))
             }
             await this.redis.del(unpayOrderKey)

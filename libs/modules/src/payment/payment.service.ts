@@ -460,7 +460,7 @@ export class PaymentService {
         mintDto.address = this.platformAddress
         mintDto.tokenId = tokenId.toString()
         mintDto.contractId = collection.contractId
-        await firstValueFrom(this.client.emit(pattern, mintDto))
+        await firstValueFrom(this.client.send(pattern, mintDto))
       }
 
 

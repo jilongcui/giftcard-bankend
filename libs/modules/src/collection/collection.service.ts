@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Like, Repository } from 'typeorm';
 import { CreateCollectionDto, UpdateCollectionDto, ListCollectionDto } from './dto/request-collection.dto';
 import { Collection } from './entities/collection.entity';
 import { CreateAssetDto } from './dto/request-asset.dto';
@@ -67,6 +67,10 @@ export class CollectionService {
     return this.collectionRepository.findOne({ where: { id: id }, relations: ['author', 'contract'], })
   }
 
+  findByIds(ids: string) {
+    return this.collectionRepository.findBy({ id: In(ids.split(',')) })
+  }
+
   update(id: number, updateCollectionDto: UpdateCollectionDto) {
     return `This action updates a #${id} collection`;
   }
@@ -78,19 +82,20 @@ export class CollectionService {
     return this.collectionRepository.delete(noticeIdArr)
   }
 
-  async sendChainTransaction(collection: Collection, user: User, count: number, price: number) {
+  async sendChainTransaction(collectionIds: string[], user: User, count: number, price: number) {
     // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
-    await this.collectionRepository.increment({ id: collection.id, }, "current", count);
+    const collections = await this.collectionRepository.findBy({ id: In(collectionIds) })
     let tokenId: number
     for (let i = 0; i < count; i++) {
       tokenId = this.randomTokenId()
+      const collection = collections[i % collections.length]
       let createAssetDto = new CreateAssetDto()
       createAssetDto.price = price
       createAssetDto.assetNo = tokenId
       createAssetDto.userId = user.userId
       createAssetDto.collectionId = collection.id
-
       const asset = await this.assetRepository.save(createAssetDto)
+      await this.collectionRepository.increment({ id: collection.id, }, "current", count);
       // 记录交易记录
       await this.assetRecordRepository.save({
         type: '2', // Buy
@@ -100,14 +105,14 @@ export class CollectionService {
         toName: user.nickName
       })
 
-      const pattern = { cmd: 'mintA' }
-      const mintDto = new MintADto()
-      mintDto.address = this.platformAddress
-      mintDto.tokenId = tokenId.toString()
-      mintDto.contractId = collection.contractId
-      mintDto.contractAddr = collection.contract.address
-      const result = await firstValueFrom(this.client.emit(pattern, mintDto))
-      this.logger.debug(result)
+      // const pattern = { cmd: 'mintA' }
+      // const mintDto = new MintADto()
+      // mintDto.address = this.platformAddress
+      // mintDto.tokenId = tokenId.toString()
+      // mintDto.contractId = collection.contractId
+      // mintDto.contractAddr = collection.contract.address
+      // const result = await firstValueFrom(this.client.send(pattern, mintDto))
+      // this.logger.debug(result)
     }
   }
 

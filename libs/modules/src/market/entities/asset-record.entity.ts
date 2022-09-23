@@ -77,6 +77,17 @@ export class AssetRecord {
     @IsString()
     toName?: string
 
+    @Column({
+        name: 'txId',
+        default: null,
+        nullable: true,
+        length: 128,
+        comment: '交易id'
+    })
+    @IsOptional()
+    @IsString()
+    txId?: string
+
     @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',

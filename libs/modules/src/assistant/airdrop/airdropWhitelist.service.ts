@@ -57,7 +57,7 @@ export class AirdropWhitelistService {
       //   }
       // },
       where: [where, {}],
-      relations: { collection: true, user: true },
+      relations: { user: true },
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -72,7 +72,7 @@ export class AirdropWhitelistService {
   }
 
   async findOne(id: number) {
-    return await this.airdropWhitelistRepository.findOne({ where: { id }, relations: { collection: true } });
+    return await this.airdropWhitelistRepository.findOne({ where: { id }, relations: {} });
   }
 
   async update(id: number, updateAirdropWhitelistDto: UpdateAirdropWhitelistDto) {
@@ -92,9 +92,9 @@ export class AirdropWhitelistService {
     let whitelistArr: AirdropWhitelist[] = []
     for await (const iterator of data) {
       let whitelist = new AirdropWhitelist()
-      if (!iterator.collectionId || !iterator.userId) throw new ApiException('藏品ID和用户ID不能为空')
-      const collection = await this.collectionService.findOne(iterator.collectionId)
-      if (!collection) throw new ApiException('藏品不存在')
+      if (!iterator.collectionIds || !iterator.userId) throw new ApiException('藏品ID和用户ID不能为空')
+      const collections = await this.collectionService.findByIds(iterator.collectionIds)
+      if (!collections || collections.length === 0) throw new ApiException('藏品不存在')
       const user = await this.userService.findById(iterator.userId)
       if (!user) throw new ApiException('用户不存在')
       whitelist = Object.assign(whitelist, iterator)
@@ -119,26 +119,26 @@ export class AirdropWhitelistService {
     }
     // let totalCount: number = 0;
     const [airdrops, airdropCount] = await this.airdropWhitelistRepository.findAndCount({ where, take: 50 })
-    this.logger.debug(airdropCount)
+    // this.logger.debug(airdropCount)
     if (airdropCount === 0) return
 
     for (let i = 0; i < airdropCount; i++) {
-      const price = 2.0
+      const price = 6.6
       const airdrop = airdrops[i]
-      if (airdrop.count > 100) {
+      if (airdrop.count > 500) {
         await this.airdropWhitelistRepository.manager.transaction(async manager => {
           let result = await manager.update(AirdropWhitelist, { id: airdrop.id, status: '0' }, { status: '3' }) // error
         })
         return
       }
-      const collection = await this.collectionService.findOne(airdrop.collectionId)
-      if (!collection) continue
+      // const collection = await this.collectionService.findOne(airdrop.collectionId)
+      // if (!collection) continue
       const user = await this.userService.findById(airdrop.userId)
       if (!user) continue
       await this.airdropWhitelistRepository.manager.transaction(async manager => {
         // 开始传输.
         let result = await manager.update(AirdropWhitelist, { id: airdrop.id, status: '0' }, { status: '1' })
-        await this.collectionService.sendChainTransaction(collection, user, airdrop.count, price)
+        await this.collectionService.sendChainTransaction(airdrop.collectionIds.split(','), user, airdrop.count, price)
         // 传输完成.
         result = await manager.update(AirdropWhitelist, { id: airdrop.id, status: '1' }, { status: '2' })
         totalCount = totalCount + airdrop.count
@@ -146,7 +146,7 @@ export class AirdropWhitelistService {
         logger.debug('totalCount1', totalCount)
       })
       this.logger.debug('totalCount2', totalCount)
-      if (totalCount > 200) {
+      if (totalCount >= 500) {
         return
       }
 
@@ -180,7 +180,7 @@ export class AirdropWhitelistService {
   //     mintDto.address = this.platformAddress
   //     mintDto.tokenId = tokenId.toString()
   //     mintDto.contractId = collection.contractId
-  //     await firstValueFrom(this.client.emit(pattern, mintDto))
+  //     await firstValueFrom(this.client.send(pattern, mintDto))
   //   }
   // }
 
