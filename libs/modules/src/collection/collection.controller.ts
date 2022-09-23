@@ -51,8 +51,9 @@ export class CollectionController {
   }
 
   @Get(':id/assets')
+  @Public()
   @ApiPaginatedResponse(Asset)
-  async assetList(@Param('collectionId') id: string, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+  async assetList(@Param('collectionId') id: string, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.collectionService.assetList(+id, paginationDto);
   }
 
