@@ -181,7 +181,8 @@ export class CollectionService {
     let tokenId: number
     for (let i = 0; i < count; i++) {
       tokenId = this.randomTokenId()
-      const collection = collections[i % collections.length]
+      const index = this.randomIndex(collections.length)
+      const collection = collections[index]
       let createAssetDto = new CreateAssetDto()
       createAssetDto.price = price
       createAssetDto.assetNo = tokenId
@@ -208,7 +209,9 @@ export class CollectionService {
       // this.logger.debug(result)
     }
   }
-
+  private randomIndex(max: number): number {
+    return Math.floor(Math.random() * max);
+  }
   private randomTokenId(): number {
     return Math.floor((Math.random() * 999999999) + 1000000000);
   }

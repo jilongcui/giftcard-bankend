@@ -118,14 +118,15 @@ export class AirdropWhitelistService {
       updateTime: LessThanOrEqual(moment(moment.now()).subtract(2, 'minute').toDate())
     }
     // let totalCount: number = 0;
-    const [airdrops, airdropCount] = await this.airdropWhitelistRepository.findAndCount({ where, take: 50 })
-    // this.logger.debug(airdropCount)
-    if (airdropCount === 0) return
+    const airdrops = await this.airdropWhitelistRepository.find({ where, take: 50 })
+    this.logger.debug(airdrops.length)
+    if (airdrops.length === 0) return
 
-    for (let i = 0; i < airdropCount; i++) {
+    for (let i = 0; i < airdrops.length; i++) {
       const price = 0.0
       const airdrop = airdrops[i]
-      if (airdrop.count > 500) {
+      const count = airdrop.count
+      if (count > 500) {
         await this.airdropWhitelistRepository.manager.transaction(async manager => {
           let result = await manager.update(AirdropWhitelist, { id: airdrop.id, status: '0' }, { status: '3' }) // error
         })
@@ -138,14 +139,13 @@ export class AirdropWhitelistService {
       await this.airdropWhitelistRepository.manager.transaction(async manager => {
         // 开始传输.
         let result = await manager.update(AirdropWhitelist, { id: airdrop.id, status: '0' }, { status: '1' })
-        await this.collectionService.sendChainTransaction(airdrop.collectionIds.split(','), user, airdrop.count, price)
+        await this.collectionService.sendChainTransaction(airdrop.collectionIds.split(','), user, count, price)
         // 传输完成.
         result = await manager.update(AirdropWhitelist, { id: airdrop.id, status: '1' }, { status: '2' })
-        totalCount = totalCount + airdrop.count
+        totalCount = totalCount + count
         const logger = new Logger(AirdropWhitelistService.name)
-        logger.debug('totalCount1', totalCount)
       })
-      this.logger.debug('totalCount2', totalCount)
+      this.logger.debug('totalCount', totalCount)
       if (totalCount >= 500) {
         return
       }
