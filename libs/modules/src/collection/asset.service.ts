@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -6,9 +6,11 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { CreateAssetDto, UpdateAssetDto, ListAssetDto, FlowAssetDto } from './dto/request-asset.dto';
 import { Asset } from './entities/asset.entity';
+import { Collection } from './entities/collection.entity';
 
 @Injectable()
 export class AssetService {
+  logger = new Logger(AssetService.name)
   constructor(
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
   ) { }
@@ -55,8 +57,16 @@ export class AssetService {
     let where: FindOptionsWhere<Asset> = {}
     let result: any;
 
-    where = listAssetList;
-    where.userId = userId;
+    where = {
+      ...listAssetList,
+      userId: userId,
+      collection: {
+        name: paginationDto.keywords ? Like(`%${paginationDto.keywords}%`) : undefined
+      }
+    }
+    let whereCollection: FindOptionsWhere<Collection> = {}
+    whereCollection.name = paginationDto.keywords ? Like(`%${paginationDto.keywords}%`) : undefined
+    this.logger.debug(whereCollection)
     const orderBy = paginationDto.isAsc === 'true' ? 'ASC' : 'DESC'
     result = await this.assetRepository.findAndCount({
       where,
@@ -109,9 +119,9 @@ export class AssetService {
     where = {
       ...flowAssetDto,
       status: '1',
-      // collection: {
-      // name: paginationDto.keywords ?? Like(`%${paginationDto.keywords}%`),
-      // }
+      collection: {
+        name: paginationDto.keywords ? Like(`%${paginationDto.keywords}%`) : undefined
+      }
     }
 
     result = await this.assetRepository.findAndCount({
