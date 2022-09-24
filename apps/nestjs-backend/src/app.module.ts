@@ -40,6 +40,8 @@ import { LoginService } from '@app/modules/login/login.service';
 import { StatsModule } from '@app/modules/stats/stats.module';
 import { CollectionService } from '@app/modules/collection/collection.service';
 import { AirdropWhitelistService } from '@app/modules/assistant/airdrop/airdropWhitelist.service';
+import { MagicboxController } from './magicbox/magicbox.controller';
+import { MagicboxModule } from '@app/modules/magicbox/magicbox.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService, OrderService, LoginService, CollectionService, AirdropWhitelistService]
@@ -99,8 +101,10 @@ const aliasProviders = createAliasProviders();
     BankcardModule,
     PaymentModule,
     FundModule,
-    StatsModule
+    StatsModule,
+    MagicboxModule
   ],
-  providers: [...aliasProviders]
+  providers: [...aliasProviders],
+  controllers: [MagicboxController]
 })
 export class AppModule { }
