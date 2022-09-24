@@ -22,7 +22,7 @@ export default defineConfig({
     password: process.env.MYSQL_PASSWORD || 'admin',
     database: process.env.MYSQL_DATABASE || 'mei-mei',
     autoLoadModels: true,
-    synchronize: false,
+    synchronize: true,
     logging: false,
   },
   // redis 配置
