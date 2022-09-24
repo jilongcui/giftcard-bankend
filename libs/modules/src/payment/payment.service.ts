@@ -6,7 +6,7 @@ import * as moment from 'moment';
 import * as querystring from 'querystring';
 import { createSign, createVerify } from 'crypto';
 import { Payment } from './entities/payment.entity';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
 import { BankcardService } from '@app/modules/bankcard/bankcard.service';
@@ -29,6 +29,7 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
 import { firstValueFrom } from 'rxjs';
+import { Magicbox } from '../magicbox/entities/magicbox.entity';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -58,6 +59,7 @@ export class PaymentService {
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
+    @InjectRepository(Magicbox) private readonly magicboxRepository: Repository<Magicbox>,
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
     @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
@@ -253,11 +255,11 @@ export class PaymentService {
           await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
           if (order.type === '0') {
             const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
-            await this.doPaymentComfirmedLv1(order, order.userId, order.user.userName)
-            // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
+            await this.doPaymentComfirmedLv1(order, order.userId)
+            // 取消未支付状态
             await this.redis.del(unpayOrderKey)
           } else if (order.type === '1') {
-            await this.doPaymentComfirmedLv2(order, order.userId, order.user.userName)
+            await this.doPaymentComfirmedLv2(order, order.userId)
           } else if (order.type === '2') {
             await this.doPaymentComfirmedRecharge(order.payment, order.userId, order.user.userName)
           }
@@ -272,6 +274,68 @@ export class PaymentService {
     }
 
     return 'ok'
+  }
+
+  async payWithBalance(id: number, userId: number) {
+    // 在transaction里只做和冲突相关的，和冲突不相关的要放在外面
+    // transaction里很有可能会失败，保证失败时是可以回退的，
+    const order = await this.orderRepository.findOne({ where: { id: id, status: '1', userId: userId }, relations: { user: true } })
+    if (order == null) {
+      throw new ApiException('订单状态错误')
+    }
+    let asset: Asset
+    const userName = order.user.nickName
+
+    if (order.type === '1') {
+      asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+      if (asset.userId === userId)
+        throw new ApiException("不能购买自己的资产")
+    }
+
+    await this.orderRepository.manager.transaction(async manager => {
+      const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(order.totalPrice) }, "usable", order.totalPrice);
+      // this.logger.log(JSON.stringify(result));
+      if (!result.affected) {
+        throw new ApiException('支付失败')
+      }
+      order.status = '2';
+      // 把Order的状态改成2: 已支付
+      await manager.update(Order, { id: order.id }, { status: '2' })
+
+      if (order.type === '1') {
+        await manager.increment(Account, { userId: asset.user.userId }, "usable", order.totalPrice * 95 / 100)
+        await manager.increment(Account, { userId: 1 }, "usable", order.totalPrice * 5 / 100)
+        await manager.update(Asset, { id: order.assetId }, { userId: userId, status: '0' })
+      }
+
+    })
+
+    if (order.type === '0') { // 一级市场活动
+      // Create assetes for user.
+      const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
+      // First we need get all collections of orders, but we only get one collection.
+      if (!activity.collections || activity.collections.length <= 0) {
+        return order;
+      }
+      const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
+      let collection: Collection;
+      if (activity.type === '1') {
+        // 盲盒, 我们需要随机寻找一个magicbox
+        await this.doBuyMagicBoxOrder(order, activity)
+      } else {
+        // 首发藏品，获取第一个collection
+        collection = activity.collections[0];
+        await this.doBuyAssetOrder(order, collection)
+      }
+      await this.redis.del(unpayOrderKey)
+    } else if (order.type === '1') { // 二级市场资产交易
+      // 把资产切换到新的用户就可以了
+      await this.buyAssetRecord(asset, userId, userName)
+      // 还需要转移资产
+    }
+    // await manager.save(order);
+    return order;
+    // })
   }
 
   // 交易查询
@@ -410,9 +474,9 @@ export class PaymentService {
     throw new ApiException('发送请求失败: ' + responseData.ret_msg)
   }
 
-  async doPaymentComfirmedLv1(order: Order, userId: number, userName: string) {
-    // const order = await this.orderService.findOne(payment.orderId)
+  async doPaymentComfirmedLv1(order: Order, userId: number) {
     let asset: Asset
+    let userName = order.user.userName
     // if (order.type === '1') {
     //   asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
     //   if (asset.userId === userId)
@@ -428,42 +492,12 @@ export class PaymentService {
       let collection: Collection;
       if (activity.type === '1') {
         // 首发盲盒, 我们需要随机寻找一个。
-        const index = Math.floor((Math.random() * activity.collections.length));
-        collection = activity.collections[index]
+        await this.doBuyMagicBoxOrder(order, activity)
       } else {
         // 其他类型，我们只需要取第一个
         collection = activity.collections[0];
+        await this.doBuyAssetOrder(order, collection)
       }
-      // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
-      await this.collectionRepository.increment({ id: collection.id, }, "current", order.count);
-      let tokenId: number
-      for (let i = 0; i < order.count; i++) {
-        tokenId = this.randomTokenId()
-        let createAssetDto = new CreateAssetDto()
-        createAssetDto.price = order.realPrice
-        createAssetDto.assetNo = tokenId
-        createAssetDto.userId = userId
-        createAssetDto.collectionId = collection.id
-
-        const asset = await this.assetRepository.save(createAssetDto)
-        // 记录交易记录
-        await this.assetRecordRepository.save({
-          type: '2', // Buy
-          assetId: asset.id,
-          price: order.realPrice,
-          toId: userId,
-          toName: userName
-        })
-
-        const pattern = { cmd: 'mintA' }
-        const mintDto = new MintADto()
-        mintDto.address = this.platformAddress
-        mintDto.tokenId = tokenId.toString()
-        mintDto.contractId = collection.contractId
-        await firstValueFrom(this.client.send(pattern, mintDto))
-      }
-
-
     } else if (order.type === '1') { // 二级市场资产交易
       // 把资产切换到新的用户就可以了
       await this.buyAssetRecord(asset, userId, userName)
@@ -473,8 +507,52 @@ export class PaymentService {
     }
   }
 
-  async doPaymentComfirmedLv2(order: Order, userId: number, userName: string) {
+  async doBuyMagicBoxOrder(order: Order, activity: Activity) {
+    // 首先获取一个未售出的magicbox
+    await this.magicboxRepository.manager.transaction(async manager => {
+      const magicBox = await manager.findOneBy(Magicbox, { status: '0', activityId: activity.id })
+      await manager.update(Magicbox, { id: magicBox.id, status: '0' }, { status: '1' })
+    })
+  }
+
+  async doBuyAssetOrder(order: Order, collection: Collection) {
+    // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+    await this.collectionRepository.manager.transaction(async manager => {
+      await manager.increment(Collection, { id: collection.id }, "current", order.count);
+    })
+    let tokenId: number
+    for (let i = 0; i < order.count; i++) {
+      tokenId = this.randomTokenId()
+      let createAssetDto = new CreateAssetDto()
+      createAssetDto.price = order.realPrice
+      createAssetDto.assetNo = tokenId
+      createAssetDto.userId = order.userId
+      createAssetDto.collectionId = collection.id
+
+      const asset = await this.assetRepository.save(createAssetDto)
+      // 记录交易记录
+      await this.assetRecordRepository.save({
+        type: '2', // Buy
+        assetId: asset.id,
+        price: order.realPrice,
+        toId: order.userId,
+        toName: order.user.nickName
+      })
+
+      const pattern = { cmd: 'mintA' }
+      const mintDto = new MintADto()
+      mintDto.address = this.platformAddress
+      mintDto.tokenId = tokenId.toString()
+      mintDto.contractId = collection.contractId
+      mintDto.contractAddr = collection.contract.address
+      await firstValueFrom(this.client.send(pattern, mintDto))
+      // this.logger.debug(await firstValueFrom(result))
+    }
+  }
+
+  async doPaymentComfirmedLv2(order: Order, userId: number) {
     let asset: Asset
+    let userName = order.user.userName
     asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
     if (asset.userId === userId)
       throw new ApiException("不能购买自己的资产")

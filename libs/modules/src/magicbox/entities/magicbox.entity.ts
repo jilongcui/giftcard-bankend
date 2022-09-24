@@ -51,7 +51,7 @@ export class Magicbox {
 
     @Column({
         name: 'open_status',
-        comment: '状态(0:未开 1: 已开)',
+        comment: '状态(0:未售出 1: 已售出 2: 已开启 )',
         type: 'char',
         default: '0'
     })

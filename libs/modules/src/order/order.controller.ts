@@ -8,7 +8,6 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { Order } from './entities/order.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
-import { BalancePayService } from '@app/modules/payment/balance-pay.service';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
@@ -16,6 +15,7 @@ import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { ExcelService } from '../common/excel/excel.service';
+import { PaymentService } from '../payment/payment.service';
 @ApiTags('订单')
 @ApiBearerAuth()
 @SkipThrottle()
@@ -26,7 +26,7 @@ export class OrderController {
   constructor(
     private readonly orderService: OrderService,
     private readonly excelService: ExcelService,
-    @Inject(forwardRef(() => BalancePayService)) private readonly balancePayService: BalancePayService
+    @Inject(forwardRef(() => PaymentService)) private readonly paymentService: PaymentService
   ) { }
 
   // @Throttle(2, 2000)
@@ -133,8 +133,8 @@ export class OrderController {
   }
 
   @Post(':id/innerPay')
-  async payWithBalance(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) nickName: string) {
-    return await this.balancePayService.payWithBalance(+id, userId, nickName);
+  async payWithBalance(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+    return await this.paymentService.payWithBalance(+id, userId);
   }
 
   @Post('syncInvalidOrder')

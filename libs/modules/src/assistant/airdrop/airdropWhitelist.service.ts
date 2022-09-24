@@ -180,6 +180,7 @@ export class AirdropWhitelistService {
   //     mintDto.address = this.platformAddress
   //     mintDto.tokenId = tokenId.toString()
   //     mintDto.contractId = collection.contractId
+  // mintDto.contractAddr = collection.contract.address
   //     await firstValueFrom(this.client.send(pattern, mintDto))
   //   }
   // }

@@ -6,7 +6,6 @@ import { ApiTags, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { Public } from '@app/common/decorators/public.decorator';
 import { SharedService } from '@app/shared';
 import { Request, Response } from 'express'
-import { BalancePayService } from './balance-pay.service';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { Accepts } from '@app/common/guards/accepts.decorator';
 import { PostService } from '../system/post/post.service';
@@ -19,7 +18,6 @@ export class PaymentController {
   logger: Logger
   constructor(
     private readonly paymentService: PaymentService,
-    private readonly balancePayService: BalancePayService,
     private readonly sharedService: SharedService,
   ) {
     this.logger = new Logger(PaymentController.name)
@@ -64,8 +62,8 @@ export class PaymentController {
   }
 
   @Post('balancePay')
-  async payWithBalance(@Body() payWithBalance: PayWithBalanceDto, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName) nickName: string) {
-    return await this.balancePayService.payWithBalance(payWithBalance.orderId, userId, nickName);
+  async payWithBalance(@Body() payWithBalance: PayWithBalanceDto, @UserDec(UserEnum.userId) userId: number) {
+    return await this.paymentService.payWithBalance(payWithBalance.orderId, userId);
   }
 
   @Post('cardPay')
