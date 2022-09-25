@@ -192,7 +192,7 @@ export class ActivityService {
           collectionId: collectionId,
           index: index,
           userId: 1,
-          price: 0.0
+          price: activity.price
         }
         await this.magicboxService.addOrUpdate(createMagicboxDto)
       })

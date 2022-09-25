@@ -510,8 +510,11 @@ export class PaymentService {
   async doBuyMagicBoxOrder(order: Order, activity: Activity) {
     // 首先获取一个未售出的magicbox
     await this.magicboxRepository.manager.transaction('SERIALIZABLE', async manager => {
-      const magicBox = await manager.findOneBy(Magicbox, { status: '0', activityId: activity.id })
-      await manager.update(Magicbox, { id: magicBox.id, status: '0' }, { status: '1', userId: order.userId })
+      const magicboxs = await manager.find(Magicbox, { where: { status: '0', activityId: activity.id }, take: order.count })
+      if (magicboxs.length !== order.count) throw new ApiException("Remain magicbox is less than order number.")
+      await Promise.all(magicboxs.map(async (magicbox) => {
+        await manager.update(Magicbox, { id: magicbox.id, status: '0' }, { status: '1', userId: order.userId })
+      }))
     })
   }
 

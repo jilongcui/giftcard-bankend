@@ -346,7 +346,6 @@ export class OrderService {
     let where: FindOptionsWhere<Order> = {}
     let result: any;
     let order = await this.orderRepository.findOneBy({ id: id })
-    let activityId = order.activityId
     let unpayOrderKey: string;
     if (order.userId !== userId) {
       throw new ApiException("非本人订单")
@@ -369,7 +368,7 @@ export class OrderService {
         manager.save(order)
       })
       const countKey = COLLECTION_ORDER_COUNT + ":" + order.activityId;
-      const [execError] = await this.redis.multi().incrby(countKey, order.count).exec()
+      await this.redisAtomicDecr(countKey, order.count)
       await this.redis.del(unpayOrderKey)
     } else if (order.type === '1') {
       // this.logger.debug(`assetId: ${order.assetId}`)
@@ -406,17 +405,14 @@ export class OrderService {
       invalidTime: LessThanOrEqual(moment(moment.now() + 1000 * 10).toDate())
     }
     let totalCount: number = 0;
-    const order = await this.orderRepository.findOne({ where },)
+    const order = await this.orderRepository.findOne({ where })
     if (!order) return
     // if (order.payment && order.payment.status !== '0') {
     //   return
     // }
 
     if (order.type === '0') {
-      this.logger.debug(`activityId: ${order.activityId}`)
-
-
-      await this.orderRepository.manager.transaction(async manager => {
+      await this.orderRepository.manager.transaction("SERIALIZABLE", async manager => {
         const order = await this.orderRepository.findOne({ where },)
         if (order) {
           // Set invalid status
@@ -425,7 +421,7 @@ export class OrderService {
           const result = await manager.update(Order, { id: order.id, status: '1' }, { status: '3' }) // 失效.
           if (result.affected > 0) {
             const countKey = COLLECTION_ORDER_COUNT + ":" + order.activityId;
-            const [execError] = await this.redis.multi().incrby(countKey, order.count).exec()
+            await this.redisAtomicIncr(countKey, order.count)
           }
         }
       })
