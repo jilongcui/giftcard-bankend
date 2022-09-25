@@ -27,10 +27,10 @@ export class MagicboxController {
         title: '盲盒',
         businessType: BusinessTypeEnum.insert
     })
-    @RequiresRoles(['admin', 'system'])
-    async create(@Body() createMagicboxDto: CreateMagicboxDto, @UserDec(UserEnum.userId) userId: number) {
-        return this.magicboxService.create(createMagicboxDto);
-    }
+    // @RequiresRoles(['admin', 'system'])
+    // async create(@Body() createMagicboxDto: CreateMagicboxDto, @UserDec(UserEnum.userId) userId: number) {
+    //     return this.magicboxService.create(createMagicboxDto);
+    // }
 
     /* 个人盲盒列表 */
     @Get('myList')
@@ -39,9 +39,14 @@ export class MagicboxController {
         return await this.magicboxService.myList(userId, listMagicboxDto, paginationDto);
     }
 
+    @Get('myOne/:id')
+    async myOne(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number,) {
+        return await this.magicboxService.findMyOne(+id, userId);
+    }
+
     /* 后台盲盒列表 */
     @Get('list')
-    @Public()
+    @RequiresRoles(['admin', 'system'])
     @ApiPaginatedResponse(Magicbox)
     async list(@Query() listMagicboxDto: ListMagicboxDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
         // this.logger.log(JSON.stringify(paginationDto));
@@ -85,6 +90,15 @@ export class MagicboxController {
     @RequiresRoles(['admin', 'system'])
     async delete(@Param('ids') ids: string) {
         return await this.magicboxService.delete(ids.split(','))
+    }
+
+    @Put(':id/open')
+    @Log({
+        title: '开盲盒',
+        businessType: BusinessTypeEnum.update
+    })
+    async open(@Param('id') id: number, @UserDec(UserEnum.userId) userId: number,) {
+        return await this.magicboxService.open(id, userId)
     }
 }
 

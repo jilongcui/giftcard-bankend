@@ -14,6 +14,9 @@ import { FlowAssetDto } from '../collection/dto/request-asset.dto';
 import { AssetService } from '../collection/asset.service';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
+import { Magicbox } from '../magicbox/entities/magicbox.entity';
+import { MagicboxService } from '../magicbox/magicbox.service';
+import { FlowMagicboxDto } from '../magicbox/dto/request-magicbox.dto';
 
 @ApiTags('市场')
 @ApiBearerAuth()
@@ -23,6 +26,7 @@ export class MarketController {
   constructor(
     private readonly marketService: MarketService,
     private readonly assetService: AssetService,
+    private readonly magicboxService: MagicboxService,
     private readonly assetRecordService: AssetRecordService
   ) { }
 
@@ -64,6 +68,14 @@ export class MarketController {
   @ApiPaginatedResponse(Asset)
   async listAssets(@Query() flowAssetDto: FlowAssetDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.assetService.flow(flowAssetDto, paginationDto);
+  }
+
+  /* 盲盒二级市场数据流 */
+  @Get('magicbox/flow')
+  @Public()
+  @ApiPaginatedResponse(Magicbox)
+  async listMagicboxs(@Query() flowMagicboxDto: FlowMagicboxDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.magicboxService.flow(flowMagicboxDto, paginationDto);
   }
 
   // /* 市场首页推荐 */

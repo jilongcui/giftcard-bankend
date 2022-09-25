@@ -6,12 +6,16 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { CreateMagicboxDto, UpdateMagicboxDto, ListMagicboxDto, FlowMagicboxDto } from './dto/request-magicbox.dto';
 import { Magicbox } from './entities/magicbox.entity';
+import { Asset } from '../collection/entities/asset.entity';
+import { AssetRecord } from '../market/entities/asset-record.entity';
 
 @Injectable()
 export class MagicboxService {
     logger = new Logger(MagicboxService.name)
     constructor(
         @InjectRepository(Magicbox) private readonly magicboxRepository: Repository<Magicbox>,
+        @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
+        @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
     ) { }
     create(createMagicboxDto: CreateMagicboxDto) {
         return this.magicboxRepository.save(createMagicboxDto);
@@ -32,9 +36,27 @@ export class MagicboxService {
         };
 
         result = await this.magicboxRepository.findAndCount({
-            // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
-            // select: ['magicboxId', "user", "collection"],
-            relations: ["user", "collection"],
+            select: {
+                id: true,
+                price: true,
+                updateTime: true,
+                createTime: true,
+                userId: true,
+                status: true,
+                user: {
+                    nickName: true,
+                    avatar: true,
+                },
+                activity: {
+                    id: true,
+                    title: true,
+                    coverImage: true,
+                    authorName: true,
+                    avatar: true,
+                    collections: true
+                },
+            },
+            relations: ["user", "activity"],
             where: listMagicboxDto,
             skip: paginationDto.skip,
             take: paginationDto.take,
@@ -51,11 +73,12 @@ export class MagicboxService {
         }
     }
 
-    /* 分页查询 */
+    /* 我已经购买的查询 */
     async myList(userId: number, listMagicboxList: ListMagicboxDto, paginationDto: PaginationDto): Promise<PaginatedDto<Magicbox>> {
         let where: FindOptionsWhere<Magicbox> = {}
         let result: any;
 
+        listMagicboxList.openStatus = listMagicboxList.openStatus || '1' // 已购买
         where = {
             ...listMagicboxList,
             userId: userId,
@@ -63,6 +86,7 @@ export class MagicboxService {
                 name: paginationDto.keywords ? Like(`%${paginationDto.keywords}%`) : undefined
             }
         }
+
         const orderBy = paginationDto.isAsc === 'true' ? 'ASC' : 'DESC'
         result = await this.magicboxRepository.findAndCount({
             where,
@@ -77,7 +101,15 @@ export class MagicboxService {
                     nickName: true,
                     avatar: true,
                 },
-                collection: {
+                activity: {
+                    id: true,
+                    title: true,
+                    coverImage: true,
+                    authorName: true,
+                    avatar: true,
+                    collections: true
+                },
+                collection: listMagicboxList.openStatus === '2' ? {
                     name: true,
                     desc: true,
                     supply: true,
@@ -86,11 +118,13 @@ export class MagicboxService {
                         nickName: true,
                         avatar: true,
                     },
-                }
+                } : {},
+
             },
             relations: {
                 user: true,
-                collection: true
+                activity: true,
+                collection: listMagicboxList.openStatus === '2' ? true : false
             },
             skip: paginationDto.skip,
             take: paginationDto.take,
@@ -131,18 +165,19 @@ export class MagicboxService {
                     nickName: true,
                     avatar: true,
                 },
-                collection: {
-                    name: true,
-                    desc: true,
-                    supply: true,
-                    images: true,
-                    // contract: true,
-                }
+                activity: {
+                    id: true,
+                    title: true,
+                    coverImage: true,
+                    authorName: true,
+                    avatar: true,
+                    collections: true
+                },
             },
             where,
             relations: {
                 user: true,
-                collection: true
+                activity: true
             },
             skip: paginationDto.skip,
             take: paginationDto.take,
@@ -176,17 +211,18 @@ export class MagicboxService {
                     nickName: true,
                     avatar: true,
                 },
-                collection: {
-                    name: true,
-                    desc: true,
-                    supply: true,
-                    images: true,
-                    // contract: true,
-                }
+                activity: {
+                    id: true,
+                    title: true,
+                    coverImage: true,
+                    authorName: true,
+                    avatar: true,
+                    collections: true
+                },
             },
             relations: {
                 user: true,
-                collection: true
+                activity: true,
             },
             where,
             skip: 0,
@@ -213,32 +249,79 @@ export class MagicboxService {
                     nickName: true,
                     avatar: true,
                 },
-                collection: {
-                    author: {
-                        nickName: true,
-                        avatar: true,
-                    },
-                    name: true,
-                    desc: true,
-                    supply: true,
-                    images: true,
-                    contract: {
-                        chain: true,
-                        standard: true,
-                        address: true,
-                    },
-                }
+                activity: {
+                    id: true,
+                    title: true,
+                    coverImage: true,
+                    authorName: true,
+                    avatar: true,
+                    collections: true
+                },
             },
             where: { id },
             relations: {
                 user: true,
+                activity: true,
                 collection: {
-                    author: true,
+                    author: false,
                     contract: true,
-
                 }
             }
         })
+    }
+
+    async findMyOne(id: number, userId: number) {
+        const magicbox = await this.magicboxRepository.findOne({
+            select: {
+                id: true,
+                price: true,
+                userId: true,
+                status: true,
+                user: {
+                    nickName: true,
+                    avatar: true,
+                },
+                collection: {
+                    name: true,
+                    desc: true,
+                    supply: true,
+                    images: true,
+                    author: {
+                        nickName: true,
+                        avatar: true,
+                    },
+                },
+                activity: {
+                    id: true,
+                    title: true,
+                    coverImage: true,
+                    authorName: true,
+                    avatar: true,
+                    collections: true
+                },
+                asset: {
+                    id: true,
+                    assetNo: true,
+                    index: true,
+                    price: true
+                }
+            },
+            where: { id, userId },
+            relations: {
+                user: true,
+                activity: true,
+                asset: true,
+                collection: {
+                    author: false,
+                    contract: true,
+                }
+            }
+        })
+        if (magicbox.status !== '2') {
+            magicbox.asset = undefined
+            magicbox.collection = undefined
+        }
+        return magicbox
     }
 
     update(id: number, updateMagicboxDto: UpdateMagicboxDto) {
@@ -250,5 +333,55 @@ export class MagicboxService {
     }
     async delete(idArr: number[] | string[]) {
         return this.magicboxRepository.delete(idArr)
+    }
+
+    async open(id: number, userId: number) {
+        const magicbox = await this.magicboxRepository.findOne({
+            select: {
+                id: true,
+                price: true,
+                userId: true,
+                assetId: true,
+                status: true,
+                user: {
+                    nickName: true,
+                    avatar: true,
+                },
+                collection: {
+                    id: true,
+                    name: true,
+                    desc: true,
+                    supply: true,
+                    images: true,
+                    author: {
+                        nickName: true,
+                        avatar: true,
+                    },
+                },
+                asset: {
+                    id: true,
+                    assetNo: true,
+                    index: true,
+                    price: true
+                }
+            },
+            where: { id: id, userId: userId, status: '1' }, relations: { user: true, collection: true, asset: true }
+        })
+        if (!magicbox) throw new ApiException("未找到盲盒")
+        // 打开这个盲盒
+        await this.magicboxRepository.manager.transaction(async manager => {
+            await manager.update(Magicbox, { id, userId }, { status: '2' }) // 打开盲盒
+            await manager.update(Asset, { id: magicbox.assetId, userId: 1 }, { userId })
+            // 构建交易记录
+            await manager.save(AssetRecord, {
+                type: '5', // Open Magic Box
+                assetId: magicbox.assetId,
+                price: magicbox.price,
+                toId: userId,
+                toName: magicbox.user.nickName
+            })
+        })
+
+        return magicbox
     }
 }
