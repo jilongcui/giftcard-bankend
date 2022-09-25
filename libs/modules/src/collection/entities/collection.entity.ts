@@ -32,17 +32,19 @@ export class Collection extends BaseEntity {
         type: 'char',
         length: 1
     })
+    @IsOptional()
     @IsString()
-    type: string
+    type?: string
 
     @Column({
         name: 'level',
         default: 0, // 不是藏品
         comment: '盲盒等级 1:N 2:SR 3:SSR 4:UR'
     })
+    @IsOptional()
     @Type()
     @IsNumber()
-    level: number
+    level?: number
 
     @Column({
         name: 'supply',
