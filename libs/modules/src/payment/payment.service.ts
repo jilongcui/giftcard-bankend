@@ -509,9 +509,9 @@ export class PaymentService {
 
   async doBuyMagicBoxOrder(order: Order, activity: Activity) {
     // 首先获取一个未售出的magicbox
-    await this.magicboxRepository.manager.transaction(async manager => {
+    await this.magicboxRepository.manager.transaction('SERIALIZABLE', async manager => {
       const magicBox = await manager.findOneBy(Magicbox, { status: '0', activityId: activity.id })
-      await manager.update(Magicbox, { id: magicBox.id, status: '0' }, { status: '1' })
+      await manager.update(Magicbox, { id: magicBox.id, status: '0' }, { status: '1', userId: order.userId })
     })
   }
 
@@ -520,12 +520,11 @@ export class PaymentService {
     await this.collectionRepository.manager.transaction(async manager => {
       await manager.increment(Collection, { id: collection.id }, "current", order.count);
     })
-    let tokenId: number
     for (let i = 0; i < order.count; i++) {
-      tokenId = this.randomTokenId()
+      const tokenIndex = i + 1
       let createAssetDto = new CreateAssetDto()
       createAssetDto.price = order.realPrice
-      createAssetDto.assetNo = tokenId
+      createAssetDto.index = tokenIndex
       createAssetDto.userId = order.userId
       createAssetDto.collectionId = collection.id
 
@@ -542,7 +541,7 @@ export class PaymentService {
       const pattern = { cmd: 'mintA' }
       const mintDto = new MintADto()
       mintDto.address = this.platformAddress
-      mintDto.tokenId = tokenId.toString()
+      mintDto.tokenId = tokenIndex.toString()
       mintDto.contractId = collection.contractId
       mintDto.contractAddr = collection.contract.address
       await firstValueFrom(this.client.send(pattern, mintDto))

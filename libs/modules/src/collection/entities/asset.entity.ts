@@ -2,7 +2,7 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { User } from "../../system/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Collection } from "./collection.entity";
 import { Order } from "@app/modules/order/entities/order.entity";
 
@@ -17,11 +17,20 @@ export class Asset {
 
     @Column({
         name: 'asset_no',
+        unique: true,
         comment: '藏品编号'
     })
     @Type()
     @IsNumber()
     assetNo: number
+
+    @Column({
+        name: 'index',
+        comment: '藏品索引'
+    })
+    @Type()
+    @IsNumber()
+    index: number
 
     @Column({
         name: 'price',
@@ -85,4 +94,13 @@ export class Asset {
     // @IsOptional()
     // @OneToMany(() => Order, order => order.asset)
     // orders?: Order[]
+
+    @BeforeInsert()
+    private beforeInsert() {
+        this.assetNo = this.randomTokenId();
+    }
+
+    private randomTokenId(): number {
+        return Math.floor((Math.random() * 999999999) + 1000000000);
+    }
 }

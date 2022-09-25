@@ -1,5 +1,5 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
 import Redis from 'ioredis';
@@ -10,13 +10,23 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { FindOptionsWhere, In, Repository, } from 'typeorm';
 import { CreateActivityDto, ListActivityDto, UpdateActivityDto } from './dto/request-activity.dto';
 import { Activity } from './entities/activity.entity';
+import { Magicbox } from '../magicbox/entities/magicbox.entity';
+import { AssetService } from '../collection/asset.service';
+import { CreateAssetDto } from '../collection/dto/request-asset.dto';
+import { SharedService } from '@app/shared';
+import { MagicboxService } from '../magicbox/magicbox.service';
+import { CreateMagicboxDto } from '../magicbox/dto/request-magicbox.dto';
 
 @Injectable()
 export class ActivityService {
+  logger = new Logger(ActivityService.name)
   constructor(
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRedis() private readonly redis: Redis,
+    private readonly assetService: AssetService,
+    private readonly magicboxService: MagicboxService,
+    private readonly sharedService: SharedService
   ) { }
   async create(createActivityDto: CreateActivityDto) {
     const activity = await this.activityRepository.save(createActivityDto);
@@ -140,7 +150,7 @@ export class ActivityService {
 
   async start(id: number) {
     const activity = await this.activityRepository.findOne(
-      { where: { id }, relations: { preemption: false } })
+      { where: { id }, relations: { collections: true, preemption: false } })
     if (activity.status === '1') {
       throw new ApiException('活动已开启');
     }
@@ -152,6 +162,41 @@ export class ActivityService {
     if (activity.preemption)
       await this.redis.set(`${ACTIVITY_PRESTART_TIME}:${activity.id}`, activity.preemption.startTime.getUTCMilliseconds())
     await this.redis.set(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${activity.id}`, JSON.stringify(activity))
+    this.logger.debug(activity.type)
+    if (activity.type === '1') { // 盲盒
+      // 需要先初始化magicBox
+      // 创建asset array
+      let indexArray = []
+      await Promise.all(activity.collections.map(async (collection) => {
+        const collectionId = collection.id
+        for (let i = 0; i < collection.supply; i++) {
+          const index = i + 1
+          let createAssetDto: CreateAssetDto = {
+            price: activity.price,
+            userId: 1,
+            index: index,
+            collectionId: collectionId
+          }
+          const asset = this.assetService.create(createAssetDto)
+          await this.assetService.addOrUpdate(asset)
+          indexArray.push({ assetId: asset.id, collectionId, index })
+        }
+      }))
+      this.sharedService.shuffle(indexArray)
+
+      // 把asset和magicbox关联起来
+      indexArray.map(async ({ assetId, collectionId, index }) => {
+        const createMagicboxDto: CreateMagicboxDto = {
+          activityId: activity.id,
+          assetId: assetId,
+          collectionId: collectionId,
+          index: index,
+          userId: 1,
+          price: 0.0
+        }
+        await this.magicboxService.addOrUpdate(createMagicboxDto)
+      })
+    }
     return result
   }
 

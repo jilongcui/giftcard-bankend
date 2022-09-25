@@ -6,10 +6,14 @@ import { Collection } from '../collection/entities/collection.entity';
 import { Activity } from './entities/activity.entity';
 import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
 import { Preemption } from '../assistant/preemption/entities/preemption.entity';
-import { SharedModule } from '@app/shared/shared.module';
+import { CollectionModule } from '../collection/collection.module';
+import { MagicboxModule } from '../magicbox/magicbox.module';
 
 @Module({
-  imports: [CacheModule.register(), TypeOrmModule.forFeature([Activity, PreemptionWhitelist, Preemption, Collection])],
+  imports: [
+    CacheModule.register(),
+    TypeOrmModule.forFeature([Activity, PreemptionWhitelist, Preemption, Collection]),
+    CollectionModule, MagicboxModule],
   controllers: [ActivityController],
   providers: [ActivityService]
 })

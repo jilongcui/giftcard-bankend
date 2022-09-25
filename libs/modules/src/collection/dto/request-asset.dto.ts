@@ -12,7 +12,7 @@ export class CreateAssetDto {
     userId: number
 
     @IsNumber()
-    assetNo: number
+    index: number
 
     @IsNumber()
     collectionId: number

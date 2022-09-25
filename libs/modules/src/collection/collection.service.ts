@@ -178,15 +178,14 @@ export class CollectionService {
   async sendChainTransaction(collectionIds: string[], user: User, count: number, price: number) {
     // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
     const collections = await this.collectionRepository.findBy({ id: In(collectionIds) })
-    let tokenId: number
     for (let i = 0; i < count; i++) {
-      tokenId = this.randomTokenId()
       const index = this.randomIndex(collections.length)
       const collection = collections[index]
       let createAssetDto = new CreateAssetDto()
+      const tokenIndex = i + 1
       createAssetDto.price = price
-      createAssetDto.assetNo = tokenId
       createAssetDto.userId = user.userId
+      createAssetDto.index = tokenIndex
       createAssetDto.collectionId = collection.id
       const asset = await this.assetRepository.save(createAssetDto)
       await this.collectionRepository.increment({ id: collection.id, }, "current", count);
@@ -202,7 +201,7 @@ export class CollectionService {
       // const pattern = { cmd: 'mintA' }
       // const mintDto = new MintADto()
       // mintDto.address = this.platformAddress
-      // mintDto.tokenId = tokenId.toString()
+      // mintDto.tokenId = tokenIndex.toString()
       // mintDto.contractId = collection.contractId
       // mintDto.contractAddr = collection.contract.address
       // const result = await firstValueFrom(this.client.send(pattern, mintDto))

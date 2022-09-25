@@ -15,7 +15,7 @@ export class AssetService {
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
   ) { }
   create(createAssetDto: CreateAssetDto) {
-    return this.assetRepository.save(createAssetDto);
+    return this.assetRepository.create(createAssetDto);
   }
 
   /* 新增或编辑 */
@@ -258,5 +258,8 @@ export class AssetService {
   }
   async delete(idArr: number[] | string[]) {
     return this.assetRepository.delete(idArr)
+  }
+  private randomTokenId(): number {
+    return Math.floor((Math.random() * 999999999) + 1000000000);
   }
 }

@@ -16,6 +16,6 @@ import { AssetRecord } from '../market/entities/asset-record.entity';
   ])],
   controllers: [CollectionController, AssetController],
   providers: [CollectionService, AssetService],
-  exports: [CollectionService]
+  exports: [CollectionService, AssetService]
 })
 export class CollectionModule { }

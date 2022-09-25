@@ -15,6 +15,12 @@ export class CreateMagicboxDto {
     activityId: number
 
     @IsNumber()
+    collectionId: number
+
+    @IsNumber()
+    index: number
+
+    @IsNumber()
     assetId: number
 
 }

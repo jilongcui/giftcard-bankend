@@ -83,18 +83,12 @@ export class OrderService {
 
     const countKey = COLLECTION_ORDER_COUNT + ":" + createOrderDto.activityId;
     const count = Math.min(createOrderDto.count, 5); // 1～5
-
-    const [execError] = await this.redis.multi().decrby(countKey, count).exec()
-    orderCount = execError[1]
+    orderCount = await this.redisAtomicDecr(countKey, count)
     if (orderCount < 0) {
-      // await this.redis.unwatch()
-      await this.redis.multi().set(countKey, 0).exec()
-      // await this.redis.multi().incrby(countKey, count).exec()
+      await this.redisAtomicIncr(countKey, count)
       throw new ApiException('创建失败')
     }
 
-    // this.logger.log(execError[0])
-    // this.logger.log(orderCount)
     // 一级市场活动创建订单
     return await this.orderRepository.manager.transaction(async manager => {
       const order = new Order();
@@ -131,6 +125,28 @@ export class OrderService {
       // }
       return order;
     });
+  }
+
+  async redisAtomicDecr(countKey: string, count: number) {
+    const watchError = await this.redis.watch(countKey)
+    if (watchError !== 'OK') throw new ApiException(watchError)
+    const [execResult] = await this.redis.multi().decrby(countKey, count).exec()
+    if (execResult[0] !== null) {
+      this.logger.debug('Redis Atomic Decr retry.')
+      this.redisAtomicDecr(countKey, count)
+    }
+    return execResult[1] // result
+  }
+
+  async redisAtomicIncr(countKey: string, count: number) {
+    const watchError = await this.redis.watch(countKey)
+    if (watchError !== 'OK') throw new ApiException(watchError)
+    const [execResult] = await this.redis.multi().incrby(countKey, count).exec()
+    if (execResult[0] !== null) {
+      this.logger.debug('Redis Atomic Incr retry.')
+      this.redisAtomicIncr(countKey, count)
+    }
+    return execResult[1] // result
   }
 
   async createLv2Order(createOrderDto: CreateLv2OrderDto, userId: number, userName: string) {

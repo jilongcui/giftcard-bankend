@@ -90,6 +90,14 @@ export class Magicbox {
     @IsNumber()
     collectionId: number
 
+    @Column({
+        name: 'index',
+        comment: '藏品index'
+    })
+    @Type()
+    @IsNumber()
+    index: number
+
     @ApiHideProperty()
     @ManyToOne(type => Collection)
     @JoinColumn({
