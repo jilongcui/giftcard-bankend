@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository, TreeRepository } from 'typeorm';
 import { CreateMagicboxDto, UpdateMagicboxDto, ListMagicboxDto, FlowMagicboxDto } from './dto/request-magicbox.dto';
 import { Magicbox } from './entities/magicbox.entity';
 import { Asset } from '../collection/entities/asset.entity';
@@ -112,7 +112,10 @@ export class MagicboxService {
                 collection: listMagicboxList.openStatus === '2' ? {
                     name: true,
                     desc: true,
+                    type: true,
+                    level: true,
                     supply: true,
+                    current: true,
                     images: true,
                     author: {
                         nickName: true,
@@ -284,7 +287,10 @@ export class MagicboxService {
                 collection: {
                     name: true,
                     desc: true,
+                    type: true,
+                    level: true,
                     supply: true,
+                    current: true,
                     images: true,
                     author: {
                         nickName: true,
@@ -351,7 +357,10 @@ export class MagicboxService {
                     id: true,
                     name: true,
                     desc: true,
+                    type: true,
+                    level: true,
                     supply: true,
+                    current: true,
                     images: true,
                     author: {
                         nickName: true,
