@@ -42,12 +42,17 @@ export class CollectionController {
     return await this.collectionService.list(listCollectionDto, paginationDto);
   }
 
-
   /* 我的订单列表 */
   @Get('myList')
   @ApiPaginatedResponse(Collection)
   async mylist(@Query() listMyCollectionDto: ListMyCollectionDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.collectionService.mylist(userId, listMyCollectionDto, paginationDto);
+  }
+
+  @Get(':id')
+  @Public()
+  async findOne(@Param('id') id: string) {
+    return await this.collectionService.findOne(+id);
   }
 
   @Get(':collectionId/assets')

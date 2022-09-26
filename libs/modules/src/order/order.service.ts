@@ -117,12 +117,7 @@ export class OrderService {
       // 5 分钟
       await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 5)
       await manager.save(order);
-      await manager.update(Asset, { id: order.assetId }, { status: '2' }) // Asset is locked.
-      // orderCount--;
-      // if (orderCount % 100 === 0) {
-      //   activity.current = activity.current + 1;
-      //   await manager.save(activity)
-      // }
+
       return order;
     });
   }
