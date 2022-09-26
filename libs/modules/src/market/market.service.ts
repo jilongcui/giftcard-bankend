@@ -93,4 +93,11 @@ export class MarketService {
       toName: toUser.nickName
     })
   }
+
+  async transferAssets(ids: number[] | string[], userId: number, toUserName: string) {
+    return Promise.all(ids.map(async (id: number | string) => {
+      await this.transferAsset(+id, userId, toUserName)
+    }))
+
+  }
 }
