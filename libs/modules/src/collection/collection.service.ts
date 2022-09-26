@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
-import { FindOptionsWhere, In, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Like, Not, Repository } from 'typeorm';
 import { CreateCollectionDto, UpdateCollectionDto, ListCollectionDto, ListMyCollectionDto } from './dto/request-collection.dto';
 import { Collection } from './entities/collection.entity';
 import { CreateAssetDto } from './dto/request-asset.dto';
@@ -213,5 +213,32 @@ export class CollectionService {
   }
   private randomTokenId(): number {
     return Math.floor((Math.random() * 999999999) + 1000000000);
+  }
+
+  /* 对某个collection进行index重新排序 */
+  async arrangeAssetIndexOfCollection(collectionId: number) {
+    let where: FindOptionsWhere<Asset> = {}
+    let totalCount = 0;
+    where =
+    {
+      collectionId,
+      index: 0
+    }
+    // let totalCount: number = 0;
+    const airdrops = await this.assetRepository.find({ where, take: 10 })
+    if (airdrops.length === 0) return
+    const result = await this.assetRepository.createQueryBuilder('asset')
+      .select('max(`index`)', 'maxIndex')
+      .where({ collectionId, index: Not(0) })
+      .getRawOne()
+    const baseIndex = result.maxIndex + 1
+    this.logger.debug(baseIndex)
+
+    await this.assetRepository.manager.transaction(async manager => {
+      Promise.all(
+        airdrops.map(async (asset, index) => {
+          await manager.update(Asset, { id: asset.id }, { index: index + baseIndex }) // error
+        }))
+    })
   }
 }
