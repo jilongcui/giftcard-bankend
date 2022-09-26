@@ -6,7 +6,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../system/user/user.service';
 import { InviteUser } from './entities/invite-user.entity';
 import { User } from '../system/user/entities/user.entity';
-import { ReqInviteUserListDto } from './dto/request-inviteuser.dto';
+import { ReqInviteUserListDto, ReqUpdateInviteUserDto } from './dto/request-inviteuser.dto';
 import * as moment from 'moment';
 import { ApiDataResponse } from '@app/common/decorators/api-data-response.decorator';
 
@@ -133,5 +133,9 @@ export class InviteUserService {
             return children
         }
         return null
+    }
+
+    async update(reqUpdateInviteUserDto: ReqUpdateInviteUserDto) {
+        return this.inviteUserTreeRepository.update(reqUpdateInviteUserDto.id, reqUpdateInviteUserDto)
     }
 }

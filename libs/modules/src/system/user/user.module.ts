@@ -21,10 +21,11 @@ import { storage, UploadModule } from '@app/modules/common/upload/upload.module'
 import { MulterModule } from '@nestjs/platform-express';
 import { Account } from '@app/modules/account/entities/account.entity';
 import { AddressModule } from '@app/modules/wallet/address/address.module';
+import { InviteUser } from '@app/modules/inviteuser/entities/invite-user.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User, Account]),
+        TypeOrmModule.forFeature([User, Account, InviteUser]),
         forwardRef(() => RoleModule),
         PostModule,
         DeptModule,

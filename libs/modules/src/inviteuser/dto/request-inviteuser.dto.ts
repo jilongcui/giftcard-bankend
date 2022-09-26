@@ -21,3 +21,16 @@ export class ReqInviteUserListDto {
     @IsObject()
     params?: ParamsDto
 }
+
+export class ReqUpdateInviteUserDto {
+    @IsNumber()
+    id: number
+
+    @IsOptional()
+    @IsString()
+    nickName?: string
+
+    @IsOptional()
+    @IsString()
+    avatar?: string
+}

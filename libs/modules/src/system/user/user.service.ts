@@ -31,6 +31,9 @@ import { User } from './entities/user.entity';
 import { AddressService } from '@app/modules/wallet/address/address.service';
 import { ReqAddressCreateDto } from '@app/modules/wallet/address/dto/req-address.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { InviteUserService } from '@app/modules/inviteuser/invite-user.service';
+import { ReqUpdateInviteUserDto } from '@app/modules/inviteuser/dto/request-inviteuser.dto';
+import { InviteUser } from '@app/modules/inviteuser/entities/invite-user.entity';
 const strRandom = require('string-random');
 
 @Injectable()
@@ -39,6 +42,7 @@ export class UserService {
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
         @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
+        @InjectRepository(InviteUser) private readonly inviteUserRepository: Repository<InviteUser>,
         @Inject(forwardRef(() => RoleService)) private readonly roleService: RoleService,
         @InjectRedis() private readonly redis: Redis,
         private readonly postService: PostService,
@@ -329,6 +333,15 @@ export class UserService {
 
     /* 更新自己的用户信息 */
     async updataProfile(reqUpdataSelfDto: ReqUpdataSelfDto, userId: number) {
+        if (reqUpdataSelfDto.nickName || reqUpdataSelfDto.avatar) {
+            // 更新一下邀请记录
+            let reqUpdateInviteUserDto: ReqUpdateInviteUserDto = {
+                id: userId,
+                nickName: reqUpdataSelfDto.nickName,
+                avatar: reqUpdataSelfDto.avatar
+            }
+            await this.inviteUserRepository.update(reqUpdateInviteUserDto.id, reqUpdateInviteUserDto)
+        }
         return await this.userRepository.createQueryBuilder()
             .update()
             .set(reqUpdataSelfDto)

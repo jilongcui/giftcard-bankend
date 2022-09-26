@@ -9,7 +9,7 @@ import { User } from '@app/modules/system/user/entities/user.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, InviteUser]),
-    UserModule
+    UserModule,
   ],
   providers: [InviteUserService],
   controllers: [InviteUserController],
