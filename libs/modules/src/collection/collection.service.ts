@@ -216,7 +216,7 @@ export class CollectionService {
   }
 
   /* 对某个collection进行index重新排序 */
-  async arrangeAssetIndexOfCollection(collectionId: number) {
+  async arrangeAssetIndexOfCollection(collectionId: number, section: number) {
     let where: FindOptionsWhere<Asset> = {}
     let totalCount = 0;
     where =
@@ -225,7 +225,7 @@ export class CollectionService {
       index: 0
     }
     // let totalCount: number = 0;
-    const airdrops = await this.assetRepository.find({ where, take: 10 })
+    const airdrops = await this.assetRepository.find({ where, take: section })
     if (airdrops.length === 0) return
     const result = await this.assetRepository.createQueryBuilder('asset')
       .select('max(`index`)', 'maxIndex')

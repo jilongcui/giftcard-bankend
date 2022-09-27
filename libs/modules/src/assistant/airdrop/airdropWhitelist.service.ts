@@ -119,7 +119,7 @@ export class AirdropWhitelistService {
     }
     // let totalCount: number = 0;
     const airdrops = await this.airdropWhitelistRepository.find({ where, take: 50 })
-    this.logger.debug(airdrops.length)
+    // this.logger.debug(airdrops.length)
     if (airdrops.length === 0) return
 
     for (let i = 0; i < airdrops.length; i++) {

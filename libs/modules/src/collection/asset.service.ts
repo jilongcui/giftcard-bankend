@@ -64,9 +64,6 @@ export class AssetService {
         name: paginationDto.keywords ? Like(`%${paginationDto.keywords}%`) : undefined
       }
     }
-    let whereCollection: FindOptionsWhere<Collection> = {}
-    whereCollection.name = paginationDto.keywords ? Like(`%${paginationDto.keywords}%`) : undefined
-    this.logger.debug(whereCollection)
     const orderBy = paginationDto.isAsc === 'true' ? 'ASC' : 'DESC'
     result = await this.assetRepository.findAndCount({
       where,

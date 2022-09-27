@@ -93,9 +93,9 @@ export class CollectionController {
     return await this.collectionService.delete(ids.split(','))
   }
 
-  @Put('resetAssetIndexOfCollection/:id')
+  @Put('resetAssetIndexOfCollection/:id/:section')
   @RequiresPermissions('system:asset:reset')
-  async arrangeAssetIndex(@Param('id') id: string) {
-    return await this.collectionService.arrangeAssetIndexOfCollection(+id)
+  async arrangeAssetIndex(@Param('id') id: string, @Param('id') section: string | '100') {
+    return await this.collectionService.arrangeAssetIndexOfCollection(+id, +section)
   }
 }
