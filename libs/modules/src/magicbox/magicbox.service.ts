@@ -4,26 +4,26 @@ import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { FindOptionsWhere, Like, Repository, TreeRepository } from 'typeorm';
-import { CreateMagicboxDto, UpdateMagicboxDto, ListMagicboxDto, FlowMagicboxDto } from './dto/request-magicbox.dto';
+import { CreateMagicboxDto, UpdateMagicboxDto, ListMagicboxDto, FlowMagicboxDto, ListMyMagicboxDto } from './dto/request-magicbox.dto';
 import { Magicbox } from './entities/magicbox.entity';
 import { Asset } from '../collection/entities/asset.entity';
 import { AssetRecord } from '../market/entities/asset-record.entity';
+import { ResListMyMagicboxDto } from './dto/response-magicbox.dto';
 
 @Injectable()
 export class MagicboxService {
     logger = new Logger(MagicboxService.name)
     constructor(
         @InjectRepository(Magicbox) private readonly magicboxRepository: Repository<Magicbox>,
-        @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
         @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
     ) { }
     create(createMagicboxDto: CreateMagicboxDto) {
-        return this.magicboxRepository.save(createMagicboxDto);
+        return this.magicboxRepository.create(createMagicboxDto);
     }
 
     /* 新增或编辑 */
-    async addOrUpdate(createMagicboxDto: CreateMagicboxDto) {
-        return await this.magicboxRepository.save(createMagicboxDto)
+    async addOrUpdate(magicbox: Magicbox) {
+        return await this.magicboxRepository.save(magicbox)
     }
 
     /* 分页查询 */
@@ -73,8 +73,175 @@ export class MagicboxService {
         }
     }
 
-    /* 我已经购买的查询 */
-    async myList(userId: number, listMagicboxList: ListMagicboxDto, paginationDto: PaginationDto): Promise<PaginatedDto<Magicbox>> {
+    /* 我的藏品查询 */
+    async myCollectionList(userId: number, listMyMagicboxDto: ListMyMagicboxDto, paginationDto: PaginationDto): Promise<PaginatedDto<ResListMyMagicboxDto>> {
+        let where: FindOptionsWhere<Magicbox> = {}
+        let result: any;
+        where = {
+            ...listMyMagicboxDto,
+            userId: userId,
+        }
+        // if (listMyMagicboxDto.status === '1')
+        //   where.invalidTime = MoreThanOrEqual(moment(moment.now()).toDate())
+
+        const myQueryBuilder = await this.magicboxRepository.createQueryBuilder('magicbox')
+            .select('count(*)', 'mycount')
+            .addSelect('activity.id', 'id')
+            .addSelect('activity.title', 'name')
+            .addSelect('activity.supply', 'supply')
+            .addSelect('activity.current', 'current')
+            .addSelect('activity.status', 'status')
+            .addSelect('activity.cover_image', 'image')
+            .leftJoin('magicbox.activity', 'activity')
+            .where(where)
+            .orderBy('activity.create_time', 'DESC')
+            .groupBy('magicbox.activity_id')
+        // .limit(params.count)
+        // this.logger.debug(myQueryBuilder.getQuery())
+
+        let resultArr = await myQueryBuilder.getRawMany()
+        resultArr = resultArr.filter(l => l != undefined)
+        return {
+            rows: resultArr,
+            total: resultArr.length
+        }
+    }
+
+    /* collection下的asset分页查询*/
+    async listOfCollection(collectionId: number, paginationDto: PaginationDto): Promise<PaginatedDto<Magicbox>> {
+        let where: FindOptionsWhere<Magicbox> = {}
+        let result: any;
+
+        where.activityId = collectionId
+        result = await this.magicboxRepository.findAndCount({
+            select: {
+                id: true,
+                boxNo: true,
+                index: true,
+                price: true,
+                openStatus: true,
+                status: true,
+                userId: true,
+                createTime: true
+            },
+            where,
+            skip: paginationDto.skip,
+            take: paginationDto.take || 20,
+            order: {
+                createTime: 'DESC',
+            }
+        })
+
+        return {
+            rows: result[0],
+            total: result[1]
+        }
+    }
+
+    /* collection下的magic分页查询 */
+    async myListOfCollection(activityId: number, userId: number, paginationDto: PaginationDto): Promise<PaginatedDto<Magicbox>> {
+        let where: FindOptionsWhere<Magicbox> = {}
+        let result: any;
+
+        where.activityId = activityId
+        where.userId = userId
+        result = await this.magicboxRepository.findAndCount({
+            select: {
+                id: true,
+                price: true,
+                boxNo: true,
+                index: true,
+                openStatus: true,
+                status: true,
+                userId: true,
+                createTime: true,
+            },
+            where,
+            skip: paginationDto.skip,
+            take: paginationDto.take || 20,
+            order: {
+                createTime: 'DESC',
+            }
+        })
+
+        return {
+            rows: result[0],
+            total: result[1]
+        }
+    }
+
+    /* 我未开启盲盒的查询，只能通过activity来查询*/
+    async myUnopenedList(userId: number, listMagicboxList: ListMagicboxDto, paginationDto: PaginationDto): Promise<PaginatedDto<Magicbox>> {
+        let where: FindOptionsWhere<Magicbox> = {}
+        let result: any;
+
+        listMagicboxList.openStatus = listMagicboxList.openStatus || '1' // 已购买
+        where = {
+            ...listMagicboxList,
+            userId: userId,
+            activity: {
+                title: paginationDto.keywords ? Like(`%${paginationDto.keywords}%`) : undefined
+            }
+        }
+
+        const orderBy = paginationDto.isAsc === 'true' ? 'ASC' : 'DESC'
+        result = await this.magicboxRepository.findAndCount({
+            where,
+            select: {
+                id: true,
+                price: true,
+                updateTime: true,
+                createTime: true,
+                userId: true,
+                status: true,
+                user: {
+                    nickName: true,
+                    avatar: true,
+                },
+                activity: {
+                    id: true,
+                    title: true,
+                    coverImage: true,
+                    authorName: true,
+                    avatar: true,
+                    collections: true
+                },
+                collection: listMagicboxList.openStatus === '2' ? {
+                    name: true,
+                    desc: true,
+                    type: true,
+                    level: true,
+                    supply: true,
+                    current: true,
+                    images: true,
+                    author: {
+                        nickName: true,
+                        avatar: true,
+                    },
+                } : {},
+
+            },
+            relations: {
+                user: true,
+                activity: true,
+                collection: listMagicboxList.openStatus === '2' ? true : false
+            },
+            skip: paginationDto.skip,
+            take: paginationDto.take,
+            order: {
+                price: paginationDto.orderByColumn === 'price' ? orderBy : undefined,
+                updateTime: paginationDto.orderByColumn === 'updateTime' ? orderBy : 'DESC',
+            }
+        })
+
+        return {
+            rows: result[0],
+            total: result[1]
+        }
+    }
+
+    /* 我已经开启盲盒的查询 */
+    async myOpenedList(userId: number, listMagicboxList: ListMagicboxDto, paginationDto: PaginationDto): Promise<PaginatedDto<Magicbox>> {
         let where: FindOptionsWhere<Magicbox> = {}
         let result: any;
 

@@ -194,7 +194,8 @@ export class ActivityService {
           userId: 1,
           price: activity.price
         }
-        await this.magicboxService.addOrUpdate(createMagicboxDto)
+        const magicbox = this.magicboxService.create(createMagicboxDto)
+        await this.magicboxService.addOrUpdate(magicbox)
       })
     }
     return result

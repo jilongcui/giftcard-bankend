@@ -2,7 +2,7 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { User } from "../../system/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Asset } from "@app/modules/collection/entities/asset.entity";
 import { Activity } from "@app/modules/activity/entities/activity.entity";
 import { Collection } from "@app/modules/collection/entities/collection.entity";
@@ -17,13 +17,14 @@ export class Magicbox {
     @IsNumber()
     id: number
 
-    // @Column({
-    //     name: 'asset_no',
-    //     comment: '盲盒编号'
-    // })
-    // @Type()
-    // @IsNumber()
-    // assetNo: number
+    @Column({
+        name: 'box_no',
+        default: 0,
+        comment: '盲盒编号'
+    })
+    @Type()
+    @IsNumber()
+    boxNo: number
 
     @Column({
         name: 'price',
@@ -49,6 +50,7 @@ export class Magicbox {
     })
     user: User
 
+    /* 状态(0:未售出 1: 已售出 2: 已开启 ) */
     @Column({
         name: 'open_status',
         comment: '状态(0:未售出 1: 已售出 2: 已开启 )',
@@ -58,6 +60,7 @@ export class Magicbox {
     @IsString()
     openStatus: string
 
+    /* 市场状态(0:下架 1: 上架 2:锁定) */
     @Column({
         name: 'status',
         comment: '市场状态(0:下架 1: 上架 2:锁定)',
@@ -129,4 +132,13 @@ export class Magicbox {
     @ApiHideProperty()
     @UpdateDateColumn({ name: 'update_time', comment: '更新时间' })
     updateTime: Date
+
+    @BeforeInsert()
+    private beforeInsert() {
+        this.boxNo = this.randomTokenId();
+    }
+
+    private randomTokenId(): number {
+        return Math.floor((Math.random() * 999999999) + 1000000000);
+    }
 }

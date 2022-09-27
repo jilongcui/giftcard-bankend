@@ -10,7 +10,7 @@ import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { MagicboxService } from '@app/modules/magicbox/magicbox.service';
-import { CreateMagicboxDto, ListMagicboxDto } from '@app/modules/magicbox/dto/request-magicbox.dto';
+import { ListMagicboxDto } from '@app/modules/magicbox/dto/request-magicbox.dto';
 import { Magicbox } from '@app/modules/magicbox/entities/magicbox.entity';
 
 @ApiTags('盲盒')
@@ -20,29 +20,6 @@ import { Magicbox } from '@app/modules/magicbox/entities/magicbox.entity';
 export class MagicboxController {
     logger = new Logger(MagicboxController.name);
     constructor(private readonly magicboxService: MagicboxService) { }
-
-    /* 新增盲盒 */
-    @Post()
-    @Log({
-        title: '盲盒',
-        businessType: BusinessTypeEnum.insert
-    })
-    // @RequiresRoles(['admin', 'system'])
-    // async create(@Body() createMagicboxDto: CreateMagicboxDto, @UserDec(UserEnum.userId) userId: number) {
-    //     return this.magicboxService.create(createMagicboxDto);
-    // }
-
-    /* 个人盲盒列表 */
-    @Get('myList')
-    @ApiPaginatedResponse(Magicbox)
-    async myList(@UserDec(UserEnum.userId) userId: number, @Query() listMagicboxDto: ListMagicboxDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-        return await this.magicboxService.myList(userId, listMagicboxDto, paginationDto);
-    }
-
-    @Get('myOne/:id')
-    async myOne(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number,) {
-        return await this.magicboxService.findMyOne(+id, userId);
-    }
 
     /* 后台盲盒列表 */
     @Get('list')
@@ -67,18 +44,18 @@ export class MagicboxController {
         return await this.magicboxService.findOne(+id);
     }
 
-    /* 更新 盲盒 */
-    // @RepeatSubmit()
-    @Put()
-    @Log({
-        title: '盲盒',
-        businessType: BusinessTypeEnum.update
-    })
-    @RequiresRoles(['admin', 'system'])
-    async update(@Body() magicbox: Magicbox) {
-        return await this.magicboxService.addOrUpdate(magicbox)
+    /* 我的盲盒详情 */
+    @Get('myOne/:id')
+    async myOne(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number,) {
+        return await this.magicboxService.findMyOne(+id, userId);
     }
 
+    /* 我的单个盲盒列表 */
+    @Get('myList')
+    @ApiPaginatedResponse(Magicbox)
+    async myList(@UserDec(UserEnum.userId) userId: number, @Query() listMagicboxDto: ListMagicboxDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+        return await this.magicboxService.myOpenedList(userId, listMagicboxDto, paginationDto);
+    }
 
     /* 删除 盲盒 */
     @Delete(':ids')
