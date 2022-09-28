@@ -431,7 +431,9 @@ export class MagicboxService {
             where: { id },
             relations: {
                 user: true,
-                activity: true,
+                activity: {
+                    collections: true
+                },
                 collection: {
                     author: false,
                     contract: true,
@@ -482,7 +484,9 @@ export class MagicboxService {
             where: { id, userId },
             relations: {
                 user: true,
-                activity: true,
+                activity: {
+                    collections: true
+                },
                 asset: true,
                 collection: {
                     author: false,
