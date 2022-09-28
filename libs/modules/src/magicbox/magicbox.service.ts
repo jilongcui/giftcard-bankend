@@ -155,8 +155,18 @@ export class MagicboxService {
                 status: true,
                 userId: true,
                 createTime: true,
+                collection: {
+                    id: true,
+                    name: true,
+                    level: true,
+                    desc: true
+                },
+                assetId: true
             },
             where,
+            relations: {
+                collection: true
+            },
             skip: paginationDto.skip,
             take: paginationDto.take || 20,
             order: {
@@ -164,8 +174,17 @@ export class MagicboxService {
             }
         })
 
+        const magicboxes: any[] = result[0]
+
+        magicboxes.map((magicbox: Magicbox) => {
+            if (magicbox.status !== '2') {
+                magicbox.assetId = undefined
+                magicbox.collection = undefined
+            }
+        })
+
         return {
-            rows: result[0],
+            rows: magicboxes,
             total: result[1]
         }
     }
