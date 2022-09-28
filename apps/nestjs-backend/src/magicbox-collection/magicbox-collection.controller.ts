@@ -26,6 +26,7 @@ export class MagicboxCollectionController {
         return await this.magicboxService.myCollectionList(userId, listMyMagicBoxDto, null);
     }
 
+    /* 合集下所有盲盒列表 */
     @Get(':id/magicboxes')
     @Public()
     @ApiPaginatedResponse(Magicbox)
@@ -33,6 +34,7 @@ export class MagicboxCollectionController {
         return await this.magicboxService.listOfCollection(+id, paginationDto);
     }
 
+    /* 合集下我的盲盒列表 */
     @Get(':id/myMagicboxes')
     @ApiPaginatedResponse(Magicbox)
     async myAssetList(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
