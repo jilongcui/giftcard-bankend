@@ -42,6 +42,7 @@ export class MagicboxService {
                 updateTime: true,
                 createTime: true,
                 userId: true,
+                openStatus: true,
                 status: true,
                 user: {
                     nickName: true,
@@ -177,7 +178,7 @@ export class MagicboxService {
         const magicboxes: any[] = result[0]
 
         magicboxes.map((magicbox: Magicbox) => {
-            if (magicbox.status !== '2') {
+            if (magicbox.openStatus !== '2') {
                 magicbox.assetId = undefined
                 magicbox.collection = undefined
             }
@@ -212,6 +213,7 @@ export class MagicboxService {
                 updateTime: true,
                 createTime: true,
                 userId: true,
+                openStatus: true,
                 status: true,
                 user: {
                     nickName: true,
@@ -282,6 +284,7 @@ export class MagicboxService {
                 updateTime: true,
                 createTime: true,
                 userId: true,
+                openStatus: true,
                 status: true,
                 user: {
                     nickName: true,
@@ -349,6 +352,7 @@ export class MagicboxService {
                 updateTime: true,
                 createTime: true,
                 userId: true,
+                openStatus: true,
                 status: true,
                 user: {
                     nickName: true,
@@ -395,6 +399,7 @@ export class MagicboxService {
                 price: true,
                 updateTime: true,
                 userId: true,
+                openStatus: true,
                 status: true,
                 user: {
                     nickName: true,
@@ -433,6 +438,7 @@ export class MagicboxService {
                 id: true,
                 price: true,
                 userId: true,
+                openStatus: true,
                 status: true,
                 user: {
                     nickName: true,
@@ -460,8 +466,8 @@ export class MagicboxService {
             }
         })
 
-        if (magicbox.status !== '2') {
-            magicbox.asset = undefined
+        if (magicbox.openStatus !== '2') {
+            magicbox.assetId = undefined
             magicbox.collection = undefined
         }
         return magicbox
@@ -474,6 +480,7 @@ export class MagicboxService {
                 price: true,
                 userId: true,
                 status: true,
+                assetId: true,
                 user: {
                     nickName: true,
                     avatar: true,
@@ -519,7 +526,8 @@ export class MagicboxService {
                 }
             }
         })
-        if (magicbox.status !== '2') {
+        if (magicbox.openStatus !== '2') {
+            magicbox.assetId = undefined
             magicbox.asset = undefined
             magicbox.collection = undefined
         }
@@ -544,6 +552,7 @@ export class MagicboxService {
                 price: true,
                 userId: true,
                 assetId: true,
+                openStatus: true,
                 status: true,
                 user: {
                     nickName: true,
@@ -570,7 +579,7 @@ export class MagicboxService {
                     price: true
                 }
             },
-            where: { id: id, userId: userId, status: '1' }, relations: { user: true, collection: true, asset: true }
+            where: { id: id, userId: userId, openStatus: '1' }, relations: { user: true, collection: true, asset: true }
         })
         if (!magicbox) throw new ApiException("未找到盲盒")
         // 打开这个盲盒
