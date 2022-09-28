@@ -513,7 +513,7 @@ export class PaymentService {
       const magicboxs = await manager.find(Magicbox, { where: { status: '0', activityId: activity.id }, take: order.count })
       if (magicboxs.length !== order.count) throw new ApiException("Remain magicbox is less than order number.")
       await Promise.all(magicboxs.map(async (magicbox) => {
-        await manager.update(Magicbox, { id: magicbox.id, status: '0' }, { status: '1', userId: order.userId })
+        await manager.update(Magicbox, { id: magicbox.id, status: '0' }, { openStatus: '1', userId: order.userId })
       }))
     })
   }
