@@ -14,6 +14,8 @@ import { Magicbox } from '../magicbox/entities/magicbox.entity';
 import { FlowMagicboxDto } from '../magicbox/dto/request-magicbox.dto';
 import { MagicboxMarketService } from './magicbox-market.service';
 import { MagicboxService } from '../magicbox/magicbox.service';
+import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
+import { MagicboxRecordService } from '../magicbox/magicbox-record.service';
 
 @ApiTags('盲盒市场')
 @ApiBearerAuth()
@@ -23,6 +25,7 @@ export class MagicboxMarketController {
     constructor(
         private readonly magicboxService: MagicboxService,
         private readonly magicboxMarketService: MagicboxMarketService,
+        private readonly magicboxRecordService: MagicboxRecordService,
     ) { }
 
     /* 资产出售 */
@@ -55,13 +58,13 @@ export class MagicboxMarketController {
     //   return await this.marketService.downMagicbox(+id, userId, userName);
     // }
 
-    // /* 资产交易记录 */
-    // @Get('magicbox/:id/records')
-    // @Public()
-    // @ApiPaginatedResponse(MagicboxRecord)
-    // async records(@Param('id') id: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    //     return await this.magicboxMarketService.list(id, paginationDto);
-    // }
+    /* 资产交易记录 */
+    @Get('magicbox/:id/records')
+    @Public()
+    @ApiPaginatedResponse(MagicboxRecord)
+    async records(@Param('id') id: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+        return await this.magicboxRecordService.list(id, paginationDto);
+    }
 
     /* 盲盒二级市场数据流 */
     @Get('magicbox/flow')

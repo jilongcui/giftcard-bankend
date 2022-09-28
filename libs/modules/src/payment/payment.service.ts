@@ -30,6 +30,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
 import { firstValueFrom } from 'rxjs';
 import { Magicbox } from '../magicbox/entities/magicbox.entity';
+import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -514,6 +515,14 @@ export class PaymentService {
       if (magicboxs.length !== order.count) throw new ApiException("Remain magicbox is less than order number.")
       await Promise.all(magicboxs.map(async (magicbox) => {
         await manager.update(Magicbox, { id: magicbox.id, openStatus: '0' }, { openStatus: '1', userId: order.userId })
+        // 记录交易记录
+        await manager.save(MagicboxRecord, {
+          type: '2', // Buy
+          magicboxId: magicbox.id,
+          price: order.realPrice,
+          toId: order.userId,
+          toName: order.user.nickName
+        })
       }))
     })
   }

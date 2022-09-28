@@ -11,27 +11,27 @@ import { Repository } from 'typeorm';
 import { Collection } from '../collection/entities/collection.entity';
 import { User } from '../system/user/entities/user.entity';
 import { Magicbox } from '../magicbox/entities/magicbox.entity';
+import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
 
 @Injectable()
 export class MagicboxMarketService {
     constructor(
         @InjectRepository(Magicbox) private readonly magicboxRepository: Repository<Magicbox>,
-        @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
         @InjectRepository(User) private readonly userRepository: Repository<User>,
-        // @InjectRepository(MagicboxRecord) private readonly assetRecordRepository: Repository<MagicboxRecord>,
+        @InjectRepository(MagicboxRecord) private readonly magicboxRecordRepository: Repository<MagicboxRecord>,
     ) { }
 
     async upMagicbox(id: number, price: number, userId: number, userName: string) {
         await this.magicboxRepository.update({ id: id, userId: userId, openStatus: '1', status: '0' }, { price: price, status: '1' })
-        // await this.assetRecordRepository.save({
-        //     type: '1', // Sell
-        //     assetId: id,
-        //     price: price,
-        //     fromId: userId,
-        //     fromName: userName,
-        //     toId: undefined,
-        //     toName: undefined
-        // })
+        await this.magicboxRecordRepository.save({
+            type: '1', // Sell
+            magicboxId: id,
+            price: price,
+            fromId: userId,
+            fromName: userName,
+            toId: undefined,
+            toName: undefined
+        })
     }
 
     async buyMagicbox(id: number, userId: number, userName: string) {
@@ -42,15 +42,15 @@ export class MagicboxMarketService {
             throw new ApiException("不能购买自己的资产")
 
         await this.magicboxRepository.update({ id: id, status: '0' }, { userId: userId })
-        // await this.assetRecordRepository.save({
-        //     type: '2', // Buy
-        //     assetId: id,
-        //     price: asset.price,
-        //     fromId: fromId,
-        //     fromName: fromName,
-        //     toId: userId,
-        //     toName: userName
-        // })
+        await this.magicboxRecordRepository.save({
+            type: '2', // Buy
+            magicboxId: id,
+            price: asset.price,
+            fromId: fromId,
+            fromName: fromName,
+            toId: userId,
+            toName: userName
+        })
     }
 
     async downMagicbox(id: number, userId: number, userName: string) {
@@ -58,15 +58,15 @@ export class MagicboxMarketService {
         if (!asset) {
             throw new ApiException("无法操作此资产")
         }
-        // await this.assetRecordRepository.save({
-        //     type: '3', // down
-        //     assetId: id,
-        //     price: undefined,
-        //     fromId: undefined,
-        //     fromName: undefined,
-        //     toId: userId,
-        //     toName: userName
-        // })
+        await this.magicboxRecordRepository.save({
+            type: '3', // down
+            magicboxId: id,
+            price: undefined,
+            fromId: undefined,
+            fromName: undefined,
+            toId: userId,
+            toName: userName
+        })
     }
 
     async transferMagicbox(id: number, userId: number, toUserName: string) {
@@ -82,15 +82,15 @@ export class MagicboxMarketService {
         if (fromId === toUserId)
             throw new ApiException("不能转赠给自己")
         await this.magicboxRepository.update(id, { userId: toUserId })
-        // await this.assetRecordRepository.save({
-        //     type: '4', // 转增
-        //     assetId: id,
-        //     price: asset.price,
-        //     fromId: fromId,
-        //     fromName: fromName,
-        //     toId: toUserId,
-        //     toName: toUser.nickName
-        // })
+        await this.magicboxRecordRepository.save({
+            type: '4', // 转增
+            magicboxId: id,
+            price: asset.price,
+            fromId: fromId,
+            fromName: fromName,
+            toId: toUserId,
+            toName: toUser.nickName
+        })
     }
 
     async transferMagicboxs(ids: number[] | string[], userId: number, toUserName: string) {

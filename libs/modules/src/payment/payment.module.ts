@@ -15,6 +15,7 @@ import { Collection } from '../collection/entities/collection.entity';
 import { AssetRecord } from '../market/entities/asset-record.entity';
 import { Order } from '../order/entities/order.entity';
 import { Magicbox } from '../magicbox/entities/magicbox.entity';
+import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { Magicbox } from '../magicbox/entities/magicbox.entity';
       timeout: 5000,
       maxRedirects: 5,
     }),
-    TypeOrmModule.forFeature([Payment, Order, Activity, Account, Asset, Collection, AssetRecord, Magicbox]),
+    TypeOrmModule.forFeature([Payment, Order, Activity, Account, Asset, Collection, AssetRecord, Magicbox, MagicboxRecord]),
     ClientsModule.register([
       { name: 'CHAIN_SERVICE', transport: Transport.TCP, options: { port: 4000 } },
     ]),

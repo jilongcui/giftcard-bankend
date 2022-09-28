@@ -13,11 +13,13 @@ import { MagicboxModule } from '../magicbox/magicbox.module';
 import { MagicboxMarketService } from './magicbox-market.service';
 import { MagicboxMarketController } from './magicbox-market.controller';
 import { Magicbox } from '../magicbox/entities/magicbox.entity';
+import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
+import { MagicboxRecordService } from '../magicbox/magicbox-record.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Collection, Asset, AssetRecord, User, Magicbox]),
+  imports: [TypeOrmModule.forFeature([Collection, Asset, AssetRecord, User, Magicbox, MagicboxRecord]),
     CollectionModule, MagicboxModule],
   controllers: [MarketController, MagicboxMarketController],
-  providers: [MarketService, MagicboxMarketService, AssetRecordService, AssetService]
+  providers: [MarketService, MagicboxMarketService, MagicboxRecordService, AssetRecordService, AssetService]
 })
 export class MarketModule { }
