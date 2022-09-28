@@ -408,8 +408,8 @@ export class MagicboxService {
         }
     }
 
-    findOne(id: number) {
-        return this.magicboxRepository.findOne({
+    async findOne(id: number) {
+        const magicbox = await this.magicboxRepository.findOne({
             select: {
                 id: true,
                 price: true,
@@ -440,6 +440,12 @@ export class MagicboxService {
                 }
             }
         })
+
+        if (magicbox.status !== '2') {
+            magicbox.asset = undefined
+            magicbox.collection = undefined
+        }
+        return magicbox
     }
 
     async findMyOne(id: number, userId: number) {
