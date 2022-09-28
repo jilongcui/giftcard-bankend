@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
-import { FindOptionsWhere, Like, Repository, TreeRepository } from 'typeorm';
+import { FindOptionsWhere, Like, Not, Repository, TreeRepository } from 'typeorm';
 import { CreateMagicboxDto, UpdateMagicboxDto, ListMagicboxDto, FlowMagicboxDto, ListMyMagicboxDto } from './dto/request-magicbox.dto';
 import { Magicbox } from './entities/magicbox.entity';
 import { Asset } from '../collection/entities/asset.entity';
@@ -597,5 +597,57 @@ export class MagicboxService {
         })
         magicbox.openStatus = '2'
         return magicbox
+    }
+
+    /* 对某个collection进行index重新排序 */
+    async arrangeMagicboxIndexOfCollection(collectionId: number, section: number) {
+        let where: FindOptionsWhere<Magicbox> = {}
+        let totalCount = 0;
+        where =
+        {
+            activityId: collectionId,
+            index: 0
+        }
+        // let totalCount: number = 0;
+        const airdrops = await this.magicboxRepository.find({ where, take: section })
+        if (airdrops.length === 0) return
+        const result = await this.magicboxRepository.createQueryBuilder('asset')
+            .select('max(`index`)', 'maxIndex')
+            .where({ collectionId, index: Not(0) })
+            .getRawOne()
+        const baseIndex = result.maxIndex + 1
+        this.logger.debug(baseIndex)
+
+        await this.magicboxRepository.manager.transaction(async manager => {
+            Promise.all(
+                airdrops.map(async (asset, index) => {
+                    await manager.update(Magicbox, { id: asset.id }, { index: index + baseIndex }) // error
+                }))
+        })
+    }
+
+    /* 对某个collection进行boxNo重新生成 */
+    async arrangeMagicboxNoOfCollection(collectionId: number, section: number) {
+        let where: FindOptionsWhere<Magicbox> = {}
+        let totalCount = 0;
+        where =
+        {
+            activityId: collectionId,
+            boxNo: 0
+        }
+        // let totalCount: number = 0;
+        const airdrops = await this.magicboxRepository.find({ where, take: section })
+        if (airdrops.length === 0) return
+
+        await this.magicboxRepository.manager.transaction(async manager => {
+            Promise.all(
+                airdrops.map(async (magicbox) => {
+                    await manager.update(Magicbox, { id: magicbox.id }, { boxNo: this.randomTokenId() }) // error
+                }))
+        })
+    }
+
+    private randomTokenId(): number {
+        return Math.floor((Math.random() * 999999999) + 1000000000);
     }
 }

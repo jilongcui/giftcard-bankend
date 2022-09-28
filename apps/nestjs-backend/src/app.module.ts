@@ -43,9 +43,11 @@ import { AirdropWhitelistService } from '@app/modules/assistant/airdrop/airdropW
 import { MagicboxController } from './magicbox/magicbox.controller';
 import { MagicboxModule } from '@app/modules/magicbox/magicbox.module';
 import { MagicboxCollectionController } from './magicbox-collection/magicbox-collection.controller';
+import { MagicboxService } from '@app/modules/magicbox/magicbox.service';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
-const providers = [JobService, OrderService, LoginService, CollectionService, AirdropWhitelistService]
+const providers = [JobService, OrderService, LoginService, CollectionService, AirdropWhitelistService,
+  MagicboxService]
 function createAliasProviders(): ExistingProvider[] {
   const aliasProviders: ExistingProvider[] = [];
   for (const p of providers) {

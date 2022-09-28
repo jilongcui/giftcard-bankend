@@ -95,7 +95,7 @@ export class CollectionController {
 
   @Put('resetAssetIndexOfCollection/:id/:section')
   @RequiresPermissions('system:asset:reset')
-  async arrangeAssetIndex(@Param('id') id: string, @Param('id') section: string | '100') {
+  async arrangeAssetIndex(@Param('id') id: string, @Param('section') section: string | '100') {
     return await this.collectionService.arrangeAssetIndexOfCollection(+id, +section)
   }
 }

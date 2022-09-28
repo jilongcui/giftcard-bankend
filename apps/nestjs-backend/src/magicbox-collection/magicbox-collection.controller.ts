@@ -10,6 +10,7 @@ import { MagicboxService } from '@app/modules/magicbox/magicbox.service';
 import { ListMyMagicboxDto } from '@app/modules/magicbox/dto/request-magicbox.dto';
 import { Magicbox } from '@app/modules/magicbox/entities/magicbox.entity';
 import { ResListMyMagicboxDto } from '@app/modules/magicbox/dto/response-magicbox.dto';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 
 @ApiTags('盲盒合集')
 @Controller('mboxCollection')
@@ -40,5 +41,18 @@ export class MagicboxCollectionController {
     async myAssetList(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
         return await this.magicboxService.myListOfCollection(+id, userId, paginationDto);
     }
+
+    @Put('arrangeMagicboxIndexOfCollection/:id/:section')
+    @RequiresPermissions('system:magic:reset')
+    async arrangeMagicboxIndex(@Param('id') id: string, @Param('section') section: string | '100') {
+        return await this.magicboxService.arrangeMagicboxIndexOfCollection(+id, +section)
+    }
+
+    @Put('arrangeMagicboxNoOfCollection/:id/:section')
+    @RequiresPermissions('system:magic:reset')
+    async arrangeMagicboxNoIndex(@Param('id') id: string, @Param('section') section: string | '100') {
+        return await this.magicboxService.arrangeMagicboxNoOfCollection(+id, +section)
+    }
+
 }
 
