@@ -11,7 +11,7 @@ export class AssetRecord {
     @IsNumber()
     id: number
 
-    /* 类型 0: Create 1: Sell 2: Buy 3: Down 4: Transfer */
+    /* 类型 0: Create 1: Sell 2: Buy 3: Down 4: Transfer 5:Open */
     @Column({
         name: 'type',
         type: 'char',
