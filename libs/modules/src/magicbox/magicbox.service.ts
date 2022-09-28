@@ -595,7 +595,7 @@ export class MagicboxService {
                 toName: magicbox.user.nickName
             })
         })
-
+        magicbox.openStatus = '2'
         return magicbox
     }
 }
