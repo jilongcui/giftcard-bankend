@@ -42,7 +42,7 @@ export class MarketService {
     if (fromId === userId)
       throw new ApiException("不能购买自己的资产")
 
-    await this.assetRepository.update({ id: id, status: '1' }, { userId: userId })
+    await this.assetRepository.update({ id: id, status: '0' }, { userId: userId })
     await this.assetRecordRepository.save({
       type: '2', // Buy
       assetId: id,

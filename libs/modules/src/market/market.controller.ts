@@ -18,7 +18,7 @@ import { Magicbox } from '../magicbox/entities/magicbox.entity';
 import { MagicboxService } from '../magicbox/magicbox.service';
 import { FlowMagicboxDto } from '../magicbox/dto/request-magicbox.dto';
 
-@ApiTags('市场')
+@ApiTags('藏品市场')
 @ApiBearerAuth()
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller('market')
