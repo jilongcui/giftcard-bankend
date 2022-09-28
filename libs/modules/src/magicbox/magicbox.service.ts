@@ -556,7 +556,7 @@ export class MagicboxService {
         if (!magicbox) throw new ApiException("未找到盲盒")
         // 打开这个盲盒
         await this.magicboxRepository.manager.transaction(async manager => {
-            await manager.update(Magicbox, { id, userId }, { status: '2' }) // 打开盲盒
+            await manager.update(Magicbox, { id, userId }, { openStatus: '2' }) // 打开盲盒
             await manager.update(Asset, { id: magicbox.assetId, userId: 1 }, { userId })
             // 构建交易记录
             await manager.save(AssetRecord, {

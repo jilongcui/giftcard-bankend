@@ -50,7 +50,7 @@ export class Magicbox {
     })
     user: User
 
-    /* 状态(0:未售出 1: 已售出 2: 已开启 ) */
+    /* 盲盒状态(0:未售出 1: 已售出 2: 已开启 ) */
     @Column({
         name: 'open_status',
         comment: '状态(0:未售出 1: 已售出 2: 已开启 )',
