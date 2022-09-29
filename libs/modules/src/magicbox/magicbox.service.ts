@@ -190,85 +190,14 @@ export class MagicboxService {
         }
     }
 
-    /* 我未开启盲盒的查询，只能通过activity来查询*/
-    async myUnopenedList(userId: number, listMagicboxList: ListMagicboxDto, paginationDto: PaginationDto): Promise<PaginatedDto<Magicbox>> {
-        let where: FindOptionsWhere<Magicbox> = {}
-        let result: any;
-
-        listMagicboxList.openStatus = listMagicboxList.openStatus || '1' // 已购买
-        where = {
-            ...listMagicboxList,
-            userId: userId,
-            activity: {
-                title: paginationDto.keywords ? Like(`%${paginationDto.keywords}%`) : undefined
-            }
-        }
-
-        const orderBy = paginationDto.isAsc === 'true' ? 'ASC' : 'DESC'
-        result = await this.magicboxRepository.findAndCount({
-            where,
-            select: {
-                id: true,
-                price: true,
-                updateTime: true,
-                createTime: true,
-                userId: true,
-                openStatus: true,
-                status: true,
-                user: {
-                    nickName: true,
-                    avatar: true,
-                },
-                activity: {
-                    id: true,
-                    title: true,
-                    coverImage: true,
-                    authorName: true,
-                    avatar: true,
-                    collections: true
-                },
-                collection: listMagicboxList.openStatus === '2' ? {
-                    name: true,
-                    desc: true,
-                    type: true,
-                    level: true,
-                    supply: true,
-                    current: true,
-                    images: true,
-                    author: {
-                        nickName: true,
-                        avatar: true,
-                    },
-                } : {},
-
-            },
-            relations: {
-                user: true,
-                activity: true,
-                collection: listMagicboxList.openStatus === '2' ? true : false
-            },
-            skip: paginationDto.skip,
-            take: paginationDto.take,
-            order: {
-                price: paginationDto.orderByColumn === 'price' ? orderBy : undefined,
-                updateTime: paginationDto.orderByColumn === 'updateTime' ? orderBy : 'DESC',
-            }
-        })
-
-        return {
-            rows: result[0],
-            total: result[1]
-        }
-    }
-
     /* 我已经开启盲盒的查询 */
-    async myOpenedList(userId: number, listMagicboxList: ListMagicboxDto, paginationDto: PaginationDto): Promise<PaginatedDto<Magicbox>> {
+    async myList(userId: number, listmyMagicboxList: ListMyMagicboxDto, paginationDto: PaginationDto): Promise<PaginatedDto<Magicbox>> {
         let where: FindOptionsWhere<Magicbox> = {}
         let result: any;
 
-        listMagicboxList.openStatus = listMagicboxList.openStatus || '1' // 已购买
+        listmyMagicboxList.openStatus = listmyMagicboxList.openStatus || '1' // 已购买
         where = {
-            ...listMagicboxList,
+            ...listmyMagicboxList,
             userId: userId,
             collection: {
                 name: paginationDto.keywords ? Like(`%${paginationDto.keywords}%`) : undefined
@@ -298,7 +227,7 @@ export class MagicboxService {
                     avatar: true,
                     collections: true
                 },
-                collection: listMagicboxList.openStatus === '2' ? {
+                collection: listmyMagicboxList.openStatus === '2' ? {
                     name: true,
                     desc: true,
                     type: true,
@@ -316,7 +245,7 @@ export class MagicboxService {
             relations: {
                 user: true,
                 activity: true,
-                collection: listMagicboxList.openStatus === '2' ? true : false
+                collection: listmyMagicboxList.openStatus === '2' ? true : false
             },
             skip: paginationDto.skip,
             take: paginationDto.take,

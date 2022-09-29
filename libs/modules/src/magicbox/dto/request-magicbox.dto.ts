@@ -34,6 +34,10 @@ export class ListMyMagicboxDto {
     @IsOptional()
     @IsString()
     status?: string
+
+    @IsOptional()
+    @IsString()
+    openStatus?: string
 }
 export class UpdateMagicboxDto extends PartialType(CreateMagicboxDto) { }
 export class ListMagicboxDto extends PartialType(OmitType(Magicbox, ['user', 'asset', 'collection', 'activity',] as const)) { }

@@ -10,7 +10,7 @@ import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { MagicboxService } from '@app/modules/magicbox/magicbox.service';
-import { ListMagicboxDto } from '@app/modules/magicbox/dto/request-magicbox.dto';
+import { ListMagicboxDto, ListMyMagicboxDto } from '@app/modules/magicbox/dto/request-magicbox.dto';
 import { Magicbox } from '@app/modules/magicbox/entities/magicbox.entity';
 
 @ApiTags('盲盒')
@@ -30,6 +30,13 @@ export class MagicboxController {
         return await this.magicboxService.list(listMagicboxDto, paginationDto);
     }
 
+    /* 我的单个盲盒列表 */
+    @Get('myList')
+    @ApiPaginatedResponse(Magicbox)
+    async myList(@Query() listMyMagicboxDto: ListMyMagicboxDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+        return await this.magicboxService.myList(userId, listMyMagicboxDto, paginationDto);
+    }
+
     /* 首页盲盒推荐 */
     @Get('top')
     @Public()
@@ -38,6 +45,7 @@ export class MagicboxController {
         return await this.magicboxService.latest();
     }
 
+    /* 获取单个盲盒 */
     @Get(':id')
     @Public()
     async findOne(@Param('id') id: string) {
@@ -48,13 +56,6 @@ export class MagicboxController {
     @Get('myOne/:id')
     async myOne(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number,) {
         return await this.magicboxService.findMyOne(+id, userId);
-    }
-
-    /* 我的单个盲盒列表 */
-    @Get('myList')
-    @ApiPaginatedResponse(Magicbox)
-    async myList(@UserDec(UserEnum.userId) userId: number, @Query() listMagicboxDto: ListMagicboxDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-        return await this.magicboxService.myOpenedList(userId, listMagicboxDto, paginationDto);
     }
 
     /* 删除 盲盒 */
