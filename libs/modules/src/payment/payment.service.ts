@@ -567,7 +567,7 @@ export class PaymentService {
     const fromId = asset.user.userId
     const fromName = asset.user.userName
 
-    await this.assetRepository.update({ id: asset.id }, { userId: userId })
+    await this.assetRepository.update({ id: asset.id }, { status: '0', userId: userId })
 
     await this.assetRecordRepository.save({
       type: '2', // Buy
@@ -584,7 +584,7 @@ export class PaymentService {
 
     const fromId = magicbox.user.userId
     const fromName = magicbox.user.userName
-    await this.magicboxRepository.update({ id: magicbox.id }, { userId: userId })
+    await this.magicboxRepository.update({ id: magicbox.id }, { status: '0', userId: userId })
     await this.magicboxRecordRepository.save({
       type: '2', // Buy
       magicboxId: magicbox.id,
