@@ -38,6 +38,7 @@ export class Order {
         length: 1,
         default: '0'
     })
+    @IsOptional()
     @IsString()
     @Excel({
         name: '资产类型',
@@ -45,7 +46,7 @@ export class Order {
             0: "藏品", 1: "盲盒"
         }
     })
-    assetType: string
+    assetType?: string
 
     /* 订单种类 0: 活动 1:市场 2: 充值订单 */
     @Column({
