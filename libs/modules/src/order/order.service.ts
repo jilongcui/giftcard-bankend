@@ -144,6 +144,7 @@ export class OrderService {
     order.userId = userId
     order.userName = userName
     order.assetId = createOrderDto.assetId
+    order.assetType = createOrderDto.assetType
     order.count = 1
     order.invalidTime = moment().add(5, 'minute').toDate()
 
