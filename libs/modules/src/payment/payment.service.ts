@@ -587,7 +587,7 @@ export class PaymentService {
     await this.magicboxRepository.update({ id: magicbox.id }, { userId: userId })
     await this.magicboxRecordRepository.save({
       type: '2', // Buy
-      assetId: magicbox.id,
+      magicboxId: magicbox.id,
       price: magicbox.price,
       fromId: fromId,
       fromName: fromName,
