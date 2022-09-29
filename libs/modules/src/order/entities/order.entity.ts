@@ -33,7 +33,7 @@ export class Order {
     /* 资产类型 0: "藏品", 1: "盲盒" */
     @Column({
         name: 'asset_type',
-        comment: '订单种类 0: 活动 1:市场 2: 充值订单',
+        comment: '资产类型 0: "藏品", 1: "盲盒"',
         type: 'char',
         length: 1,
         default: '0'
