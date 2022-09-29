@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Order } from "../entities/order.entity";
 
 export class CreateOrderDto extends OmitType(Order, ['id', 'image', 'status', 'userId', 'userName', 'desc', 'totalPrice',] as const) { }
-export class CreateLv1OrderDto extends OmitType(Order, ['id', 'type', 'image', 'status', 'userId', 'userName', 'assetId', 'desc', 'realPrice', 'totalPrice',] as const) { }
+export class CreateLv1OrderDto extends OmitType(Order, ['id', 'type', 'image', 'status', 'userId', 'userName', 'assetId', 'assetType', 'desc', 'realPrice', 'totalPrice',] as const) { }
 export class CreateLv2OrderDto extends OmitType(Order, ['id', 'type', 'image', 'status', 'userId', 'userName', 'count', 'activityId', 'desc', 'realPrice', 'totalPrice',] as const) { }
 export class RechargeOrderDto extends OmitType(Order, ['id', 'type', 'image', 'status', 'userId', 'userName', 'count', 'assetId', 'activityId', 'desc', 'totalPrice',] as const) { }
 export class UpdateAllOrderDto extends Order { }

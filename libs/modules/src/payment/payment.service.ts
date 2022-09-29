@@ -278,8 +278,6 @@ export class PaymentService {
   }
 
   async payWithBalance(id: number, userId: number) {
-    // 在transaction里只做和冲突相关的，和冲突不相关的要放在外面
-    // transaction里很有可能会失败，保证失败时是可以回退的，
     const order = await this.orderRepository.findOne({ where: { id: id, status: '1', userId: userId }, relations: { user: true } })
     if (order == null) {
       throw new ApiException('订单状态错误')
@@ -311,32 +309,18 @@ export class PaymentService {
 
     })
 
-    if (order.type === '0') { // 一级市场活动
-      // Create assetes for user.
-      const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
-      // First we need get all collections of orders, but we only get one collection.
-      if (!activity.collections || activity.collections.length <= 0) {
-        return order;
+    await this.orderRepository.manager.transaction(async manager => {
+      if (order.type === '0') { // 一级市场
+        const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
+        await this.doPaymentComfirmedLv1(order, order.userId)
+        // 取消未支付状态
+        await this.redis.del(unpayOrderKey)
+      } else if (order.type === '1') { // 二级市场
+        await this.doPaymentComfirmedLv2(order, order.userId)
       }
-      const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
-      let collection: Collection;
-      if (activity.type === '1') {
-        // 盲盒, 我们需要随机寻找一个magicbox
-        await this.doBuyMagicBoxOrder(order, activity)
-      } else {
-        // 首发藏品，获取第一个collection
-        collection = activity.collections[0];
-        await this.doBuyAssetOrder(order, collection)
-      }
-      await this.redis.del(unpayOrderKey)
-    } else if (order.type === '1') { // 二级市场资产交易
-      // 把资产切换到新的用户就可以了
-      await this.buyAssetRecord(asset, userId, userName)
-      // 还需要转移资产
-    }
-    // await manager.save(order);
+    })
+
     return order;
-    // })
   }
 
   // 交易查询
@@ -476,42 +460,27 @@ export class PaymentService {
   }
 
   async doPaymentComfirmedLv1(order: Order, userId: number) {
-    let asset: Asset
-    let userName = order.user.userName
-    // if (order.type === '1') {
-    //   asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-    //   if (asset.userId === userId)
-    //     throw new ApiException("不能购买自己的资产")
-    // }
-    if (order.type === '0') { // 一级市场活动
-      // Create assetes for user.
-      const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
-      // First we need get all collections of orders, but we only get one collection.
-      if (!activity.collections || activity.collections.length <= 0) {
-        return order;
-      }
-      let collection: Collection;
-      if (activity.type === '1') {
-        // 首发盲盒, 我们需要随机寻找一个。
-        await this.doBuyMagicBoxOrder(order, activity)
-      } else {
-        // 其他类型，我们只需要取第一个
-        collection = activity.collections[0];
-        await this.doBuyAssetOrder(order, collection)
-      }
-    } else if (order.type === '1') { // 二级市场资产交易
-      // 把资产切换到新的用户就可以了
-      await this.buyAssetRecord(asset, userId, userName)
-      // 还需要转移资产
-    } else if (order.type === '2') {
-      // await this.buyAssetRecord(asset, userId, userName)
+    // Create assetes for user.
+    const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
+    // First we need get all collections of orders, but we only get one collection.
+    if (!activity.collections || activity.collections.length <= 0) {
+      return order;
+    }
+    let collection: Collection;
+    if (order.assetType === '1') { // 盲盒
+      // 首发盲盒,
+      await this.doBuyMagicBoxOrder(order)
+    } else { //藏品
+      // 其他类型，我们只需要取第一个
+      collection = activity.collections[0];
+      await this.doBuyAssetOrder(order, collection)
     }
   }
 
-  async doBuyMagicBoxOrder(order: Order, activity: Activity) {
+  async doBuyMagicBoxOrder(order: Order) {
     // 首先获取一个未售出的magicbox
     await this.magicboxRepository.manager.transaction('SERIALIZABLE', async manager => {
-      const magicboxs = await manager.find(Magicbox, { where: { openStatus: '0', activityId: activity.id }, take: order.count })
+      const magicboxs = await manager.find(Magicbox, { where: { openStatus: '0', activityId: order.activityId }, take: order.count })
       if (magicboxs.length !== order.count) throw new ApiException("Remain magicbox is less than order number.")
       await Promise.all(magicboxs.map(async (magicbox) => {
         await manager.update(Magicbox, { id: magicbox.id, openStatus: '0' }, { openStatus: '1', userId: order.userId })
@@ -563,11 +532,19 @@ export class PaymentService {
 
   async doPaymentComfirmedLv2(order: Order, userId: number) {
     let asset: Asset
+    let magicbox: Magicbox
     let userName = order.user.userName
-    asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-    if (asset.userId === userId)
-      throw new ApiException("不能购买自己的资产")
-    await this.buyAssetRecord(asset, userId, userName)
+
+    if (order.assetType === '0') { // 藏品
+      asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+      if (asset.userId === userId)
+        throw new ApiException("不能购买自己的资产")
+      await this.buyAssetRecord(asset, userId, userName)
+    }
+    else if (order.assetType === '1') { //盲盒
+      magicbox = await this.magicboxRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+      await this.buyMagicboxRecord(magicbox, userId, userName)
+    }
   }
 
   async doPaymentComfirmedRecharge(payment: Payment, userId: number, userName: string) {
@@ -588,6 +565,22 @@ export class PaymentService {
       type: '2', // Buy
       assetId: asset.id,
       price: asset.price,
+      fromId: fromId,
+      fromName: fromName,
+      toId: userId,
+      toName: userName
+    })
+  }
+
+  private async buyMagicboxRecord(magicbox: Magicbox, userId: number, userName: string) {
+
+    const fromId = magicbox.user.userId
+    const fromName = magicbox.user.userName
+
+    await this.assetRecordRepository.save({
+      type: '2', // Buy
+      assetId: magicbox.id,
+      price: magicbox.price,
       fromId: fromId,
       fromName: fromName,
       toId: userId,

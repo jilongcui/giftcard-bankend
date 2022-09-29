@@ -3,7 +3,7 @@ import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
 import Redis from 'ioredis';
-import { ACTIVITY_ORDER_TEMPLATE_KEY, ACTIVITY_PRESTART_TIME, ACTIVITY_START_TIME, COLLECTION_ORDER_COUNT } from '@app/common/contants/redis.contant';
+import { ACTIVITY_ORDER_TEMPLATE_KEY, ACTIVITY_PRESTART_TIME, ACTIVITY_START_TIME, COLLECTION_ORDER_COUNT, MAGICBOX_ORDER_COUNT } from '@app/common/contants/redis.contant';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
@@ -157,13 +157,17 @@ export class ActivityService {
     const updateActivityDto = new UpdateActivityDto()
     updateActivityDto.status = '1' // start
     const result = await this.activityRepository.update(id, updateActivityDto)
-    await this.redis.set(`${COLLECTION_ORDER_COUNT}:${activity.id}`, activity.supply - activity.current)
+
     await this.redis.set(`${ACTIVITY_START_TIME}:${activity.id}`, activity.startTime.getUTCMilliseconds())
     if (activity.preemption)
       await this.redis.set(`${ACTIVITY_PRESTART_TIME}:${activity.id}`, activity.preemption.startTime.getUTCMilliseconds())
     await this.redis.set(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${activity.id}`, JSON.stringify(activity))
     this.logger.debug(activity.type)
+    if (activity.type === '0') { // 藏品
+      await this.redis.set(`${COLLECTION_ORDER_COUNT}:${activity.id}`, activity.supply - activity.current)
+    }
     if (activity.type === '1') { // 盲盒
+      await this.redis.set(`${MAGICBOX_ORDER_COUNT}:${activity.id}`, activity.supply - activity.current)
       // 需要先初始化magicBox
       // 创建asset array
       let indexArray = []

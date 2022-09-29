@@ -25,3 +25,6 @@ export const COLLECTION_ORDER_SUPPLY = "COLLECTION:ORDER:SUPPLY"  // 订单统�
 export const ACTIVITY_USER_ORDER_KEY = "ACTIVITY:USER:ORDER:KEY"  // 订单统计
 export const ASSET_ORDER_KEY = "ASSET:ORDER:KEY"  // 订单统计
 export const ACTIVITY_ORDER_TEMPLATE_KEY = "ACTIVITY:ORDER:TEMPLATE"  // 订单模版
+export const MAGICBOX_ORDER_COUNT = "MAGICBOX:ORDER:COUNT"  // 盲盒订单统计
+export const MAGICBOX_ORDER_SUPPLY = "MAGICBOX:ORDER:SUPPLY"  // 盲盒订单统计
+export const MAGICBOX_ORDER_KEY = "MAGICBOX:ORDER:KEY"  // 订单统计

@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import { Inject, Injectable, Logger, ParseArrayPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
-import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_SUPPLY, ACTIVITY_START_TIME, ACTIVITY_PRESTART_TIME, ACTIVITY_USER_ORDER_KEY, ASSET_ORDER_KEY } from '@app/common/contants/redis.contant';
+import { COLLECTION_ORDER_COUNT, ACTIVITY_ORDER_TEMPLATE_KEY, COLLECTION_ORDER_SUPPLY, ACTIVITY_START_TIME, ACTIVITY_PRESTART_TIME, ACTIVITY_USER_ORDER_KEY, ASSET_ORDER_KEY, MAGICBOX_ORDER_KEY } from '@app/common/contants/redis.contant';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
@@ -15,6 +15,7 @@ import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, ListMyOrderDto, L
 import { Order } from './entities/order.entity';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../system/user/entities/user.entity';
+import { Magicbox } from '../magicbox/entities/magicbox.entity';
 
 @Injectable()
 export class OrderService {
@@ -106,6 +107,7 @@ export class OrderService {
         activity = <Activity>jsonObject;
       }
       order.activityId = createOrderDto.activityId;
+      order.assetType = activity.type
       order.count = count
       order.realPrice = activity.price
       order.totalPrice = activity.price * count;
@@ -122,67 +124,56 @@ export class OrderService {
     });
   }
 
-  async redisAtomicDecr(countKey: string, count: number) {
-    const watchError = await this.redis.watch(countKey)
-    if (watchError !== 'OK') throw new ApiException(watchError)
-    const [execResult] = await this.redis.multi().decrby(countKey, count).exec()
-    if (execResult[0] !== null) {
-      this.logger.debug('Redis Atomic Decr retry.')
-      this.redisAtomicDecr(countKey, count)
-    }
-    return execResult[1] // result
-  }
-
-  async redisAtomicIncr(countKey: string, count: number) {
-    const watchError = await this.redis.watch(countKey)
-    if (watchError !== 'OK') throw new ApiException(watchError)
-    const [execResult] = await this.redis.multi().incrby(countKey, count).exec()
-    if (execResult[0] !== null) {
-      this.logger.debug('Redis Atomic Incr retry.')
-      this.redisAtomicIncr(countKey, count)
-    }
-    return execResult[1] // result
-  }
-
   async createLv2Order(createOrderDto: CreateLv2OrderDto, userId: number, userName: string) {
     let unpayOrderKey: string;
     const orderType = '1'
 
-    unpayOrderKey = ASSET_ORDER_KEY + ":" + (createOrderDto.assetId)
+    if (createOrderDto.assetType === '0')
+      unpayOrderKey = ASSET_ORDER_KEY + ":" + (createOrderDto.assetId)
+    else if (createOrderDto.assetType === '1')
+      unpayOrderKey = MAGICBOX_ORDER_KEY + ":" + (createOrderDto.assetId)
+
     // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
     const unpayOrder = await this.redis.get(unpayOrderKey)
     if (unpayOrder != null) {
       throw new ApiException('无法创建订单', 401)
     }
+    const order = new Order()
+    order.type = orderType
+    order.status = '1'
+    order.userId = userId
+    order.userName = userName
+    order.assetId = createOrderDto.assetId
+    order.count = 1
+    order.invalidTime = moment().add(5, 'minute').toDate()
+
     return await this.orderRepository.manager.transaction(async manager => {
-      const order = new Order()
-      order.type = orderType
-      order.status = '1'
-      order.userId = userId
-      order.userName = userName
+      if (createOrderDto.assetType === '0') { // 藏品
+        let asset: Asset
+        asset = await manager.findOne(Asset, { where: { id: order.assetId, status: '1' }, relations: ['collection'] })
+        if (!asset)
+          throw new ApiException('市场上未发现此藏品')
+        order.realPrice = asset.price
+        order.totalPrice = asset.price
+        order.desc = asset.collection.name;
+        order.image = asset.collection.images[0]
+        await manager.save(order);
+        await manager.update(Asset, { id: order.assetId }, { status: '2' }) // Asset is locked.
 
-      order.assetId = createOrderDto.assetId
-      const asset = await this.assetRepository.findOne({ where: { id: order.assetId, status: '1' }, relations: ['collection'] })
-      if (!asset)
-        throw new ApiException('市场上未发现此藏品')
-      order.realPrice = asset.price
-      order.totalPrice = asset.price
-      order.count = 1
-      order.desc = asset.collection.name;
-      order.image = asset.collection.images[0]
-      order.invalidTime = moment().add(5, 'minute').toDate()
-
+      } else if (createOrderDto.assetType === '1') {// 盲盒
+        let magicbox: Magicbox
+        magicbox = await manager.findOne(Magicbox, { where: { id: order.assetId, status: '1' }, relations: ['activity'] })
+        if (!magicbox)
+          throw new ApiException('市场上未发现此盲盒')
+        order.realPrice = magicbox.price
+        order.totalPrice = magicbox.price
+        order.desc = magicbox.activity.title;
+        order.image = magicbox.activity.coverImage
+        await manager.save(order);
+        await manager.update(Magicbox, { id: order.assetId }, { status: '2' }) // Asset is locked.
+      }
       // 5 分钟
       await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 5)
-
-      await manager.save(order);
-
-      await manager.update(Asset, { id: order.assetId }, { status: '2' }) // Asset is locked.
-      // orderCount--;
-      // if (orderCount % 100 === 0) {
-      //   activity.current = activity.current + 1;
-      //   await manager.save(activity)
-      // }
       return order;
     });
   }
@@ -441,5 +432,27 @@ export class OrderService {
     }
 
     return totalCount;
+  }
+
+  async redisAtomicDecr(countKey: string, count: number) {
+    const watchError = await this.redis.watch(countKey)
+    if (watchError !== 'OK') throw new ApiException(watchError)
+    const [execResult] = await this.redis.multi().decrby(countKey, count).exec()
+    if (execResult[0] !== null) {
+      this.logger.debug('Redis Atomic Decr retry.')
+      this.redisAtomicDecr(countKey, count)
+    }
+    return execResult[1] // result
+  }
+
+  async redisAtomicIncr(countKey: string, count: number) {
+    const watchError = await this.redis.watch(countKey)
+    if (watchError !== 'OK') throw new ApiException(watchError)
+    const [execResult] = await this.redis.multi().incrby(countKey, count).exec()
+    if (execResult[0] !== null) {
+      this.logger.debug('Redis Atomic Incr retry.')
+      this.redisAtomicIncr(countKey, count)
+    }
+    return execResult[1] // result
   }
 }

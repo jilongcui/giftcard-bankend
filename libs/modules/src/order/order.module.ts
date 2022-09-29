@@ -12,9 +12,10 @@ import { PreemptionWhitelist } from '../assistant/preemption/entities/preemption
 import { PaymentModule } from '@app/modules/payment/payment.module';
 import { User } from '../system/user/entities/user.entity';
 import { ExcelModule } from '../common/excel/excel.module';
+import { Magicbox } from '../magicbox/entities/magicbox.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, Activity, Account, Asset, Collection, AssetRecord, PreemptionWhitelist, User]),
+    TypeOrmModule.forFeature([Order, Activity, Account, Asset, Collection, AssetRecord, PreemptionWhitelist, User, Magicbox]),
     forwardRef(() => PaymentModule)
   ],
 
