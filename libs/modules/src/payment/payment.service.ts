@@ -283,13 +283,18 @@ export class PaymentService {
     if (order == null) {
       throw new ApiException('订单状态错误')
     }
-    let asset: Asset
-    const userName = order.user.nickName
+    let asset: Asset | Magicbox
 
-    if (order.type === '1') {
-      asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-      if (asset.userId === userId)
-        throw new ApiException("不能购买自己的资产")
+    if (order.type === '1') { // 二级市场
+      if (order.assetType === '0') { // 藏品
+        asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+        if (asset.userId === userId)
+          throw new ApiException("不能购买自己的藏品")
+      } else if (order.assetType === '1') { // 盲盒
+        asset = await this.magicboxRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+        if (asset.userId === userId)
+          throw new ApiException("不能购买自己的盲盒")
+      }
     }
 
     await this.orderRepository.manager.transaction(async manager => {
@@ -301,11 +306,9 @@ export class PaymentService {
       order.status = '2';
       // 把Order的状态改成2: 已支付
       await manager.update(Order, { id: order.id }, { status: '2' })
-
       if (order.type === '1') {
-        await manager.increment(Account, { userId: asset.user.userId }, "usable", order.totalPrice * 95 / 100)
+        await manager.increment(Account, { userId: asset.userId }, "usable", order.totalPrice * 95 / 100)
         await manager.increment(Account, { userId: 1 }, "usable", order.totalPrice * 5 / 100)
-        await manager.update(Asset, { id: order.assetId }, { userId: userId, status: '0' })
       }
 
     })
