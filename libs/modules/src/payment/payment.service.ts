@@ -532,18 +532,20 @@ export class PaymentService {
   }
 
   async doPaymentComfirmedLv2(order: Order, userId: number) {
-    let asset: Asset
-    let magicbox: Magicbox
     let userName = order.user.userName
 
     if (order.assetType === '0') { // 藏品
+      let asset: Asset
       asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
       if (asset.userId === userId)
-        throw new ApiException("不能购买自己的资产")
+        throw new ApiException("不能购买自己的藏品")
       await this.buyAssetRecord(asset, userId, userName)
     }
-    else if (order.assetType === '1') { //盲盒
+    else if (order.assetType === '1') { // 盲盒
+      let magicbox: Magicbox
       magicbox = await this.magicboxRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+      if (magicbox.userId === userId)
+        throw new ApiException("不能购买自己的盲盒")
       await this.buyMagicboxRecord(magicbox, userId, userName)
     }
   }
