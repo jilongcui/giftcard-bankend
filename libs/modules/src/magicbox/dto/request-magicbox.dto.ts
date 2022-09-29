@@ -36,7 +36,7 @@ export class ListMyMagicboxDto {
     @IsString()
     status?: string
 
-    /* 盲盒状态(0:初始化 1: 已拥有 2: 已开启 ) */
+    /* 盲盒状态(1: 已拥有 2: 已开启 ) */
     @IsOptional()
     @IsString()
     openStatus?: string
