@@ -31,10 +31,12 @@ export class FlowMagicboxDto {
     userId?: number
 }
 export class ListMyMagicboxDto {
+    /* 市场状态(0:下架 1: 上架 2:锁定) */
     @IsOptional()
     @IsString()
     status?: string
 
+    /* 盲盒状态(0:初始化 1: 已拥有 2: 已开启 ) */
     @IsOptional()
     @IsString()
     openStatus?: string
