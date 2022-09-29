@@ -64,6 +64,7 @@ export class PaymentService {
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
     @InjectRepository(AssetRecord) private readonly assetRecordRepository: Repository<AssetRecord>,
+    @InjectRepository(MagicboxRecord) private readonly magicboxRecordRepository: Repository<MagicboxRecord>,
     @InjectRedis() private readonly redis: Redis,
     @Inject('CHAIN_SERVICE') private client: ClientProxy,
   ) {
@@ -561,6 +562,8 @@ export class PaymentService {
     const fromId = asset.user.userId
     const fromName = asset.user.userName
 
+    await this.assetRepository.update({ id: asset.id }, { userId: userId })
+
     await this.assetRecordRepository.save({
       type: '2', // Buy
       assetId: asset.id,
@@ -576,8 +579,8 @@ export class PaymentService {
 
     const fromId = magicbox.user.userId
     const fromName = magicbox.user.userName
-
-    await this.assetRecordRepository.save({
+    await this.magicboxRepository.update({ id: magicbox.id }, { userId: userId })
+    await this.magicboxRecordRepository.save({
       type: '2', // Buy
       assetId: magicbox.id,
       price: magicbox.price,
