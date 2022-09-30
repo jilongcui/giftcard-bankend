@@ -3,6 +3,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 import { User } from "../../system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Identity } from "@app/modules/identity/entities/identity.entity";
+import { Type } from "class-transformer";
 
 @Entity()
 export class Bankcard {
@@ -124,6 +125,7 @@ export class Bankcard {
         name: 'user_id',
         comment: '订单所属用户'
     })
+    @Type()
     @IsNumber()
     userId: number
 
