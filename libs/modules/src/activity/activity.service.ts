@@ -7,7 +7,7 @@ import { ACTIVITY_ORDER_TEMPLATE_KEY, ACTIVITY_PRESTART_TIME, ACTIVITY_START_TIM
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
-import { FindOptionsWhere, In, Repository, } from 'typeorm';
+import { FindOptionsWhere, In, IsNull, Not, Repository, } from 'typeorm';
 import { CreateActivityDto, ListActivityDto, UpdateActivityDto } from './dto/request-activity.dto';
 import { Activity } from './entities/activity.entity';
 import { Magicbox } from '../magicbox/entities/magicbox.entity';
@@ -16,12 +16,14 @@ import { CreateAssetDto } from '../collection/dto/request-asset.dto';
 import { SharedService } from '@app/shared';
 import { MagicboxService } from '../magicbox/magicbox.service';
 import { CreateMagicboxDto } from '../magicbox/dto/request-magicbox.dto';
+import { Collection } from '../collection/entities/collection.entity';
 
 @Injectable()
 export class ActivityService {
   logger = new Logger(ActivityService.name)
   constructor(
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
+    @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRedis() private readonly redis: Redis,
     private readonly assetService: AssetService,
@@ -29,7 +31,33 @@ export class ActivityService {
     private readonly sharedService: SharedService
   ) { }
   async create(createActivityDto: CreateActivityDto) {
-    const activity = await this.activityRepository.save(createActivityDto);
+    let ids = []
+    createActivityDto.collections.map((collection: Collection) => {
+      ids.push(collection.id)
+    })
+
+    const collections = await this.collectionRepository.find({
+      where: { id: In(ids), type: createActivityDto.type, activityId: IsNull() },
+      relations: { author: true }
+    })
+    if (collections.length !== createActivityDto.collections.length) {
+      throw new ApiException("关联的藏品有误")
+    }
+    let supplyAmount = 0
+    for (let i = 0; i < collections.length; i++) {
+      const collection = collections[i]
+      supplyAmount += collection.supply
+    }
+    const collection = collections[0] // Primary collection.
+
+    let activityDto = {
+      ...createActivityDto,
+      authorName: collection.author.nickName,
+      avatar: collection.author.avatar,
+      supply: supplyAmount
+    }
+
+    const activity = await this.activityRepository.save(activityDto);
     return activity;
   }
 

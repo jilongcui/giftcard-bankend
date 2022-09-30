@@ -118,6 +118,14 @@ export class Collection extends BaseEntity {
     })
     contract: Contract
 
+    @Column({
+        name: 'activity_id',
+        comment: '关联活动id'
+    })
+    @Type(() => Number)
+    @IsNumber()
+    activityId: number
+
     @ApiHideProperty()
     @ManyToOne(() => Activity, activity => activity.collections)
     @JoinColumn({

@@ -19,6 +19,7 @@ export class ActivityController {
   constructor(private readonly activityService: ActivityService) { }
 
   @Post()
+  @RequiresRoles(['admin', 'system'])
   async create(@Body() createActivityDto: CreateActivityDto) {
     return await this.activityService.create(createActivityDto);
   }
