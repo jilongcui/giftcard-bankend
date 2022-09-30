@@ -10,7 +10,7 @@ import { CreateAccountDto, ListAccountDto, UpdateAccountDto, UpdateAllAccountDto
 import { Account } from './entities/account.entity';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 
-@ApiTags('账户')
+@ApiTags('资金账户')
 @ApiBearerAuth()
 @Controller('account')
 export class AccountController {
@@ -26,6 +26,18 @@ export class AccountController {
   @RequiresRoles(['admin', 'system'])
   async updateAll(@Param('id') id: string, @Body() updateAllAccountDto: UpdateAllAccountDto) {
     return await this.accountService.addOrUpdateAll(updateAllAccountDto);
+  }
+
+  @Put(':id/freeze')
+  @RequiresRoles(['admin', 'system'])
+  async freeze(@Param('id') id: string) {
+    return await this.accountService.freeze(+id);
+  }
+
+  @Put(':id/release')
+  @RequiresRoles(['admin', 'system'])
+  async release(@Param('id') id: string) {
+    return await this.accountService.release(+id);
   }
 
   @Patch(':id')

@@ -29,10 +29,11 @@ export class AccountService {
     result = await this.accountRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
+      // relations: { user: true },
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
-        // createTime: 1,
+        createTime: 'DESC',
       }
     })
 
@@ -56,5 +57,19 @@ export class AccountService {
 
   async delete(ids: number[] | string[]) {
     return this.accountRepository.delete(ids)
+  }
+
+  freeze(id: number) {
+    let updateAccountDto: UpdateAccountDto = {
+      status: '2' //  freeze
+    }
+    return this.accountRepository.update(id, updateAccountDto)
+  }
+
+  release(id: number) {
+    let updateAccountDto: UpdateAccountDto = {
+      status: '0' //  freeze
+    }
+    return this.accountRepository.update(id, updateAccountDto)
   }
 }
