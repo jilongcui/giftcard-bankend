@@ -112,6 +112,13 @@ export class BankcardService {
     return this.bankcardRepository.delete(noticeIdArr)
   }
 
+  async invalidate(id: number) {
+    let updateBankcardDto: UpdateBankcardDto = {
+      status: '0'
+    }
+    return this.bankcardRepository.update(id, updateBankcardDto)
+  }
+
   private randomTokenId(): number {
     return Math.floor((Math.random() * 999999999) + 1000000000);
   }

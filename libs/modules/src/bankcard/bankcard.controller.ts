@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
 import { BankcardService } from './bankcard.service';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { CreateBankcardDto, UpdateBankcardDto } from './dto/request-bankcard.dto';
@@ -41,6 +41,11 @@ export class BankcardController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.bankcardService.findOne(+id);
+  }
+
+  @Put(':id/invalidate')
+  invalidate(@Param('id') id: string) {
+    return this.bankcardService.invalidate(+id);
   }
 
   @Patch(':id')
