@@ -11,6 +11,7 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ListBankcardDto, ListMyBankcardDto } from './dto/request-bankcard.dto';
 import { Bankcard } from './entities/bankcard.entity';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
+import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 
 @ApiTags('银行卡')
 @ApiBearerAuth()
@@ -39,21 +40,25 @@ export class BankcardController {
   }
 
   @Get(':id')
+  @RequiresRoles(['admin', 'system'])
   findOne(@Param('id') id: string) {
     return this.bankcardService.findOne(+id);
   }
 
   @Put(':id/invalidate')
+  @RequiresRoles(['admin', 'system'])
   invalidate(@Param('id') id: string) {
     return this.bankcardService.invalidate(+id);
   }
 
   @Patch(':id')
+  @RequiresRoles(['admin', 'system'])
   update(@Param('id') id: string, @Body() updateBankcardDto: UpdateBankcardDto) {
     return this.bankcardService.update(+id, updateBankcardDto);
   }
 
   @Delete(':id')
+  @RequiresRoles(['admin', 'system'])
   remove(@Param('id') id: string) {
     return this.bankcardService.deleteOne(+id);
   }
