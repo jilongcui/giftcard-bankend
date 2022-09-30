@@ -16,12 +16,12 @@ type CollectionId = {
     id: number
 }
 export class CreateActivityDto {
-    preemption?: {
-        activityId: number,
-        desc: string,
-        limit: number,
-        startTime: Date
-    }
+    // preemption?: {
+    //     activityId: number,
+    //     desc: string,
+    //     limit: number,
+    //     startTime: Date
+    // }
     collections: CollectionId[]
     type: string
     title: string
