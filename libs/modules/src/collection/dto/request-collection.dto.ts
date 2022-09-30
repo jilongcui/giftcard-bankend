@@ -13,3 +13,9 @@ export class ListMyCollectionDto {
     @IsString()
     status?: string
 }
+
+export class ListNewCollectionDto {
+    @IsOptional()
+    @IsString()
+    type?: string
+}

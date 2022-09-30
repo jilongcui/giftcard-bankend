@@ -1,8 +1,9 @@
 import { Collection } from "@app/modules/collection/entities/collection.entity";
-import { OmitType, PartialType } from "@nestjs/swagger";
+import { OmitType, PartialType, PickType } from "@nestjs/swagger";
 import { Activity } from "../entities/activity.entity";
 
-export class CreateActivityDto extends OmitType(Activity, ['id', 'supply', 'avatar', 'authorName', 'status', 'preemption'] as const) {
+
+export class CreateActivityDto extends OmitType(Activity, ['id', 'top', 'supply', 'avatar', 'authorName', 'status', 'preemption'] as const) {
     preemption?: {
         activityId: number,
         desc: string,

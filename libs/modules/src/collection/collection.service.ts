@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
-import { FindOptionsWhere, In, Like, Not, Repository } from 'typeorm';
+import { FindOptionsWhere, In, IsNull, Like, Not, Repository } from 'typeorm';
 import { CreateCollectionDto, UpdateCollectionDto, ListCollectionDto, ListMyCollectionDto } from './dto/request-collection.dto';
 import { Collection } from './entities/collection.entity';
 import { CreateAssetDto } from './dto/request-asset.dto';
@@ -46,6 +46,31 @@ export class CollectionService {
     if (listProdList.id) {
       where.id = listProdList.id
     }
+    result = await this.collectionRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      where,
+      relations: ['contract', 'author'],
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 1,
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  /* 分页查询 */
+  async newlist(listProdList: ListCollectionDto, paginationDto: PaginationDto): Promise<PaginatedDto<Collection>> {
+    let where: FindOptionsWhere<Collection> = {}
+    let result: any;
+    if (listProdList.type) {
+      where.type = listProdList.type
+    }
+    where.activityId = IsNull()
     result = await this.collectionRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,

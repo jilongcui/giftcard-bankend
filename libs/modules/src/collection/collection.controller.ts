@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Logger, Put } from '@nestjs/common';
 import { CollectionService } from './collection.service';
-import { CreateCollectionDto, ListCollectionDto, ListMyCollectionDto, UpdateCollectionDto } from './dto/request-collection.dto';
+import { CreateCollectionDto, ListCollectionDto, ListMyCollectionDto, ListNewCollectionDto, UpdateCollectionDto } from './dto/request-collection.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -23,7 +23,7 @@ export class CollectionController {
   logger = new Logger(CollectionController.name);
   constructor(private readonly collectionService: CollectionService) { }
 
-  /* 新增产品 */
+  /* 新增藏品合集 */
   @Post()
   // @Log({
   //   title: '藏品集合',
@@ -34,15 +34,23 @@ export class CollectionController {
     return this.collectionService.create(createCollectionDto);
   }
 
-  /* 产品列表 */
+  /* 藏品合集列表 */
   @Get('list')
-  @Public()
+  // @Public()
   @ApiPaginatedResponse(Collection)
   async list(@Query() listCollectionDto: ListCollectionDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.collectionService.list(listCollectionDto, paginationDto);
   }
 
-  /* 我的订单列表 */
+  /* 新的藏品合集列表 */
+  @Get('newList')
+  // @Public()
+  @ApiPaginatedResponse(Collection)
+  async newList(@Query() listNewCollectionDto: ListNewCollectionDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.collectionService.newlist(listNewCollectionDto, paginationDto);
+  }
+
+  /* 我的藏品列表 */
   @Get('myList')
   @ApiPaginatedResponse(Collection)
   async mylist(@Query() listMyCollectionDto: ListMyCollectionDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {

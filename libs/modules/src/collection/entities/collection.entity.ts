@@ -120,18 +120,21 @@ export class Collection extends BaseEntity {
 
     @Column({
         name: 'activity_id',
+        nullable: true,
         comment: '关联活动id'
     })
+    @IsOptional()
     @Type(() => Number)
     @IsNumber()
-    activityId: number
+    activityId?: number
 
     @ApiHideProperty()
+    @IsOptional()
     @ManyToOne(() => Activity, activity => activity.collections)
     @JoinColumn({
         name: 'activity_id',
     })
-    activity: Activity
+    activity?: Activity
 
     @ApiHideProperty()
     @IsOptional()
