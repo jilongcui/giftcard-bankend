@@ -285,6 +285,7 @@ export class UserService {
         user.updateBy = updateBy
         user.salt = this.sharedService.generateUUID()
         user.password = this.sharedService.md5(password + user.salt)
+        user.securityStatus = '0' // unset password.
         await this.userRepository.save(user)
         if (await this.redis.get(`${USER_VERSION_KEY}:${userId}`)) {
             await this.redis.set(`${USER_VERSION_KEY}:${userId}`, 2)  //调整密码版本，强制用户重新登录
