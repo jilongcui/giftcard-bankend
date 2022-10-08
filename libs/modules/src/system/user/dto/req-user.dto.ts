@@ -130,14 +130,14 @@ export class ReqUpdateSelfPwd {
     @IsString()
     oldPassword: string
 
-    /* 旧密码 */
+    /* 新密码 */
     @IsString()
     newPassword: string
 }
 
 /* 更改自己的用户信息 */
 export class ReqSetSelfPwd {
-    /* 旧密码 */
+    /* 新密码 */
     @IsString()
     newPassword: string
 }
