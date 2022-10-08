@@ -134,3 +134,10 @@ export class ReqUpdateSelfPwd {
     @IsString()
     newPassword: string
 }
+
+/* 更改自己的用户信息 */
+export class ReqSetSelfPwd {
+    /* 旧密码 */
+    @IsString()
+    newPassword: string
+}

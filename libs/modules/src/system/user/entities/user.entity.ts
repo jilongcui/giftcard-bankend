@@ -129,6 +129,17 @@ export class User extends BaseEntity {
     })
     salt: string
 
+    /* 帐号安全状态（0:未设置密码 1:正常）*/
+    @Column({
+        name: 'security_status',
+        comment: '帐号安全状态（0:未设置密码 1:正常）',
+        type: 'char',
+        length: 1,
+        default: '0'
+    })
+    @IsString()
+    securityStatus: string
+
     /* 帐号状态 */
     @Column({
         comment: '帐号状态（0正常 1停用）',

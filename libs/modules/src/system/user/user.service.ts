@@ -25,7 +25,7 @@ import { DeptService } from '../dept/dept.service';
 import { PostService } from '../post/post.service';
 import { ReqRoleListDto } from '../role/dto/req-role.dto';
 import { RoleService } from '../role/role.service';
-import { ReqAddUserDto, ReqUpdataSelfDto, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
+import { ReqAddUserDto, ReqSetSelfPwd, ReqUpdataSelfDto, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
 import { ResAuthRoleDto, ResHasRoleDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
 import { AddressService } from '@app/modules/wallet/address/address.service';
@@ -57,6 +57,7 @@ export class UserService {
             .select('user.userId')
             .addSelect('user.userName')
             .addSelect('user.password')
+            .addSelect('user.securityStatus')
             .addSelect('user.salt')
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
@@ -76,6 +77,7 @@ export class UserService {
             .select('user.userId')
             .addSelect('user.userName')
             .addSelect('user.password')
+            .addSelect('user.securityStatus')
             .addSelect('user.salt')
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
@@ -355,6 +357,18 @@ export class UserService {
         const password = this.sharedService.md5(reqUpdateSelfPwd.oldPassword + user.salt)
         if (password !== user.password) throw new ApiException('旧密码错误')
         user.password = this.sharedService.md5(reqUpdateSelfPwd.newPassword + user.salt)
+        await this.userRepository.save(user)
+        if (await this.redis.get(`${USER_VERSION_KEY}:${user.userId}`)) {
+            await this.redis.set(`${USER_VERSION_KEY}:${user.userId}`, 2)  //调整密码版本，强制用户重新登录
+        }
+    }
+
+    /* 设置自己的新密码 */
+    async setSelfPwd(reqSetSelfPwd: ReqSetSelfPwd, userName: string) {
+        const user = await this.findOneByUsername(userName)
+        if (user.securityStatus !== '0') throw new ApiException('已设置密码')
+        user.password = this.sharedService.md5(reqSetSelfPwd.newPassword + user.salt)
+        user.securityStatus = '1'
         await this.userRepository.save(user)
         if (await this.redis.get(`${USER_VERSION_KEY}:${user.userId}`)) {
             await this.redis.set(`${USER_VERSION_KEY}:${user.userId}`, 2)  //调整密码版本，强制用户重新登录

@@ -11,7 +11,7 @@ import { ReqPostListDto } from '../post/dto/req-post.dto';
 import { PostService } from '../post/post.service';
 import { ReqRoleListDto } from '../role/dto/req-role.dto';
 import { RoleService } from '../role/role.service';
-import { ReqAddUserDto, ReqChangeStatusDto, ReqResetPwdDto, ReqUpdataSelfDto, ReqUpdateAuthRoleDto, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
+import { ReqAddUserDto, ReqChangeStatusDto, ReqResetPwdDto, ReqSetSelfPwd, ReqUpdataSelfDto, ReqUpdateAuthRoleDto, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
 import { ResAuthRoleDto, ResUserDto, ResUserInfoDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
 import { User as UserDec } from '@app/common/decorators/user.decorator';
@@ -105,6 +105,17 @@ export class UserController {
     })
     async createAccount(@UserDec(UserEnum.userId) userId: number) {
         return await this.userService.updateAccount(userId)
+    }
+
+    /* 首次设置个人密码 */
+    @RepeatSubmit()
+    @Put('profile/setPwd')
+    @Log({
+        title: '用户管理',
+        businessType: BusinessTypeEnum.update
+    })
+    async setSelfPwd(@Query() reqSetSelfPwd: ReqSetSelfPwd, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
+        await this.userService.setSelfPwd(reqSetSelfPwd, userName)
     }
 
     /* 更改个人密码 */
