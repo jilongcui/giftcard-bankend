@@ -4,10 +4,11 @@ import { StatsController } from './stats.controller';
 import { User } from '../system/user/entities/user.entity';
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Asset } from '../collection/entities/asset.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, InviteUser]), CacheModule.register()
+    TypeOrmModule.forFeature([User, InviteUser, Asset]), CacheModule.register()
   ],
   providers: [StatsService],
   controllers: [StatsController]

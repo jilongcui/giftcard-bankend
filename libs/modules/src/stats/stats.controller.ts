@@ -4,13 +4,13 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
-import { Body, CacheInterceptor, CacheKey, CacheTTL, Controller, Get, Post, Query, StreamableFile, UseInterceptors } from '@nestjs/common';
+import { Body, CacheInterceptor, CacheKey, CacheTTL, Controller, Get, Param, Post, Query, StreamableFile, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { AirdropWhitelist } from '../assistant/airdrop/entities/airdrop-whitelist.entity';
 import { ExcelService } from '../common/excel/excel.service';
 import { UserInviteStatsDto } from './dto/request-stats.dto';
-import { ResInviteUserDto, StatsNewUserDto } from './dto/response-stats.dto';
+import { ResInviteUserDto, StatsNewUserDto, UserCollectionDto } from './dto/response-stats.dto';
 import { StatsService } from './stats.service';
 
 @ApiTags('统计')
@@ -48,6 +48,16 @@ export class StatsController {
     async newInviteUser(@Body() userInviteStatsDto: UserInviteStatsDto, @Body(PaginationPipe) paginationDto: PaginationDto,) {
         const rows = await this.statsService.listOfInviteUser(userInviteStatsDto);
         const file = await this.excelService.export(StatsNewUserDto, rows)
+        return new StreamableFile(file)
+    }
+
+    /* 通过拥有的collection来导出用户列表，用于导出白名单 */
+    @Post('exportUserByCollections/:ids')
+    @RequiresPermissions('stats:userbycollections:export')
+    @Keep()
+    async exportOrder(@Param('ids') ids: string) {
+        const { rows } = await this.statsService.listUserByCollections(ids);
+        const file = await this.excelService.export(UserCollectionDto, rows)
         return new StreamableFile(file)
     }
 }

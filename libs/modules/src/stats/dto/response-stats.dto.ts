@@ -37,3 +37,19 @@ export class StatsNewUserDto {
     })
     createTime: Date
 }
+
+export class UserCollectionDto {
+    /* 用户ID */
+    @Excel({
+        name: '用户ID',
+    })
+    @IsNumber()
+    userId: number
+
+    /* 藏品Ids */
+    @Excel({
+        name: '藏品Ids',
+    })
+    @IsString()
+    collections: string
+}
