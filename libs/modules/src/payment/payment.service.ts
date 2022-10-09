@@ -304,6 +304,7 @@ export class PaymentService {
       }
     }
 
+    const ownerId = asset.userId
     await this.orderRepository.manager.transaction(async manager => {
       const result = await manager.decrement(Account, { userId: userId, usable: MoreThanOrEqual(order.totalPrice) }, "usable", order.totalPrice);
       // this.logger.log(JSON.stringify(result));
@@ -321,7 +322,7 @@ export class PaymentService {
         const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
         if (configString) {
           const configValue = JSON.parse(configString)
-          const asset = await this.collectionService.hasOne(configValue.collectionId, userId)
+          const asset = await this.collectionService.hasOne(configValue.collectionId, ownerId)
           if (asset) {
             this.logger.debug('collection config ratio ' + configValue.ratio)
             marketFee = Number(configValue.ratio)
