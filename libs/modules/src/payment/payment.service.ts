@@ -305,27 +305,29 @@ export class PaymentService {
     }
 
     await this.orderRepository.manager.transaction(async manager => {
-      const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(order.totalPrice) }, "usable", order.totalPrice);
+      const result = await manager.decrement(Account, { userId: userId, usable: MoreThanOrEqual(order.totalPrice) }, "usable", order.totalPrice);
       // this.logger.log(JSON.stringify(result));
       if (!result.affected) {
         throw new ApiException('支付失败')
       }
-      order.status = '2';
+      // order.status = '2';
       // 把Order的状态改成2: 已支付
       await manager.update(Order, { id: order.id }, { status: '2' })
       if (order.type === '1') {
         const marketFeeString = await this.sysconfigService.getValue(SYSCONF_MARKET_FEE_KEY)
+        this.logger.debug(marketFeeString)
         let marketFee = Number(marketFeeString)
 
         const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
         if (configString) {
-          const config = JSON.parse(JSON.stringify(configString))
-          this.logger.debug(config)
-          if (await this.collectionService.hasOne(parseInt(config.collectionId), userId)) {
-            this.logger.debug(config.ratio)
-            marketFee = Number(config.ratio)
+          const configValue = JSON.parse(configString)
+          const asset = await this.collectionService.hasOne(configValue.collectionId, userId)
+          if (asset) {
+            this.logger.debug('collection config ratio ' + configValue.ratio)
+            marketFee = Number(configValue.ratio)
           }
         }
+        this.logger.debug('marketFee ' + marketFee)
         if (marketFee > 1.0 || marketFee < 0.0) {
           marketFee = 0.0
         }
