@@ -24,7 +24,7 @@ export class MarketService {
   ) { }
 
   async upAsset(id: number, price: number, userId: number, userName: string) {
-    await this.assetRepository.update({ id: id, userId: userId }, { price: price, status: '1' })
+    await this.assetRepository.update({ id: id, userId: userId, status: '1' }, { price: price, status: '1' })
     await this.assetRecordRepository.save({
       type: '1', // Sell
       assetId: id,

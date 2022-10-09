@@ -34,6 +34,7 @@ import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
 import { CollectionService } from '../collection/collection.service';
 import { SysConfigService } from '../system/sys-config/sys-config.service';
 import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
+import { truncate } from 'fs';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -263,9 +264,9 @@ export class PaymentService {
           await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
           if (order.type === '0') {
             const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
-            await this.doPaymentComfirmedLv1(order, order.userId)
             // 取消未支付状态
             await this.redis.del(unpayOrderKey)
+            await this.doPaymentComfirmedLv1(order, order.userId)
           } else if (order.type === '1') {
             await this.doPaymentComfirmedLv2(order, order.userId)
           } else if (order.type === '2') {
@@ -488,7 +489,7 @@ export class PaymentService {
 
   async doPaymentComfirmedLv1(order: Order, userId: number) {
     // Create assetes for user.
-    const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: ['collections'] })
+    const activity = await this.activityRepository.findOne({ where: { id: order.activityId }, relations: { collections: { contract: true } } })
     // First we need get all collections of orders, but we only get one collection.
     if (!activity.collections || activity.collections.length <= 0) {
       return order;
