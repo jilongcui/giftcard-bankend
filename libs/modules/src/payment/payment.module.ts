@@ -16,6 +16,8 @@ import { AssetRecord } from '../market/entities/asset-record.entity';
 import { Order } from '../order/entities/order.entity';
 import { Magicbox } from '../magicbox/entities/magicbox.entity';
 import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
+import { SysConfigModule } from '../system/sys-config/sys-config.module';
+import { CollectionModule } from '../collection/collection.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
     ]),
     ChainModule,
     BankcardModule,
+    SysConfigModule,
+    CollectionModule,
     forwardRef(() => OrderModule)
   ],
   controllers: [PaymentController],

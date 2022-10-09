@@ -14,5 +14,8 @@ import { SysConfig } from './entities/sys-config.entity';
         SysConfigController,],
     providers: [
         SysConfigService,],
+    exports: [
+        SysConfigService
+    ]
 })
 export class SysConfigModule { }

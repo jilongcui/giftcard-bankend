@@ -1,5 +1,5 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { privateDecrypt } from 'crypto';
 import { Redis } from 'ioredis';
@@ -15,6 +15,7 @@ import { User } from '../system/user/entities/user.entity';
 
 @Injectable()
 export class MarketService {
+  logger = new Logger(MarketService.name)
   constructor(
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
     @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,

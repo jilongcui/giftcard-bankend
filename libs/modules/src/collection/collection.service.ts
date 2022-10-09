@@ -185,6 +185,11 @@ export class CollectionService {
     return this.collectionRepository.findOne({ where: { id: id }, relations: ['author', 'contract'], })
   }
 
+  async hasOne(id: number, userId: number) {
+    const asset = await this.assetRepository.findOne({ where: { collectionId: id, userId: userId } })
+    return asset
+  }
+
   findByIds(ids: string) {
     return this.collectionRepository.findBy({ id: In(ids.split(',')) })
   }
@@ -266,4 +271,6 @@ export class CollectionService {
         }))
     })
   }
+
+
 }

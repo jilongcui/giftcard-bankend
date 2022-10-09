@@ -31,6 +31,9 @@ import { Account } from '../account/entities/account.entity';
 import { firstValueFrom } from 'rxjs';
 import { Magicbox } from '../magicbox/entities/magicbox.entity';
 import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
+import { CollectionService } from '../collection/collection.service';
+import { SysConfigService } from '../system/sys-config/sys-config.service';
+import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -56,6 +59,9 @@ export class PaymentService {
     private readonly bankcardService: BankcardService,
     private readonly orderService: OrderService,
     private readonly sharedService: SharedService,
+    private readonly sysconfigService: SysConfigService,
+    private readonly collectionService: CollectionService,
+
     @InjectRepository(Payment) private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
@@ -307,8 +313,25 @@ export class PaymentService {
       // 把Order的状态改成2: 已支付
       await manager.update(Order, { id: order.id }, { status: '2' })
       if (order.type === '1') {
-        await manager.increment(Account, { userId: asset.userId }, "usable", order.totalPrice * 95 / 100)
-        await manager.increment(Account, { userId: 1 }, "usable", order.totalPrice * 5 / 100)
+        const marketFeeString = await this.sysconfigService.getValue(SYSCONF_MARKET_FEE_KEY)
+        let marketFee = Number(marketFeeString)
+
+        const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
+        if (configString) {
+          const config = JSON.parse(configString)
+          this.logger.debug(config)
+          if (await this.collectionService.hasOne(parseInt(config.collectionId), userId)) {
+            this.logger.debug(config.ratio)
+            marketFee = config.ratio
+          }
+        }
+        if (marketFee > 1.0 || marketFee < 0.0) {
+          marketFee = 0.0
+        }
+        marketFee = order.totalPrice * marketFee
+
+        await manager.increment(Account, { userId: asset.userId }, "usable", order.totalPrice - marketFee)
+        await manager.increment(Account, { userId: 1 }, "usable", marketFee)
       }
 
     })
@@ -513,7 +536,8 @@ export class PaymentService {
       createAssetDto.userId = order.userId
       createAssetDto.collectionId = collection.id
 
-      const asset = await this.assetRepository.save(createAssetDto)
+      const asset = this.assetRepository.create(createAssetDto)
+      await this.assetRepository.save(asset)
       // 记录交易记录
       await this.assetRecordRepository.save({
         type: '2', // Buy
@@ -530,7 +554,6 @@ export class PaymentService {
       mintDto.contractId = collection.contractId
       mintDto.contractAddr = collection.contract.address
       await firstValueFrom(this.client.send(pattern, mintDto))
-      // this.logger.debug(await firstValueFrom(result))
     }
   }
 
