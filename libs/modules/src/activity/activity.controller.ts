@@ -48,6 +48,18 @@ export class ActivityController {
     return await this.activityService.finish(+id);
   }
 
+  @Put(':id/top')
+  @RequiresRoles(['admin', 'system'])
+  async setTop(@Param('id') id: string) {
+    return await this.activityService.setTop(+id);
+  }
+
+  @Put(':id/untop')
+  @RequiresRoles(['admin', 'system'])
+  async unTop(@Param('id') id: string) {
+    return await this.activityService.unTop(+id);
+  }
+
   @Patch(':id')
   @RequiresRoles(['admin', 'system'])
   async update(@Param('id') id: string, @Body() updateActivityDto: UpdateActivityDto) {

@@ -251,6 +251,17 @@ export class ActivityService {
     return this.activityRepository.update(id, updateActivityDto)
   }
 
+  async setTop(id: number) {
+    const updateActivityDto = new UpdateActivityDto()
+    updateActivityDto.top = '1' // Set top
+    return this.activityRepository.update(id, updateActivityDto)
+  }
+
+  async unTop(id: number) {
+    const updateActivityDto = new UpdateActivityDto()
+    updateActivityDto.top = '0' // Set untop
+    return this.activityRepository.update(id, updateActivityDto)
+  }
 
   async addCollection(id: number, collectionId: number) {
     return await this.activityRepository.createQueryBuilder()
