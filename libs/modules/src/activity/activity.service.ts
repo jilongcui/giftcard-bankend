@@ -20,7 +20,6 @@ import { Collection } from '../collection/entities/collection.entity';
 
 @Injectable()
 export class ActivityService {
-  logger = new Logger(ActivityService.name)
   constructor(
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
     @InjectRepository(Collection) private readonly collectionRepository: Repository<Collection>,
@@ -190,7 +189,6 @@ export class ActivityService {
     if (activity.preemption)
       await this.redis.set(`${ACTIVITY_PRESTART_TIME}:${activity.id}`, activity.preemption.startTime.getUTCMilliseconds())
     await this.redis.set(`${ACTIVITY_ORDER_TEMPLATE_KEY}:${activity.id}`, JSON.stringify(activity))
-    this.logger.debug(activity.type)
     if (activity.type === '0') { // 藏品
       await this.redis.set(`${COLLECTION_ORDER_COUNT}:${activity.id}`, activity.supply - activity.current)
     }

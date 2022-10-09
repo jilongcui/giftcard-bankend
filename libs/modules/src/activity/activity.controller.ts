@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, UseGuards, Logger } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
@@ -16,6 +16,7 @@ import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 @UseGuards(ThrottlerBehindProxyGuard)
 @Controller('activity')
 export class ActivityController {
+  logger = new Logger(Activity.name)
   constructor(private readonly activityService: ActivityService) { }
 
   @Post()
