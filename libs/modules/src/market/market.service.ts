@@ -41,13 +41,16 @@ export class MarketService {
   }
 
   async buyAsset(id: number, userId: number, userName: string) {
-    const asset = await this.assetRepository.findOne({ where: { id }, relations: ['user'] })
+    const asset = await this.assetRepository.findOne({ where: { id, status: '1' }, relations: ['user'] })
+    if (!asset) {
+      throw new ApiException("此藏品未上架")
+    }
     const fromId = asset.user.userId
     const fromName = asset.user.userName
     if (fromId === userId)
       throw new ApiException("不能购买自己的资产")
 
-    await this.assetRepository.update({ id: id, status: '0' }, { userId: userId })
+    await this.assetRepository.update({ id: id, status: '1' }, { userId: userId, status: '0' })
     await this.assetRecordRepository.save({
       type: '2', // Buy
       assetId: id,

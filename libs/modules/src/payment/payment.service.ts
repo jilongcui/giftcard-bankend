@@ -319,11 +319,11 @@ export class PaymentService {
 
         const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
         if (configString) {
-          const config = JSON.parse(configString)
+          const config = JSON.parse(JSON.stringify(configString))
           this.logger.debug(config)
           if (await this.collectionService.hasOne(parseInt(config.collectionId), userId)) {
             this.logger.debug(config.ratio)
-            marketFee = config.ratio
+            marketFee = Number(config.ratio)
           }
         }
         if (marketFee > 1.0 || marketFee < 0.0) {
