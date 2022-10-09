@@ -31,7 +31,8 @@ export class Activity {
 
     @Column({
         name: 'ruleInfo',
-        comment: '规则介绍'
+        comment: '规则介绍',
+        type: 'longtext'
     })
     @IsOptional()
     @IsString()

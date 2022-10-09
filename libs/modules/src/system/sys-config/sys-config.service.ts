@@ -65,6 +65,17 @@ export class SysConfigService {
     }
 
     /* 通过字参数键名查询 */
+    async getValue(configKey: string) {
+        let where: FindOptionsWhere<SysConfig> = { configKey }
+
+        const config = await this.sysConfigRepository.findOneBy(where)
+        if (!config) {
+            return null
+        }
+        return config.configValue
+    }
+
+    /* 通过字参数键名查询 */
     async findByConfigKey(configKey: string, configId?: number) {
         let where: FindOptionsWhere<SysConfig> = { configKey }
         if (configId) {
