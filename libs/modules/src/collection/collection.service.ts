@@ -217,7 +217,8 @@ export class CollectionService {
       createAssetDto.userId = user.userId
       createAssetDto.index = tokenIndex
       createAssetDto.collectionId = collection.id
-      const asset = await this.assetRepository.save(createAssetDto)
+      const asset = this.assetRepository.create(createAssetDto)
+      await this.assetRepository.save(asset)
       await this.collectionRepository.increment({ id: collection.id, }, "current", count);
       // 记录交易记录
       await this.assetRecordRepository.save({
