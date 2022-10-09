@@ -227,6 +227,7 @@ export class AssetService {
           desc: true,
           supply: true,
           images: true,
+          status: true,
           contract: {
             chain: true,
             standard: true,
