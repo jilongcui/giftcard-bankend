@@ -261,6 +261,18 @@ export class ActivityService {
     return this.activityRepository.update(id, updateActivityDto)
   }
 
+  async openMarket(id: number) {
+    const updateActivityDto = new UpdateActivityDto()
+    updateActivityDto.status = '0' // Set top
+    return this.activityRepository.update(id, updateActivityDto)
+  }
+
+  async closeMarket(id: number) {
+    const updateActivityDto = new UpdateActivityDto()
+    updateActivityDto.top = '1' // Set untop
+    return this.activityRepository.update(id, updateActivityDto)
+  }
+
   async addCollection(id: number, collectionId: number) {
     return await this.activityRepository.createQueryBuilder()
       .relation(Activity, "collections")
