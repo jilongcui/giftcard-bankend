@@ -242,6 +242,7 @@ export class PaymentService {
       const decryptedData = key2.decrypt(cryptoNotifyDto.encrypt_data, 'utf8');
       this.logger.debug(decryptedData)
       let isSignOk
+      let asset: Asset | Magicbox
       // 验证签名
       // const verify = createVerify('RSA-SHA1');
       // verify.write(decryptedData);
@@ -254,12 +255,41 @@ export class PaymentService {
         return 'error'
       }
       const paymentNotify: any = querystring.parse(decryptedData)
+      const orderId = paymentNotify.agent_bill_id
+      const order = await this.orderRepository.findOne({ where: { id: parseInt(orderId), status: '1' }, relations: { user: true, payment: true } })
+      if (!order) return 'ok'
+      if (order.type === '1') { // 二级市场
+        if (order.assetType === '0') { // 藏品
+          asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+        } else if (order.assetType === '1') { // 盲盒
+          asset = await this.magicboxRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+        }
+      }
+      const ownerId = asset.userId
       if (paymentNotify.status === 'SUCCESS') {
         // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
         await this.orderRepository.manager.transaction(async manager => {
-          const orderId = paymentNotify.agent_bill_id
-          const order = await manager.findOne(Order, { where: { id: parseInt(orderId), status: '1' }, relations: { user: true, payment: true } })
-          if (!order) return 'ok'
+          if (order.type === '1') { // 二级市场
+            const marketFeeString = await this.sysconfigService.getValue(SYSCONF_MARKET_FEE_KEY)
+            let marketFee = Number(marketFeeString)
+
+            const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
+            if (configString) {
+              const configValue = JSON.parse(configString)
+              const asset = await this.collectionService.hasOne(configValue.collectionId, ownerId)
+              if (asset) {
+                this.logger.debug('collection config ratio ' + configValue.ratio)
+                marketFee = Number(configValue.ratio)
+              }
+            }
+            if (marketFee > 1.0 || marketFee < 0.0) {
+              marketFee = 0.0
+            }
+            marketFee = order.totalPrice * marketFee
+
+            await manager.increment(Account, { userId: asset.userId }, "usable", order.totalPrice - marketFee)
+            await manager.increment(Account, { userId: 1 }, "usable", marketFee)
+          }
           await manager.update(Payment, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
           await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
           if (order.type === '0') {
@@ -311,7 +341,7 @@ export class PaymentService {
       if (!result.affected) {
         throw new ApiException('支付失败')
       }
-      // order.status = '2';
+      order.status = '2';
       // 把Order的状态改成2: 已支付
       await manager.update(Order, { id: order.id }, { status: '2' })
       if (order.type === '1') {

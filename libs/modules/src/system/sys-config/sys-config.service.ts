@@ -68,7 +68,7 @@ export class SysConfigService {
     async getValue(configKey: string) {
         let where: FindOptionsWhere<SysConfig> = { configKey }
 
-        const config = await this.sysConfigRepository.findOneBy(where)
+        const config = await this.sysConfigRepository.findOne({ where, cache: true })
         if (!config) {
             return null
         }
