@@ -100,6 +100,7 @@ export interface IConfig {
         merchSecretKey: string,
         merchPublicKey: string,
         merchId: string,
+        orderSN: string,
     }
 
     fund?: {

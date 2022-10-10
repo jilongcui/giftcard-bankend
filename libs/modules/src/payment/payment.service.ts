@@ -52,6 +52,7 @@ export class PaymentService {
   merchSecretKey: string
   merchPublicKey: string
   merchId: string
+  orderSN: string
   platformAddress: string
   notifyHost: string
 
@@ -79,6 +80,7 @@ export class PaymentService {
     this.baseUrl = this.configService.get<string>('payment.baseUrl')
     this.notifyHost = this.configService.get<string>('payment.notifyHost')
     this.merchId = this.configService.get<string>('payment.merchId')
+    this.orderSN = this.configService.get<string>('payment.orderSN')
     this.platformPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
     this.merchSecretKey = this.sharedService.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
     this.merchPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.merchPublicKey'))
@@ -180,7 +182,7 @@ export class PaymentService {
       throw new ApiException('此银行卡没有实名')
     }
     const bizContent = new ReqSendSMSDto()
-    bizContent.agent_bill_id = order.id.toString()
+    bizContent.agent_bill_id = this.orderSN + order.id.toString()
     bizContent.agent_bill_time = moment().format("YYYYMMDDHHmmss")
     bizContent.goods_name = order.desc
     bizContent.hy_auth_uid = bankcard.signNo
@@ -257,7 +259,7 @@ export class PaymentService {
         return 'error'
       }
       const paymentNotify: any = querystring.parse(decryptedData)
-      const orderId = paymentNotify.agent_bill_id
+      const orderId = paymentNotify.agent_bill_id.replace(this.orderSN, "")
       const order = await this.orderRepository.findOne({ where: { id: parseInt(orderId), status: '1' }, relations: { user: true, payment: true } })
       if (!order) return 'ok'
       if (order.type === '1') { // 二级市场
