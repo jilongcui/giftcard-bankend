@@ -53,6 +53,7 @@ export class PaymentService {
   merchPublicKey: string
   merchId: string
   platformAddress: string
+  notifyHost: string
 
   constructor(
     private readonly httpService: HttpService,
@@ -76,6 +77,7 @@ export class PaymentService {
     @Inject('CHAIN_SERVICE') private client: ClientProxy,
   ) {
     this.baseUrl = this.configService.get<string>('payment.baseUrl')
+    this.notifyHost = this.configService.get<string>('payment.notifyHost')
     this.merchId = this.configService.get<string>('payment.merchId')
     this.platformPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
     this.merchSecretKey = this.sharedService.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
@@ -119,8 +121,8 @@ export class PaymentService {
       mobile: bankcard.mobile,
       merch_user_id: userId.toString(),
       // from_user_ip: "219.143.153.103",
-      return_url: 'https://www.startland.top',
-      notify_url: 'https://www.startland.top/api/payment/webSignNotify',
+      return_url: this.notifyHost,
+      notify_url: this.notifyHost + '/api/payment/webSignNotify',
       out_trade_no: tradeNo,
       out_trade_time: moment().format("YYYY-MM-DD HH:mm:ss"),
     }
@@ -182,11 +184,11 @@ export class PaymentService {
     bizContent.agent_bill_time = moment().format("YYYYMMDDHHmmss")
     bizContent.goods_name = order.desc
     bizContent.hy_auth_uid = bankcard.signNo
-    bizContent.notify_url = 'https://www.startland.top/payment/notify'
+    bizContent.notify_url = this.notifyHost + '/payment/notify'
     bizContent.pay_amt = order.totalPrice
     bizContent.user_ip = userIp
     bizContent.version = 1
-    bizContent.return_url = 'https://www.startland.top'
+    bizContent.return_url = this.notifyHost
     this.logger.debug(JSON.stringify(bizContent))
 
     const bizResult = await this.sendCryptoRequest<SendSMSResponse>(requestUri, bizContent)
@@ -241,7 +243,7 @@ export class PaymentService {
       // this.logger.debug(JSON.stringify(cryptoNotifyDto))
       const decryptedData = key2.decrypt(cryptoNotifyDto.encrypt_data, 'utf8');
       this.logger.debug(decryptedData)
-      let isSignOk
+      let isSignOk: boolean
       let asset: Asset | Magicbox
       // 验证签名
       // const verify = createVerify('RSA-SHA1');

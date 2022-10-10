@@ -95,6 +95,7 @@ export interface IConfig {
 
     payment?: {
         baseUrl: string,
+        notifyHost: string,
         platformPublicKey: string,
         merchSecretKey: string,
         merchPublicKey: string,
