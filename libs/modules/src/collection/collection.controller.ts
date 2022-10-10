@@ -89,6 +89,18 @@ export class CollectionController {
     await this.collectionService.addOrUpdate(collection)
   }
 
+  @Put(':id/openMarket')
+  @RequiresRoles(['admin', 'system'])
+  async openMarket(@Param('id') id: string) {
+    return await this.collectionService.openMarket(+id);
+  }
+
+  @Put(':id/closeMarket')
+  @RequiresRoles(['admin', 'system'])
+  async closeMarket(@Param('id') id: string) {
+    return await this.collectionService.closeMarket(+id);
+  }
+
   /* 删除产品 */
   @Delete(':ids')
   @RequiresPermissions('system:collection:remove')

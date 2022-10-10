@@ -61,18 +61,6 @@ export class ActivityController {
     return await this.activityService.unTop(+id);
   }
 
-  @Put(':id/openMarket')
-  @RequiresRoles(['admin', 'system'])
-  async openMarket(@Param('id') id: string) {
-    return await this.activityService.openMarket(+id);
-  }
-
-  @Put(':id/closeMarket')
-  @RequiresRoles(['admin', 'system'])
-  async closeMarket(@Param('id') id: string) {
-    return await this.activityService.closeMarket(+id);
-  }
-
   @Patch(':id')
   @RequiresRoles(['admin', 'system'])
   async update(@Param('id') id: string, @Body() updateActivityDto: UpdateActivityDto) {

@@ -205,6 +205,18 @@ export class CollectionService {
     return this.collectionRepository.delete(noticeIdArr)
   }
 
+  async openMarket(id: number) {
+    const updateCollectionDto = new UpdateCollectionDto()
+    updateCollectionDto.status = '1' // Set top
+    return this.collectionRepository.update(id, updateCollectionDto)
+  }
+
+  async closeMarket(id: number) {
+    const updateCollectionDto = new UpdateCollectionDto()
+    updateCollectionDto.status = '0' // Set untop
+    return this.collectionRepository.update(id, updateCollectionDto)
+  }
+
   async sendChainTransaction(collectionIds: string[], user: User, count: number, price: number) {
     // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
     const collections = await this.collectionRepository.findBy({ id: In(collectionIds) })

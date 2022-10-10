@@ -93,10 +93,10 @@ export class Collection extends BaseEntity {
     })
     author: User
 
-    /* 状态(0:下架 1: 上架) */
+    /* 状态(0:关闭市场交易 1: 开放市场交易) */
     @Column({
         name: 'status',
-        comment: '状态(0:下架 1: 上架)',
+        comment: '状态(0:关闭市场交易 1: 开放市场交易)',
         type: 'char',
         default: '0'
     })
