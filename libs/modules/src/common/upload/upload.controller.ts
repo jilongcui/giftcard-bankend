@@ -9,6 +9,7 @@ import * as COS from 'cos-nodejs-sdk-v5';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { UploadService } from './upload.service';
+import { Public } from '@app/common/decorators/public.decorator';
 
 export const ApiFile = (fileName: string = 'file'): MethodDecorator => (
     target: any,
@@ -65,6 +66,7 @@ export class UploadController {
 
     /* 单文件上传到Cos */
     @Post('uploadCos')
+    @Public()
     @ApiConsumes('multipart/form-data')
     @ApiFile()
     @UseInterceptors(FileInterceptor('file'))
@@ -82,6 +84,7 @@ export class UploadController {
 
     /* 数组文件上传到Cos */
     @Post('uploadsCos')
+    @Public()
     @UseInterceptors(FileInterceptor('file'))
     async uploadFilesCos(@UploadedFile() files: Array<Express.Multer.File>) {
         // 分片上传

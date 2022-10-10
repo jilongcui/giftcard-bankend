@@ -596,21 +596,21 @@ export class PaymentService {
   }
 
   async doPaymentComfirmedLv2(order: Order, userId: number) {
-    let userName = order.user.userName
+    let nickName = order.user.nickName
 
     if (order.assetType === '0') { // 藏品
       let asset: Asset
       asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
       if (asset.userId === userId)
         throw new ApiException("不能购买自己的藏品")
-      await this.buyAssetRecord(asset, userId, userName)
+      await this.buyAssetRecord(asset, userId, nickName)
     }
     else if (order.assetType === '1') { // 盲盒
       let magicbox: Magicbox
       magicbox = await this.magicboxRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
       if (magicbox.userId === userId)
         throw new ApiException("不能购买自己的盲盒")
-      await this.buyMagicboxRecord(magicbox, userId, userName)
+      await this.buyMagicboxRecord(magicbox, userId, nickName)
     }
   }
 
@@ -623,10 +623,10 @@ export class PaymentService {
     return Math.floor((Math.random() * 999999999) + 1000000000);
   }
 
-  private async buyAssetRecord(asset: Asset, userId: number, userName: string) {
+  private async buyAssetRecord(asset: Asset, userId: number, nickName: string) {
 
     const fromId = asset.user.userId
-    const fromName = asset.user.userName
+    const fromName = asset.user.nickName
 
     await this.assetRepository.update({ id: asset.id }, { status: '0', userId: userId })
 
@@ -637,14 +637,14 @@ export class PaymentService {
       fromId: fromId,
       fromName: fromName,
       toId: userId,
-      toName: userName
+      toName: nickName
     })
   }
 
-  private async buyMagicboxRecord(magicbox: Magicbox, userId: number, userName: string) {
+  private async buyMagicboxRecord(magicbox: Magicbox, userId: number, nickName: string) {
 
     const fromId = magicbox.user.userId
-    const fromName = magicbox.user.userName
+    const fromName = magicbox.user.nickName
     await this.magicboxRepository.update({ id: magicbox.id }, { status: '0', userId: userId })
     await this.magicboxRecordRepository.save({
       type: '2', // Buy
@@ -653,7 +653,7 @@ export class PaymentService {
       fromId: fromId,
       fromName: fromName,
       toId: userId,
-      toName: userName
+      toName: nickName
     })
   }
 }
