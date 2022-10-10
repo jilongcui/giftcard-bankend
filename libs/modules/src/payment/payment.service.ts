@@ -267,11 +267,11 @@ export class PaymentService {
           asset = await this.magicboxRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
         }
       }
-      const ownerId = asset.userId
       if (paymentNotify.status === 'SUCCESS') {
         // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
         await this.orderRepository.manager.transaction(async manager => {
           if (order.type === '1') { // 二级市场
+            const ownerId = asset.userId
             const marketFeeString = await this.sysconfigService.getValue(SYSCONF_MARKET_FEE_KEY)
             let marketFee = Number(marketFeeString)
 
@@ -336,7 +336,6 @@ export class PaymentService {
       }
     }
 
-    const ownerId = asset.userId
     await this.orderRepository.manager.transaction(async manager => {
       const result = await manager.decrement(Account, { userId: userId, usable: MoreThanOrEqual(order.totalPrice) }, "usable", order.totalPrice);
       // this.logger.log(JSON.stringify(result));
@@ -347,6 +346,7 @@ export class PaymentService {
       // 把Order的状态改成2: 已支付
       await manager.update(Order, { id: order.id }, { status: '2' })
       if (order.type === '1') {
+        const ownerId = asset.userId
         const marketFeeString = await this.sysconfigService.getValue(SYSCONF_MARKET_FEE_KEY)
         this.logger.debug(marketFeeString)
         let marketFee = Number(marketFeeString)
