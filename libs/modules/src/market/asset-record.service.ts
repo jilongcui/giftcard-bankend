@@ -23,7 +23,14 @@ export class AssetRecordService {
     let result: any;
     where = { assetId: id };
     result = await this.assetRecordRepository.findAndCount({
-      // select: ['id', 'coverImage', 'startTime', 'status', 'endTime', 'title', 'type', 'collections',],
+      select: {
+        id: true,
+        type: true,
+        price: true,
+        fromName: true,
+        toName: true,
+        createTime: true
+      },
       where,
       // relations: ['collections', 'collections.author'],
       skip: paginationDto.skip,
