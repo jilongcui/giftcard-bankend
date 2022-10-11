@@ -193,7 +193,7 @@ export class ActivityService {
       await this.redis.set(`${COLLECTION_ORDER_COUNT}:${activity.id}`, activity.supply - activity.current)
     }
     if (activity.type === '1') { // 盲盒
-      await this.redis.set(`${MAGICBOX_ORDER_COUNT}:${activity.id}`, activity.supply - activity.current)
+      await this.redis.set(`${COLLECTION_ORDER_COUNT}:${activity.id}`, activity.supply - activity.current)
       // 需要先初始化magicBox
       // 创建asset array
       let indexArray = []
