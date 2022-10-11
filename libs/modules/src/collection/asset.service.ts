@@ -233,6 +233,7 @@ export class AssetService {
             chain: true,
             standard: true,
             address: true,
+            markno: true,
           },
         }
       },

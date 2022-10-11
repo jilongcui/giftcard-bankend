@@ -9,6 +9,7 @@ export class Contract {
     @IsNumber()
     id: number
 
+    /* 合约名称 */
     @IsOptional()
     @IsString()
     @Column({
@@ -19,6 +20,7 @@ export class Contract {
     })
     name?: string
 
+    /* 合约标识 */
     @IsOptional()
     @IsString()
     @Column({
@@ -29,6 +31,7 @@ export class Contract {
     })
     markno?: string
 
+    /* 合约所在的链 */
     @IsString()
     @Column({
         name: 'chain',
@@ -37,14 +40,16 @@ export class Contract {
     })
     chain: string
 
+    /* 合约协议标准 */
     @IsString()
     @Column({
         name: 'standard',
-        comment: '合约标准 ERC721 ERC1155',
+        comment: '合约协议标准 ERC721 ERC1155',
         length: 20
     })
     standard: string
 
+    /* 合约地址 */
     @IsString()
     @Column({
         name: 'address',
