@@ -48,8 +48,13 @@ export class SubmitterService {
         }
     }
 
-    findOne(id: number) {
-        return this.submitterRepository.findOne({ where: { id: id }, relations: {} })
+    async findOne(id: number) {
+        const submitter = await this.submitterRepository.findOne({ where: { id: id }, relations: {} })
+        if (submitter.status === '0') {
+            submitter.status = '1'
+            await this.submitterRepository.save(submitter)
+        }
+        return submitter
     }
 
     async update(id: number, updateSubmitterDto: UpdateSubmitterDto) {
