@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Like, Repository } from 'typeorm';
 import { CreateAssetDto, UpdateAssetDto, ListAssetDto, FlowAssetDto } from './dto/request-asset.dto';
 import { Asset } from './entities/asset.entity';
 import { Collection } from './entities/collection.entity';
@@ -115,7 +115,7 @@ export class AssetService {
     const orderBy = paginationDto.isAsc === 'true' ? 'ASC' : 'DESC'
     where = {
       ...flowAssetDto,
-      status: '1',
+      status: In(['1', '2']),
       collection: {
         name: paginationDto.keywords ? Like(`%${paginationDto.keywords}%`) : undefined
       }
