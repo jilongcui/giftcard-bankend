@@ -379,6 +379,7 @@ export class MagicboxService {
                     coverImage: true,
                     authorName: true,
                     avatar: true,
+                    ruleInfo: true,
                     collections: true
                 },
             },
@@ -433,6 +434,7 @@ export class MagicboxService {
                     coverImage: true,
                     authorName: true,
                     avatar: true,
+                    ruleInfo: true,
                     collections: true
                 },
                 asset: {
