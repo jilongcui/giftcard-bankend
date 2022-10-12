@@ -85,7 +85,7 @@ export class LogService {
         logininfor.status = token ? "0" : "1"
         logininfor.msg = msg
         logininfor.loginTime = moment().toDate()
-        logininfor.browser = browser.name + browser.version.split('.')[0]
+        logininfor.browser = browser.name // + browser.version.split('.')[0]
         logininfor.os = os.name + os.version
         if (token) {  // 如果登录成功，就记录这个登录信息，方便在线用户查询
             const user: User = (request as any).user
