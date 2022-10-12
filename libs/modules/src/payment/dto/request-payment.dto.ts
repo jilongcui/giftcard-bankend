@@ -1,4 +1,5 @@
 import { OmitType, PartialType, PickType } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Column } from "typeorm";
 import { Payment } from "../entities/payment.entity";
@@ -16,19 +17,23 @@ export class WebSignDto {
 
 export class PayWithCardDto {
     @IsNumber()
+    @Type()
     orderId: number
 
     @IsNumber()
+    @Type()
     bankcardId: number
 }
 
 export class PayWithBalanceDto {
     @IsNumber()
+    @Type()
     orderId: number
 }
 
 export class ConfirmPayWithCardDto {
     @IsNumber()
+    @Type()
     paymentId: number
 
     @IsString()
