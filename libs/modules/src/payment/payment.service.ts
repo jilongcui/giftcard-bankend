@@ -322,11 +322,13 @@ export class PaymentService {
   async redisAtomicLpop(countKey: string, count: number) {
     const watchError = await this.redis.watch(countKey)
     if (watchError !== 'OK') throw new ApiException(watchError)
+    this.logger.debug(countKey)
     const [execResult] = await this.redis.multi().lpop(countKey, count).exec()
     if (execResult[0] !== null) {
       this.logger.debug('Redis Atomic Decr retry.')
       this.redisAtomicLpop(countKey, count)
     }
+    this.logger.debug(execResult[1])
     return execResult[1] // result
   }
 
@@ -555,10 +557,12 @@ export class PaymentService {
 
   async doBuyMagicBoxOrder(order: Order) {
     // 首先获取一个未售出的magicbox 
+    const magicboxIds: any = await this.redisAtomicLpop(`${MAGICBOX_LIST_KEY}:${order.activityId}`, order.count)
+    if (magicboxIds.length !== order.count) throw new ApiException("Remain magicbox is less than order number.")
+    this.logger.debug(JSON.stringify(magicboxIds))
     await this.magicboxRepository.manager.transaction(async manager => { // 'SERIALIZABLE', 
       // const magicboxs = await manager.find(Magicbox, { where: { openStatus: '0', activityId: order.activityId }, take: order.count })
-      const magicboxIds: any = await this.redisAtomicLpop(`${MAGICBOX_LIST_KEY}:${order.activityId}`, order.count)
-      if (magicboxIds.length !== order.count) throw new ApiException("Remain magicbox is less than order number.")
+
       await Promise.all(magicboxIds.map(async (magicboxId) => {
         await manager.update(Magicbox, { id: magicboxId, openStatus: '0' }, { openStatus: '1', userId: order.userId })
         // 记录交易记录
