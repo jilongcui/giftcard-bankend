@@ -95,6 +95,7 @@ export class Order {
         default: '0',
         comment: '订单数量'
     })
+    @Type()
     @IsOptional()
     @IsNumber()
     @Excel({
