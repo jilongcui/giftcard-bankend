@@ -24,7 +24,7 @@ import { Activity } from '../activity/entities/activity.entity';
 import { Asset } from '../collection/entities/asset.entity';
 import { AssetRecord } from '../market/entities/asset-record.entity';
 import { Order } from '../order/entities/order.entity';
-import { ACTIVITY_USER_ORDER_KEY } from '@app/common/contants/redis.contant';
+import { ACTIVITY_USER_ORDER_KEY, MAGICBOX_LIST_KEY } from '@app/common/contants/redis.contant';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
@@ -319,6 +319,17 @@ export class PaymentService {
     return 'ok'
   }
 
+  async redisAtomicLpop(countKey: string, count: number) {
+    const watchError = await this.redis.watch(countKey)
+    if (watchError !== 'OK') throw new ApiException(watchError)
+    const [execResult] = await this.redis.multi().lpop(countKey, count).exec()
+    if (execResult[0] !== null) {
+      this.logger.debug('Redis Atomic Decr retry.')
+      this.redisAtomicLpop(countKey, count)
+    }
+    return execResult[1] // result
+  }
+
   async payWithBalance(id: number, userId: number) {
     const order = await this.orderRepository.findOne({ where: { id: id, status: '1', userId: userId }, relations: { user: true } })
     if (order == null) {
@@ -543,16 +554,17 @@ export class PaymentService {
   }
 
   async doBuyMagicBoxOrder(order: Order) {
-    // 首先获取一个未售出的magicbox
-    await this.magicboxRepository.manager.transaction('SERIALIZABLE', async manager => {
-      const magicboxs = await manager.find(Magicbox, { where: { openStatus: '0', activityId: order.activityId }, take: order.count })
-      if (magicboxs.length !== order.count) throw new ApiException("Remain magicbox is less than order number.")
-      await Promise.all(magicboxs.map(async (magicbox) => {
-        await manager.update(Magicbox, { id: magicbox.id, openStatus: '0' }, { openStatus: '1', userId: order.userId })
+    // 首先获取一个未售出的magicbox 
+    await this.magicboxRepository.manager.transaction(async manager => { // 'SERIALIZABLE', 
+      // const magicboxs = await manager.find(Magicbox, { where: { openStatus: '0', activityId: order.activityId }, take: order.count })
+      const magicboxIds: any = await this.redisAtomicLpop(`${MAGICBOX_LIST_KEY}:${order.activityId}`, order.count)
+      if (magicboxIds.length !== order.count) throw new ApiException("Remain magicbox is less than order number.")
+      await Promise.all(magicboxIds.map(async (magicboxId) => {
+        await manager.update(Magicbox, { id: magicboxId, openStatus: '0' }, { openStatus: '1', userId: order.userId })
         // 记录交易记录
         await manager.save(MagicboxRecord, {
           type: '2', // Buy
-          magicboxId: magicbox.id,
+          magicboxId: magicboxId,
           price: order.realPrice,
           toId: order.userId,
           toName: order.user.nickName

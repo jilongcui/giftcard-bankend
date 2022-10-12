@@ -28,3 +28,4 @@ export const ACTIVITY_ORDER_TEMPLATE_KEY = "ACTIVITY:ORDER:TEMPLATE"  // 订单�
 export const MAGICBOX_ORDER_COUNT = "MAGICBOX:ORDER:COUNT"  // 盲盒订单统计
 export const MAGICBOX_ORDER_SUPPLY = "MAGICBOX:ORDER:SUPPLY"  // 盲盒订单统计
 export const MAGICBOX_ORDER_KEY = "MAGICBOX:ORDER:KEY"  // 订单统计
+export const MAGICBOX_LIST_KEY = "MAGICBOX:LIST:KEY"

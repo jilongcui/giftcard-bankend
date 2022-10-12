@@ -3,7 +3,7 @@ import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
 import Redis from 'ioredis';
-import { ACTIVITY_ORDER_TEMPLATE_KEY, ACTIVITY_PRESTART_TIME, ACTIVITY_START_TIME, COLLECTION_ORDER_COUNT, MAGICBOX_ORDER_COUNT } from '@app/common/contants/redis.contant';
+import { ACTIVITY_ORDER_TEMPLATE_KEY, ACTIVITY_PRESTART_TIME, ACTIVITY_START_TIME, COLLECTION_ORDER_COUNT, MAGICBOX_LIST_KEY, MAGICBOX_ORDER_COUNT } from '@app/common/contants/redis.contant';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
@@ -226,6 +226,9 @@ export class ActivityService {
         }
         const magicbox = this.magicboxService.create(createMagicboxDto)
         await this.magicboxService.addOrUpdate(magicbox)
+
+        // push magicbox id to redis cache
+        await this.redis.rpush(`${MAGICBOX_LIST_KEY}:${activity.id}`, magicbox.id)
       })
     }
     return result
