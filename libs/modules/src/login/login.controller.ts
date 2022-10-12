@@ -8,7 +8,7 @@
  * You can you up，no can no bb！！
  */
 
-import { Body, Controller, Get, Post, Req, UseGuards, Headers, Query, Logger } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards, Headers, Query, Logger, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
@@ -19,7 +19,7 @@ import { Router } from '../system/menu/dto/res-menu.dto';
 import { QueryInviteUserDto, ReqInnerRegDto, ReqLoginDto, ReqMobileLoginDto, ReqMobileRegDto } from './dto/req-login.dto';
 import { ResImageCaptchaDto, ResLoginDto } from './dto/res-login.dto';
 import { LoginService } from './login.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { SmsCodeGuard } from '@app/common/guards/sms-code.guard';
 import { MobileAuthGuard } from '@app/common/guards/mobile-auth.guard';
 import { ImageCaptchaGuard } from '@app/common/guards/image-captcha.guard';
@@ -27,6 +27,7 @@ import { SharedService } from '@app/shared/shared.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
+import { Keep } from '@app/common/decorators/keep.decorator';
 @ApiTags('登录')
 @ApiBearerAuth()
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -51,12 +52,15 @@ export class LoginController {
     @Post('login')
     @Public()
     // @UseGuards(ImageCaptchaGuard, LocalAuthGuard)
+    @Keep()
     @UseGuards(LocalAuthGuard)
-    async login(@Body() reqLoginDto: ReqLoginDto, @Req() req: Request): Promise<ResLoginDto> {
+    async login(@Body() reqLoginDto: ReqLoginDto, @Req() req: Request, @Res() response: Response) {
         // Todo: forTest
         // if (!await this.sharedService.checkImageCaptcha(reqLoginDto.uuid, reqLoginDto.code))
         // throw new ApiException('图形验证码错误')
-        return await this.loginService.login(req)
+        const data = await this.loginService.login(req)
+        response.set({ "X-Token": data.token }).send({ code: 200, msg: "Success", data: data }).end();
+        // return data
     }
 
     /* 用户手机登录 */
