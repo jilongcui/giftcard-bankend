@@ -46,6 +46,17 @@ export class Collection extends BaseEntity {
     @IsNumber()
     level?: number
 
+    /* 原始价格(单位人民币) */
+    @Column({
+        name: 'price',
+        type: "decimal", precision: 10, scale: 2, default: 0,
+        comment: '原始价格(单位人民币)'
+    })
+    @Type()
+    @IsNumber()
+    @IsOptional()
+    price?: number
+
     @Column({
         name: 'supply',
         comment: '总供应量',

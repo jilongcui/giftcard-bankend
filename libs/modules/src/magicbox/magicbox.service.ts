@@ -376,6 +376,7 @@ export class MagicboxService {
                 activity: {
                     id: true,
                     title: true,
+                    price: true,
                     coverImage: true,
                     authorName: true,
                     avatar: true,
@@ -420,6 +421,7 @@ export class MagicboxService {
                     desc: true,
                     type: true,
                     level: true,
+                    price: true,
                     supply: true,
                     current: true,
                     images: true,
