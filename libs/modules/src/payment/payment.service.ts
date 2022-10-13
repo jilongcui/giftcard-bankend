@@ -574,6 +574,7 @@ export class PaymentService {
           toId: order.userId,
           toName: order.user.nickName
         })
+        this.logger.debug(magicboxRecord)
         magicboxRecords.push(magicboxRecord)
         // 记录交易记录
       }))
