@@ -6,7 +6,7 @@ import * as moment from 'moment';
 import * as querystring from 'querystring';
 import { createSign, createVerify } from 'crypto';
 import { Payment } from './entities/payment.entity';
-import { EntityManager, MoreThanOrEqual, Repository } from 'typeorm';
+import { EntityManager, In, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
 import { BankcardService } from '@app/modules/bankcard/bankcard.service';
@@ -35,6 +35,7 @@ import { CollectionService } from '../collection/collection.service';
 import { SysConfigService } from '../system/sys-config/sys-config.service';
 import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
 import { truncate } from 'fs';
+import { CreateMagicboxRecordDto } from '../magicbox/dto/request-magicbox-record.dto';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -562,18 +563,21 @@ export class PaymentService {
     this.logger.debug(JSON.stringify(magicboxIds))
     await this.magicboxRepository.manager.transaction(async manager => { // 'SERIALIZABLE', 
       // const magicboxs = await manager.find(Magicbox, { where: { openStatus: '0', activityId: order.activityId }, take: order.count })
+      await manager.update(Magicbox, { id: In(magicboxIds), openStatus: '0' }, { openStatus: '1', userId: order.userId })
 
+      let magicboxRecords: CreateMagicboxRecordDto[] = []
       await Promise.all(magicboxIds.map(async (magicboxId) => {
-        await manager.update(Magicbox, { id: magicboxId, openStatus: '0' }, { openStatus: '1', userId: order.userId })
-        // 记录交易记录
-        await manager.save(MagicboxRecord, {
+        let magicboxRecord = new CreateMagicboxRecordDto({
           type: '2', // Buy
           magicboxId: magicboxId,
           price: order.realPrice,
           toId: order.userId,
           toName: order.user.nickName
         })
+        magicboxRecords.push(magicboxRecord)
+        // 记录交易记录
       }))
+      await manager.save(MagicboxRecord, magicboxRecords)
     })
   }
 
