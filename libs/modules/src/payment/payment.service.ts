@@ -567,14 +567,14 @@ export class PaymentService {
 
       let magicboxRecords: CreateMagicboxRecordDto[] = []
       await Promise.all(magicboxIds.map(async (magicboxId) => {
-        let magicboxRecord = new CreateMagicboxRecordDto({
+        let magicboxRecord: CreateMagicboxRecordDto = {
           type: '2', // Buy
           magicboxId: magicboxId,
           price: order.realPrice,
           toId: order.userId,
           toName: order.user.nickName
-        })
-        this.logger.debug(magicboxRecord)
+        }
+        // this.logger.debug(JSON.stringify(magicboxRecord))
         magicboxRecords.push(magicboxRecord)
         // 记录交易记录
       }))
