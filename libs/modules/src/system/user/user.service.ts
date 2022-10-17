@@ -197,6 +197,7 @@ export class UserService {
         reqAddUserDto.dept = dept
         reqAddUserDto.posts = posts
         reqAddUserDto.roles = roles
+        reqAddUserDto.securityStatus = '0'
         if (reqAddUserDto.password) {
             reqAddUserDto.salt = this.sharedService.generateUUID()
             reqAddUserDto.password = this.sharedService.md5(reqAddUserDto.password + reqAddUserDto.salt)
