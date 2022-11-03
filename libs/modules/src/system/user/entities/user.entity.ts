@@ -137,6 +137,8 @@ export class User extends BaseEntity {
         length: 1,
         default: '0'
     })
+    @Type()
+    @IsOptional()
     @IsString()
     securityStatus: string
 

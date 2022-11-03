@@ -23,14 +23,12 @@ export class SubmitterController {
     }
 
     @Get('list')
-    @RequiresRoles(['admin', 'system'])
     @ApiPaginatedResponse(Submitter)
     async list(@Query() listSubmitterDto: ListSubmitterDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
         return await this.submitterService.list(listSubmitterDto, paginationDto);
     }
 
     @Get(':id')
-    @RequiresRoles(['admin', 'system'])
     findOne(@Param('id') id: string) {
         return this.submitterService.findOne(+id);
     }

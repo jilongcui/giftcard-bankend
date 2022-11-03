@@ -276,6 +276,14 @@ export class FundService {
         if (bankcard === null) {
             throw new ApiException('此银行卡没有实名')
         }
+        if (bankcard.status === '0' || bankcard.status === '2') {
+            throw new ApiException('此银行卡未绑定')
+        }
+        if (bankcard.status === '1' || bankcard.status === '4') {
+            const bankCertitfy = new ReqBankCertifyDto()
+            bankCertitfy.bankcardId = bankcard.id
+            await this.bankCertify(bankCertitfy, userId)
+        }
         const bankCardInfo = await this.sendQueryBankCardInfoRequest(bankcard.cardNo)
         const withdraw = await this.withdrawRepository.findOneBy({ id: payWithCard.withdrawId })
         if (withdraw === null) {
