@@ -16,6 +16,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { MobileStrategy } from './strategies/mobile.strategy';
+import { WeixinStrategy } from './strategies/weixin.strategy';
 
 @Module({
     imports: [
@@ -23,7 +24,7 @@ import { MobileStrategy } from './strategies/mobile.strategy';
         PassportModule,
     ],
     controllers: [],
-    providers: [AuthService, LocalStrategy, MobileStrategy, JwtStrategy],
+    providers: [AuthService, LocalStrategy, MobileStrategy, WeixinStrategy, JwtStrategy],
     exports: [AuthService],
 })
 export class AuthModule { }

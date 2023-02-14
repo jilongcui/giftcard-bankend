@@ -214,7 +214,7 @@ export class LoginService {
         await this.redis.set(`${USER_TOKEN_KEY}:${user.userId}`, jwtSign, 'EX', 60 * 60 * 24)
         //调用存储在线用户接口
         await this.logService.addLogininfor(request, '登录成功', `${USER_TOKEN_KEY}:${user.userId}`)
-        return { token: jwtSign }
+        return { token: jwtSign, openId: user.openId }
     }
 
     /* 退出登录 */

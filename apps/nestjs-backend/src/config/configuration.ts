@@ -72,6 +72,12 @@ export interface IConfig {
         password: string,
     }
 
+    /* 配置微信登录 */
+    weixinLogin?: {
+        appId: string,
+        appSecret: string,
+    },
+
     /* 配置SMS短信 */
     tencentSMS?: {
         SecretId: string,
@@ -115,4 +121,6 @@ export interface IConfig {
 
     /* 是否演示环境 */
     isDemoEnvironment?: Boolean;
+    /* 是否生成区块链地址 */
+    isBlockchainAddress?: Boolean;
 }

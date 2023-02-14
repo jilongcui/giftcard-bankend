@@ -39,6 +39,11 @@ export default defineConfig({
     password: '123456'
   },
 
+  weixinLogin: {
+    appId: process.env.WEIXIN_APPID,
+    appSecret: process.env.WEIXIN_APPSECRET,
+  },
+
   tencentSMS: {
     SecretId: process.env.SecretId,
     SecretKey: process.env.SecretKey,
@@ -80,4 +85,5 @@ export default defineConfig({
 
 
   isDemoEnvironment: false,
+  isBlockchainAddress: false,
 });

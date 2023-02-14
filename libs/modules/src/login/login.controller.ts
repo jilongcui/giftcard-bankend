@@ -16,7 +16,7 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { User, UserEnum } from '@app/common/decorators/user.decorator';
 import { LocalAuthGuard } from '@app/common/guards/local-auth.guard';
 import { Router } from '../system/menu/dto/res-menu.dto';
-import { QueryInviteUserDto, ReqInnerRegDto, ReqLoginDto, ReqMobileLoginDto, ReqMobileRegDto } from './dto/req-login.dto';
+import { QueryInviteUserDto, ReqInnerRegDto, ReqLoginDto, ReqMobileLoginDto, ReqWeixinLoginDto, ReqMobileRegDto } from './dto/req-login.dto';
 import { ResImageCaptchaDto, ResLoginDto } from './dto/res-login.dto';
 import { LoginService } from './login.service';
 import { Request, Response } from 'express';
@@ -28,6 +28,7 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { Keep } from '@app/common/decorators/keep.decorator';
+import { WeixinAuthGuard } from '@app/common/guards/weixin-auth.guard';
 @ApiTags('登录')
 @ApiBearerAuth()
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -68,6 +69,14 @@ export class LoginController {
     @Public()
     @UseGuards(SmsCodeGuard, MobileAuthGuard)
     async mlogin(@Body() reqLoginDto: ReqMobileLoginDto, @Req() req: Request): Promise<ResLoginDto> {
+        return await this.loginService.login(req)
+    }
+
+    /* 微信登录 */
+    @Post('wxlogin')
+    @Public()
+    @UseGuards(WeixinAuthGuard)
+    async wxlogin(@Body() reqLoginDto: ReqWeixinLoginDto, @Req() req: Request): Promise<ResLoginDto> {
         return await this.loginService.login(req)
     }
 

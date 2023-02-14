@@ -30,6 +30,19 @@ export class ReqMobileLoginDto {
 
 }
 
+export class ReqWeixinLoginDto {
+
+    /* 手机号 */
+    @IsOptional()
+    @IsString()
+    phone: string
+
+    /* 微信小程序code */
+    @IsString()
+    code: string
+
+}
+
 export class ReqMobileRegDto {
     /* 用户名 */
     @IsString()

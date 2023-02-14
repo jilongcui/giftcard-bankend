@@ -1,19 +1,34 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { isEmpty } from 'lodash';
 import { CAPTCHA_IMG_KEY, USER_TOKEN_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { SharedService } from '@app/shared/shared.service';
 import { UserService } from '../user/user.service';
+import axios from 'axios';
+import { ReqAddUserDto } from '../user/dto/req-user.dto';
+import { ConfigService } from '@nestjs/config';
+const strRandom = require('string-random');
 
 @Injectable()
 export class AuthService {
+
+  logger = new Logger(AuthService.name);
+
+  private appId: string;
+  private secret: string;
+  private grant_type = 'authorization_code'
+
   constructor(
     @InjectRedis() private readonly redis: Redis,
     private readonly sharedService: SharedService,
     private readonly userService: UserService,
-  ) { }
+    private readonly configService: ConfigService,
+  ) {
+    this.appId = this.configService.get<string>('weixinLogin.appId')
+    this.secret = this.configService.get<string>('weixinLogin.appSecret')
+  }
 
   /* 判断验证码是否正确 */
   async checkImgCaptcha(uuid: string, code: string) {
@@ -37,6 +52,39 @@ export class AuthService {
   async validatePhone(phone: string) {
     const user = await this.userService.findOneByPhone(phone);
     if (!user) throw new ApiException("手机号不存在")
+    return user
+  }
+
+  /* 判断微信登录的逻辑 */
+  async validateWeixin(code: string) {
+    /* Get openID and session_key from weixin service by code */
+    const url = `https://api.weixin.qq.com/sns/jscode2session?grant_type=${this.grant_type}&appid=${this.appId}&secret=${this.secret}&js_code=${code}`
+    // const info = await this.getInfo(url) // 获取openid和session_key
+    this.logger.debug(url)
+    const info: any = await axios.get(url);
+    this.logger.debug(info.data)
+    if (info.data.errcode && info.data.errcode !== 0) {
+      throw new ApiException(info.data.errmsg)
+    }
+
+    // 通过openid 来查找用户是否存在
+    const user = await this.userService.findOneByOpenId(info.data.openid)
+    if (!user) {
+      /* 如果用户不存在，需要创建新的用户 */
+
+      const reqAddUserDto = new ReqAddUserDto()
+      const wxName = "wx_" + strRandom(8).toLowerCase()
+      // reqAddUserDto.phonenumber = phone;
+      reqAddUserDto.userName = wxName;
+      reqAddUserDto.nickName = wxName;
+      reqAddUserDto.userType = '02'; // weixin user.
+      reqAddUserDto.postIds = [];
+      reqAddUserDto.roleIds = [];
+      reqAddUserDto.openId = info.data.openid;
+
+      reqAddUserDto.createBy = reqAddUserDto.updateBy = 'admin'
+      await this.userService.addUser(reqAddUserDto)
+    }
     return user
   }
 

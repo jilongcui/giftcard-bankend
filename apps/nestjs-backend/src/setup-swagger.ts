@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export function setupSwagger(app: INestApplication): void {
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('StartLand')
+    .setTitle('Chatgpt')
     .setVersion('1.0.1')
     .setDescription('Api文档')
     .setTermsOfService('https://docs.nestjs.cn/8/introduction')

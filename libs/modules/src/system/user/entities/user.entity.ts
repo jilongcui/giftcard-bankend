@@ -55,7 +55,7 @@ export class User extends BaseEntity {
     /* 用户类型 */
     @Column({
         name: 'user_type',
-        comment: '用户类型（00系统用户）',
+        comment: '用户类型（00系统用户, 01普通用户, 02微信用户）',
         length: 2,
         default: '00'
     })
@@ -85,6 +85,19 @@ export class User extends BaseEntity {
         name: '手机号码'
     })
     phonenumber?: string
+
+    /* 微信OpenID */
+    @Column({
+        comment: '微信OpenID',
+        length: 30,
+        default: null
+    })
+    @IsOptional()
+    @IsString()
+    @Excel({
+        name: '微信OpenID'
+    })
+    openId?: string
 
     @Column({
         comment: '用户性别（0男 1女 2未知）',

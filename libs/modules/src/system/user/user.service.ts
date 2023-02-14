@@ -34,11 +34,13 @@ import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { InviteUserService } from '@app/modules/inviteuser/invite-user.service';
 import { ReqUpdateInviteUserDto } from '@app/modules/inviteuser/dto/request-inviteuser.dto';
 import { InviteUser } from '@app/modules/inviteuser/entities/invite-user.entity';
+import { ConfigService } from '@nestjs/config';
 const strRandom = require('string-random');
 
 @Injectable()
 export class UserService {
     logger = new Logger(UserService.name);
+    isBlockchainAddress: boolean
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
         @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
@@ -49,7 +51,11 @@ export class UserService {
         private readonly deptService: DeptService,
         private readonly sharedService: SharedService,
         private readonly addressService: AddressService,
-    ) { }
+        private readonly configService: ConfigService,
+    ) {
+
+        this.isBlockchainAddress = this.configService.get<boolean>('isBlockchainAddress')
+    }
 
     /* 通过用户名获取用户,排除停用和删除的,用于登录 */
     async findOneByUsername(username: string) {
@@ -89,6 +95,11 @@ export class UserService {
             })
             .getOne()
         return user
+    }
+
+    /* 根据微信openid查询用户 */
+    async findOneByOpenId(openId: string) {
+        return await this.userRepository.findOneBy({ openId: openId })
     }
 
     /* 通过用户名获取用户,排除停用和删除的,用于登录 */
@@ -223,11 +234,13 @@ export class UserService {
         await this.accountRepository.save(createAccountDto)
 
         // Create address record.
-        const createAddressDto = new ReqAddressCreateDto()
-        createAddressDto.appId = 0
-        createAddressDto.addressType = 'CRI'
-        createAddressDto.userId = user.userId
-        await this.addressService.addressCreate(createAddressDto)
+        if (this.isBlockchainAddress) {
+            const createAddressDto = new ReqAddressCreateDto()
+            createAddressDto.appId = 0
+            createAddressDto.addressType = 'CRI'
+            createAddressDto.userId = user.userId
+            await this.addressService.addressCreate(createAddressDto)
+        }
         return user;
     }
 
