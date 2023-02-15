@@ -52,6 +52,6 @@ export class MemberInfoController {
   @Delete(':id')
   @RequiresPermissions('system:member:delete')
   remove(@Param('id') id: string) {
-    return this.memberInfoService.remove(+id);
+    return this.memberInfoService.deleteOne(+id);
   }
 }

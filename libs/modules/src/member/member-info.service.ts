@@ -73,7 +73,11 @@ export class MemberInfoService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} member`;
+  deleteOne(id: number) {
+    return this.memberInfoRepository.delete(id)
+  }
+
+  async delete(memerIdArr: number[] | string[]) {
+    return this.memberInfoRepository.delete(memerIdArr)
   }
 }

@@ -48,6 +48,6 @@ export class MemberController {
   @Delete(':id')
   @RequiresPermissions('system:member:list')
   remove(@Param('id') id: string) {
-    return this.memberService.remove(+id);
+    return this.memberService.deleteOne(+id);
   }
 }
