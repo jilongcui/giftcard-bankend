@@ -11,7 +11,7 @@ import { Repository, FindOptionsWhere, EntityManager, getManager, MoreThanOrEqua
 import { Activity } from '../activity/entities/activity.entity';
 import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
 import { Asset } from '../collection/entities/asset.entity';
-import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, ListMyOrderDto, ListOrderDto, ListRechargeOrderDto, ListUnpayOrderDto, RechargeOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
+import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, EnrollMemberOrderDto, ListMyOrderDto, ListOrderDto, ListRechargeOrderDto, ListUnpayOrderDto, RechargeOrderDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/request-order.dto';
 import { Order } from './entities/order.entity';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../system/user/entities/user.entity';
@@ -193,6 +193,33 @@ export class OrderService {
       order.desc = '充值订单';
       order.image = avatar
       order.invalidTime = moment().add(10, 'minute').toDate()
+      await manager.save(order);
+      return order;
+    });
+  }
+
+  /* 升级会员订单 */
+  async enrollMemberOrder(createOrderDto: EnrollMemberOrderDto, userId: number, userName: string, avatar: string) {
+    const orderType = '3' // 升级会员
+    const realPrice = 1.0;
+    const member = {
+      level: 1,
+      period: 1,
+      price: 100.0
+    }
+    return await this.orderRepository.manager.transaction(async manager => {
+      const order = new Order()
+      order.type = orderType
+      order.status = '1'
+      order.userId = userId
+      order.userName = userName
+      order.realPrice = member.price
+      order.totalPrice = member.price
+      order.assetId = createOrderDto.memberId
+      order.count = 1
+      order.desc = '升级会员';
+      order.image = avatar
+      order.invalidTime = moment().add(5, 'minute').toDate()
       await manager.save(order);
       return order;
     });

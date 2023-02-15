@@ -112,4 +112,26 @@ export class PaymentController {
     this.logger.debug(cryptNotifyDto.sign)
     response.end(await this.paymentService.paymentNotify(cryptNotifyDto))
   }
+
+  @Get('weixinNotify')
+  @Keep()
+  @Public()
+  @Header('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
+  // @Header('Content-Type', 'application/json; charset=utf-8')
+  // @Accepts('application/x-www-form-urlencoded', 'application/json', 'text/html')
+  async weixinNotify(@Req() request: Request, @Res() response: Response) {
+    let cryptNotifyDto: ReqCryptoNotifyDto
+    // this.logger.debug(JSON.stringify(request.body))
+    // this.logger.debug(JSON.stringify(request.params))
+    // this.logger.debug(JSON.stringify(request.headers))
+    // this.logger.debug(JSON.stringify(request.query))
+
+    this.logger.debug(JSON.stringify(cryptNotifyDto))
+
+    cryptNotifyDto = request.query
+    this.logger.debug(cryptNotifyDto.agent_id)
+    this.logger.debug(cryptNotifyDto.encrypt_data)
+    this.logger.debug(cryptNotifyDto.sign)
+    response.end(await this.paymentService.weixinPaymentNotify(cryptNotifyDto))
+  }
 }

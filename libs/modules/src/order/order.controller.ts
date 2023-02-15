@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query, Inject, forwardRef, Logger, StreamableFile } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, ListMyOrderDto, ListOrderDto, ListRechargeOrderDto, ListUnpayOrderDto, RechargeOrderDto, SyncInvalidOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
+import { CreateLv1OrderDto, CreateLv2OrderDto, CreateOrderDto, EnrollMemberOrderDto, ListMyOrderDto, ListOrderDto, ListRechargeOrderDto, ListUnpayOrderDto, RechargeOrderDto, SyncInvalidOrderDto, UpdateAllOrderDto, UpdateOrderDto } from './dto/request-order.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -55,6 +55,13 @@ export class OrderController {
   async recharge(@Body() createOrderDto: RechargeOrderDto, @UserDec(UserEnum.userId) userId: number,
     @UserDec(UserEnum.userName, UserInfoPipe) userName: string, @UserDec(UserEnum.avatar, UserInfoPipe) avatar: string) {
     return await this.orderService.rechargeOrder(createOrderDto, userId, userName, avatar);
+  }
+
+  @Throttle(2, 2000)
+  @Post('enroll')
+  async member(@Body() createOrderDto: EnrollMemberOrderDto, @UserDec(UserEnum.userId) userId: number,
+    @UserDec(UserEnum.userName, UserInfoPipe) userName: string, @UserDec(UserEnum.avatar, UserInfoPipe) avatar: string) {
+    return await this.orderService.enrollMemberOrder(createOrderDto, userId, userName, avatar);
   }
 
   @Put(':id')

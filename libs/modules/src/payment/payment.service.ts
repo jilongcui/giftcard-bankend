@@ -740,5 +740,18 @@ export class PaymentService {
 
     return result
   }
+
+  // 微信支付通知
+  async weixinPaymentNotify(cryptoNotifyDto: ReqCryptoNotifyDto) {
+    // sign_no 是加密的，我们需要解密
+    try {
+
+    } catch (error) {
+      this.logger.error("Payment Notice : " + error)
+      return 'error'
+    }
+
+  return 'ok'
+}
 }
 //
