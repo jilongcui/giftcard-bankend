@@ -15,7 +15,7 @@ export class Payment {
     @Column({
         name: 'type',
         default: '0',
-        comment: '支付种类 0: 余额支付 1:银行卡支付',
+        comment: '支付种类 0: 余额支付 1:银行卡支付 2: 微信支付',
         type: 'char',
         length: 1
     })

@@ -31,6 +31,12 @@ export class PayWithBalanceDto {
     orderId: number
 }
 
+export class WeixinPayForMemberDto {
+    @IsNumber()
+    @Type()
+    orderId: number
+}
+
 export class ConfirmPayWithCardDto {
     @IsNumber()
     @Type()

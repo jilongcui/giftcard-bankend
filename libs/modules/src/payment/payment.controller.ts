@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, Query, Logger, Header, Render, All } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { ConfirmPayWithCardDto, CreatePaymentDto, PayWithBalanceDto, PayWithCardDto, ReqCryptoNotifyDto, UpdatePaymentDto, WebSignDto } from './dto/request-payment.dto';
+import { ConfirmPayWithCardDto, CreatePaymentDto, PayWithBalanceDto, PayWithCardDto, ReqCryptoNotifyDto, UpdatePaymentDto, WebSignDto, WeixinPayForMemberDto } from './dto/request-payment.dto';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ApiTags, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { Public } from '@app/common/decorators/public.decorator';
@@ -59,6 +59,13 @@ export class PaymentController {
   webSign(@Body() webSignDto: WebSignDto, @UserDec(UserEnum.userId) userId: number,) {
 
     return this.paymentService.webSign(webSignDto, userId)
+  }
+
+  @Post('weixinPay')
+  async weixinPay(@Body() payForMember: WeixinPayForMemberDto, @UserDec(UserEnum.userId) userId: number,
+    @UserDec(UserEnum.openId) openId: string, @Req() request: Request) {
+    const ipaddr = this.sharedService.getReqIP(request)
+    return await this.paymentService.payWithWeixin(payForMember, userId, openId, ipaddr);
   }
 
   @Post('balancePay')

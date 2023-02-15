@@ -44,6 +44,11 @@ export default defineConfig({
     appSecret: process.env.WEIXIN_APPSECRET,
   },
 
+  weixinPayment: {
+    appId: process.env.WEIXIN_APPID,
+    merchId: process.env.WEIXIN_MCHID,
+  },
+
   tencentSMS: {
     SecretId: process.env.SecretId,
     SecretKey: process.env.SecretKey,

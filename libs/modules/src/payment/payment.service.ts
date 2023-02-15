@@ -12,7 +12,7 @@ import { SharedService } from '@app/shared';
 import { BankcardService } from '@app/modules/bankcard/bankcard.service';
 import { OrderService } from '@app/modules/order/order.service';
 
-import { ConfirmPayWithCardDto, PayWithCardDto, ReqConfirmPayDto, ReqCryptoNotifyDto } from './dto/request-payment.dto';
+import { ConfirmPayWithCardDto, PayWithCardDto, ReqConfirmPayDto, ReqCryptoNotifyDto, WeixinPayForMemberDto } from './dto/request-payment.dto';
 import { ReqPaymentNotify, ReqSendSMSDto, ReqSubmitPayDto, WebSignDto, WebSignNotifyDto } from './dto/request-payment.dto';
 import { ConfirmPayResponse, CryptoResponse, PayResponse, SendSMSResponse, WebSignResponse } from './dto/response-payment.dto';
 import { RES_CODE_SUCCESS, RES_NET_CODE } from './payment.const';
@@ -28,14 +28,17 @@ import { ACTIVITY_USER_ORDER_KEY, MAGICBOX_LIST_KEY } from '@app/common/contants
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, interval } from 'rxjs';
 import { Magicbox } from '../magicbox/entities/magicbox.entity';
 import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
 import { CollectionService } from '../collection/collection.service';
 import { SysConfigService } from '../system/sys-config/sys-config.service';
 import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
-import { truncate } from 'fs';
 import { CreateMagicboxRecordDto } from '../magicbox/dto/request-magicbox-record.dto';
+import WxPay from 'wechatpay-node-v3';
+import { truncate } from 'fs';
+import fs from 'fs';
+import { toInteger } from 'lodash';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -56,6 +59,8 @@ export class PaymentService {
   orderSN: string
   platformAddress: string
   notifyHost: string
+  weixinMerchId: string
+  weixinAppId: string
 
   constructor(
     private readonly httpService: HttpService,
@@ -82,6 +87,9 @@ export class PaymentService {
     this.notifyHost = this.configService.get<string>('payment.notifyHost')
     this.merchId = this.configService.get<string>('payment.merchId')
     this.orderSN = this.configService.get<string>('payment.orderSN')
+    this.weixinAppId = this.configService.get<string>('weixinPayment.appId')
+    this.weixinMerchId = this.configService.get<string>('weixinPayment.merchId')
+
     this.platformPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
     this.merchSecretKey = this.sharedService.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
     this.merchPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.merchPublicKey'))
@@ -676,6 +684,61 @@ export class PaymentService {
       toId: userId,
       toName: nickName
     })
+  }
+
+  /*
+    创建支付订单，然后给用户发送短信。
+    用户通过商户小程序进入商户网页，当用户选择相关商品购买时，
+    商户系统先调用该接口在微信支付服务后台生成预支付交易单。
+   **/
+  async payWithWeixin(weixinPay: WeixinPayForMemberDto, userId: number, openId: string, userIp: string) {
+
+    const order = await this.orderService.findOne(weixinPay.orderId)
+    const wxPay = new WxPay({
+      appid: '直连商户申请的公众号或移动应用appid',
+      mchid: this.weixinMerchId,
+      publicKey: fs.readFileSync('./apiclient_cert.pem'), // 公钥
+      privateKey: fs.readFileSync('./apiclient_key.pem'), // 秘钥
+    });
+    const params = {
+      description: 'mage形象店-深圳腾大-QQ公仔',
+      out_trade_no: '1900006891',
+      notify_url: this.notifyHost + '/payment/weixinNotify',
+      amount: {
+        total: Math.floor(order.totalPrice * 100), // 单位为分
+        currency: 'CNY',
+      },
+      payer: {
+        openid: openId,
+      },
+      scene_info: {
+        payer_client_ip: userIp,
+      },
+    };
+    console.log(params);
+    const result = await wxPay.transactions_jsapi(params);
+    console.log(result);
+    //   {
+    //     appId: 'appid',
+    //     timeStamp: '1609918952',
+    //     nonceStr: 'y8aw9vrmx8c',
+    //     package: 'prepay_id=wx0615423208772665709493edbb4b330000',
+    //     signType: 'RSA',
+    //     paySign: 'JnFXsT4VNzlcamtmgOHhziw7JqdnUS9qJ5W6vmAluk3Q2nska7rxYB4hvcl0BTFAB1PBEnHEhCsUbs5zKPEig=='
+    //   }
+
+    // 我们需要把这个支付订单创建成功的标记，保存起来
+    const payment = new Payment()
+    payment.type = '2' // 微信支付
+    payment.status = '1' // 支付中
+    payment.bankcardId = 0
+    payment.orderId = weixinPay.orderId
+    payment.userId = userId
+    payment.orderTokenId = result.package.substr(10) // trim('prepay_id=')
+
+    await this.paymentRepository.save(payment)
+
+    return result
   }
 }
 //

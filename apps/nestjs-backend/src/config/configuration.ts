@@ -78,6 +78,11 @@ export interface IConfig {
         appSecret: string,
     },
 
+    weixinPayment?: {
+        appId: string,
+        merchId: string,
+    }
+
     /* 配置SMS短信 */
     tencentSMS?: {
         SecretId: string,
