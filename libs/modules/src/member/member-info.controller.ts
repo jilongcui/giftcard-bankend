@@ -9,6 +9,7 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { MemberInfo } from './entities/member-info.entity';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateMemberInfoDto, ListMemberInfoDto } from './dto/request-member-info.dto';
+import { Public } from '@app/common/decorators/public.decorator';
 
 @ApiTags('会员等级信息')
 @ApiBearerAuth()
@@ -22,20 +23,16 @@ export class MemberInfoController {
     return this.memberInfoService.create(createMemberDto, userId);
   }
 
-  @Get()
-  @RequiresPermissions('system:member:list')
-  findAll() {
-    return this.memberInfoService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.memberInfoService.findOne(+id);
-  }
+  // @Get()
+  // @Public()
+  // @RequiresPermissions('system:member:list')
+  // findAll() {
+  //   return this.memberInfoService.findAll();
+  // }
 
   /* 会员列表 */
   @Get('list')
-  @RequiresPermissions('system:member:list')
+  @Public()
   @ApiPaginatedResponse(MemberInfo)
   async list(@Query() listMemberDto: ListMemberInfoDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.memberInfoService.list(listMemberDto, paginationDto);
@@ -46,8 +43,14 @@ export class MemberInfoController {
   //   return this.memberInfoService.update(+id, updateMemberDto);
   // }
 
+  @Get(':id')
+  @Public()
+  findOne(@Param('id') id: string) {
+    return this.memberInfoService.findOne(+id);
+  }
+
   @Delete(':id')
-  @RequiresPermissions('system:member:list')
+  @RequiresPermissions('system:member:delete')
   remove(@Param('id') id: string) {
     return this.memberInfoService.remove(+id);
   }

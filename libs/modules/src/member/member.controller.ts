@@ -21,16 +21,11 @@ export class MemberController {
     return this.memberService.create(createMemberDto, userId);
   }
 
-  @Get()
-  @RequiresPermissions('system:member:list')
-  findAll() {
-    return this.memberService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.memberService.findOne(+id);
-  }
+  // @Get()
+  // @RequiresPermissions('system:member:list')
+  // findAll() {
+  //   return this.memberService.findAll();
+  // }
 
   /* 会员列表 */
   @Get('list')
@@ -44,6 +39,11 @@ export class MemberController {
   // update(@Param('id') id: string, @Body() updateMemberDto: UpdateMemberDto) {
   //   return this.memberService.update(+id, updateMemberDto);
   // }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.memberService.findOne(+id);
+  }
 
   @Delete(':id')
   @RequiresPermissions('system:member:list')

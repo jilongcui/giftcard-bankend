@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import moment from 'moment';
 import { FindOperator, FindOptionsWhere, LessThan, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
-import { CreateMemberInfoDto } from './dto/request-member-info.dto';
+import { CreateMemberInfoDto, ListMemberInfoDto } from './dto/request-member-info.dto';
 import { CreateMemberDto, ListMemberDto } from './dto/request-member.dto';
 import { MemberInfo } from './entities/member-info.entity';
 import { Member } from './entities/member.entity';
@@ -24,12 +24,12 @@ export class MemberInfoService {
     return this.memberInfoRepository.save(newmember)
   }
 
-  findAll() {
-    return `This action returns all member`;
-  }
+  // findAll() {
+  //   return `This action returns all member`;
+  // }
 
   findOne(id: number) {
-    return `This action returns a #${id} member`;
+    return this.memberInfoRepository.findOne({ where: { id: id }, relations: {} })
   }
 
   // update(id: number, updateMemberDto: UpdateMemberDto) {
@@ -42,20 +42,20 @@ export class MemberInfoService {
   // }
 
   /* 分页查询 */
-  async list(listMemberList: ListMemberDto, paginationDto: PaginationDto): Promise<PaginatedDto<Member>> {
-    let where: FindOptionsWhere<Member> = {}
+  async list(listMemberList: ListMemberInfoDto, paginationDto: PaginationDto): Promise<PaginatedDto<MemberInfo>> {
+    let where: FindOptionsWhere<MemberInfo> = {}
     let result: any;
-    let findOp: FindOperator<Date>
+    // let findOp: FindOperator<Date>
     
-    if( listMemberList.status === '0') // invalid
-      findOp = LessThan(moment().toDate())
-    else if( listMemberList.status === '1') // valid
-      findOp = MoreThanOrEqual(moment().toDate())
-    else findOp = undefined
+    // if( listMemberList.status === '0') // invalid
+    //   findOp = LessThan(moment().toDate())
+    // else if( listMemberList.status === '1') // valid
+    //   findOp = MoreThanOrEqual(moment().toDate())
+    // else findOp = undefined
 
     where =
     {
-      endTime: findOp
+      status: listMemberList.status
     }
 
     result = await this.memberInfoRepository.findAndCount({

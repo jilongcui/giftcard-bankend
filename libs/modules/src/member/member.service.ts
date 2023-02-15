@@ -35,12 +35,16 @@ export class MemberService {
     return this.memberRepository.save(newmember)
   }
 
-  findAll() {
-    return `This action returns all member`;
-  }
+  // findAll() {
+  //   return `This action returns all member`;
+  // }
+
+  // findOne(id: number) {
+  //   return `This action returns a #${id} member`;
+  // }
 
   findOne(id: number) {
-    return `This action returns a #${id} member`;
+    return this.memberRepository.findOne({ where: { id: id }, relations: { user: true, memberInfo: true } })
   }
 
   // update(id: number, updateMemberDto: UpdateMemberDto) {
