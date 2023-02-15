@@ -12,7 +12,7 @@ export class UpdateOrderStatusDto extends PickType(Order, ['status']) { }
 export class ListOrderDto extends PartialType(OmitType(Order, ['activity', 'user', 'collections', 'payment'] as const)) { }
 export class EnrollMemberOrderDto {
     @IsNumber()
-    memberId: number
+    memberInfoId: number
 }
 export class ListUnpayOrderDto {
     @IsOptional()

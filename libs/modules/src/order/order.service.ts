@@ -16,6 +16,7 @@ import { Order } from './entities/order.entity';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../system/user/entities/user.entity';
 import { Magicbox } from '../magicbox/entities/magicbox.entity';
+import { MemberInfo } from '../member/entities/member-info.entity';
 
 @Injectable()
 export class OrderService {
@@ -23,6 +24,7 @@ export class OrderService {
   platformAddress: string
   constructor(
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
+    @InjectRepository(MemberInfo) private readonly memberInfoRepository: Repository<MemberInfo>,
     @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Activity) private readonly activityRepository: Repository<Activity>,
@@ -201,25 +203,20 @@ export class OrderService {
   /* 升级会员订单 */
   async enrollMemberOrder(createOrderDto: EnrollMemberOrderDto, userId: number, userName: string, avatar: string) {
     const orderType = '3' // 升级会员
-    const realPrice = 1.0;
-    const member = {
-      level: 1,
-      period: 1,
-      price: 100.0
-    }
+    const memberInfo = await this.memberInfoRepository.findOneBy({id: createOrderDto.memberInfoId})
     return await this.orderRepository.manager.transaction(async manager => {
       const order = new Order()
       order.type = orderType
       order.status = '1'
       order.userId = userId
       order.userName = userName
-      order.realPrice = member.price
-      order.totalPrice = member.price
-      order.assetId = createOrderDto.memberId
+      order.realPrice = memberInfo.price
+      order.totalPrice = memberInfo.price
+      order.assetId = memberInfo.id
       order.count = 1
       order.desc = '升级会员';
       order.image = avatar
-      order.invalidTime = moment().add(5, 'minute').toDate()
+      order.invalidTime = moment().add(10, 'minute').toDate()
       await manager.save(order);
       return order;
     });

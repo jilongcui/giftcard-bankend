@@ -40,6 +40,7 @@ import { truncate } from 'fs';
 import fs from 'fs';
 import { toInteger } from 'lodash';
 import { Ijsapi } from 'wechatpay-node-v3/dist/lib/interface';
+import { MemberService } from '../member/member.service';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -70,6 +71,7 @@ export class PaymentService {
     private readonly configService: ConfigService,
     private readonly bankcardService: BankcardService,
     private readonly orderService: OrderService,
+    private readonly memberService: MemberService,
     private readonly sharedService: SharedService,
     private readonly sysconfigService: SysConfigService,
     private readonly collectionService: CollectionService,
@@ -823,7 +825,7 @@ export class PaymentService {
 
   async doPaymentComfirmedEnrollmember(payment: Payment, userId: number, userName: string) {
     const order = await this.orderService.findOne(payment.orderId)
-    await this.accountRepository.increment({ userId: payment.userId }, 'usable', order.totalPrice)
+    await this.memberService.create({ memberInfoId: order.assetId},userId)
   }
 }
 //
