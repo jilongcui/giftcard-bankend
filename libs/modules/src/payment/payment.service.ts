@@ -12,7 +12,7 @@ import { SharedService } from '@app/shared';
 import { BankcardService } from '@app/modules/bankcard/bankcard.service';
 import { OrderService } from '@app/modules/order/order.service';
 
-import { ConfirmPayWithCardDto, PayWithCardDto, ReqConfirmPayDto, ReqCryptoNotifyDto, WeixinPayForMemberDto } from './dto/request-payment.dto';
+import { ConfirmPayWithCardDto, PayWithCardDto, ReqConfirmPayDto, ReqCryptoNotifyDto, ReqWeixinPaymentNotifyDto, WeixinPayForMemberDto, WeixinPaymentNotify } from './dto/request-payment.dto';
 import { ReqPaymentNotify, ReqSendSMSDto, ReqSubmitPayDto, WebSignDto, WebSignNotifyDto } from './dto/request-payment.dto';
 import { ConfirmPayResponse, CryptoResponse, PayResponse, SendSMSResponse, WebSignResponse } from './dto/response-payment.dto';
 import { RES_CODE_SUCCESS, RES_NET_CODE } from './payment.const';
@@ -39,6 +39,7 @@ import WxPay from 'wechatpay-node-v3';
 import { truncate } from 'fs';
 import fs from 'fs';
 import { toInteger } from 'lodash';
+import { Ijsapi } from 'wechatpay-node-v3/dist/lib/interface';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -61,6 +62,8 @@ export class PaymentService {
   notifyHost: string
   weixinMerchId: string
   weixinAppId: string
+  weixinApi3Key: string
+  wxPay: WxPay
 
   constructor(
     private readonly httpService: HttpService,
@@ -89,6 +92,7 @@ export class PaymentService {
     this.orderSN = this.configService.get<string>('payment.orderSN')
     this.weixinAppId = this.configService.get<string>('weixinPayment.appId')
     this.weixinMerchId = this.configService.get<string>('weixinPayment.merchId')
+    this.weixinApi3Key = this.configService.get<string>('weixinPayment.api3Key')
 
     this.platformPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
     this.merchSecretKey = this.sharedService.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
@@ -107,6 +111,14 @@ export class PaymentService {
     })
     key2.importKey(this.merchSecretKey, 'pkcs8-private');
     key2.setOptions({ encryptionScheme: 'pkcs1' });
+
+    this.wxPay = new WxPay({
+      appid: this.weixinAppId,
+      mchid: this.weixinMerchId,
+      publicKey: fs.readFileSync('./apiclient_cert.pem'), // 公钥
+      privateKey: fs.readFileSync('./apiclient_key.pem'), // 秘钥
+      key: this.weixinApi3Key, // API3 key
+    });
   }
 
   // 网关签约接口
@@ -314,6 +326,8 @@ export class PaymentService {
             await this.doPaymentComfirmedLv2(order, order.userId)
           } else if (order.type === '2') {
             await this.doPaymentComfirmedRecharge(order.payment, order.userId, order.user.userName)
+          } else if (order.type === '3') {
+            await this.doPaymentComfirmedEnrollmember(order.payment, order.userId, order.user.userName)
           }
         })
       } else {
@@ -694,15 +708,9 @@ export class PaymentService {
   async payWithWeixin(weixinPay: WeixinPayForMemberDto, userId: number, openId: string, userIp: string) {
 
     const order = await this.orderService.findOne(weixinPay.orderId)
-    const wxPay = new WxPay({
-      appid: '直连商户申请的公众号或移动应用appid',
-      mchid: this.weixinMerchId,
-      publicKey: fs.readFileSync('./apiclient_cert.pem'), // 公钥
-      privateKey: fs.readFileSync('./apiclient_key.pem'), // 秘钥
-    });
-    const params = {
-      description: 'mage形象店-深圳腾大-QQ公仔',
-      out_trade_no: '1900006891',
+    const params: Ijsapi = {
+      description: order.desc,
+      out_trade_no: weixinPay.orderId.toString(),
       notify_url: this.notifyHost + '/payment/weixinNotify',
       amount: {
         total: Math.floor(order.totalPrice * 100), // 单位为分
@@ -716,7 +724,7 @@ export class PaymentService {
       },
     };
     console.log(params);
-    const result = await wxPay.transactions_jsapi(params);
+    const result = await this.wxPay.transactions_jsapi(params);
     console.log(result);
     //   {
     //     appId: 'appid',
@@ -742,16 +750,78 @@ export class PaymentService {
   }
 
   // 微信支付通知
-  async weixinPaymentNotify(cryptoNotifyDto: ReqCryptoNotifyDto) {
-    // sign_no 是加密的，我们需要解密
+  async weixinPaymentNotify(cryptoNotifyDto: ReqWeixinPaymentNotifyDto) {
+    const resource = cryptoNotifyDto.resource
+    let asset: Asset | Magicbox
     try {
+      const paymentNotify = this.wxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
+        resource.associated_data, resource.nonce);
+      this.logger.debug("Payment Notice Decoded result: " + paymentNotify)
+      const orderId = paymentNotify.out_trade_no
+      const order = await this.orderRepository.findOne({ where: { id: parseInt(orderId), status: '1' }, relations: { user: true, payment: true } })
+      if (!order) return {code: 200, data: null}
+      if (order.type === '1') { // 二级市场
+        if (order.assetType === '0') { // 藏品
+          asset = await this.assetRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+        } else if (order.assetType === '1') { // 盲盒
+          asset = await this.magicboxRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+        }
+      }
+      if (paymentNotify.trade_state === 'SUCCESS') {
+        // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+        await this.orderRepository.manager.transaction(async manager => {
+          if (order.type === '1') { // 二级市场
+            const ownerId = asset.userId
+            const marketFeeString = await this.sysconfigService.getValue(SYSCONF_MARKET_FEE_KEY)
+            let marketFee = Number(marketFeeString)
 
+            const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
+            if (configString) {
+              const configValue = JSON.parse(configString)
+              const asset = await this.collectionService.hasOne(configValue.collectionId, ownerId)
+              if (asset) {
+                this.logger.debug('collection config ratio ' + configValue.ratio)
+                marketFee = Number(configValue.ratio)
+              }
+            }
+            if (marketFee > 1.0 || marketFee < 0.0) {
+              marketFee = 0.0
+            }
+            marketFee = order.totalPrice * marketFee
+
+            await manager.increment(Account, { userId: asset.userId }, "usable", order.totalPrice - marketFee)
+            await manager.increment(Account, { userId: 1 }, "usable", marketFee)
+          }
+          await manager.update(Payment, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
+          await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
+          if (order.type === '0') {
+            const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
+            // 取消未支付状态
+            await this.redis.del(unpayOrderKey)
+            await this.doPaymentComfirmedLv1(order, order.userId)
+          } else if (order.type === '1') {
+            await this.doPaymentComfirmedLv2(order, order.userId)
+          } else if (order.type === '2') {
+            await this.doPaymentComfirmedRecharge(order.payment, order.userId, order.user.userName)
+          } else if (order.type === '3') {
+            await this.doPaymentComfirmedEnrollmember(order.payment, order.userId, order.user.userName)
+          }
+        })
+      } else {
+        this.logger.error("Payment Notice not success.")
+        return {code: 500, data: {code:'FAIL', message: '微信支付失败'}}
+      }
     } catch (error) {
       this.logger.error("Payment Notice : " + error)
-      return 'error'
+      return {code: 500, data: {code:'FAIL', message: '微信支付失败'}}
     }
 
-  return 'ok'
-}
+    return {code: 200, data: null}
+  }
+
+  async doPaymentComfirmedEnrollmember(payment: Payment, userId: number, userName: string) {
+    const order = await this.orderService.findOne(payment.orderId)
+    await this.accountRepository.increment({ userId: payment.userId }, 'usable', order.totalPrice)
+  }
 }
 //

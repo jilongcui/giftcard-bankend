@@ -106,3 +106,43 @@ export class ReqPaymentNotify {
     status: string
     hy_auth_uid: string
 }
+
+export class ReqWeixinPaymentNotifyDto {
+    id: string
+    create_time: string
+    event_type: string
+    resource_type: string
+    resource: {
+        algorithm: string
+        ciphertext: string
+        associated_data: string
+        original_type: string
+        nonce: string
+    }
+    summary: string
+}
+
+export class WeixinPaymentNotify {
+    transaction_id:string
+    amount:{
+        payer_total:number,
+        total:number,
+        currency:string
+        payer_currency:string
+    }
+    mchid:string
+    trade_state:string
+    bank_type:string
+    success_time:string
+    payer:{
+        openid:string
+    }
+    out_trade_no:string
+    appid:string
+    trade_state_desc:string
+    trade_type:string
+    attach:string
+    scene_info:{
+        device_id:string
+    }
+}

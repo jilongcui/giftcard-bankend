@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, Query, Logger, Header, Render, All } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { ConfirmPayWithCardDto, CreatePaymentDto, PayWithBalanceDto, PayWithCardDto, ReqCryptoNotifyDto, UpdatePaymentDto, WebSignDto, WeixinPayForMemberDto } from './dto/request-payment.dto';
+import { ConfirmPayWithCardDto, CreatePaymentDto, PayWithBalanceDto, PayWithCardDto, ReqCryptoNotifyDto, ReqWeixinPaymentNotifyDto, UpdatePaymentDto, WebSignDto, WeixinPayForMemberDto } from './dto/request-payment.dto';
 import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ApiTags, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { Public } from '@app/common/decorators/public.decorator';
@@ -113,25 +113,14 @@ export class PaymentController {
     response.end(await this.paymentService.paymentNotify(cryptNotifyDto))
   }
 
-  @Get('weixinNotify')
-  @Keep()
+  @Post('weixinNotify')
   @Public()
-  @Header('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
-  // @Header('Content-Type', 'application/json; charset=utf-8')
-  // @Accepts('application/x-www-form-urlencoded', 'application/json', 'text/html')
-  async weixinNotify(@Req() request: Request, @Res() response: Response) {
-    let cryptNotifyDto: ReqCryptoNotifyDto
-    // this.logger.debug(JSON.stringify(request.body))
-    // this.logger.debug(JSON.stringify(request.params))
-    // this.logger.debug(JSON.stringify(request.headers))
-    // this.logger.debug(JSON.stringify(request.query))
-
+  @Keep()
+  // @Header('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
+  @Header('Content-Type', 'application/json; charset=utf-8')
+  async weixinNotify(@Body() cryptNotifyDto: ReqWeixinPaymentNotifyDto, @Res() response: Response) {
     this.logger.debug(JSON.stringify(cryptNotifyDto))
-
-    cryptNotifyDto = request.query
-    this.logger.debug(cryptNotifyDto.agent_id)
-    this.logger.debug(cryptNotifyDto.encrypt_data)
-    this.logger.debug(cryptNotifyDto.sign)
-    response.end(await this.paymentService.weixinPaymentNotify(cryptNotifyDto))
+    const result = await this.paymentService.weixinPaymentNotify(cryptNotifyDto)
+    response.status(result.code).end(result.data)
   }
 }
