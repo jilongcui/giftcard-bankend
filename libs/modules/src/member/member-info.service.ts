@@ -2,37 +2,26 @@ import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as moment from 'moment';
+import moment from 'moment';
 import { FindOperator, FindOptionsWhere, LessThan, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { CreateMemberInfoDto } from './dto/request-member-info.dto';
 import { CreateMemberDto, ListMemberDto } from './dto/request-member.dto';
 import { MemberInfo } from './entities/member-info.entity';
 import { Member } from './entities/member.entity';
 
 @Injectable()
-export class MemberService {
+export class MemberInfoService {
   constructor(
     @InjectRepository(MemberInfo) private readonly memberInfoRepository: Repository<MemberInfo>,
-    @InjectRepository(Member) private readonly memberRepository: Repository<Member>,
   ) {}
 
-  async create(createMemberDto: CreateMemberDto, userId: number) {
-    const memberInfo = await this.memberInfoRepository.findOneBy({id: createMemberDto.memberInfoId})
-    let member = await this.memberRepository.findOneBy({userId: userId})
-    let endTime = moment().add(memberInfo.days, 'days');
-
-    if (member) {
-      if (moment().isBefore(moment(member.endTime))) {
-        endTime = moment(member.endTime).add(memberInfo.days, 'days')
-      }
+  async create(createMemberInfoDto: CreateMemberInfoDto, userId: number) {
+    // const memberInfo = await this.memberInfoRepository.findOneBy({id: createMemberInfoDto.memberInfoId})
+    const newmember: MemberInfo = {
+      ...createMemberInfoDto,
+      id: undefined,
     }
-    const newmember: Member = {
-      id: member? member.id : undefined,
-      memberInfoId: createMemberDto.memberInfoId,
-      userId,
-      startTime: moment().toDate(),
-      endTime: endTime.toDate()
-    }
-    return this.memberRepository.save(newmember)
+    return this.memberInfoRepository.save(newmember)
   }
 
   findAll() {
@@ -47,10 +36,10 @@ export class MemberService {
   //   return `This action updates a #${id} member`;
   // }
 
-  /* 新增或编辑 */
-  async addOrUpdateAll(createMemberDto: CreateMemberDto) {
-    return await this.memberRepository.save(createMemberDto)
-  }
+  // /* 新增或编辑 */
+  // async addOrUpdateAll(createMemberDto: CreateMemberDto) {
+  //   return await this.memberInfoRepository.save(createMemberDto)
+  // }
 
   /* 分页查询 */
   async list(listMemberList: ListMemberDto, paginationDto: PaginationDto): Promise<PaginatedDto<Member>> {
@@ -69,12 +58,12 @@ export class MemberService {
       endTime: findOp
     }
 
-    result = await this.memberRepository.findAndCount({
+    result = await this.memberInfoRepository.findAndCount({
       where,
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
-        updateTime: 'DESC',
+        index: 'DESC',
       }
     })
 

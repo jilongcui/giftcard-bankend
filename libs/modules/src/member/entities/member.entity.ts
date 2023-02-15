@@ -42,7 +42,7 @@ export class Member {
     userId: number
 
     @ApiHideProperty()
-    @ManyToOne(() => User, user => user.bankcards)
+    @OneToOne(() => User, user => user.member)
     @JoinColumn({
         name: 'user_id',
     })
@@ -57,7 +57,7 @@ export class Member {
     memberInfoId: number
 
     @ApiHideProperty()
-    @OneToOne(() => MemberInfo)
+    @ManyToOne(() => MemberInfo)
     @JoinColumn({
         name: 'member_info_id',
     })

@@ -46,6 +46,7 @@ import { MagicboxCollectionController } from './magicbox-collection/magicbox-col
 import { MagicboxService } from '@app/modules/magicbox/magicbox.service';
 import { SubmitterController } from './submitter/submitter.controller';
 import { SubmitterModule } from '@app/modules/submitter/submitter.module';
+import { MemberModule } from '@app/modules/member/member.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService, OrderService, LoginService, CollectionService, AirdropWhitelistService,
@@ -92,6 +93,7 @@ const aliasProviders = createAliasProviders();
     AddressModule,
     CollectModule,
     IdentityModule,
+    MemberModule,
     SmscodeModule,
     CollectionModule,
     ActivityModule,

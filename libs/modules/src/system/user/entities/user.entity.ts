@@ -12,6 +12,7 @@ import { Identity } from "@app/modules/identity/entities/identity.entity";
 import { Order } from "@app/modules/order/entities/order.entity";
 import { Account } from "@app/modules/account/entities/account.entity";
 import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
+import { Member } from "@app/modules/member/entities/member.entity";
 
 @Entity()
 // @Tree("closure-table", {
@@ -221,6 +222,10 @@ export class User extends BaseEntity {
     @ApiHideProperty()
     @OneToOne(() => Identity, identity => identity.user)
     identity: Identity
+
+    @ApiHideProperty()
+    @OneToOne(() => Member, member => member.user)
+    member: Member
 
     @ApiHideProperty()
     @ManyToMany(() => Post, post => post.users)

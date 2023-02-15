@@ -35,6 +35,7 @@ import { PostModule } from '@app/modules/system/post/post.module';
 import { RoleModule } from '@app/modules/system/role/role.module';
 import { SysConfigModule } from '@app/modules/system/sys-config/sys-config.module';
 import { AddressModule } from '@app/modules/wallet/address/address.module';
+import { MemberModule } from '@app/modules/member/member.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
@@ -78,6 +79,7 @@ import { AddressModule } from '@app/modules/wallet/address/address.module';
     ServerModule,
     AddressModule,
     IdentityModule,
+    MemberModule,
     SmscodeModule,
     CollectionModule,
     ActivityModule,

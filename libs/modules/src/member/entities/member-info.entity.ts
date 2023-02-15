@@ -17,11 +17,12 @@ export class MemberInfo {
     })
     @Type()
     @IsNumber()
-    index: number
+    index?: number
 
     /* 会员名称 */
     @Column({
         name: 'name',
+        unique: true,
         length: 50,
         comment: '会员名称'
     })
@@ -65,11 +66,23 @@ export class MemberInfo {
     @IsString()
     level?: string
 
+    /* 状态 0: 未展示 1:展示 */
+    @Column({
+        name: 'status',
+        comment: '状态 0: 未展示 1:展示',
+        type: 'char',
+        default: '1',
+        length: 1
+    })
+    @IsOptional()
+    @IsString()
+    status?: string
+
     @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',
         comment: '创建时间'
     })
-    createTime: number
+    createTime?: number
 }
 
