@@ -18,6 +18,7 @@ import { Magicbox } from '../magicbox/entities/magicbox.entity';
 import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
 import { SysConfigModule } from '../system/sys-config/sys-config.module';
 import { CollectionModule } from '../collection/collection.module';
+import { MemberModule } from '../member/member.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { CollectionModule } from '../collection/collection.module';
     BankcardModule,
     SysConfigModule,
     CollectionModule,
+    MemberModule,
     forwardRef(() => OrderModule)
   ],
   controllers: [PaymentController],

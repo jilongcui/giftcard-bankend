@@ -11,6 +11,7 @@ import { MemberInfoController } from './member-info.controller';
   imports: [
     TypeOrmModule.forFeature([Member, MemberInfo])],
   controllers: [MemberController, MemberInfoController],
-  providers: [MemberService, MemberInfoService]
+  providers: [MemberService, MemberInfoService],
+  exports: [MemberService, MemberInfoService],
 })
 export class MemberModule {}
