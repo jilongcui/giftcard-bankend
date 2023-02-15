@@ -22,3 +22,11 @@ export const User = createParamDecorator(
     return data ? user && user.userId : user
   },
 );
+
+export const UserDec = createParamDecorator(
+  (data: UserEnum, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    const user = request.user;
+    return data ? user && user.userId : user
+  },
+);

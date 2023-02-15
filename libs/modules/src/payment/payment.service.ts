@@ -112,13 +112,15 @@ export class PaymentService {
     key2.importKey(this.merchSecretKey, 'pkcs8-private');
     key2.setOptions({ encryptionScheme: 'pkcs1' });
 
-    this.wxPay = new WxPay({
-      appid: this.weixinAppId,
-      mchid: this.weixinMerchId,
-      publicKey: fs.readFileSync('./apiclient_cert.pem'), // 公钥
-      privateKey: fs.readFileSync('./apiclient_key.pem'), // 秘钥
-      key: this.weixinApi3Key, // API3 key
-    });
+    if(this.weixinApi3Key) {
+      this.wxPay = new WxPay({
+        appid: this.weixinAppId,
+        mchid: this.weixinMerchId,
+        publicKey: fs.readFileSync('./apiclient_cert.pem'), // 公钥
+        privateKey: fs.readFileSync('./apiclient_key.pem'), // 秘钥
+        key: this.weixinApi3Key, // API3 key
+      });
+    }
   }
 
   // 网关签约接口
