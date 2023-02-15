@@ -81,6 +81,7 @@ export interface IConfig {
     weixinPayment?: {
         appId: string,
         merchId: string,
+        api3Key: string,
     }
 
     /* 配置SMS短信 */
