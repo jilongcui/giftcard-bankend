@@ -18,6 +18,7 @@ export class Nano {
     /* 小句内容 */
     @Column({
         name: 'content',
+        type: 'longtext',
         comment: '小句内容'
     })
     @IsString()

@@ -10,8 +10,11 @@ export class OpenDialogDto {
 }
 
 export class PromptDto {
-    @IsNumber()
-    userId: number
+    @IsString()
+    userId: string
+
+    @IsString()
+    dialogId: string
 
     @IsString()
     text: string

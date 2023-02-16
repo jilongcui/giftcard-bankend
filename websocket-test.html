@@ -8,16 +8,19 @@
 
         socket.emit('openDialog', { userId:1, type: '0' }, response => {
 		console.log('openDialog', response)
-		socket.emit('prompt', {userId:1, text: "helloworld"}, response => {
-			console.log('prompt >',response)	
+		socket.emit('prompt', {userId:1, dialogId:1, text: "这个已经看过了，还有其他的书籍推荐吗？"}, response => {
+			console.log('response >',response)	
 		})
 	});
         // socket.emit('identity', 0, response =>
         //  console.log('Identity:', response),
         //);
       });
-      socket.on('openDialog', function(data) {
-        console.log('open', data);
+      socket.on('prompt', function(data) {
+        console.log('prompt> ', data);
+      });
+      socket.on('completion', function(data) {
+        console.log('compl > ', data);
       });
       socket.on('exception', function(data) {
         console.log('event', data);

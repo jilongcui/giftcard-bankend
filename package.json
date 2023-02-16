@@ -67,6 +67,7 @@
     "nanoid": "^3.1.30",
     "node-rsa": "^1.1.1",
     "node-xlsx": "^0.17.2",
+    "openai": "^3.1.0",
     "passport": "^0.5.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

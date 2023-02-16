@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { WsResponse } from '@nestjs/websockets';
+import { Socket } from 'net';
 import { Repository } from 'typeorm';
+import { EngineService } from '../engine/engine.service';
+import { CreateNanoDto } from '../nano/dto/create-nano.dto';
+import { Nano } from '../nano/entities/nano.entity';
 import { OpenDialogDto, PromptDto } from './dto/create-dialog.dto';
 import { UpdateDialogDto } from './dto/update-dialog.dto';
 import { Dialog } from './entities/dialog.entity';
@@ -10,7 +15,10 @@ export class DialogService {
   logger = new Logger(Dialog.name)
   constructor(
     @InjectRepository(Dialog) private readonly dialogRepository: Repository<Dialog>,
+    @InjectRepository(Nano) private readonly nanoRepository: Repository<Nano>,
+    private readonly engine: EngineService,
   ) {
+    
   }
 
   findAll() {
@@ -59,10 +67,37 @@ export class DialogService {
     return `This action removes a #${id} dialog`;
   }
 
-  async prompt(prompt: PromptDto) {
-    // 调用引擎发送 text
+  async prompt(client: Socket, prompt: PromptDto){
     this.logger.debug(`prompt> ${prompt.userId}: ${prompt.text}`)
-    // 等待等待引擎回掉函数
-    return {code: 200};
+
+    if(!prompt.dialogId || !prompt.userId || !prompt.text) {
+      // return {code: 400, message: "输入参数不正确"}
+      client.emit('notice', {code: 400, data: '输入参数不正确'})
+    }
+    const nano: CreateNanoDto = {
+      userId: parseInt(prompt.userId),
+      dialogId: parseInt(prompt.dialogId),
+      type: '0', // prompt
+      content: prompt.text
+    }
+    await this.nanoRepository.save(nano)
+
+    client.emit('notice', {code: 201, data: '思考着，请等待'})
+    // 调用引擎发送 text
+    const result = await this.engine.prompt(prompt.userId, prompt.text)
+
+    // 把记录写入数据库
+    if(result.code === 200) {
+      const nano: CreateNanoDto = {
+        userId: parseInt(prompt.userId),
+        dialogId: parseInt(prompt.dialogId),
+        type: '1', // answer
+        content: result.data.text
+      }
+      await this.nanoRepository.save(nano)
+      client.emit('completion', result)
+    } else {
+      client.emit('notice', result)
+    }
   }
 }

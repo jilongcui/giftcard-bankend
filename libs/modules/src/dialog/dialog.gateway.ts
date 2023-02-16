@@ -1,4 +1,5 @@
-import { WebSocketGateway, SubscribeMessage, MessageBody, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
+import { WebSocketGateway, SubscribeMessage, MessageBody, OnGatewayConnection, OnGatewayDisconnect, ConnectedSocket } from '@nestjs/websockets';
+import { Socket } from 'net';
 import { DialogService } from './dialog.service';
 import { OpenDialogDto, PromptDto } from './dto/create-dialog.dto';
 import { UpdateDialogDto } from './dto/update-dialog.dto';
@@ -26,8 +27,10 @@ export class DialogGateway implements OnGatewayConnection<DialogGateway>, OnGate
   }
 
   @SubscribeMessage('prompt')
-  prompt(@MessageBody() promptDto: PromptDto) {
-    return this.dialogService.prompt(promptDto);
+  prompt(@MessageBody() promptDto: PromptDto, @ConnectedSocket() client: Socket) {
+    const event = 'prompt';
+    this.dialogService.prompt(client, promptDto);
+    return { event, promptDto };
   }
 
   @SubscribeMessage('closeDialog')
