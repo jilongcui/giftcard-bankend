@@ -91,6 +91,7 @@ export class Dialog {
     /* 订单图片 */
     @Column({
         name: 'image',
+        default: null,
         comment: '订单图片'
     })
     @IsOptional()
@@ -111,7 +112,7 @@ export class Dialog {
     createTime: number
 
     @ApiHideProperty()
-    @Column({
+    @CreateDateColumn({
         name: 'last_time',
         type: 'datetime',
         comment: '最后使用时间'
@@ -123,7 +124,7 @@ export class Dialog {
 
     /* 引擎ID */
     @Column({
-        name: 'user_id',
+        name: 'engine_id',
         default: 0,
         comment: '引擎ID'
     })

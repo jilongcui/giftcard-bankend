@@ -1,10 +1,18 @@
-import { IsNumber, IsOptional } from "class-validator";
+import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class OpenDialogDto {
     @IsNumber()
     userId: number
 
     @IsOptional()
-    @IsNumber()
+    @IsString()
     type?: string
+}
+
+export class PromptDto {
+    @IsNumber()
+    userId: number
+
+    @IsString()
+    text: string
 }

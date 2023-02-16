@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateDialogDto } from './create-dialog.dto';
+import { OpenDialogDto } from './create-dialog.dto';
 
-export class UpdateDialogDto extends PartialType(CreateDialogDto) {
+export class UpdateDialogDto extends PartialType(OpenDialogDto) {
   id: number;
 }

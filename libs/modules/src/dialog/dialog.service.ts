@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { OpenDialogDto } from './dto/create-dialog.dto';
+import { OpenDialogDto, PromptDto } from './dto/create-dialog.dto';
 import { UpdateDialogDto } from './dto/update-dialog.dto';
 import { Dialog } from './entities/dialog.entity';
 
 @Injectable()
 export class DialogService {
-  
+  logger = new Logger(Dialog.name)
   constructor(
     @InjectRepository(Dialog) private readonly dialogRepository: Repository<Dialog>,
   ) {
@@ -39,7 +39,7 @@ export class DialogService {
     dialog.status = '1'
     dialog = await this.dialogRepository.save(dialog)
     // 发送准备就绪消息
-    return {dialog};
+    return {code: 200, data: dialog};
   }
 
   async close(id: number) {
@@ -52,17 +52,17 @@ export class DialogService {
     }
     dialog.status = '1'
     dialog = await this.dialogRepository.save(dialog)
-    return `This action close a #${id} dialog`;
+    return {code: 200};
   }
 
   remove(id: number) {
     return `This action removes a #${id} dialog`;
   }
 
-  async prompt(userId: string, text: string) {
+  async prompt(prompt: PromptDto) {
     // 调用引擎发送 text
-
+    this.logger.debug(`prompt> ${prompt.userId}: ${prompt.text}`)
     // 等待等待引擎回掉函数
-
+    return {code: 200};
   }
 }
