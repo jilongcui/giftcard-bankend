@@ -19,8 +19,11 @@
       socket.on('prompt', function(data) {
         console.log('prompt> ', data);
       });
+      socket.on('notice', function(data) {
+        console.log('notice > ', data);
+      });
       socket.on('completion', function(data) {
-        console.log('compl > ', data);
+        console.log('completion > ', data);
       });
       socket.on('exception', function(data) {
         console.log('event', data);

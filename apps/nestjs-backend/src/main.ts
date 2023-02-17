@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { AppModule } from './app.module';
+import { WsAdapter } from '@nestjs/platform-ws';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { setupSwagger } from './setup-swagger'
 import * as history from 'connect-history-api-fallback'
 import { AllExceptionsFilter } from '@app/common/filters/all-exception.filter';
@@ -15,6 +17,8 @@ async function bootstrap() {
   app.setGlobalPrefix("api")
 
   app.disable('x-powered-by')
+
+  // app.useWebSocketAdapter(new IoAdapter(app));
 
   /* 全局参数校验管道 */
   app.useGlobalPipes(new ValidationPipe({

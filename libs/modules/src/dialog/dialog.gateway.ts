@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { WebSocketGateway, SubscribeMessage, MessageBody, OnGatewayConnection, OnGatewayDisconnect, ConnectedSocket } from '@nestjs/websockets';
 import { Socket } from 'net';
 import { DialogService } from './dialog.service';
@@ -7,17 +8,20 @@ import { Dialog } from './entities/dialog.entity';
 
 @WebSocketGateway({
   // path: '/ws',
+  allowEIO3: true,
   cors: {
     origin: '*',
   },
 })
-export class DialogGateway implements OnGatewayConnection<DialogGateway>, OnGatewayDisconnect<DialogGateway> {
+export class DialogGateway implements OnGatewayConnection<WebSocket>, OnGatewayDisconnect<WebSocket> {
+
+  logger = new Logger(DialogGateway.name)
   constructor(private readonly dialogService: DialogService) {}
 
-  handleConnection(client: DialogGateway, ...args: any[]): any {
+  handleConnection(client: WebSocket, ...args: any[]): any {
   }
 
-  handleDisconnect(client: DialogGateway): any {
+  handleDisconnect(client: WebSocket): any {
 
   }
 
