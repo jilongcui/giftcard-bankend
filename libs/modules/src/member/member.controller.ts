@@ -16,7 +16,7 @@ export class MemberController {
   constructor(private readonly memberService: MemberService) {}
 
   @Post()
-  @RequiresPermissions('system:member:create')
+  // @RequiresPermissions('system:member:create')
   create(@Body() createMemberDto: CreateMemberDto, @UserDec(UserEnum.userId) userId: number) {
     return this.memberService.create(createMemberDto, userId);
   }
