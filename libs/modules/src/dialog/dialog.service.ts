@@ -33,7 +33,7 @@ export class DialogService {
     return `This action updates a #${id} dialog`;
   }
 
-  async open(openDialogDto: OpenDialogDto) {
+  async open(openDialogDto: OpenDialogDto, client: Socket) {
     // 寻找是否有已知对话，不存在就创建
     let dialog = await this.dialogRepository.findOneBy({userId: openDialogDto.userId, type: openDialogDto.type})
     if(!dialog) {
@@ -42,6 +42,8 @@ export class DialogService {
     // 初始化Chatgpt引擎
 
     // 等待初始化完成
+    const result = await this.engine.open(openDialogDto.userId.toString())
+    client.emit('completion', result)
 
     // 修改对话状态
     dialog.status = '1'

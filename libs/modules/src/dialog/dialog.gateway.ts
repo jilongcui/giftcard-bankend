@@ -26,8 +26,8 @@ export class DialogGateway implements OnGatewayConnection<WebSocket>, OnGatewayD
   }
 
   @SubscribeMessage('openDialog')
-  create(@MessageBody() createDialogDto: OpenDialogDto) {
-    return this.dialogService.open(createDialogDto);
+  create(@MessageBody() createDialogDto: OpenDialogDto, @ConnectedSocket() client: Socket) {
+    return this.dialogService.open(createDialogDto, client);
   }
 
   @SubscribeMessage('prompt')

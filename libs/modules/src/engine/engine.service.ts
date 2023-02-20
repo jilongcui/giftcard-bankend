@@ -65,6 +65,38 @@ export class EngineService {
     return completeRequest.initText + responses
   }
 
+  async open(userId: string) {
+    let responseList: Array<string>
+    if (!this.configuration.apiKey) {
+      return {code: 500, message:"OpenAI API key not configured, please follow instructions in README.md",}
+    }
+
+    const initText = `下面是一段和AI助理吖吖之间的对话，吖吖是非常聪明、乐于助人还有创造力的女助理。
+
+    Human: 你好，我是用户${userId}，你是谁呢？
+    AI: 我是小荷智联公司的AI助理吖吖。今天有什么需要帮忙的吗？
+    Human:`
+
+    const promptRequest: CreatePromptRequestDto ={
+      completionRequest: null,
+      initText: initText,
+      startText: 'HUMAN:',
+      restartText: 'AI:',
+    }
+
+    // We get history five nano.
+    responseList = this.history.get('user' + userId)
+
+    if (!responseList) {
+      responseList = new Array<string>()
+      responseList.push(promptRequest.initText)
+      this.history.set('user' + userId, responseList)
+    }
+
+    return {code:200, data: {cpmlId: 0, object: null,
+        text:'我是小荷智联公司的AI助理吖吖。今天有什么需要帮忙的吗？'}}
+
+  }
   async prompt(userId: string, intext: string) {
 
     let responseList: Array<string>
@@ -76,11 +108,11 @@ export class EngineService {
     if (text.trim().length === 0) {
       return {code: 400, mssage: "Please enter a valid prompt",}
     }
-    const initText2 = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.
+    // const initText2 = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.
 
-    Human: Hello, who are you?
-    AI: I am an AI created by OpenAI. How can I help you today?
-    Human:`
+    // Human: Hello, who are you?
+    // AI: I am an AI created by OpenAI. How can I help you today?
+    // Human:`
     const initText = `下面是一段和AI助理吖吖之间的对话，吖吖是非常聪明、乐于助人还有创造力的女助理。
 
     Human: 你好，我是用户${userId}，你是谁呢？
