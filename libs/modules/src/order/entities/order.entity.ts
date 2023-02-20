@@ -122,13 +122,15 @@ export class Order {
     /* 订单图片 */
     @Column({
         name: 'image',
+        default: null,
         comment: '订单图片'
     })
+    @IsOptional()
     @IsString()
     @Excel({
         name: '订单图片',
     })
-    image: string
+    image?: string
 
     /* 关联的活动 */
     @Column({

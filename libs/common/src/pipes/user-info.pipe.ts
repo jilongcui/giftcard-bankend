@@ -11,7 +11,8 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
-import { USER_AVATAR_KEY, USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_NICKNAME_KEY, USER_USERNAME_KEY } from '../contants/redis.contant';
+import { USER_AVATAR_KEY, USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_NICKNAME_KEY,
+  USER_OPENID_KEY, USER_USERNAME_KEY } from '../contants/redis.contant';
 import { UserEnum } from '../decorators/user.decorator';
 
 @Injectable()
@@ -26,5 +27,6 @@ export class UserInfoPipe implements PipeTransform {
     if (data === UserEnum.deptId) return await this.redis.get(`${USER_DEPTID_KEY}:${value}`);
     if (data === UserEnum.deptName) return await this.redis.get(`${USER_DEPTNAME_KEY}:${value}`);
     if (data === UserEnum.avatar) return await this.redis.get(`${USER_AVATAR_KEY}:${value}`);
+    if (data === UserEnum.openId) return await this.redis.get(`${USER_OPENID_KEY}:${value}`);
   }
 }
