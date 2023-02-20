@@ -34,12 +34,12 @@ export class DialogService {
   }
 
   async open(openDialogDto: OpenDialogDto, client: Socket) {
-    if(!(openDialogDto.appmodelId || openDialogDto.type || 1) || !openDialogDto.userId ) {
+    if(!(openDialogDto.appmodelId || 1) || !openDialogDto.userId ) {
       // return {code: 400, message: "输入参数不正确"}
       client.emit('notice', {code: 400, data: '输入参数不正确'})
       return
     }
-    openDialogDto.appmodelId = openDialogDto.appmodelId || openDialogDto.type
+    openDialogDto.appmodelId = openDialogDto.appmodelId || '1'
     // 寻找是否有已知对话，不存在就创建
     let dialog = await this.dialogRepository.findOneBy({userId: openDialogDto.userId, appmodelId: openDialogDto.appmodelId})
     if(!dialog) {
