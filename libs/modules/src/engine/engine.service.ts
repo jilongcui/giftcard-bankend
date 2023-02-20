@@ -89,7 +89,6 @@ export class EngineService {
 
     if (!responseList) {
       responseList = new Array<string>()
-      responseList.push(promptRequest.initText)
       this.history.set('user' + userId, responseList)
     }
 
@@ -142,7 +141,7 @@ export class EngineService {
 
     if (!responseList) {
       responseList = new Array<string>()
-      responseList.push(promptRequest.initText)
+      // responseList.push(promptRequest.initText)
       this.history.set('user' + userId, responseList)
     }
     completionRequest.prompt = this.generatePrompt(promptRequest, responseList)
