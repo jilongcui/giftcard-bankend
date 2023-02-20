@@ -59,6 +59,7 @@ export class PaymentService {
   orderSN: string
   platformAddress: string
   notifyHost: string
+  weixinNotifyHost: string
   weixinMerchId: string
   weixinAppId: string
   weixinApi3Key: string
@@ -93,6 +94,7 @@ export class PaymentService {
     this.weixinAppId = this.configService.get<string>('weixinPayment.appId')
     this.weixinMerchId = this.configService.get<string>('weixinPayment.merchId')
     this.weixinApi3Key = this.configService.get<string>('weixinPayment.api3Key')
+    this.weixinNotifyHost = this.configService.get<string>('weixinPayment.notifyHost')
 
     this.platformPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
     this.merchSecretKey = this.sharedService.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
@@ -706,7 +708,7 @@ export class PaymentService {
     const params: Ijsapi = {
       description: order.desc,
       out_trade_no: weixinPay.orderId.toString(),
-      notify_url: this.notifyHost + '/payment/weixinNotify',
+      notify_url: this.weixinNotifyHost + '/payment/weixinNotify',
       amount: {
         total: Math.floor(order.totalPrice * 100), // 单位为分
         currency: 'CNY',

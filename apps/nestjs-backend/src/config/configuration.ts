@@ -82,6 +82,7 @@ export interface IConfig {
         appId: string,
         merchId: string,
         api3Key: string,
+        notifyHost: string,
     }
 
     /* 配置SMS短信 */
