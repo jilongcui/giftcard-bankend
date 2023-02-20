@@ -17,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { User } from '../system/user/entities/user.entity';
 import { Magicbox } from '../magicbox/entities/magicbox.entity';
 import { MemberInfo } from '../member/entities/member-info.entity';
+import strRandom from 'string-random';
 
 @Injectable()
 export class OrderService {
@@ -185,6 +186,7 @@ export class OrderService {
     const orderType = '2'
     return await this.orderRepository.manager.transaction(async manager => {
       const order = new Order()
+      order.id = parseInt(strRandom(8, {letters: false}))
       order.type = orderType
       order.status = '1'
       order.userId = userId
@@ -206,6 +208,7 @@ export class OrderService {
     const memberInfo = await this.memberInfoRepository.findOneBy({id: createOrderDto.memberInfoId})
     return await this.orderRepository.manager.transaction(async manager => {
       const order = new Order()
+      order.id = parseInt(strRandom(8, {letters: false}))
       order.type = orderType
       order.status = '1'
       order.userId = userId

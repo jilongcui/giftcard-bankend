@@ -63,7 +63,7 @@ export class PaymentController {
 
   @Post('weixinPay')
   async weixinPay(@Body() payForMember: WeixinPayForMemberDto, @UserDec(UserEnum.userId) userId: number,
-    @UserDec(UserEnum.openId) openId: string, @Req() request: Request) {
+    @UserDec(UserEnum.openId, UserInfoPipe) openId: string, @Req() request: Request) {
     const ipaddr = this.sharedService.getReqIP(request)
     return await this.paymentService.payWithWeixin(payForMember, userId, openId, ipaddr);
   }
