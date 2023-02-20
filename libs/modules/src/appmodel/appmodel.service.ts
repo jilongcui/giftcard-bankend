@@ -22,6 +22,7 @@ export class AppmodelService {
     let result: any;
     where = listAppmodelDto;
     result = await this.appmodelRepository.findAndCount({
+      select: ['id', 'name', 'desc', 'image', 'createTime', 'index'],
       where,
       skip: paginationDto.skip,
       take: paginationDto.take,
