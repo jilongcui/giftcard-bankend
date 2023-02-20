@@ -73,7 +73,7 @@ export class Payment {
 
     @Column({
         name: 'bankcard_id',
-        default: 0,
+        default: null,
         comment: '关联的银行卡'
     })
     @IsOptional()

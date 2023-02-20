@@ -113,7 +113,7 @@ export class PaymentController {
     response.end(await this.paymentService.paymentNotify(cryptNotifyDto))
   }
 
-  @Post('weixinNotify')
+  @Post(['weixinNotify','wxNotify'])
   @Public()
   @Keep()
   // @Header('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
