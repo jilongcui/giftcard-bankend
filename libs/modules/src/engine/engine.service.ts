@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CreateEngineDto } from './dto/create-engine.dto';
+import { CreateCompletionRequestDto, CreateEngineDto, CreatePromptRequestDto } from './dto/create-engine.dto';
 import { UpdateEngineDto } from './dto/update-engine.dto';
 
-import { Configuration, OpenAIApi } from "openai";
+import { Configuration, OpenAIApi, CreateCompletionRequest } from "openai";
+import { response } from 'express';
 
 @Injectable()
 export class EngineService {
@@ -13,6 +14,7 @@ export class EngineService {
   organization: string
   apiKey: string
   temperature: number
+  history: Map<string, Array<string>>
   
   constructor( ) {
     this.logger = new Logger(EngineService.name)
@@ -31,6 +33,7 @@ export class EngineService {
       organization: this.organization,
     });
     this.openai = new OpenAIApi(this.configuration);
+    this.history = new Map()
   }
 
 
@@ -54,8 +57,16 @@ export class EngineService {
     return `This action removes a #${id} engine`;
   }
 
+  generatePrompt(completeRequest: CreatePromptRequestDto, responseList: Array<string> ) {
+    responseList.shift()
+    responseList.push(completeRequest.completionRequest.prompt.toString() +'\n'+ completeRequest.restartText)
+    const responses = responseList.join('')
+    return completeRequest.initText + responses
+  }
+
   async prompt(userId: string, intext: string) {
 
+    let responseList: Array<string>
     if (!this.configuration.apiKey) {
       return {code: 500, message:"OpenAI API key not configured, please follow instructions in README.md",}
     }
@@ -64,15 +75,45 @@ export class EngineService {
     if (text.trim().length === 0) {
       return {code: 400, mssage: "Please enter a valid prompt",}
     }
+    const initText = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.
+
+    Human: Hello, who are you?
+    AI: I am an AI created by OpenAI. How can I help you today?
+    Human:`
+    const completionRequest: CreateCompletionRequest = {
+      model: this.model,
+      prompt: text,
+      max_tokens: 300,
+      frequency_penalty: 0,
+      presence_penalty: 0.6,
+      temperature: 0.9,
+      top_p: 1,
+      user: "YaYaUser" + userId,
+      stop: [" Human:"," AI:"],
+      
+    }
+
+    const promptRequest: CreatePromptRequestDto ={
+      completionRequest: completionRequest,
+      initText: initText,
+      startText: 'HUMAN:',
+      restartText: 'AI:',
+    }
+    // We get history five nano.
+    responseList = this.history.get('user' + userId)
+
+    if (!responseList) {
+      responseList = new Array(5)
+      responseList.push(promptRequest.initText)
+      this.history.set('user' + userId, responseList)
+    }
+    completionRequest.prompt = this.generatePrompt(promptRequest, responseList)
+    this.logger.debug(completionRequest.prompt)
     try {
-      const completion = await this.openai.createCompletion({
-        model: this.model,
-        temperature: this.temperature,
-        prompt: text,
-        max_tokens: 1000,
-        user: "YaYaUser"+userId
-      });
+      const completion = await this.openai.createCompletion(completionRequest);
       this.logger.debug(completion.data)
+      // push new reponse to reponsesList
+      responseList.push(completion.data.choices[0].text + '\n' + promptRequest.startText)
       return {code:200, data: {cpmlId: completion.data.id, object: completion.data.object,
         text:completion.data.choices[0].text}}
     } catch(error) {
