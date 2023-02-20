@@ -75,6 +75,7 @@ export class DialogService {
     if(!prompt.dialogId || !prompt.userId || !prompt.text) {
       // return {code: 400, message: "输入参数不正确"}
       client.emit('notice', {code: 400, data: '输入参数不正确'})
+      return
     }
     const nano: CreateNanoDto = {
       userId: parseInt(prompt.userId),
@@ -84,7 +85,7 @@ export class DialogService {
     }
     await this.nanoRepository.save(nano)
 
-    client.emit('notice', {code: 201, data: '思考着，请等待'})
+    // client.emit('notice', {code: 201, data: '思考着，请等待'})
     // 调用引擎发送 text
     const result = await this.engine.prompt(prompt.userId, prompt.text)
 

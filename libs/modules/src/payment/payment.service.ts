@@ -752,7 +752,7 @@ export class PaymentService {
     try {
       const paymentNotify = this.wxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
         resource.associated_data, resource.nonce);
-      this.logger.debug("Payment Notice Decoded result: " + paymentNotify)
+      this.logger.debug("Payment Notice Decoded result: " + JSON.stringify(paymentNotify))
       const orderId = paymentNotify.out_trade_no
       const order = await this.orderRepository.findOne({ where: { id: parseInt(orderId), status: '1' }, relations: { user: true, payment: true } })
       if (!order) return {code: 200, data: null}
