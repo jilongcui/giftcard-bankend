@@ -36,9 +36,7 @@ import { SysConfigService } from '../system/sys-config/sys-config.service';
 import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
 import { CreateMagicboxRecordDto } from '../magicbox/dto/request-magicbox-record.dto';
 import WxPay from 'wechatpay-node-v3';
-import { truncate } from 'fs';
-import fs from 'fs';
-import { toInteger } from 'lodash';
+import { WECHAT_PAY_MANAGER } from 'nest-wechatpay-node-v3';
 import { Ijsapi } from 'wechatpay-node-v3/dist/lib/interface';
 import { MemberService } from '../member/member.service';
 
@@ -64,7 +62,6 @@ export class PaymentService {
   weixinMerchId: string
   weixinAppId: string
   weixinApi3Key: string
-  wxPay: WxPay
 
   constructor(
     private readonly httpService: HttpService,
@@ -87,6 +84,7 @@ export class PaymentService {
     @InjectRepository(MagicboxRecord) private readonly magicboxRecordRepository: Repository<MagicboxRecord>,
     @InjectRedis() private readonly redis: Redis,
     @Inject('CHAIN_SERVICE') private client: ClientProxy,
+    @Inject(WECHAT_PAY_MANAGER) private wxPay: WxPay
   ) {
     this.baseUrl = this.configService.get<string>('payment.baseUrl')
     this.notifyHost = this.configService.get<string>('payment.notifyHost')
@@ -115,13 +113,6 @@ export class PaymentService {
     key2.setOptions({ encryptionScheme: 'pkcs1' });
 
     if(this.weixinApi3Key) {
-      this.wxPay = new WxPay({
-        appid: this.weixinAppId,
-        mchid: this.weixinMerchId,
-        publicKey: fs.readFileSync('./apiclient_cert.pem'), // 公钥
-        privateKey: fs.readFileSync('./apiclient_key.pem'), // 秘钥
-        key: this.weixinApi3Key, // API3 key
-      });
     }
   }
 

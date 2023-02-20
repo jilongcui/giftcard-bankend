@@ -19,6 +19,8 @@ import { MagicboxRecord } from '../magicbox/entities/magicbox-record.entity';
 import { SysConfigModule } from '../system/sys-config/sys-config.module';
 import { CollectionModule } from '../collection/collection.module';
 import { MemberModule } from '../member/member.module';
+import { WeChatPayModule } from 'nest-wechatpay-node-v3';
+import { readFileSync } from 'fs';
 
 @Module({
   imports: [
@@ -30,6 +32,17 @@ import { MemberModule } from '../member/member.module';
     ClientsModule.register([
       { name: 'CHAIN_SERVICE', transport: Transport.TCP, options: { port: 4000 } },
     ]),
+    WeChatPayModule.registerAsync({
+      useFactory: async () => {
+        return {
+          appid: process.env.WEIXIN_APPID,
+          mchid: process.env.WEIXIN_MCHID,
+          publicKey: readFileSync('./certs/apiclient_cert.pem'), // 公钥
+          privateKey: readFileSync('./certs/apiclient_key.pem'), // 秘钥
+          key: process.env.WEIXIN_API3KEY,
+        };
+      },
+    }),
     ChainModule,
     BankcardModule,
     SysConfigModule,
