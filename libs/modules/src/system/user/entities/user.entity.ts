@@ -90,7 +90,7 @@ export class User extends BaseEntity {
     /* 微信OpenID */
     @Column({
         comment: '微信OpenID',
-        length: 30,
+        length: 128,
         default: null
     })
     @IsOptional()
