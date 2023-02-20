@@ -34,7 +34,7 @@ export class DialogService {
   }
 
   async open(openDialogDto: OpenDialogDto, client: Socket) {
-    if(!(openDialogDto.appmodelId || openDialogDto.type) || !openDialogDto.userId ) {
+    if(!(openDialogDto.appmodelId || openDialogDto.type || 1) || !openDialogDto.userId ) {
       // return {code: 400, message: "输入参数不正确"}
       client.emit('notice', {code: 400, data: '输入参数不正确'})
       return
