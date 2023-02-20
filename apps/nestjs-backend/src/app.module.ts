@@ -49,6 +49,7 @@ import { SubmitterModule } from '@app/modules/submitter/submitter.module';
 import { MemberModule } from '@app/modules/member/member.module';
 import { DialogModule } from '@app/modules/dialog/dialog.module';
 import { NanoModule } from '@app/modules/nano/nano.module';
+import { AppmodelModule } from '@app/modules/appmodel/appmodel.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService, OrderService, LoginService, CollectionService, AirdropWhitelistService,
@@ -115,6 +116,7 @@ const aliasProviders = createAliasProviders();
     SubmitterModule,
     DialogModule,
     NanoModule,
+    AppmodelModule,
   ],
   providers: [...aliasProviders],
   controllers: [MagicboxController, MagicboxCollectionController, SubmitterController]

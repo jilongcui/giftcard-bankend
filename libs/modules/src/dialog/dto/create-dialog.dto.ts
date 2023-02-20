@@ -7,6 +7,10 @@ export class OpenDialogDto {
     @IsOptional()
     @IsString()
     type?: string
+
+    @IsOptional()
+    @IsString()
+    appmodelId?: string
 }
 
 export class PromptDto {

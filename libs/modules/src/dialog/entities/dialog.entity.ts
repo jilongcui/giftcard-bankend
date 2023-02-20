@@ -141,6 +141,19 @@ export class Dialog {
     // })
     // user: Engine
 
+    /* 应用模型ID */
+    @Column({
+        name: 'appmodel_id',
+        default: '0',
+        comment: '应用模型ID'
+    })
+    @IsOptional()
+    @IsString()
+    @Excel({
+        name: '应用模型ID',
+    })
+    appmodelId?: string
+
     /* 所属用户 */
     @Column({
         name: 'user_id',

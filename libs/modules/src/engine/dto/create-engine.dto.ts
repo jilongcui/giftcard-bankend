@@ -7,8 +7,9 @@ export interface CreateCompletionRequestDto extends CreateCompletionRequest {
     restartText?: string | null
 }
 
-export interface CreatePromptRequestDto {
-    completionRequest: CreateCompletionRequest
+export interface CompletionPresetDto {
+    completion: CreateCompletionRequest
+    historyLength: number | 10
     initText?: string | null
     startText?: string | null
     restartText?: string | null

@@ -1,9 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CreateCompletionRequestDto, CreateEngineDto, CreatePromptRequestDto } from './dto/create-engine.dto';
+import { CompletionPresetDto, CreateCompletionRequestDto, CreateEngineDto } from './dto/create-engine.dto';
 import { UpdateEngineDto } from './dto/update-engine.dto';
 
 import { Configuration, OpenAIApi, CreateCompletionRequest } from "openai";
 import { response } from 'express';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Appmodel } from '../appmodel/entities/appmodel.entity';
 
 @Injectable()
 export class EngineService {
@@ -15,8 +18,11 @@ export class EngineService {
   apiKey: string
   temperature: number
   history: Map<string, Array<string>>
+  presetMap: Map<string, Appmodel>
   
-  constructor( ) {
+  constructor(
+    @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>, 
+  ) {
     this.logger = new Logger(EngineService.name)
     this.organization = process.env.OPENAI_ORGANIZATION
     this.apiKey = process.env.OPENAI_APIKEY
@@ -34,6 +40,7 @@ export class EngineService {
     });
     this.openai = new OpenAIApi(this.configuration);
     this.history = new Map()
+    this.presetMap = new Map()
   }
 
 
@@ -57,32 +64,33 @@ export class EngineService {
     return `This action removes a #${id} engine`;
   }
 
-  generatePrompt(completeRequest: CreatePromptRequestDto, responseList: Array<string> ) {
-    if(responseList.length > 10)
+  generatePrompt(preset: CompletionPresetDto, text: string, responseList: Array<string> ) {
+    if(responseList.length > preset.historyLength)
       responseList.shift()
-    responseList.push(completeRequest.completionRequest.prompt.toString() +'\n'+ completeRequest.restartText)
+    responseList.push(text +'\n'+ preset.restartText)
     const responses = responseList.join('')
-    return completeRequest.initText + responses
+    return preset.initText + responses
   }
 
-  async open(userId: string) {
+  async open(appmodelId: number, userId: string, userName: string) {
     let responseList: Array<string>
     if (!this.configuration.apiKey) {
-      return {code: 500, message:"OpenAI API key not configured, please follow instructions in README.md",}
+      return {code: 500, data:"OpenAI API key not configured, please follow instructions in README.md",}
     }
 
-    const initText = `下面是一段和AI助理吖吖之间的对话，吖吖是非常聪明、乐于助人还有创造力的女助理。
+    if(!userName)
+      userName = '用户' + userId
+    const appModel = await this.appmodelRepository.findOneBy({id: appmodelId})
+    // this.logger.debug(appModel)
 
-    Human: 你好，我是用户${userId}，你是谁呢？
-    AI: 我是小荷智联公司的AI助理吖吖。今天有什么需要帮忙的吗？
-    Human:`
-
-    const promptRequest: CreatePromptRequestDto ={
-      completionRequest: null,
-      initText: initText,
-      startText: 'HUMAN:',
-      restartText: 'AI:',
+    if(!appModel) {
+      return {code: 500, data:"App Model is not exist.",}
     }
+    const initText = appModel.preset.initText.replace('${username}', userName)
+    appModel.preset.initText = initText
+    appModel.preset.completion.user = 'YaYaUser'+appmodelId + '-' +userId, 
+    // We save appmodel 
+    this.presetMap.set(appmodelId + '-' +userId, appModel)
 
     // We get history five nano.
     responseList = this.history.get('user' + userId)
@@ -93,66 +101,38 @@ export class EngineService {
     }
 
     return {code:200, data: {cpmlId: 0, object: null,
-        text:'我是小荷智联公司的AI助理吖吖。今天有什么需要帮忙的吗？'}}
-
+        text:'我是AI助理吖吖。今天有什么需要帮忙的吗？'}}
   }
-  async prompt(userId: string, intext: string) {
+
+  async prompt(appmodelId: string, userId: string, intext: string) {
 
     let responseList: Array<string>
-    if (!this.configuration.apiKey) {
-      return {code: 500, message:"OpenAI API key not configured, please follow instructions in README.md",}
+    // We get history five nano.
+    responseList = this.history.get('user' + userId)
+    // We get promptpreset model
+    if (!responseList) {
+      return {code: 500, message:"Need open first!",}
     }
-
+    const appmodel = this.presetMap.get(appmodelId + '-' + userId)
+    if (!appmodel) {
+      return {code: 500, message:"Need open first!",}
+    }
     const text = intext || '';
     if (text.trim().length === 0) {
       return {code: 400, mssage: "Please enter a valid prompt",}
     }
-    // const initText2 = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.
-
-    // Human: Hello, who are you?
-    // AI: I am an AI created by OpenAI. How can I help you today?
-    // Human:`
-    const initText = `下面是一段和AI助理吖吖之间的对话，吖吖是非常聪明、乐于助人还有创造力的女助理。
-
-    Human: 你好，我是用户${userId}，你是谁呢？
-    AI: 我是小荷智联公司的AI助理吖吖。今天有什么需要帮忙的吗？
-    Human:`
-    const completionRequest: CreateCompletionRequest = {
-      model: this.model,
-      prompt: text,
-      max_tokens: 300,
-      frequency_penalty: 0,
-      presence_penalty: 0.6,
-      temperature: 0.9,
-      top_p: 1,
-      user: "YaYaUser" + userId,
-      stop: [" Human:"," AI:"],
-      
-    }
-
-    const promptRequest: CreatePromptRequestDto ={
-      completionRequest: completionRequest,
-      initText: initText,
-      startText: 'HUMAN:',
-      restartText: 'AI:',
-    }
-    // We get history five nano.
-    responseList = this.history.get('user' + userId)
-
-    if (!responseList) {
-      responseList = new Array<string>()
-      // responseList.push(promptRequest.initText)
-      this.history.set('user' + userId, responseList)
-    }
-    completionRequest.prompt = this.generatePrompt(promptRequest, responseList)
+    
+    const completionRequest = appmodel.preset.completion
+    
+    completionRequest.prompt = this.generatePrompt(appmodel.preset, intext, responseList)
     this.logger.debug(completionRequest.prompt)
     try {
       const completion = await this.openai.createCompletion(completionRequest);
-      this.logger.debug(completion.data)
+      // this.logger.debug(completion.data)
       // push new reponse to reponsesList
       if(responseList.length > 10)
         responseList.shift()
-      responseList.push(completion.data.choices[0].text + '\n' + promptRequest.startText)
+      responseList.push(completion.data.choices[0].text + '\n' + appmodel.preset.startText)
       return {code:200, data: {cpmlId: completion.data.id, object: completion.data.object,
         text:completion.data.choices[0].text}}
     } catch(error) {
