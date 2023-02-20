@@ -66,7 +66,6 @@ export class Payment {
     /* 一级市场 */
     @ApiHideProperty()
     @OneToOne(() => Order, order => order.payment)
-    @IsOptional()
     @JoinColumn({
         name: 'order_id',
     })
@@ -74,6 +73,7 @@ export class Payment {
 
     @Column({
         name: 'bankcard_id',
+        default: 0,
         comment: '关联的银行卡'
     })
     @IsOptional()
@@ -84,6 +84,7 @@ export class Payment {
     /* 关联的银行卡 */
     @ApiHideProperty()
     @ManyToOne(() => Bankcard)
+    @IsOptional()
     @JoinColumn({
         name: 'bankcard_id',
     })

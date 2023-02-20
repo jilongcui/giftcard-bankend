@@ -96,6 +96,7 @@ export class OrderService {
     // 一级市场活动创建订单
     return await this.orderRepository.manager.transaction(async manager => {
       const order = new Order();
+      order.id = parseInt('1' + strRandom(8, {letters: false}))
       order.type = orderType;
       order.status = '1';
       order.userId = userId;
@@ -142,6 +143,7 @@ export class OrderService {
       throw new ApiException('无法创建订单', 401)
     }
     const order = new Order()
+    order.id = parseInt('1' + strRandom(8, {letters: false}))
     order.type = orderType
     order.status = '1'
     order.userId = userId
@@ -186,7 +188,7 @@ export class OrderService {
     const orderType = '2'
     return await this.orderRepository.manager.transaction(async manager => {
       const order = new Order()
-      order.id = parseInt(strRandom(8, {letters: false}))
+      order.id = parseInt('1' + strRandom(8, {letters: false}))
       order.type = orderType
       order.status = '1'
       order.userId = userId
@@ -208,7 +210,7 @@ export class OrderService {
     const memberInfo = await this.memberInfoRepository.findOneBy({id: createOrderDto.memberInfoId})
     return await this.orderRepository.manager.transaction(async manager => {
       const order = new Order()
-      order.id = parseInt(strRandom(8, {letters: false}))
+      order.id = parseInt('1' + strRandom(8, {letters: false}))
       order.type = orderType
       order.status = '1'
       order.userId = userId

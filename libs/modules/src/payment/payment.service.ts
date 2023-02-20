@@ -324,7 +324,7 @@ export class PaymentService {
           } else if (order.type === '2') {
             await this.doPaymentComfirmedRecharge(order.payment, order.userId, order.user.userName)
           } else if (order.type === '3') {
-            await this.doPaymentComfirmedEnrollmember(order.payment, order.userId, order.user.userName)
+            await this.doPaymentComfirmedEnrollmember(order, order.userId, order.user.userName)
           }
         })
       } else {
@@ -733,15 +733,14 @@ export class PaymentService {
     //   }
 
     // 我们需要把这个支付订单创建成功的标记，保存起来
-    const payment = new Payment()
-    payment.type = '2' // 微信支付
-    payment.status = '1' // 支付中
-    payment.bankcardId = 0
-    payment.orderId = weixinPay.orderId
-    payment.userId = userId
-    payment.orderTokenId = result.package.substr(10) // trim('prepay_id=')
-
-    await this.paymentRepository.save(payment)
+    // const payment = new Payment()
+    // payment.type = '2' // 微信支付
+    // payment.status = '1' // 支付中
+    // payment.bankcardId = null
+    // payment.orderId = weixinPay.orderId
+    // payment.userId = userId
+    // payment.orderTokenId = result.package.substr(10) // trim('prepay_id=')
+    // await this.paymentRepository.save(payment)
 
     return result
   }
@@ -789,7 +788,6 @@ export class PaymentService {
             await manager.increment(Account, { userId: asset.userId }, "usable", order.totalPrice - marketFee)
             await manager.increment(Account, { userId: 1 }, "usable", marketFee)
           }
-          await manager.update(Payment, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
           await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
           if (order.type === '0') {
             const unpayOrderKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
@@ -801,7 +799,7 @@ export class PaymentService {
           } else if (order.type === '2') {
             await this.doPaymentComfirmedRecharge(order.payment, order.userId, order.user.userName)
           } else if (order.type === '3') {
-            await this.doPaymentComfirmedEnrollmember(order.payment, order.userId, order.user.userName)
+            await this.doPaymentComfirmedEnrollmember(order, order.userId, order.user.userName)
           }
         })
       } else {
@@ -816,8 +814,7 @@ export class PaymentService {
     return {code: 200, data: null}
   }
 
-  async doPaymentComfirmedEnrollmember(payment: Payment, userId: number, userName: string) {
-    const order = await this.orderService.findOne(payment.orderId)
+  async doPaymentComfirmedEnrollmember(order: Order, userId: number, userName: string) {
     await this.memberService.create({ memberInfoId: order.assetId},userId)
   }
 }
