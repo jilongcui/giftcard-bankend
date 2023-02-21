@@ -58,6 +58,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
                 redis: {
                     host: configService.get<string>('bullRedis.host'),
                     port: configService.get<number>('bullRedis.port'),
+                    db: configService.get<number>('bullRedis.db'),
                     password: configService.get<string>('bullRedis.password'),
                 }
             }),

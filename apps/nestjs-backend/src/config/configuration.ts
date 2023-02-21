@@ -68,7 +68,8 @@ export interface IConfig {
 
     bullRedis?: {
         host: string,
-        port: string
+        port: string,
+        db: string,
         password: string,
     }
 

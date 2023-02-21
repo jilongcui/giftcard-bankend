@@ -1,3 +1,4 @@
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { Logger } from '@nestjs/common';
 import { WebSocketGateway, SubscribeMessage, MessageBody, OnGatewayConnection, OnGatewayDisconnect, ConnectedSocket } from '@nestjs/websockets';
 import { Socket } from 'net';
@@ -26,7 +27,8 @@ export class DialogGateway implements OnGatewayConnection<WebSocket>, OnGatewayD
   }
 
   @SubscribeMessage('openDialog')
-  create(@MessageBody() createDialogDto: OpenDialogDto, @ConnectedSocket() client: Socket) {
+  create(@MessageBody() createDialogDto: OpenDialogDto, @UserDec(UserEnum.userId) userId: number, @ConnectedSocket() client: Socket) {
+    this.logger.debug(`openDialog userId ${userId}`)
     return this.dialogService.open(createDialogDto, client);
   }
 
