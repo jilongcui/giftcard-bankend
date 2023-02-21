@@ -10,6 +10,7 @@ export interface CreateCompletionRequestDto extends CreateCompletionRequest {
 export interface CompletionPresetDto {
     completion: CreateCompletionRequest
     historyLength: number | 10
+    welcomeText?: string | null
     initText?: string | null
     startText?: string | null
     restartText?: string | null

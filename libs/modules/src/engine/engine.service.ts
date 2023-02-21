@@ -67,8 +67,14 @@ export class EngineService {
   generatePrompt(preset: CompletionPresetDto, text: string, responseList: Array<string> ) {
     if(responseList.length > preset.historyLength)
       responseList.shift()
-    responseList.push(text +'\n'+ preset.restartText)
-    const responses = responseList.join('')
+    let responses;
+    if(preset.historyLength > 0) {
+      responseList.push(text +'\n'+ preset.restartText)
+      responses = responseList.join('')
+    } else {
+      responses = text +'\n'+ preset.restartText
+    }
+      
     return preset.initText + responses
   }
 
@@ -101,7 +107,7 @@ export class EngineService {
     }
 
     return {code:200, data: {cpmlId: 0, object: null,
-        text:'我是AI助理吖吖。今天有什么需要帮忙的吗？'}}
+        text: appModel.preset.welcomeText}}
   }
 
   async prompt(appmodelId: string, userId: string, intext: string) {
@@ -132,7 +138,8 @@ export class EngineService {
       // push new reponse to reponsesList
       if(responseList.length > 10)
         responseList.shift()
-      responseList.push(completion.data.choices[0].text + '\n' + appmodel.preset.startText)
+      if(appmodel.preset.historyLength > 0)
+        responseList.push(completion.data.choices[0].text + '\n' + appmodel.preset.startText)
       return {code:200, data: {cpmlId: completion.data.id, object: completion.data.object,
         text:completion.data.choices[0].text}}
     } catch(error) {
