@@ -67,13 +67,8 @@ export class EngineService {
   generatePrompt(preset: CompletionPresetDto, text: string, responseList: Array<string> ) {
     if(responseList.length > preset.historyLength)
       responseList.shift()
-    let responses;
-    if(preset.historyLength > 0) {
-      responseList.push(text +'\n'+ preset.restartText)
-      responses = responseList.join('')
-    } else {
-      responses = text +'\n'+ preset.restartText
-    }
+    responseList.push(text +'\n'+ preset.restartText)
+    const responses = responseList.join('')
       
     return preset.initText + responses
   }
@@ -138,12 +133,13 @@ export class EngineService {
       // push new reponse to reponsesList
       if(responseList.length > 10)
         responseList.shift()
-      if(appmodel.preset.historyLength > 0)
-        responseList.push(completion.data.choices[0].text + '\n' + appmodel.preset.startText)
+      responseList.push(completion.data.choices[0].text + '\n' + appmodel.preset.startText)
       return {code:200, data: {cpmlId: completion.data.id, object: completion.data.object,
         text:completion.data.choices[0].text}}
     } catch(error) {
       // Consider adjusting the error handling logic for your use case
+      if(responseList.length > 0)
+        responseList.shift()
       if (error.response) {
         this.logger.error(error.response.status, error.response.data);
         return {code: error.response.status, message: error.response.data}
