@@ -98,7 +98,7 @@ export class EngineService {
 
     if (!responseList) {
       responseList = new Array<string>()
-      this.history.set('user' + userId, responseList)
+      this.history.set(appmodelId + '-' + userId, responseList)
     }
 
     return {code:200, data: {cpmlId: 0, object: null,
@@ -109,7 +109,7 @@ export class EngineService {
 
     let responseList: Array<string>
     // We get history five nano.
-    responseList = this.history.get('user' + userId)
+    responseList = this.history.get(appmodelId + '-' + userId)
     // We get promptpreset model
     if (!responseList) {
       return {code: 500, message:"Need open first!",}
