@@ -25,8 +25,17 @@ export const User = createParamDecorator(
 
 export const UserDec = createParamDecorator(
   (data: UserEnum, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
-    const user = request.user;
-    return data ? user && user.userId : user
+    if (ctx.getType() === 'http') {
+      const request = ctx.switchToHttp().getRequest();
+      const user = request.user;
+      return data ? user && user.userId : user
+    } else if (ctx.getType() === 'ws') {
+      const request = ctx.switchToWs().getClient()
+      const user = request.user;
+      return data ? user && user.userId : user
+    } else {
+
+    }
+    
   },
 );

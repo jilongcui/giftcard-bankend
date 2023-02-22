@@ -1,12 +1,19 @@
 import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class OpenDialogDto {
+
+    @IsOptional()
+    @IsString()
+    appmodelId?: string
+}
+
+export class CreateDialogDto {
     @IsNumber()
     userId: number
 
     @IsOptional()
     @IsString()
-    type?: string
+    userName?: string
 
     @IsOptional()
     @IsString()
@@ -14,9 +21,6 @@ export class OpenDialogDto {
 }
 
 export class PromptDto {
-    @IsString()
-    userId: string
-
     @IsString()
     dialogId: string
 

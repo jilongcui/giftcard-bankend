@@ -15,6 +15,8 @@ export const USER_OPENID_KEY = "admin:openId:token"  // 用户头像  openId
 export const USER_PERMISSIONS_KEY = "admin:permissions:token"  //权限标识
 export const USER_ROLEKEYS_KEY = "admin:roleKeys:token"  //角色标识
 export const USER_ROLEKS_KEY = "admin:role:token"  //角色
+export const USER_MEMBER_ENDTIME_KEY = "admin:memberEndTime:token"  //用户会员结束时间
+export const USER_MEMBER_COUNT_KEY = "admin:memberEndTime:token"  //用户剩余次数
 
 
 export const USER_ONLINE_KEY = "admin:online:token"  // 在线用户

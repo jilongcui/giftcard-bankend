@@ -1,7 +1,10 @@
+import { USER_MEMBER_ENDTIME_KEY } from '@app/common/contants/redis.contant';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Redis from 'ioredis';
 import * as moment from 'moment';
 import { FindOperator, FindOptionsWhere, LessThan, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { CreateMemberDto, ListMemberDto } from './dto/request-member.dto';
@@ -13,6 +16,7 @@ export class MemberService {
   constructor(
     @InjectRepository(MemberInfo) private readonly memberInfoRepository: Repository<MemberInfo>,
     @InjectRepository(Member) private readonly memberRepository: Repository<Member>,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   async create(createMemberDto: CreateMemberDto, userId: number) {
@@ -32,7 +36,9 @@ export class MemberService {
       startTime: moment().toDate(),
       endTime: endTime.toDate()
     }
-    return this.memberRepository.save(newmember)
+    const result = await this.memberRepository.save(newmember)
+    await this.redis.set(`${USER_MEMBER_ENDTIME_KEY}:${userId}`, endTime.format('YYYY-MM-DD HH:mm-ss'))
+    return result
   }
 
   // findAll() {

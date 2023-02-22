@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { EngineService } from '../engine/engine.service';
 import { CreateNanoDto } from '../nano/dto/create-nano.dto';
 import { Nano } from '../nano/entities/nano.entity';
-import { OpenDialogDto, PromptDto } from './dto/create-dialog.dto';
+import { CreateDialogDto, OpenDialogDto, PromptDto } from './dto/create-dialog.dto';
 import { UpdateDialogDto } from './dto/update-dialog.dto';
 import { Dialog } from './entities/dialog.entity';
 
@@ -33,24 +33,24 @@ export class DialogService {
     return `This action updates a #${id} dialog`;
   }
 
-  async open(openDialogDto: OpenDialogDto, client: Socket) {
+  async open(openDialogDto: CreateDialogDto, client: Socket) {
     if(!(openDialogDto.appmodelId) || !openDialogDto.userId ) {
       // return {code: 400, message: "输入参数不正确"}
       client.emit('notice', {code: 400, data: '输入参数不正确'})
       return
     }
     openDialogDto.appmodelId = openDialogDto.appmodelId || '1'
-    this.logger.debug(openDialogDto.appmodelId)
+    // this.logger.debug(openDialogDto.appmodelId)
     // 寻找是否有已知对话，不存在就创建
     let dialog = await this.dialogRepository.findOneBy({userId: openDialogDto.userId, appmodelId: openDialogDto.appmodelId})
     if(!dialog) {
       dialog = await this.dialogRepository.save(openDialogDto)
     }
-    this.logger.debug(JSON.stringify(dialog))
+    // this.logger.debug(JSON.stringify(dialog))
     // 初始化Chatgpt引擎
 
     // 等待初始化完成
-    const result = await this.engine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), '')
+    const result = await this.engine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
     client.emit('completion', result)
 
     // 修改对话状态
@@ -60,11 +60,11 @@ export class DialogService {
     return {code: 200, data: dialog};
   }
 
-  async close(id: number) {
+  async close(id: number, userId: number) {
     // 关闭Chatgpt引擎
 
     // 修改dialog状态
-    let dialog = await this.dialogRepository.findOneBy({id: id})
+    let dialog = await this.dialogRepository.findOneBy({id: id, userId: userId})
     if(!dialog) {
       return {code: 200, message: "对话不存在"}
     }
@@ -77,17 +77,19 @@ export class DialogService {
     return `This action removes a #${id} dialog`;
   }
 
-  async prompt(client: Socket, prompt: PromptDto){
-    this.logger.debug(`prompt> ${prompt.userId}: ${prompt.text}`)
+  async prompt(prompt: PromptDto, userId: number, client: Socket){
+    this.logger.debug(`prompt> ${userId}: ${prompt.text}`)
 
-    if(!prompt.dialogId || !prompt.userId || !prompt.text) {
+    if(!prompt.dialogId || !userId || !prompt.text) {
       // return {code: 400, message: "输入参数不正确"}
       client.emit('notice', {code: 400, data: '输入参数不正确'})
       return
     }
-    const dialog = await this.dialogRepository.findOneBy({id: parseInt(prompt.dialogId)})
+    const dialog = await this.dialogRepository.findOneBy({
+      id: parseInt(prompt.dialogId), userId: userId
+    })
     const nano: CreateNanoDto = {
-      userId: parseInt(prompt.userId),
+      userId: userId,
       dialogId: parseInt(prompt.dialogId),
       type: '0', // prompt
       content: prompt.text
@@ -96,12 +98,12 @@ export class DialogService {
 
     // client.emit('notice', {code: 201, data: '思考着，请等待'})
     // 调用引擎发送 text
-    const result = await this.engine.prompt(dialog.appmodelId, prompt.userId, prompt.text)
+    const result = await this.engine.prompt(dialog.appmodelId, userId.toString(), prompt.text)
 
     // 把记录写入数据库
     if(result.code === 200) {
       const nano: CreateNanoDto = {
-        userId: parseInt(prompt.userId),
+        userId: userId,
         dialogId: parseInt(prompt.dialogId),
         type: '1', // answer
         content: result.data.text

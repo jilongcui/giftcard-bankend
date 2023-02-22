@@ -6,11 +6,19 @@ import { Dialog } from './entities/dialog.entity';
 import { Nano } from '../nano/entities/nano.entity';
 import { NanoModule } from '../nano/nano.module';
 import { EngineModule } from '../engine/engine.module';
+import { SharedModule } from '@app/shared';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from '../system/auth/auth.constants';
+import { UserModule } from '../system/user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Dialog, Nano]),
-    NanoModule, EngineModule
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: '168h' },
+  }),
+    NanoModule, EngineModule, SharedModule, UserModule
   ],
   providers: [DialogGateway, DialogService],
   exports: [DialogService]

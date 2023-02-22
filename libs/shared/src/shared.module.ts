@@ -25,6 +25,9 @@ import { DemoEnvironmentGuard } from '@app/common/guards/demo-environment.guard'
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { JwtWsAuthGuard } from '@app/common/guards/jwt-ws-auth.guard';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from '@app/modules/system/auth/auth.constants';
 
 @Global()
 @Module({
@@ -80,6 +83,12 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
             provide: APP_GUARD,
             useClass: JwtAuthGuard,
         },
+
+        //  //jwt守卫
+        //  {
+        //     provide: APP_GUARD,
+        //     useClass: JwtWsAuthGuard,
+        // },
 
         // 角色守卫
         {

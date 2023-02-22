@@ -13,7 +13,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CAPTCHA_IMG_KEY, USER_AVATAR_KEY, USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_NICKNAME_KEY, USER_OPENID_KEY, USER_PERMISSIONS_KEY, USER_ROLEKEYS_KEY, USER_ROLEKS_KEY, USER_TOKEN_KEY, USER_USERNAME_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
+import { CAPTCHA_IMG_KEY, USER_AVATAR_KEY, USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_MEMBER_ENDTIME_KEY, USER_NICKNAME_KEY, USER_OPENID_KEY, USER_PERMISSIONS_KEY, USER_ROLEKEYS_KEY, USER_ROLEKS_KEY, USER_TOKEN_KEY, USER_USERNAME_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { SharedService } from '@app/shared/shared.service';
 import { MenuService } from '../system/menu/menu.service';
@@ -27,6 +27,7 @@ import { Captcha } from 'captcha.gif';
 import { QueryInviteUserDto, ReqInnerRegDto, ReqMobileRegDto } from './dto/req-login.dto';
 import { ReqAddUserDto } from '../system/user/dto/req-user.dto';
 import { isPhoneNumber } from 'class-validator';
+import * as moment from 'moment'
 import { InviteUserService } from '@app/modules/inviteuser/invite-user.service';
 
 @Injectable()
@@ -229,8 +230,10 @@ export class LoginService {
 
     /* 获取用户信息 */
     async getInfo(userId: number): Promise<ResInfo> {
+        this.logger.debug('userId ' + userId)
         let user: User = await this.userService.findOneUserAllById(userId)
         if (!user) throw new ApiException("用户信息已被修改", 401)
+        this.logger.debug('user ' + user)
         const deptId = user.dept ? user.dept.deptId : ''
         const deptName = user.dept ? user.dept.deptName : ''
         let roleKeyArr: string[] = user.roles.map(role => role.roleKey)
@@ -245,6 +248,12 @@ export class LoginService {
                 permissions = await this.menuService.getAllPermissionsByRoles(roleIdArr)
             }
         }
+        let endTime: moment.Moment
+        if (!user.member) {
+            endTime = moment('1970-00-00')
+        } else {
+            endTime = moment(user.member.endTime)
+        }
         /* 将用户信息、权限数组、角色数组 存放进入缓存 */
         const promiseArr = [
             this.redis.set(`${USER_USERNAME_KEY}:${userId}`, user.userName),
@@ -253,9 +262,10 @@ export class LoginService {
             this.redis.set(`${USER_DEPTNAME_KEY}:${userId}`, deptName),
             this.redis.set(`${USER_AVATAR_KEY}:${userId}`, user.avatar),
             this.redis.set(`${USER_OPENID_KEY}:${userId}`, user.openId),
+            this.redis.set(`${USER_MEMBER_ENDTIME_KEY}:${userId}`, endTime.format('YYYY-MM-DD HH:mm:ss')),
             this.redis.set(`${USER_PERMISSIONS_KEY}:${userId}`, JSON.stringify(permissions)),
             this.redis.set(`${USER_ROLEKEYS_KEY}:${userId}`, JSON.stringify(roleKeyArr)),
-            this.redis.set(`${USER_ROLEKS_KEY}:${userId}`, JSON.stringify(user.roles))
+            this.redis.set(`${USER_ROLEKS_KEY}:${userId}`, JSON.stringify(user.roles)),
         ]
         await Promise.all(promiseArr)
         return {
