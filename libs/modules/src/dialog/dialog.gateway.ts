@@ -56,7 +56,7 @@ export class DialogGateway implements OnGatewayConnection<WebSocket>, OnGatewayD
   @SubscribeMessage('closeDialog')
   close(@MessageBody() id: number, @UserDec(UserEnum.userId) userId: number) {
     this.dialogService.close(id, userId);
-    return
+    return {}
   }
 
   @SubscribeMessage('findAllDialog')

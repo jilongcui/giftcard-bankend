@@ -64,11 +64,11 @@ export class DialogService {
     // 修改dialog状态
     let dialog = await this.dialogRepository.findOneBy({id: id, userId: userId})
     if(!dialog) {
-      return {code: 200, message: "对话不存在"}
+      return
     }
-    dialog.status = '1'
+    dialog.status = '0'
     dialog = await this.dialogRepository.save(dialog)
-    return {code: 200};
+    return 
   }
 
   remove(id: number) {
