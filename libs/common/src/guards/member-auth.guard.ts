@@ -41,8 +41,10 @@ export class MemberAuthGuard implements CanActivate {
     } 
 
     const endTime = await this.redis.get(`${USER_MEMBER_ENDTIME_KEY}:${userId}`)
-    const invalidMember = moment(endTime).isBefore(moment(moment.now()))
-    if (invalidMember) throw new WsException('会员已到期')
+    if(!endTime) {
+      const invalidMember = moment(endTime).isBefore(moment(moment.now()))
+      if (invalidMember) throw new WsException('会员已到期')
+    }
     
     return true
   }
