@@ -36,26 +36,27 @@ export class DialogGateway implements OnGatewayConnection<WebSocket>, OnGatewayD
 
   @UseGuards(MemberAuthGuard)
   @SubscribeMessage('openDialog')
-  create(@MessageBody() openDialogDto: OpenDialogDto, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName, UserInfoPipe) nickName: string, @ConnectedSocket() client: Socket) {
+  async create(@MessageBody() openDialogDto: OpenDialogDto, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName, UserInfoPipe) nickName: string) {
     this.logger.debug(`openDialog userId ${userId}: ${nickName}`)
     const createDialogDto: CreateDialogDto = {
       userId: userId,
       userName: nickName,
       appmodelId: openDialogDto.appmodelId,
     }
-    return this.dialogService.open(createDialogDto, client);
+    const result = await this.dialogService.open(createDialogDto)
+    return result
   }
 
   @SubscribeMessage('prompt')
-  prompt(@MessageBody() promptDto: PromptDto, @UserDec(UserEnum.userId) userId: number, @ConnectedSocket() client: Socket) {
-    const event = 'prompt';
-    this.dialogService.prompt(promptDto, userId, client);
-    return { event, promptDto };
+  async prompt(@MessageBody() promptDto: PromptDto, @UserDec(UserEnum.userId) userId: number) {
+    const result = await this.dialogService.prompt(promptDto, userId);
+    return result
   }
 
   @SubscribeMessage('closeDialog')
-  close(@MessageBody() id: number, @UserDec(UserEnum.userId) userId: number,) {
-    return this.dialogService.close(id, userId);
+  close(@MessageBody() id: number, @UserDec(UserEnum.userId) userId: number) {
+    this.dialogService.close(id, userId);
+    return
   }
 
   @SubscribeMessage('findAllDialog')

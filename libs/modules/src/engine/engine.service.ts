@@ -7,6 +7,7 @@ import { response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Appmodel } from '../appmodel/entities/appmodel.entity';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class EngineService {
@@ -76,7 +77,7 @@ export class EngineService {
   async open(appmodelId: number, userId: string, userName: string) {
     let responseList: Array<string>
     if (!this.configuration.apiKey) {
-      return {code: 500, data:"OpenAI API key not configured, please follow instructions in README.md",}
+      throw new WsException('OpenAI API key not configured!')
     }
 
     if(!userName)
@@ -85,7 +86,7 @@ export class EngineService {
     // this.logger.debug(appModel)
 
     if(!appModel) {
-      return {code: 500, data:"App Model is not exist.",}
+      throw new WsException('App model is not exist.')
     }
     const initText = appModel.preset.initText.replace('${username}', userName)
     appModel.preset.initText = initText
@@ -101,8 +102,8 @@ export class EngineService {
       this.history.set(appmodelId + '-' + userId, responseList)
     }
 
-    return {code:200, data: {cpmlId: 0, object: null,
-        text: appModel.preset.welcomeText}}
+    return {cpmlId: 0, object: null,
+        text: appModel.preset.welcomeText}
   }
 
   async prompt(appmodelId: string, userId: string, intext: string) {
@@ -112,15 +113,15 @@ export class EngineService {
     responseList = this.history.get(appmodelId + '-' + userId)
     // We get promptpreset model
     if (!responseList) {
-      return {code: 500, message:"Need open first!",}
+      throw new WsException("Need open first!")
     }
     const appmodel = this.presetMap.get(appmodelId + '-' + userId)
     if (!appmodel) {
-      return {code: 500, message:"Need open first!",}
+      throw new WsException("Need open first!")
     }
     const text = intext || '';
     if (text.trim().length === 0) {
-      return {code: 400, mssage: "Please enter a valid prompt",}
+      throw new WsException("输入文字无效")
     }
     
     const completionRequest = appmodel.preset.completion
@@ -134,19 +135,18 @@ export class EngineService {
       if(responseList.length > 10)
         responseList.shift()
       responseList.push(completion.data.choices[0].text + '\n' + appmodel.preset.startText)
-      return {code:200, data: {cpmlId: completion.data.id, object: completion.data.object,
-        text:completion.data.choices[0].text}}
+      return {cpmlId: completion.data.id, object: completion.data.object,
+              text:completion.data.choices[0].text}
     } catch(error) {
       // Consider adjusting the error handling logic for your use case
       if(responseList.length > 0)
         responseList.shift()
       if (error.response) {
         this.logger.error(error.response.status, error.response.data);
-        return {code: error.response.status, message: error.response.data}
       } else {
         this.logger.error(`Error with OpenAI API request: ${error.message}`);
-        return {code: 500, message: `Error with OpenAI API request`}
       }
+      throw new WsException("OpenAI API请求错误")
     }
   }
 }

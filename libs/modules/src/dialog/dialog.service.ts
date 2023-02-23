@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { WsResponse } from '@nestjs/websockets';
+import { WsException, WsResponse } from '@nestjs/websockets';
 import { Socket } from 'net';
 import { Repository } from 'typeorm';
 import { EngineService } from '../engine/engine.service';
@@ -33,11 +33,10 @@ export class DialogService {
     return `This action updates a #${id} dialog`;
   }
 
-  async open(openDialogDto: CreateDialogDto, client: Socket) {
+  async open(openDialogDto: CreateDialogDto) {
     if(!(openDialogDto.appmodelId) || !openDialogDto.userId ) {
       // return {code: 400, message: "输入参数不正确"}
-      client.emit('notice', {code: 400, data: '输入参数不正确'})
-      return
+      throw new WsException('参数不正确')
     }
     openDialogDto.appmodelId = openDialogDto.appmodelId || '1'
     // this.logger.debug(openDialogDto.appmodelId)
@@ -51,13 +50,12 @@ export class DialogService {
 
     // 等待初始化完成
     const result = await this.engine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
-    client.emit('completion', result)
+    // client.emit('completion', result)
 
     // 修改对话状态
     dialog.status = '1'
     dialog = await this.dialogRepository.save(dialog)
-    // 发送准备就绪消息
-    return {code: 200, data: dialog};
+    return {...dialog, welcome: result.text}
   }
 
   async close(id: number, userId: number) {
@@ -77,13 +75,11 @@ export class DialogService {
     return `This action removes a #${id} dialog`;
   }
 
-  async prompt(prompt: PromptDto, userId: number, client: Socket){
+  async prompt(prompt: PromptDto, userId: number){
     this.logger.debug(`prompt> ${userId}: ${prompt.text}`)
 
     if(!prompt.dialogId || !userId || !prompt.text) {
-      // return {code: 400, message: "输入参数不正确"}
-      client.emit('notice', {code: 400, data: '输入参数不正确'})
-      return
+      throw new WsException("输入参数不正确")
     }
     const dialog = await this.dialogRepository.findOneBy({
       id: parseInt(prompt.dialogId), userId: userId
@@ -96,22 +92,17 @@ export class DialogService {
     }
     await this.nanoRepository.save(nano)
 
-    // client.emit('notice', {code: 201, data: '思考着，请等待'})
     // 调用引擎发送 text
     const result = await this.engine.prompt(dialog.appmodelId, userId.toString(), prompt.text)
 
     // 把记录写入数据库
-    if(result.code === 200) {
-      const nano: CreateNanoDto = {
-        userId: userId,
-        dialogId: parseInt(prompt.dialogId),
-        type: '1', // answer
-        content: result.data.text
-      }
-      await this.nanoRepository.save(nano)
-      client.emit('completion', result)
-    } else {
-      client.emit('notice', result)
+    const nano2: CreateNanoDto = {
+      userId: userId,
+      dialogId: parseInt(prompt.dialogId),
+      type: '1', // answer
+      content: result.text
     }
+    await this.nanoRepository.save(nano2)
+    return result
   }
 }
