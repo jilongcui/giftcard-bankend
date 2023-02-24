@@ -12,7 +12,7 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { Between, FindOptionsWhere, Like, Not, Repository } from 'typeorm';
 import { ReqAddConfigDto, ReqConfigListDto } from './dto/req-sys-config.dto';
 import { SysConfig } from './entities/sys-config.entity';
-import { SYSCONFIG_KEY } from './sys-config.contant';
+import { NORMCONFIG_KEY, SYSCONFIG_KEY } from './sys-config.contant';
 
 @Injectable()
 export class SysConfigService {
@@ -90,9 +90,27 @@ export class SysConfigService {
         if (configValue) {
             return configValue
         } else {
-            const sysConfig = await this.sysConfigRepository.findOneBy({ configKey })
+            const sysConfig = await this.sysConfigRepository.findOneBy({ configKey:configKey, configType: 'N' })
             configValue = sysConfig ? sysConfig.configValue : ''
             await this.redis.set(`${SYSCONFIG_KEY}:${configKey}`, configValue)
+            return configValue
+        }
+    }
+
+    /* 通过id查询 */
+    async findNormalById(configId: number) {
+        return await this.sysConfigRepository.findOneBy({ configId, configType: 'N' })
+    }
+
+    /* 通过参数键名 懒查询参数值,并缓存进入redis  */
+    async getNormalValueByConfigKey(configKey: string) {
+        let configValue = await this.redis.get(`${NORMCONFIG_KEY}:${configKey}`)
+        if (configValue) {
+            return configValue
+        } else {
+            const sysConfig = await this.sysConfigRepository.findOneBy({ configKey:configKey, configType: 'N' })
+            configValue = sysConfig ? sysConfig.configValue : ''
+            await this.redis.set(`${NORMCONFIG_KEY}:${configKey}`, configValue)
             return configValue
         }
     }

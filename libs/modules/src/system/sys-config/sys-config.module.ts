@@ -7,11 +7,12 @@ https://docs.nestjs.com/modules
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SysConfig } from './entities/sys-config.entity';
+import { ConfigController } from './config.controller';
 
 @Module({
     imports: [TypeOrmModule.forFeature([SysConfig])],
     controllers: [
-        SysConfigController,],
+        SysConfigController, ConfigController],
     providers: [
         SysConfigService,],
     exports: [
