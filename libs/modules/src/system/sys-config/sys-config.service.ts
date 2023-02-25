@@ -121,5 +121,9 @@ export class SysConfigService {
         if (keyArr && keyArr.length) {
             await this.redis.del(keyArr)
         }
+        const keyArr2 = await this.redis.keys(`${NORMCONFIG_KEY}:*`)
+        if (keyArr2 && keyArr2.length) {
+            await this.redis.del(keyArr2)
+        }
     }
 }
