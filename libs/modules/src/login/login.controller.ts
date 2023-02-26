@@ -8,7 +8,7 @@
  * You can you up，no can no bb！！
  */
 
-import { Body, Controller, Get, Post, Req, UseGuards, Headers, Query, Logger, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards, Headers, Query, Logger, Res, Param } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
@@ -29,6 +29,7 @@ import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-p
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { WeixinAuthGuard } from '@app/common/guards/weixin-auth.guard';
+import { InviteUserService } from '../inviteuser/invite-user.service';
 @ApiTags('登录')
 @ApiBearerAuth()
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -37,7 +38,8 @@ export class LoginController {
     logger: Logger;
     constructor(
         private readonly loginService: LoginService,
-        private readonly sharedService: SharedService
+        private readonly sharedService: SharedService,
+        private readonly inviteService: InviteUserService
     ) {
         this.logger = new Logger(LoginController.name)
     }
@@ -77,6 +79,10 @@ export class LoginController {
     @Public()
     @UseGuards(WeixinAuthGuard)
     async wxlogin(@Body() reqLoginDto: ReqWeixinLoginDto, @Req() req: Request): Promise<ResLoginDto> {
+        if(reqLoginDto.inviteCode) {
+            const { user } = req as any
+            await this.inviteService.bindInviteCode(user.id, reqLoginDto.inviteCode)
+        }
         return await this.loginService.login(req)
     }
 

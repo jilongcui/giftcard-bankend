@@ -41,6 +41,11 @@ export class ReqWeixinLoginDto {
     @IsString()
     code: string
 
+    /* 邀请码 */
+    @IsOptional()
+    @IsString()
+    inviteCode?: string
+
 }
 
 export class ReqMobileRegDto {
