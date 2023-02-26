@@ -34,6 +34,8 @@ export class InviteUserService {
 
     async bindParent(userId: number, parentId: number) {
         let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: userId })
+        if (inviteUser) 
+            return inviteUser
         let parent = await this.inviteUserTreeRepository.findOneBy({ id: parentId })
         if (!parent) {
             parent = new InviteUser()
