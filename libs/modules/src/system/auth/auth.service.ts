@@ -83,7 +83,7 @@ export class AuthService {
       reqAddUserDto.openId = info.data.openid;
 
       reqAddUserDto.createBy = reqAddUserDto.updateBy = 'admin'
-      await this.userService.addUser(reqAddUserDto)
+      return await this.userService.addUser(reqAddUserDto)
     }
     return user
   }
