@@ -81,10 +81,9 @@ export class LoginController {
     async wxlogin(@Body() reqLoginDto: ReqWeixinLoginDto, @Req() req: Request): Promise<ResLoginDto> {
 
         const result = await this.loginService.login(req)
-
+        const { user } = req as any
         if(reqLoginDto.inviteCode) {
-            const { user } = req as any
-            await this.inviteService.bindInviteCode(user.id, reqLoginDto.inviteCode)
+            await this.inviteService.bindInviteCode(user.userId, reqLoginDto.inviteCode)
         }
         return result
     }
