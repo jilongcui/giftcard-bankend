@@ -79,11 +79,14 @@ export class LoginController {
     @Public()
     @UseGuards(WeixinAuthGuard)
     async wxlogin(@Body() reqLoginDto: ReqWeixinLoginDto, @Req() req: Request): Promise<ResLoginDto> {
+
+        const result = await this.loginService.login(req)
+
         if(reqLoginDto.inviteCode) {
             const { user } = req as any
             await this.inviteService.bindInviteCode(user.id, reqLoginDto.inviteCode)
         }
-        return await this.loginService.login(req)
+        return result
     }
 
     /* 用户手机注册 */
