@@ -250,7 +250,7 @@ export class LoginService {
         }
         let endTime: moment.Moment
         if (!user.member) {
-            endTime = moment('1970-00-00')
+            endTime = moment('1970-00-00 00:00:00')
         } else {
             endTime = moment(user.member.endTime)
         }
