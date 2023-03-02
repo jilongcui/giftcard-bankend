@@ -55,7 +55,7 @@ export class MemberInfoService {
 
     where =
     {
-      status: listMemberList.status
+      status: listMemberList.status || '1'
     }
 
     result = await this.memberInfoRepository.findAndCount({

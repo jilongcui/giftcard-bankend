@@ -19,6 +19,7 @@ import { UserModule } from '../system/user/user.module';
 import { MenuModule } from '../system/menu/menu.module';
 import { LogModule } from '../monitor/log/log.module';
 import { InviteUserModule } from '../inviteuser/invite-user.module';
+import { MemberModule } from '../member/member.module';
 
 @Module({
     imports: [
@@ -30,6 +31,7 @@ import { InviteUserModule } from '../inviteuser/invite-user.module';
         UserModule,
         MenuModule,
         LogModule,
+        MemberModule,
         InviteUserModule
     ],
     controllers: [

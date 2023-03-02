@@ -84,6 +84,7 @@ export class AuthService {
 
       reqAddUserDto.createBy = reqAddUserDto.updateBy = 'admin'
       return await this.userService.addUser(reqAddUserDto)
+
     }
     return user
   }

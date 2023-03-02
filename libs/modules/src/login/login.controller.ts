@@ -30,6 +30,7 @@ import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { WeixinAuthGuard } from '@app/common/guards/weixin-auth.guard';
 import { InviteUserService } from '../inviteuser/invite-user.service';
+import { MemberService } from '../member/member.service';
 @ApiTags('登录')
 @ApiBearerAuth()
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -39,7 +40,8 @@ export class LoginController {
     constructor(
         private readonly loginService: LoginService,
         private readonly sharedService: SharedService,
-        private readonly inviteService: InviteUserService
+        private readonly inviteService: InviteUserService,
+        private readonly memberService: MemberService,
     ) {
         this.logger = new Logger(LoginController.name)
     }
@@ -84,6 +86,7 @@ export class LoginController {
         const { user } = req as any
         if(reqLoginDto.inviteCode) {
             await this.inviteService.bindInviteCode(user.userId, reqLoginDto.inviteCode)
+            await this.memberService.create({ memberInfoId: 0}, user.userId)
         }
         return result
     }
