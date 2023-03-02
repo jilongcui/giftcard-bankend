@@ -97,8 +97,8 @@ export interface IConfig {
     }
 
     tencentCOS?: {
-        CosSecretId: string,
-        CosSecretKey: string,
+        SecretId: string,
+        SecretKey: string,
         CosDomain: string,
         CosRegion: string,
         CosBucket: string,

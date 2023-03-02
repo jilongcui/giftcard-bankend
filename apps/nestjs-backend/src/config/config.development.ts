@@ -62,8 +62,8 @@ export default defineConfig({
   },
 
   tencentCOS: {
-    CosSecretId: process.env.CosSecretId,
-    CosSecretKey: process.env.CosSecretKey,
+    SecretId: process.env.CosSecretId,
+    SecretKey: process.env.CosSecretKey,
     CosDomain: process.env.CosDomain || 'https://img.xiaohe.biz',
     CosBucket: process.env.CosBucket || 'startland-1312838165',
     CosRegion: process.env.CosRegion || 'ap-shanghai',
