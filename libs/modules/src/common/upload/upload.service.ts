@@ -9,6 +9,7 @@ import path, { join } from 'path';
 
 @Injectable()
 export class UploadService {
+    logger = new Logger(UploadService.name)
     cos: COS
     bucket: string
     region: string
@@ -22,6 +23,7 @@ export class UploadService {
         this.cosDomain = this.configService.get<string>('tencentCOS.CosDomain')
         this.bucket = this.configService.get<string>('tencentCOS.CosBucket')
         this.region = this.configService.get<string>('tencentCOS.CosRegion')
+        this.logger.debug('secretId ' + secretId)
         this.cos = new COS({
             SecretId: secretId,
             SecretKey: secretKey,
