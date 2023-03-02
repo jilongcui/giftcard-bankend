@@ -17,11 +17,11 @@ export class UploadService {
     constructor(
         private readonly configService: ConfigService,
     ) {
-        const secretId = this.configService.get<string>('tencentSMS.SecretId')
-        const secretKey = this.configService.get<string>('tencentSMS.SecretKey')
-        this.cosDomain = this.configService.get<string>('tencentSMS.CosDomain')
-        this.bucket = this.configService.get<string>('tencentSMS.CosBucket')
-        this.region = this.configService.get<string>('tencentSMS.CosRegion')
+        const secretId = this.configService.get<string>('tencentCOS.SecretId')
+        const secretKey = this.configService.get<string>('tencentCOS.SecretKey')
+        this.cosDomain = this.configService.get<string>('tencentCOS.CosDomain')
+        this.bucket = this.configService.get<string>('tencentCOS.CosBucket')
+        this.region = this.configService.get<string>('tencentCOS.CosRegion')
         this.cos = new COS({
             SecretId: secretId,
             SecretKey: secretKey,

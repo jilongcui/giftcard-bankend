@@ -55,13 +55,18 @@ export default defineConfig({
   tencentSMS: {
     SecretId: process.env.SecretId,
     SecretKey: process.env.SecretKey,
-    CosDomain: 'https://img.startland.top',
-    CosBucket: 'startland-1312838165',
-    CosRegion: 'ap-shanghai',
-    SmsSdkAppId: '1400706961',
-    TemplateLoginId: '1473029',
-    TemplateRegId: '1473032',
-    SignName: 'Startland'
+    SmsSdkAppId: process.env.SmsSdkAppId || '1400706961',
+    TemplateLoginId: process.env.TemplateLoginId || '1473029',
+    TemplateRegId: process.env.TemplateRegId || '1473032',
+    SignName: process.env.SignName || 'Startland'
+  },
+
+  tencentCOS: {
+    CosSecretId: process.env.CosSecretId,
+    CosSecretKey: process.env.CosSecretKey,
+    CosDomain: process.env.CosDomain || 'https://img.xiaohe.biz',
+    CosBucket: process.env.CosBucket || 'startland-1312838165',
+    CosRegion: process.env.CosRegion || 'ap-shanghai',
   },
 
   crichain: {

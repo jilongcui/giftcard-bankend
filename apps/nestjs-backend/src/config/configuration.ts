@@ -90,13 +90,18 @@ export interface IConfig {
     tencentSMS?: {
         SecretId: string,
         SecretKey: string,
-        CosDomain: string,
-        CosRegion: string,
-        CosBucket: string,
         SmsSdkAppId: string,
         TemplateLoginId: string,
         TemplateRegId: string,
         SignName: string,
+    }
+
+    tencentCOS?: {
+        CosSecretId: string,
+        CosSecretKey: string,
+        CosDomain: string,
+        CosRegion: string,
+        CosBucket: string,
     }
 
     crichain?: {
