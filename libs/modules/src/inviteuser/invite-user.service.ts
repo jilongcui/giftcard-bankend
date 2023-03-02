@@ -24,7 +24,6 @@ export class InviteUserService {
 
     async bindInviteCode(userId: number, code: string) {
         const parent = await this.userService.findOneByInviteCode(code)
-        this.logger.debug(parent)
         if (!parent) {
             throw new ApiException('邀请码不存在')
         }
