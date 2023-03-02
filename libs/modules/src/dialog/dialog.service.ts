@@ -76,7 +76,7 @@ export class DialogService {
   }
 
   async prompt(prompt: PromptDto, userId: number){
-    this.logger.debug(`prompt> ${userId}: ${prompt.text}`)
+    // this.logger.debug(`prompt> ${userId}: ${prompt.text}`)
 
     if(!prompt.dialogId || !userId || !prompt.text) {
       throw new WsException("输入参数不正确")

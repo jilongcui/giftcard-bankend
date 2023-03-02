@@ -149,7 +149,7 @@ export class PaymentService {
     // this.logger.debug(JSON.stringify(bizContent));
 
     const bizResult = await this.sendJsonRequest<WebSignResponse>(method, requestUri, bizContent)
-    this.logger.debug(bizResult)
+    // this.logger.debug(bizResult)
 
     if (bizResult.merch_id != this.merchId) throw new ApiException("商户ID错误")
     if (bizResult.out_trade_no !== tradeNo) throw new ApiException("网签编号错误")
@@ -720,9 +720,9 @@ export class PaymentService {
         payer_client_ip: userIp,
       },
     };
-    console.log(params);
+    // console.log(params);
     const result = await this.wxPay.transactions_jsapi(params);
-    console.log(result);
+    // console.log(result);
     //   {
     //     appId: 'appid',
     //     timeStamp: '1609918952',

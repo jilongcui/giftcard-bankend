@@ -230,10 +230,10 @@ export class LoginService {
 
     /* 获取用户信息 */
     async getInfo(userId: number): Promise<ResInfo> {
-        this.logger.debug('userId ' + userId)
+        // this.logger.debug('userId ' + userId)
         let user: User = await this.userService.findOneUserAllById(userId)
         if (!user) throw new ApiException("用户信息已被修改", 401)
-        this.logger.debug('user ' + user)
+        // this.logger.debug('user ' + user)
         const deptId = user.dept ? user.dept.deptId : ''
         const deptName = user.dept ? user.dept.deptName : ''
         let roleKeyArr: string[] = user.roles.map(role => role.roleKey)
@@ -249,8 +249,8 @@ export class LoginService {
             }
         }
         let endTime: moment.Moment
-        if (!user.member) {
-            endTime = moment('1970-00-00 00:00:00')
+        if (!user.member || user.member.endTime) {
+            endTime = moment()
         } else {
             endTime = moment(user.member.endTime)
         }
