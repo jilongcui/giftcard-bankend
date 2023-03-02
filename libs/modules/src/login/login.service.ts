@@ -249,7 +249,7 @@ export class LoginService {
             }
         }
         let endTime: moment.Moment
-        if (!user.member || user.member.endTime) {
+        if (!user.member || !user.member.endTime) {
             endTime = moment()
         } else {
             endTime = moment(user.member.endTime)
