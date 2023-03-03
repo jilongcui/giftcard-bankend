@@ -127,7 +127,7 @@ export class EngineService {
     const completionRequest = appmodel.preset.completion
     
     completionRequest.prompt = this.generatePrompt(appmodel.preset, intext, responseList)
-    this.logger.debug(completionRequest.prompt)
+    // this.logger.debug(completionRequest.prompt)
     try {
       const completion = await this.openai.createCompletion(completionRequest);
       // this.logger.debug(completion.data)

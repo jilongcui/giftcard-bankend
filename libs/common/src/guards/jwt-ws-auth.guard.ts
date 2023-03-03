@@ -19,7 +19,6 @@ export class JwtWsAuthGuard implements CanActivate {
     logger: Logger
     constructor(
         private readonly jwtService: JwtService,
-        private readonly userService: UserService,
         @InjectRedis() private readonly redis: Redis,
         private reflector: Reflector,
         ) {
@@ -48,9 +47,10 @@ export class JwtWsAuthGuard implements CanActivate {
         const { userId, pv } = await this.jwtService.verify(token)
         await this.validateToken(userId, pv, token)
         const data = context.switchToWs().getClient()
-        if (!data.user) {
-            data.user = await this.userService.findById(userId)
-        }
+        data.user = {userId}
+        // if (!data.user) {
+        //     data.user = await this.userService.findById(userId)
+        // }
 
         return  true;  //返回值会被 守卫的  handleRequest方法 捕获
       }

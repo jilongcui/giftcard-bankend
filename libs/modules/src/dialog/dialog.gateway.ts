@@ -37,7 +37,6 @@ export class DialogGateway implements OnGatewayConnection<WebSocket>, OnGatewayD
   @UseGuards(MemberAuthGuard)
   @SubscribeMessage('openDialog')
   async create(@MessageBody() openDialogDto: OpenDialogDto, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName, UserInfoPipe) nickName: string) {
-    this.logger.debug(`openDialog userId ${userId}: ${nickName}`)
     const createDialogDto: CreateDialogDto = {
       userId: userId,
       userName: nickName,
