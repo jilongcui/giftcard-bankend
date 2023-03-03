@@ -130,7 +130,7 @@ export class UserController {
     }
 
     /* 上传头像 */
-    @RepeatSubmit()
+    // @RepeatSubmit()
     @Post('profile/avatar')
     @UseInterceptors(FileInterceptor('avatarfile'))
     async avatar(@UploadedFile() file: Express.Multer.File, @Query('fileName') fileName, @UserDec(UserEnum.userId) userId: number) {
