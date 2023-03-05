@@ -56,7 +56,7 @@ export class DialogGateway implements OnGatewayConnection<WebSocket>, OnGatewayD
   @SubscribeMessage('promptSse')
   async promptSse(@MessageBody() promptDto: PromptDto, @UserDec(UserEnum.userId) userId: number) {
     const observable = await this.dialogService.promptSse(promptDto, userId);
-    return from(observable).pipe(map(data => ({event: 'prompts', data: data})))
+    return from(observable).pipe(map(data => ({event: 'promptSse', data: data})))
   }
 
   @SubscribeMessage('closeDialog')
