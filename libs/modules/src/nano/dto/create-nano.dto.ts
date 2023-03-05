@@ -1,4 +1,5 @@
-import { IsNumber, IsString } from "class-validator"
+import { Type } from "class-transformer"
+import { IsNumber, IsOptional, IsString } from "class-validator"
 
 export class CreateNanoDto {
 
@@ -13,4 +14,22 @@ export class CreateNanoDto {
 
     @IsString()
     content: string
+}
+
+export class MyListNanoDto {
+    @Type()
+    @IsNumber()
+    dialogId: number
+}
+
+export class ListNanoDto {
+    @IsOptional()
+    @Type()
+    @IsNumber()
+    dialogId?: number
+
+    @IsOptional()
+    @Type()
+    @IsNumber()
+    userId?: number
 }

@@ -82,4 +82,14 @@ export class Nano {
         name: 'dialog_id',
     })
     dialog?: Dialog
+
+    @ApiHideProperty()
+    @CreateDateColumn({
+        name: 'create_time',
+        comment: '创建时间'
+    })
+    @Excel({
+        name: '创建时间',
+    })
+    createTime: number
 }
