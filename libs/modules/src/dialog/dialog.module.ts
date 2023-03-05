@@ -10,6 +10,7 @@ import { SharedModule } from '@app/shared';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from '../system/auth/auth.constants';
 import { UserModule } from '../system/user/user.module';
+import { DialogController } from './dialog.controller';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserModule } from '../system/user/user.module';
   }),
     NanoModule, EngineModule, SharedModule, UserModule
   ],
+  controllers: [DialogController],
   providers: [DialogGateway, DialogService],
   exports: [DialogService]
 })

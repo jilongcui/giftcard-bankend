@@ -1,13 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, MessageEvent, Logger } from '@nestjs/common';
 import { CompletionPresetDto, CreateCompletionRequestDto, CreateEngineDto } from './dto/create-engine.dto';
 import { UpdateEngineDto } from './dto/update-engine.dto';
 
-import { Configuration, OpenAIApi, CreateCompletionRequest } from "openai";
+import { Configuration, OpenAIApi, CreateCompletionRequest, CreateCompletionResponse } from "openai";
 import { response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Appmodel } from '../appmodel/entities/appmodel.entity';
 import { WsException } from '@nestjs/websockets';
+import { AxiosResponse } from 'axios';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class EngineService {
@@ -126,17 +128,90 @@ export class EngineService {
     
     const completionRequest = appmodel.preset.completion
     
+    // completionRequest.stream = stream
     completionRequest.prompt = this.generatePrompt(appmodel.preset, intext, responseList)
     // this.logger.debug(completionRequest.prompt)
     try {
       const completion = await this.openai.createCompletion(completionRequest);
-      // this.logger.debug(completion.data)
+      // this.logger.debug(completion)
       // push new reponse to reponsesList
       if(responseList.length > 10)
         responseList.shift()
       responseList.push(completion.data.choices[0].text + '\n' + appmodel.preset.startText)
       return {cpmlId: completion.data.id, object: completion.data.object,
               text:completion.data.choices[0].text}
+    } catch(error) {
+      // Consider adjusting the error handling logic for your use case
+      if(responseList.length > 0)
+        responseList.shift()
+      if (error.response) {
+        this.logger.error(error.response.status, error.response.data);
+      } else {
+        this.logger.error(`Error with OpenAI API request: ${error.message}`);
+      }
+      throw new WsException("OpenAI API请求错误")
+    }
+  }
+
+  private randomTokenId(): number {
+    return Math.floor((Math.random() * 999999999) + 1000000000);
+  }
+
+  async promptSse(appmodelId: string, userId: string, nanoId: string, intext: string): Promise<Observable<MessageEvent>> {
+
+    let responseList: Array<string>
+    // We get history five nano.
+    responseList = this.history.get(appmodelId + '-' + userId)
+    // We get promptpreset model
+    if (!responseList) {
+      throw new WsException("Need open first!")
+    }
+    const appmodel = this.presetMap.get(appmodelId + '-' + userId)
+    if (!appmodel) {
+      throw new WsException("Need open first!")
+    }
+    const text = intext || '';
+    if (text.trim().length === 0) {
+      throw new WsException("输入文字无效")
+    }
+    
+    const completionRequest = appmodel.preset.completion
+    
+    completionRequest.stream = true
+    completionRequest.prompt = this.generatePrompt(appmodel.preset, intext, responseList)
+    // this.logger.debug(completionRequest.prompt)
+    try {
+      const res: AxiosResponse<any> = await this.openai.createCompletion(completionRequest, { responseType: 'stream' });
+      // this.logger.debug(completion)
+      // push new reponse to reponsesList
+      return new Observable(ob => {
+        const strBuffer = []
+        res.data.on('data', data => {
+          const lines = data.toString().split('\n').filter(line => line.trim() !== '');
+          for (const line of lines) {
+              const message = line.replace(/^data: /, '');
+              if (message === '[DONE]') {
+                const content = strBuffer.join('')
+                ob.next({id: nanoId, type: 'DONE', data: content});
+                ob.complete()
+                if(responseList.length > 10)
+                  responseList.shift()
+                responseList.push( content + '\n' + appmodel.preset.startText)
+                return
+              }
+              try {
+                  const parsed = JSON.parse(message);
+                  ob.next({id: nanoId, data: parsed.choices[0].text});
+                  strBuffer.push(parsed.choices[0].text)
+                  // this.logger.debug(parsed.choices[0].text)
+                  // this.logger.debug(Buffer.from(parsed.chioces[0].text, 'utf-8').toString())
+                  // console.log(parsed.choices[0].text);
+              } catch(error) {
+                  // console.error('Could not JSON parse stream message', message, error);
+              }
+          }
+        })
+      })
     } catch(error) {
       // Consider adjusting the error handling logic for your use case
       if(responseList.length > 0)

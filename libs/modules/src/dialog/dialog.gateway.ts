@@ -1,5 +1,5 @@
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
-import { Logger, UseFilters, UseGuards, WsExceptionFilter } from '@nestjs/common';
+import { Logger, UseFilters, UseGuards, WsExceptionFilter, MessageEvent } from '@nestjs/common';
 import { WebSocketGateway, SubscribeMessage, MessageBody, OnGatewayConnection, OnGatewayDisconnect, ConnectedSocket } from '@nestjs/websockets';
 import { Socket } from 'net';
 import { DialogService } from './dialog.service';
@@ -11,6 +11,7 @@ import { JwtWsAuthGuard } from '@app/common/guards/jwt-ws-auth.guard';
 import { AllWsExceptionsFilter } from '@app/common/filters/all-ws-exception.filter';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { MemberAuthGuard } from '@app/common/guards/member-auth.guard';
+import { from, map, Observable } from 'rxjs';
 
 // @UseFilters(new AllWsExceptionsFilter())
 @UseGuards(JwtWsAuthGuard)
@@ -50,6 +51,12 @@ export class DialogGateway implements OnGatewayConnection<WebSocket>, OnGatewayD
   async prompt(@MessageBody() promptDto: PromptDto, @UserDec(UserEnum.userId) userId: number) {
     const result = await this.dialogService.prompt(promptDto, userId);
     return result
+  }
+
+  @SubscribeMessage('promptSse')
+  async promptSse(@MessageBody() promptDto: PromptDto, @UserDec(UserEnum.userId) userId: number) {
+    const observable = await this.dialogService.promptSse(promptDto, userId);
+    return from(observable).pipe(map(data => ({event: 'prompts', data: data})))
   }
 
   @SubscribeMessage('closeDialog')
