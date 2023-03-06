@@ -9,7 +9,8 @@ import { Repository } from 'typeorm';
 import { Appmodel } from '../appmodel/entities/appmodel.entity';
 import { WsException } from '@nestjs/websockets';
 import { AxiosResponse } from 'axios';
-import { Observable } from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
+import { Nano } from '../nano/entities/nano.entity';
 
 @Injectable()
 export class EngineService {
@@ -157,7 +158,7 @@ export class EngineService {
     return Math.floor((Math.random() * 999999999) + 1000000000);
   }
 
-  async promptSse(appmodelId: string, userId: string, nanoId: string, intext: string): Promise<Observable<MessageEvent>> {
+  async promptSse(ob:Subscriber<MessageEvent>, appmodelId: string, userId: string, nanoId: string, intext: string) {
 
     let responseList: Array<string>
     // We get history five nano.
@@ -184,8 +185,8 @@ export class EngineService {
       const res: AxiosResponse<any> = await this.openai.createCompletion(completionRequest, { responseType: 'stream' });
       // this.logger.debug(completion)
       // push new reponse to reponsesList
-      return new Observable(ob => {
         const strBuffer = []
+
         res.data.on('data', data => {
           const lines = data.toString().split('\n').filter(line => line.trim() !== '');
           for (const line of lines) {
@@ -211,7 +212,7 @@ export class EngineService {
               }
           }
         })
-      })
+      // })
     } catch(error) {
       // Consider adjusting the error handling logic for your use case
       if(responseList.length > 0)

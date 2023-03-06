@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, MessageEvent } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WsException, WsResponse } from '@nestjs/websockets';
 import { Socket } from 'net';
-import { tap, map } from 'rxjs';
+import { tap, map, Observable } from 'rxjs';
 import { Repository } from 'typeorm';
 import { EngineService } from '../engine/engine.service';
 import { CreateNanoDto } from '../nano/dto/create-nano.dto';
@@ -119,37 +119,37 @@ export class DialogService {
     const dialog = await this.dialogRepository.findOneBy({
       id: parseInt(prompt.dialogId), userId: userId
     })
-    const nanoDto: CreateNanoDto = {
+    let nanoDto: CreateNanoDto = {
       userId: userId,
       dialogId: parseInt(prompt.dialogId),
       type: '0', // prompt
       content: prompt.text
     }
     const nano = await this.nanoRepository.save(nanoDto)
+    const content = ''
+    nanoDto = {
+      userId: userId,
+      dialogId: parseInt(prompt.dialogId),
+      type: '1', // answer
+      content: content
+    }
+    this.stringMap.set(nano.id.toString(), null)
+    const nano2 = await this.nanoRepository.save(nanoDto)
 
+    const observable = new Observable<MessageEvent>(ob => {
+      ob.next({id: nano.id.toString(), type: 'PROMPT', data: nano});
+      this.engine.promptSse(ob, dialog.appmodelId, userId.toString(), nano2.id.toString(), prompt.text)
+    })
     // 调用引擎发送 text
-    const observable = await this.engine.promptSse(dialog.appmodelId, userId.toString(), nano.id.toString(), prompt.text)
 
     return observable.pipe(
       tap(data =>{
         // 把记录写入数据库
-        // let strbuff = this.stringMap.get(nano.id.toString())
-        
         if (data.type === 'DONE') {
           const content = data.data.toString()
-          const nano2: CreateNanoDto = {
-            userId: userId,
-            dialogId: parseInt(prompt.dialogId),
-            type: '1', // answer
-            content: content
-          }
           this.logger.debug(content)
-          this.stringMap.set(nano.id.toString(), null)
+          nano2.content = content
           this.nanoRepository.save(nano2)
-        // } else {
-        //   if (!strbuff) strbuff = [data.data.toString()]
-        //   else strbuff.push(data.data.toString())
-        //   this.stringMap.set(nano.id.toString(), strbuff)
         }
       }),
     map(data => {
