@@ -41,7 +41,7 @@ export class NanoService {
     let result: any;
     where = {
       ...listNanoList,
-      id: paginationDto.lastId<=0?undefined: LessThan(paginationDto.lastId),
+      id: paginationDto.lastId?LessThan(paginationDto.lastId):undefined,
     }
 
     result = await this.nanoRepository.findAndCount({
@@ -78,7 +78,7 @@ export class NanoService {
     let result: any;
     where = {
       ...listMyNanoDto,
-      id: paginationDto.lastId<=0?undefined: LessThan(paginationDto.lastId),
+      id: paginationDto.lastId?LessThan(paginationDto.lastId):undefined,
       userId,
     }
 
