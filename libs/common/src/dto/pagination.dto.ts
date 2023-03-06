@@ -19,6 +19,12 @@ export class PaginationDto {
     @IsNumber()
     public pageNum?: number
 
+    /* 当前ID */
+    @IsOptional()
+    @Type()
+    @IsNumber()
+    public lastId?: number
+
     /* 每页条数 */
     @IsOptional()
     @Type()

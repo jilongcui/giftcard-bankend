@@ -2,7 +2,7 @@ import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, LessThan, Repository } from 'typeorm';
 import { CreateNanoDto, ListNanoDto, MyListNanoDto } from './dto/create-nano.dto';
 import { UpdateNanoDto } from './dto/update-nano.dto';
 import { Nano } from './entities/nano.entity';
@@ -39,7 +39,10 @@ export class NanoService {
   async list(listNanoList: ListNanoDto, paginationDto: PaginationDto): Promise<PaginatedDto<Nano>> {
     let where: FindOptionsWhere<Nano> = {}
     let result: any;
-    where = listNanoList
+    where = {
+      ...listNanoList,
+      id: paginationDto.lastId<=0?undefined: LessThan(paginationDto.lastId),
+    }
 
     result = await this.nanoRepository.findAndCount({
       where,
@@ -56,7 +59,7 @@ export class NanoService {
         },
       },
       relations: { user: true },
-      skip: paginationDto.skip,
+      // skip: paginationDto.skip,
       take: paginationDto.take | 10,
       order: {
         id: 'DESC',
@@ -71,10 +74,11 @@ export class NanoService {
 
   /* 我的订单查询 */
   async mylist(listMyNanoDto: MyListNanoDto, userId: number, paginationDto: PaginationDto): Promise<PaginatedDto<Nano>> {
-    let where: FindOptionsWhere<ListNanoDto> = {}
+    let where: FindOptionsWhere<Nano> = {}
     let result: any;
     where = {
       ...listMyNanoDto,
+      id: paginationDto.lastId<=0?undefined: LessThan(paginationDto.lastId),
       userId,
     }
 
@@ -82,7 +86,7 @@ export class NanoService {
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
       // relations: [],
-      skip: paginationDto.skip,
+      // skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
         id: 'DESC',
