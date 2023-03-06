@@ -2,7 +2,7 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Sse, MessageEvent, Logger } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Sse, MessageEvent, Logger, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
@@ -19,6 +19,7 @@ import { DialogService } from './dialog.service';
 import { CreateDialogDto, OpenDialogDto, PromptDto } from './dto/create-dialog.dto';
 import {Observable, map, interval} from 'rxjs';
 import { Keep } from '@app/common/decorators/keep.decorator';
+import { MemberAuthGuard } from '@app/common/guards/member-auth.guard';
 
 @ApiTags('对话接口')
 @Controller('dialog')
@@ -38,7 +39,8 @@ export class DialogController {
     //     await this.dialogService.addOrUpdate(reqAddDialogDto)
     // }
 
-    @Post('open')
+    @UseGuards(MemberAuthGuard)
+    @Post('openDialog')
     async open(@Body() openDialogDto: OpenDialogDto, @UserDec(UserEnum.userId) userId: number, @UserDec(UserEnum.nickName, UserInfoPipe) nickName: string) {
         const createDialogDto: CreateDialogDto = {
         userId: userId,
