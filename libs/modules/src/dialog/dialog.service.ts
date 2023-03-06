@@ -1,10 +1,15 @@
+import { MODE_CHAT, MODE_COMPLETE } from '@app/common/contants/decorator.contant';
 import { Injectable, Logger, MessageEvent } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WsException, WsResponse } from '@nestjs/websockets';
 import { Socket } from 'net';
 import { tap, map, Observable } from 'rxjs';
 import { Repository } from 'typeorm';
-import { EngineService } from '../engine/engine.service';
+import { Appmodel } from '../appmodel/entities/appmodel.entity';
+import { EngineChatService } from '../engine/engine-chat.service';
+import { EngineCompleteService } from '../engine/engine-complete.service';
+import { InjectEngine } from '../engine/engine.decorator';
+import { EngineService } from '../engine/engine.interface';
 import { CreateNanoDto } from '../nano/dto/create-nano.dto';
 import { Nano } from '../nano/entities/nano.entity';
 import { CreateDialogDto, OpenDialogDto, PromptDto } from './dto/create-dialog.dto';
@@ -18,7 +23,9 @@ export class DialogService {
   constructor(
     @InjectRepository(Dialog) private readonly dialogRepository: Repository<Dialog>,
     @InjectRepository(Nano) private readonly nanoRepository: Repository<Nano>,
-    private readonly engine: EngineService,
+    @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>,
+    private readonly chatEngine: EngineChatService,
+    private readonly completeEngine: EngineChatService,
   ) {
 
     this.stringMap = new Map<string, [string]>()
@@ -52,8 +59,16 @@ export class DialogService {
     // this.logger.debug(JSON.stringify(dialog))
     // 初始化Chatgpt引擎
 
+    const appModel = await this.appmodelRepository.findOneBy({id: parseInt(openDialogDto.appmodelId)})
+    // this.logger.debug(appModel)
+
     // 等待初始化完成
-    const result = await this.engine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
+    let result
+    if (appModel.mode === MODE_CHAT) {
+      result = await this.chatEngine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
+    } else if (appModel.mode === MODE_COMPLETE) {
+      result = await this.completeEngine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
+    }
     // client.emit('completion', result)
 
     // 修改对话状态
@@ -97,7 +112,17 @@ export class DialogService {
     await this.nanoRepository.save(nano)
 
     // 调用引擎发送 text
-    const result = await this.engine.prompt(dialog.appmodelId, userId.toString(), prompt.text)
+    const appModel = await this.appmodelRepository.findOneBy({id: parseInt(dialog.appmodelId)})
+    // this.logger.debug(appModel)
+
+    // 等待初始化完成
+    let engine 
+    if (appModel.mode === MODE_CHAT) {
+      engine = this.chatEngine
+    } else {
+      engine = this.completeEngine
+    }
+    const result = await engine.prompt(dialog.appmodelId, userId.toString(), prompt.text)
 
     // 把记录写入数据库
     const nano2: CreateNanoDto = {
@@ -136,9 +161,18 @@ export class DialogService {
     this.stringMap.set(nano.id.toString(), null)
     const nano2 = await this.nanoRepository.save(nanoDto)
 
+    // 调用引擎发送 text
+    const appModel = await this.appmodelRepository.findOneBy({id: parseInt(dialog.appmodelId)})
+    let engine 
+    if (appModel.mode === MODE_CHAT) {
+      engine = this.chatEngine
+    } else {
+      engine = this.completeEngine
+    }
+
     const observable = new Observable<MessageEvent>(ob => {
       ob.next({id: nano.id.toString(), type: 'PROMPT', data: nano.content});
-      this.engine.promptSse(ob, dialog.appmodelId, userId.toString(), nano2.id.toString(), prompt.text)
+      engine.promptSse(ob, dialog.appmodelId, userId.toString(), nano2.id.toString(), prompt.text)
     })
     // 调用引擎发送 text
 
@@ -147,7 +181,6 @@ export class DialogService {
         // 把记录写入数据库
         if (data.type === 'DONE') {
           const content = data.data.toString()
-          this.logger.debug(content)
           nano2.content = content
           this.nanoRepository.save(nano2)
         }

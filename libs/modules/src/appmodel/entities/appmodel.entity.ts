@@ -25,6 +25,17 @@ export class Appmodel {
     @IsString()
     desc: string
 
+    /* 模式 */
+    @Column({
+        name: 'mode',
+        comment: '模式',
+        type: 'varchar',
+        default: 'Complete',
+        length: 10,
+    })
+    @IsString()
+    mode: string
+
     /* 图片地址 */
     @Column({
         name: 'image',

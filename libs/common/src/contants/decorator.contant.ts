@@ -18,3 +18,7 @@ export const DATASCOPE_KEY_METADATA = "common:dataScope"
 
 /* 防止重复提交 */
 export const REOEATSUBMIT_METADATA = "common:repeatSubmit"
+
+/* ChatGPT引擎 */
+export const MODE_COMPLETE = "Complete"
+export const MODE_CHAT = "Chat"

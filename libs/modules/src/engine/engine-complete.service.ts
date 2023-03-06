@@ -3,40 +3,36 @@ import { CompletionPresetDto, CreateCompletionRequestDto, CreateEngineDto } from
 import { UpdateEngineDto } from './dto/update-engine.dto';
 
 import { Configuration, OpenAIApi, CreateCompletionRequest, CreateCompletionResponse } from "openai";
-import { response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Appmodel } from '../appmodel/entities/appmodel.entity';
 import { WsException } from '@nestjs/websockets';
 import { AxiosResponse } from 'axios';
 import { Observable, Subscriber } from 'rxjs';
-import { Nano } from '../nano/entities/nano.entity';
+import { EngineService } from './engine.interface';
 
 @Injectable()
-export class EngineService {
+export class EngineCompleteService implements EngineService{
   configuration: Configuration
   openai: OpenAIApi
   logger: Logger
-  model: string
+  mode: string
   organization: string
   apiKey: string
-  temperature: number
   history: Map<string, Array<string>>
   presetMap: Map<string, Appmodel>
   
   constructor(
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>, 
   ) {
-    this.logger = new Logger(EngineService.name)
+    this.logger = new Logger(EngineCompleteService.name)
     this.organization = process.env.OPENAI_ORGANIZATION
     this.apiKey = process.env.OPENAI_APIKEY
     let engine = 'DIALOG'
     if (engine === 'PICTURE') {
-      this.model = "text-davinci-003"
-      this.temperature = 0.1
+      this.mode = "text-davinci-003"
     } else {
-      this.model = "text-davinci-003"
-      this.temperature = 0.1
+      this.mode = "text-davinci-003"
     }
     this.configuration = new Configuration({
       apiKey: this.apiKey,
@@ -47,6 +43,9 @@ export class EngineService {
     this.presetMap = new Map()
   }
 
+  setMode(mode: string) {
+    this.mode = mode;
+  }
 
   create(createEngineDto: CreateEngineDto) {
     return 'This action adds a new engine';
@@ -127,7 +126,7 @@ export class EngineService {
       throw new WsException("输入文字无效")
     }
     
-    const completionRequest = appmodel.preset.completion
+    const completionRequest = appmodel.preset.completion as CreateCompletionRequest
     
     // completionRequest.stream = stream
     completionRequest.prompt = this.generatePrompt(appmodel.preset, intext, responseList)
@@ -176,7 +175,7 @@ export class EngineService {
       throw new WsException("输入文字无效")
     }
     
-    const completionRequest = appmodel.preset.completion
+    const completionRequest = appmodel.preset.completion as CreateCompletionRequest
     
     completionRequest.stream = true
     completionRequest.prompt = this.generatePrompt(appmodel.preset, intext, responseList)

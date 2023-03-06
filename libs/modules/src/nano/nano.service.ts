@@ -60,7 +60,7 @@ export class NanoService {
       },
       relations: { user: true },
       // skip: paginationDto.skip,
-      take: paginationDto.take | 10,
+      take: paginationDto.take | 5,
       order: {
         id: 'DESC',
       }
@@ -87,7 +87,7 @@ export class NanoService {
       where,
       // relations: [],
       // skip: paginationDto.skip,
-      take: paginationDto.take,
+      take: paginationDto.take | 5,
       order: {
         id: 'DESC',
       }

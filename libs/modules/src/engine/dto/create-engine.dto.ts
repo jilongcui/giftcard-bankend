@@ -1,4 +1,4 @@
-import { Configuration, CreateCompletionRequest } from "openai";
+import { Configuration, CreateChatCompletionRequest, CreateCompletionRequest } from "openai";
 
 export class CreateEngineDto {}
 export interface CreateCompletionRequestDto extends CreateCompletionRequest {
@@ -8,7 +8,7 @@ export interface CreateCompletionRequestDto extends CreateCompletionRequest {
 }
 
 export interface CompletionPresetDto {
-    completion: CreateCompletionRequest
+    completion: CreateCompletionRequest | CreateChatCompletionRequest
     historyLength: number | 10
     welcomeText?: string | null
     initText?: string | null

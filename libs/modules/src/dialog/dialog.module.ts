@@ -11,15 +11,17 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from '../system/auth/auth.constants';
 import { UserModule } from '../system/user/user.module';
 import { DialogController } from './dialog.controller';
+import { Appmodel } from '../appmodel/entities/appmodel.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Dialog, Nano]),
+    TypeOrmModule.forFeature([Dialog, Nano, Appmodel]),
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '168h' },
   }),
-    NanoModule, EngineModule, SharedModule, UserModule
+    EngineModule.forRoot(),
+    NanoModule, SharedModule, UserModule
   ],
   controllers: [DialogController],
   providers: [DialogGateway, DialogService],
