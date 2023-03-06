@@ -137,7 +137,7 @@ export class DialogService {
     const nano2 = await this.nanoRepository.save(nanoDto)
 
     const observable = new Observable<MessageEvent>(ob => {
-      ob.next({id: nano.id.toString(), type: 'PROMPT', data: nano});
+      ob.next({id: nano.id.toString(), type: 'PROMPT', data: nano.content});
       this.engine.promptSse(ob, dialog.appmodelId, userId.toString(), nano2.id.toString(), prompt.text)
     })
     // 调用引擎发送 text
