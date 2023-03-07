@@ -3,6 +3,7 @@ import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, LessThan, Repository } from 'typeorm';
+import { Dialog } from '../dialog/entities/dialog.entity';
 import { CreateNanoDto, ListNanoDto, MyListNanoDto } from './dto/create-nano.dto';
 import { UpdateNanoDto } from './dto/update-nano.dto';
 import { Nano } from './entities/nano.entity';
@@ -12,6 +13,7 @@ export class NanoService {
 
   constructor(
     @InjectRepository(Nano) private readonly nanoRepository: Repository<Nano>,
+    @InjectRepository(Dialog) private readonly dialogRepository: Repository<Dialog>,
   ) {
 
   }
@@ -93,6 +95,19 @@ export class NanoService {
       }
     })
 
+    if (result[1] === 0) {
+      const dialog = await this.dialogRepository.findOne({
+        where: {id: listMyNanoDto.dialogId}, relations: { appmodel: true },})
+      const appmodel = dialog.appmodel
+      const nano = new Nano()
+      nano.createTime = appmodel.createTime
+      nano.content = appmodel.preset.welcomeText
+      nano.dialogId = listMyNanoDto.dialogId
+      nano.type = '0'
+      nano.userId = userId
+      result[0] = nano
+      result[1] = 1
+    }
     return {
       rows: result[0],
       total: result[1]

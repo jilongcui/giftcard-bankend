@@ -1,9 +1,11 @@
 import { Activity } from "@app/modules/activity/entities/activity.entity"
+import { Appmodel } from "@app/modules/appmodel/entities/appmodel.entity"
 import { Excel } from "@app/modules/common/excel/excel.decorator"
 import { Nano } from "@app/modules/nano/entities/nano.entity"
 import { Payment } from "@app/modules/payment/entities/payment.entity"
 import { User } from "@app/modules/system/user/entities/user.entity"
 import { ApiHideProperty } from "@nestjs/swagger"
+import { AppModule } from "apps/nestjs-backend/src/app.module"
 import { Type } from "class-transformer"
 import { IsNumber, IsString, IsOptional } from "class-validator"
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToOne, ManyToOne, JoinColumn, ManyToMany, Collection, OneToMany } from "typeorm"
@@ -144,7 +146,7 @@ export class Dialog {
     /* 应用模型ID */
     @Column({
         name: 'appmodel_id',
-        default: '0',
+        default: '1',
         comment: '应用模型ID'
     })
     @IsOptional()
@@ -153,6 +155,14 @@ export class Dialog {
         name: '应用模型ID',
     })
     appmodelId?: string
+
+    @ApiHideProperty()
+    @IsOptional()
+    @ManyToOne(() => Appmodel)
+    @JoinColumn({
+        name: 'appmodel_id',
+    })
+    appmodel?: Appmodel
 
     /* 所属用户 */
     @Column({

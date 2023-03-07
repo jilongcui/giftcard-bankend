@@ -73,6 +73,7 @@ export class DialogService {
 
     // 修改对话状态
     dialog.status = '1'
+    
     dialog = await this.dialogRepository.save(dialog)
     return {...dialog, welcome: result.text}
   }
