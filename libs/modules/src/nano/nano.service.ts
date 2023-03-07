@@ -105,6 +105,7 @@ export class NanoService {
       nano.dialogId = listMyNanoDto.dialogId
       nano.type = '0'
       nano.userId = userId
+      nano.id = 1
       result[0] = nano
       result[1] = 1
     }
