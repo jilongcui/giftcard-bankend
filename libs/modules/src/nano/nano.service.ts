@@ -106,7 +106,7 @@ export class NanoService {
       nano.type = '0'
       nano.userId = userId
       nano.id = 1
-      result[0] = nano
+      result[0] = [nano]
       result[1] = 1
     }
     return {
