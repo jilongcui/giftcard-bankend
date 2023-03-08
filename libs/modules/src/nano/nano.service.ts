@@ -11,6 +11,7 @@ import { Nano } from './entities/nano.entity';
 @Injectable()
 export class NanoService {
 
+  logger = new Logger(NanoService.name)
   constructor(
     @InjectRepository(Nano) private readonly nanoRepository: Repository<Nano>,
     @InjectRepository(Dialog) private readonly dialogRepository: Repository<Dialog>,
@@ -109,6 +110,7 @@ export class NanoService {
       result[0] = [nano]
       result[1] = 1
     }
+    this.logger.debug(result[1])
     return {
       rows: result[0],
       total: result[1]
