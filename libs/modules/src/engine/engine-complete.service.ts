@@ -135,7 +135,7 @@ export class EngineCompleteService implements EngineService{
       const completion = await this.openai.createCompletion(completionRequest);
       // this.logger.debug(completion)
       // push new reponse to reponsesList
-      if(responseList.length > 10)
+      if(responseList.length > appmodel.preset.historyLength)
         responseList.shift()
       responseList.push(completion.data.choices[0].text + '\n' + appmodel.preset.startText)
       return {cpmlId: completion.data.id, object: completion.data.object,
@@ -175,6 +175,9 @@ export class EngineCompleteService implements EngineService{
       throw new WsException("输入文字无效")
     }
     
+    let length = 0
+    let shortStr = []
+
     const completionRequest = appmodel.preset.completion as CreateCompletionRequest
     
     completionRequest.stream = true
@@ -192,8 +195,11 @@ export class EngineCompleteService implements EngineService{
               const message = line.replace(/^data: /, '');
               if (message === '[DONE]') {
                 const content = strBuffer.join('')
+                if (shortStr.length > 0)
+                  ob.next({id: nanoId, data: shortStr.join('')});
                 ob.next({id: nanoId, type: 'DONE', data: content});
                 ob.complete()
+                shortStr = []
                 if(responseList.length > 10)
                   responseList.shift()
                 responseList.push( content + '\n' + appmodel.preset.startText)
@@ -201,9 +207,18 @@ export class EngineCompleteService implements EngineService{
               }
               try {
                   const parsed = JSON.parse(message);
-                  ob.next({id: nanoId, data: parsed.choices[0].text});
-                  strBuffer.push(parsed.choices[0].text)
-                  // this.logger.debug(parsed.choices[0].text)
+                  const content = parsed.choices[0].text
+
+                  // ob.next({id: nanoId, data: content});
+                  strBuffer.push()
+                  length += 1
+                  strBuffer.push(content)
+                  shortStr.push(content)
+                  if(length % 4 == 0) {
+                    ob.next({id: nanoId, data: shortStr.join('')});
+                    this.logger.debug(content)
+                    shortStr = []
+                  }
                   // this.logger.debug(Buffer.from(parsed.chioces[0].text, 'utf-8').toString())
                   // console.log(parsed.choices[0].text);
               } catch(error) {

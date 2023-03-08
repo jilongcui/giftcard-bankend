@@ -188,6 +188,8 @@ export class EngineChatService implements EngineService{
       throw new WsException("输入文字无效")
     }
     
+    let length = 0
+    let shortStr = []
     const completionRequest =  (appmodel.preset.completion as CreateChatCompletionRequest)
     completionRequest.stream = true
     completionRequest.model = 'gpt-3.5-turbo'
@@ -206,8 +208,11 @@ export class EngineChatService implements EngineService{
               const message = line.replace(/^data: /, '');
               if (message === '[DONE]') {
                 const content = strBuffer.join('')
+                if (shortStr.length > 0)
+                  ob.next({id: nanoId, data: shortStr.join('')});
                 ob.next({id: nanoId, type: 'DONE', data: content});
                 ob.complete()
+                shortStr = []
                 if(responseList.length >= appmodel.preset.historyLength)
                   responseList.shift()
                 responseList.push({role: 'assistant', content: content})
@@ -217,9 +222,12 @@ export class EngineChatService implements EngineService{
                   // this.logger.debug(message)
                   const parsed = JSON.parse(message);
                   const content = parsed.choices[0].delta.content
-                  if(content.length > 0) {
-                    ob.next({id: nanoId, data: content});
-                    strBuffer.push(content)
+                  length += 1
+                  strBuffer.push(content)
+                  shortStr.push(content)
+                  if(length % 4 == 0) {
+                    ob.next({id: nanoId, data: shortStr.join('')});
+                    shortStr = []
                   }
                   // this.logger.debug(Buffer.from(parsed.chioces[0].text, 'utf-8').toString())
                   // console.log(parsed.choices[0].text);
