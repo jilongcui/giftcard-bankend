@@ -175,7 +175,7 @@ export class EngineCompleteService implements EngineService{
       throw new WsException("输入文字无效")
     }
     
-    let length = 0
+    let length = 2
     let shortStr = []
 
     const completionRequest = appmodel.preset.completion as CreateCompletionRequest
@@ -214,7 +214,7 @@ export class EngineCompleteService implements EngineService{
                   length += 1
                   strBuffer.push(content)
                   shortStr.push(content)
-                  if(length % 4 == 0) {
+                  if(length % 3 == 0) {
                     ob.next({id: nanoId, data: shortStr.join('')});
                     this.logger.debug(content)
                     shortStr = []

@@ -188,7 +188,7 @@ export class EngineChatService implements EngineService{
       throw new WsException("输入文字无效")
     }
     
-    let length = 0
+    let length = 2
     let shortStr = []
     const completionRequest =  (appmodel.preset.completion as CreateChatCompletionRequest)
     completionRequest.stream = true
@@ -225,7 +225,7 @@ export class EngineChatService implements EngineService{
                   length += 1
                   strBuffer.push(content)
                   shortStr.push(content)
-                  if(length % 4 == 0) {
+                  if(length % 3 == 0) {
                     ob.next({id: nanoId, data: shortStr.join('')});
                     shortStr = []
                   }
