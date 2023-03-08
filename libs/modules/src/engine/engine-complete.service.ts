@@ -210,7 +210,6 @@ export class EngineCompleteService implements EngineService{
                   const content = parsed.choices[0].text
 
                   // ob.next({id: nanoId, data: content});
-                  strBuffer.push()
                   length += 1
                   strBuffer.push(content)
                   shortStr.push(content)
