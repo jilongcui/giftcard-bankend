@@ -110,7 +110,7 @@ export class NanoService {
       result[0] = [nano]
       result[1] = 1
     }
-    this.logger.debug(result[1])
+    // this.logger.debug(result[1])
     return {
       rows: result[0],
       total: result[1]
