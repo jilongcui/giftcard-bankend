@@ -46,7 +46,7 @@ export class AppmodelService {
   }
 
   remove(id: number) {
-    return this.appmodelRepository.delete(id)
+    return this.appmodelRepository.softDelete(id)
   }
 }
 
