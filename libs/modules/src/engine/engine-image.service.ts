@@ -153,12 +153,17 @@ export class EngineImageService implements EngineService{
       // 把生成的图片方到服务器上，然后返回url
       // 还是把身材的图片直接以base64的方式传递给前端呢
 
-      const fileName = strRandom(8).toLowerCase() + '.png'
-      const fullName = 'created_images' + '/' +userId + '/' + fileName
-      const url = await this.uploadService.uploadBase64ToCos(fullName, completion.data.data[0].b64_json)
-      const content = `![${fileName}](${url})`
-      ob.next({id: nanoId, data: content});
-      ob.next({id: nanoId, type: 'DONE', data: content});
+      const contents = []
+      for(let i=0; i< completion.data.data.length; i++) {
+        const fileName = strRandom(8).toLowerCase() + '.png'
+        const fullName = 'created_images' + '/' +userId + '/' + fileName
+        const url = await this.uploadService.uploadBase64ToCos(fullName, completion.data.data[i].b64_json)
+        const content = `![${fileName}](${url})`
+        contents.push(content)
+        ob.next({id: nanoId, data: content});
+      }
+      
+      ob.next({id: nanoId, type: 'DONE', data: contents.join()});
       ob.complete()
       
       // this.logger.debug('responseList 2' + responseList.length)
