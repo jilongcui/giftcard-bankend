@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { createEngineProviders } from './engine.providers';
 import { EngineChatService } from './engine-chat.service';
 import { EngineCompleteService } from './engine-complete.service';
+import { EngineImageService } from './engine-image.service';
+import { UploadModule } from '../common/upload/upload.module';
 
 // @Module({
 //   imports: [
@@ -19,10 +21,11 @@ export class EngineModule {
     return {
       module: EngineModule,
       imports: [
-        TypeOrmModule.forFeature([Appmodel])
+        TypeOrmModule.forFeature([Appmodel]),
+        UploadModule
       ],
-      providers: [EngineChatService, EngineCompleteService],
-      exports: [EngineChatService, EngineCompleteService]
+      providers: [EngineChatService, EngineImageService, EngineCompleteService],
+      exports: [EngineChatService, EngineImageService, EngineCompleteService]
     }
   }
 }

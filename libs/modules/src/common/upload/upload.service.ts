@@ -44,6 +44,22 @@ export class UploadService {
         return this.cosDomain + '/' + fileName
     }
 
+    async uploadBase64ToCos(fileName: string, base64: string): Promise<string> {
+        // 分片上传
+        await this.cos.putObject({
+            Bucket: this.bucket,
+            Region: this.region,
+            Key: fileName,              /* 必须 */
+            ContentType:"image/png",
+            Body: Buffer.from(base64, 'base64'), // 上传文件对象
+            onProgress: function(progressData) {
+                //console.log(JSON.stringify(progressData));
+            }
+        });
+
+        return this.cosDomain + '/' + fileName
+    }
+
     async thumbnail(fileName: string, scale: string) {
         // 生成带图片处理参数的文件 URL，不带签名。
         const url = await new Promise((resolve, reject) => {
@@ -60,5 +76,24 @@ export class UploadService {
             })
         })
         return url
+    }
+
+    /**
+     * 将以base64的图片url数据转换为Blob
+     * @param urlData
+     *            用url方式表示的base64图片数据
+     */
+    convertBase64UrlToBlob(urlData){
+
+        var bytes=window.atob(urlData.split(',')[1]);        //去掉url的头，并转换为byte
+
+        //处理异常,将ascii码小于0的转换为大于0
+        var ab = new ArrayBuffer(bytes.length);
+        var ia = new Uint8Array(ab);
+        for (var i = 0; i < bytes.length; i++) {
+            ia[i] = bytes.charCodeAt(i);
+        }
+
+        return new Blob( [ab] , {type : 'image/png'});
     }
 }

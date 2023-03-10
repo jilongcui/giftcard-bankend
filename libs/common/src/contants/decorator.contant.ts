@@ -22,3 +22,4 @@ export const REOEATSUBMIT_METADATA = "common:repeatSubmit"
 /* ChatGPT引擎 */
 export const MODE_COMPLETE = "Complete"
 export const MODE_CHAT = "Chat"
+export const MODE_IMAGE = "Image"

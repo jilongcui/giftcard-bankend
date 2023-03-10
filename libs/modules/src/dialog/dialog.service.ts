@@ -1,4 +1,4 @@
-import { MODE_CHAT, MODE_COMPLETE } from '@app/common/contants/decorator.contant';
+import { MODE_CHAT, MODE_COMPLETE, MODE_IMAGE } from '@app/common/contants/decorator.contant';
 import { Injectable, Logger, MessageEvent } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WsException, WsResponse } from '@nestjs/websockets';
@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Appmodel } from '../appmodel/entities/appmodel.entity';
 import { EngineChatService } from '../engine/engine-chat.service';
 import { EngineCompleteService } from '../engine/engine-complete.service';
+import { EngineImageService } from '../engine/engine-image.service';
 import { InjectEngine } from '../engine/engine.decorator';
 import { EngineService } from '../engine/engine.interface';
 import { CreateNanoDto } from '../nano/dto/create-nano.dto';
@@ -26,6 +27,7 @@ export class DialogService {
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>,
     private readonly chatEngine: EngineChatService,
     private readonly completeEngine: EngineChatService,
+    private readonly imageEngine: EngineImageService,
   ) {
 
     this.stringMap = new Map<string, [string]>()
@@ -68,6 +70,8 @@ export class DialogService {
       result = await this.chatEngine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
     } else if (appModel.mode === MODE_COMPLETE) {
       result = await this.completeEngine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
+    } else if (appModel.mode === MODE_IMAGE) {
+      result = await this.imageEngine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
     }
     // client.emit('completion', result)
 
@@ -167,6 +171,8 @@ export class DialogService {
     let engine 
     if (appModel.mode === MODE_CHAT) {
       engine = this.chatEngine
+    } else if (appModel.mode === MODE_IMAGE) {
+      engine = this.imageEngine
     } else {
       engine = this.completeEngine
     }
@@ -194,6 +200,48 @@ export class DialogService {
     })
     )
   }
+
+  async createImage(prompt: PromptDto, userId: number){
+    // this.logger.debug(`prompt> ${userId}: ${prompt.text}`)
+
+    if(!prompt.dialogId || !userId || !prompt.text) {
+      throw new WsException("输入参数不正确")
+    }
+    const dialog = await this.dialogRepository.findOneBy({
+      id: parseInt(prompt.dialogId), userId: userId
+    })
+    const nano: CreateNanoDto = {
+      userId: userId,
+      dialogId: parseInt(prompt.dialogId),
+      type: '0', // prompt
+      content: prompt.text
+    }
+    await this.nanoRepository.save(nano)
+
+    // 调用引擎发送 text
+    const appModel = await this.appmodelRepository.findOneBy({id: parseInt(dialog.appmodelId)})
+    // this.logger.debug(appModel)
+
+    // 等待初始化完成
+    let engine 
+    if (appModel.mode === MODE_CHAT) {
+      engine = this.chatEngine
+    } else {
+      engine = this.completeEngine
+    }
+    const result = await engine.prompt(dialog.appmodelId, userId.toString(), prompt.text)
+
+    // 把记录写入数据库
+    const nano2: CreateNanoDto = {
+      userId: userId,
+      dialogId: parseInt(prompt.dialogId),
+      type: '1', // answer
+      content: result.text
+    }
+    await this.nanoRepository.save(nano2)
+    return result
+  }
+
 
 //   /* 分页查询 */
 //   async list(reqNanoList: ReqNanoList): Promise<PaginatedDto<Notice>> {
