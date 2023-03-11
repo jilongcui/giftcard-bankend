@@ -96,7 +96,7 @@ export class NanoService {
       }
     })
 
-    if (result[1] === 0) {
+    if (paginationDto.lastId <= 0 && result[1] === 0) {
       const dialog = await this.dialogRepository.findOne({
         where: {id: listMyNanoDto.dialogId}, relations: { appmodel: true },})
       const appmodel = dialog.appmodel
