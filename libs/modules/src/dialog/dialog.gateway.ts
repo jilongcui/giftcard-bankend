@@ -13,7 +13,7 @@ import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { MemberAuthGuard } from '@app/common/guards/member-auth.guard';
 import { from, map, Observable } from 'rxjs';
 
-// @UseFilters(new AllWsExceptionsFilter())
+@UseFilters(new AllWsExceptionsFilter())
 @UseGuards(JwtWsAuthGuard)
 @WebSocketGateway({
   // path: '/ws',
