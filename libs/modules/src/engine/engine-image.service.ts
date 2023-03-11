@@ -132,11 +132,11 @@ export class EngineImageService implements EngineService{
   {
     const appmodel = this.presetMap.get(appmodelId + '-' + userId)
     if (!appmodel) {
-      throw new WsException("Need open first!")
+      ob.error("请重新进入此页面")
     }
     const text = intext || '';
     if (text.trim().length === 0) {
-      throw new WsException("输入文字无效")
+      ob.error("输入文字无效")
     }
     const completionRequest =  (appmodel.preset.completion as CreateImageRequest)
     // completionRequest.stream = stream
@@ -175,7 +175,7 @@ export class EngineImageService implements EngineService{
       } else {
         this.logger.error(`Error with OpenAI API request: ${error.message}`);
       }
-      ob.error("OpenAI API请求错误")
+      ob.error("请求错误：不要包含敏感文字")
     }
   }
 }
