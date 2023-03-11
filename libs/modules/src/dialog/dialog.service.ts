@@ -3,7 +3,7 @@ import { Injectable, Logger, MessageEvent } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WsException, WsResponse } from '@nestjs/websockets';
 import { Socket } from 'net';
-import { tap, map, Observable } from 'rxjs';
+import { tap, map, Observable, catchError } from 'rxjs';
 import { Repository } from 'typeorm';
 import { Appmodel } from '../appmodel/entities/appmodel.entity';
 import { EngineChatService } from '../engine/engine-chat.service';
@@ -179,8 +179,8 @@ export class DialogService {
 
     const observable = new Observable<MessageEvent>(ob => {
       ob.next({id: nano.id.toString(), type: 'PROMPT', data: nano.content});
-      engine.promptSse(ob, dialog.appmodelId, userId.toString(), nano2.id.toString(), prompt.text)
-    })
+        engine.promptSse(ob, dialog.appmodelId, userId.toString(), nano2.id.toString(), prompt.text)
+      })
     // 调用引擎发送 text
 
     return observable.pipe(
@@ -192,12 +192,13 @@ export class DialogService {
           this.nanoRepository.save(nano2)
         }
       }),
-    map(data => {
-      if (data.type === 'DONE'){
-        data.data = null
-      }
-      return data
-    })
+      map(data => {
+        if (data.type === 'DONE'){
+          data.data = null
+        }
+        return data
+      }),
+      catchError(error => {throw new WsException(error)})
     )
   }
 

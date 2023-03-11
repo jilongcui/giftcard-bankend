@@ -235,7 +235,7 @@ export class EngineCompleteService implements EngineService{
       } else {
         this.logger.error(`Error with OpenAI API request: ${error.message}`);
       }
-      throw new WsException("OpenAI API请求错误")
+      ob.error("OpenAI API请求错误")
     }
   }
 }
