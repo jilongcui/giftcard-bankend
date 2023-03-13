@@ -33,7 +33,7 @@ export class WeixinAuthGuard extends AuthGuard('weixin') {
         if (err || !user) {
             const request = this.context.switchToHttp().getRequest()
             request.user = user
-            request.body.userName = user.userName
+            request.body.username = user.userName
             this.logService.addLogininfor(request, err.response)
             throw err || new ApiException(err);
         }
