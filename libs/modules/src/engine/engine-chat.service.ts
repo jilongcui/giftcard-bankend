@@ -136,14 +136,15 @@ export class EngineChatService implements EngineService{
     if (text.trim().length === 0) {
       throw new WsException("输入文字无效")
     }
-    const completionRequest =  (appmodel.preset.completion as CreateChatCompletionRequest)
-    // completionRequest.stream = stream
-    completionRequest.model = 'gpt-3.5-turbo'
-    // this.logger.debug('responseList1 ' + responseList.length)
-    completionRequest.messages = this.generateChatPrompt(appmodel.preset, intext, responseList)
-    // this.logger.debug(completionRequest.prompt)
-    // this.logger.debug(JSON.stringify(completionRequest.messages))
     try {
+
+      const completionRequest =  (appmodel.preset.completion as CreateChatCompletionRequest)
+      // completionRequest.stream = stream
+      completionRequest.model = 'gpt-3.5-turbo'
+      // this.logger.debug('responseList1 ' + responseList.length)
+      completionRequest.messages = this.generateChatPrompt(appmodel.preset, intext, responseList)
+      // this.logger.debug(completionRequest.prompt)
+      // this.logger.debug(JSON.stringify(completionRequest.messages))
       const completion = await this.openai.createChatCompletion(completionRequest);
       // this.logger.debug(completion)
       // push new reponse to reponsesList
@@ -180,7 +181,7 @@ export class EngineChatService implements EngineService{
       ob.error("请重新进入本页面")
     }
     const appmodel = this.presetMap.get(appmodelId + '-' + userId)
-    if (!appmodel) {
+    if (!appmodel || !appmodel.preset) {
       ob.error("请重新进入本页面")
     }
     const text = intext || '';
@@ -190,13 +191,14 @@ export class EngineChatService implements EngineService{
     
     let length = 2
     let shortStr = []
-    const completionRequest =  (appmodel.preset.completion as CreateChatCompletionRequest)
-    completionRequest.stream = true
-    completionRequest.model = 'gpt-3.5-turbo'
-    completionRequest.messages = this.generateChatPrompt(appmodel.preset, intext, responseList)
+    
     // this.logger.debug(JSON.stringify(completionRequest.messages))
 
     try {
+      const completionRequest =  (appmodel.preset.completion as CreateChatCompletionRequest)
+      completionRequest.stream = true
+      completionRequest.model = 'gpt-3.5-turbo'
+      completionRequest.messages = this.generateChatPrompt(appmodel.preset, intext, responseList)
       const res: AxiosResponse<any> = await this.openai.createChatCompletion(completionRequest, { responseType: 'stream' });
       // this.logger.debug(completion)
       // push new reponse to reponsesList

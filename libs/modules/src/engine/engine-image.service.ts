@@ -77,7 +77,7 @@ export class EngineImageService implements EngineService{
     const appModel = await this.appmodelRepository.findOneBy({id: appmodelId})
     // this.logger.debug(appModel)
 
-    if(!appModel) {
+    if(!appModel || !appModel.preset) {
       throw new WsException('App model is not exist.')
     }
     const initText = appModel.preset.initText.replace('${username}', userName)

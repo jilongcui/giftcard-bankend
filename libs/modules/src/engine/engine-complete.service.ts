@@ -118,7 +118,7 @@ export class EngineCompleteService implements EngineService{
       throw new WsException("Need open first!")
     }
     const appmodel = this.presetMap.get(appmodelId + '-' + userId)
-    if (!appmodel) {
+    if (!appmodel ) {
       throw new WsException("Need open first!")
     }
     const text = intext || '';
@@ -167,7 +167,7 @@ export class EngineCompleteService implements EngineService{
       ob.error("请重新进入此页面!")
     }
     const appmodel = this.presetMap.get(appmodelId + '-' + userId)
-    if (!appmodel) {
+    if (!appmodel || !appmodel.preset) {
       ob.error("请重新进入此页面!")
     }
     
