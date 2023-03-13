@@ -215,7 +215,7 @@ export class EngineChatService implements EngineService{
                 ob.next({id: nanoId, type: 'DONE', data: content});
                 ob.complete()
                 shortStr = []
-                if(responseList.length >= appmodel.preset.historyLength)
+                if(responseList && responseList.length >= appmodel.preset.historyLength)
                   responseList.shift()
                 responseList.push({role: 'assistant', content: content})
                 return
@@ -241,7 +241,7 @@ export class EngineChatService implements EngineService{
       // })
     } catch(error) {
       // Consider adjusting the error handling logic for your use case
-      if(responseList.length > 0)
+      if(responseList && responseList.length > 0)
         responseList.shift()
       if (error.response) {
         this.logger.error(error.response.status, error.response.data);
