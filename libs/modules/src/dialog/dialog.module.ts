@@ -12,6 +12,7 @@ import { jwtConstants } from '../system/auth/auth.constants';
 import { UserModule } from '../system/user/user.module';
 import { DialogController } from './dialog.controller';
 import { Appmodel } from '../appmodel/entities/appmodel.entity';
+import { AuthModule } from '../system/auth/auth.module';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { Appmodel } from '../appmodel/entities/appmodel.entity';
       signOptions: { expiresIn: '168h' },
   }),
     EngineModule.forRoot(),
-    NanoModule, SharedModule, UserModule
+    NanoModule, SharedModule, UserModule, AuthModule
   ],
   controllers: [DialogController],
   providers: [DialogGateway, DialogService],

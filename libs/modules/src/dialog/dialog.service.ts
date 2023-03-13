@@ -3,7 +3,7 @@ import { Injectable, Logger, MessageEvent } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WsException, WsResponse } from '@nestjs/websockets';
 import { Socket } from 'net';
-import { tap, map, Observable, catchError } from 'rxjs';
+import { tap, map, Observable, catchError, switchMap } from 'rxjs';
 import { Repository } from 'typeorm';
 import { Appmodel } from '../appmodel/entities/appmodel.entity';
 import { EngineChatService } from '../engine/engine-chat.service';
@@ -13,6 +13,7 @@ import { InjectEngine } from '../engine/engine.decorator';
 import { EngineService } from '../engine/engine.interface';
 import { CreateNanoDto } from '../nano/dto/create-nano.dto';
 import { Nano } from '../nano/entities/nano.entity';
+import { AuthService } from '../system/auth/auth.service';
 import { CreateDialogDto, OpenDialogDto, PromptDto } from './dto/create-dialog.dto';
 import { UpdateDialogDto } from './dto/update-dialog.dto';
 import { Dialog } from './entities/dialog.entity';
@@ -28,6 +29,7 @@ export class DialogService {
     private readonly chatEngine: EngineChatService,
     private readonly completeEngine: EngineChatService,
     private readonly imageEngine: EngineImageService,
+    private readonly authService: AuthService
   ) {
 
     this.stringMap = new Map<string, [string]>()
@@ -140,12 +142,22 @@ export class DialogService {
     return result
   }
 
-  async promptSse(prompt: PromptDto, userId: number){
+  async promptSse(prompt: PromptDto, userId: number, openId: string){
     // this.logger.debug(`prompt> ${userId}: ${prompt.text}`)
 
     if(!prompt.dialogId || !userId || !prompt.text) {
       throw new WsException("输入参数不正确")
     }
+
+    try {
+      const security = await this.authService.securityCheck(openId, prompt.text)
+      if ( !security) {
+        throw new WsException('请不要使用敏感字，否则被封号')
+      }
+    } catch (error) {
+      throw new WsException(error)
+    }
+
     const dialog = await this.dialogRepository.findOneBy({
       id: parseInt(prompt.dialogId), userId: userId
     })
@@ -184,16 +196,32 @@ export class DialogService {
     // 调用引擎发送 text
 
     return observable.pipe(
-      tap(data =>{
-        // 把记录写入数据库
-        if (data.type === 'DONE') {
+      // tap(data =>{
+      //   // 把记录写入数据库
+      //   if (data.type === 'DONE') {
+          
+      //   }
+      // }),
+      switchMap(async data => {
+        if (data.type === 'DONE'){
           const content = data.data.toString()
           nano2.content = content
+          if (appModel.mode !== MODE_IMAGE) {
+            try {
+              prompt.text = '这个问题牵涉到政治立场和历史背景，因此回答并不简单。在中国大陆政府的官方观点中，台湾是其领土不可分割的一部分。然而，在台湾方面，尤其是经历过多年民主化进程的民间观点中，认为台湾是一个独立的政治实体。亲民党和中华民国等政党也持有类似的观点。总而言之，这个问题并没有简单和一致的答案，需要考虑不同的政治和文化背景。'
+              
+              const security = await this.authService.securityCheck(openId, prompt.text)
+              if ( !security) {
+                nano2.content = '** 敏感内容 **'
+                this.nanoRepository.save(nano2)
+                throw new WsException('请不要讨论敏感内容，否则被封号')
+              }
+            } catch (error) {
+              throw new WsException(error)
+            }
+          }
+          
           this.nanoRepository.save(nano2)
-        }
-      }),
-      map(data => {
-        if (data.type === 'DONE'){
           data.data = null
         }
         return data

@@ -17,6 +17,8 @@ export const USER_ROLEKEYS_KEY = "admin:roleKeys:token"  //角色标识
 export const USER_ROLEKS_KEY = "admin:role:token"  //角色
 export const USER_MEMBER_ENDTIME_KEY = "admin:memberEndTime:token"  //用户会员结束时间
 export const USER_MEMBER_COUNT_KEY = "admin:memberEndTime:token"  //用户剩余次数
+export const USER_ACCESS_TOKEN_KEY = "admin:user:access:token"  // 用户token
+
 
 
 export const USER_ONLINE_KEY = "admin:online:token"  // 在线用户

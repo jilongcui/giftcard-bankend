@@ -13,7 +13,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CAPTCHA_IMG_KEY, USER_AVATAR_KEY, USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_MEMBER_ENDTIME_KEY, USER_NICKNAME_KEY, USER_OPENID_KEY, USER_PERMISSIONS_KEY, USER_ROLEKEYS_KEY, USER_ROLEKS_KEY, USER_TOKEN_KEY, USER_USERNAME_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
+import { CAPTCHA_IMG_KEY, USER_ACCESS_TOKEN_KEY, USER_AVATAR_KEY, USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_MEMBER_ENDTIME_KEY, USER_NICKNAME_KEY, USER_OPENID_KEY, USER_PERMISSIONS_KEY, USER_ROLEKEYS_KEY, USER_ROLEKS_KEY, USER_TOKEN_KEY, USER_USERNAME_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { SharedService } from '@app/shared/shared.service';
 import { MenuService } from '../system/menu/menu.service';
@@ -29,6 +29,7 @@ import { ReqAddUserDto } from '../system/user/dto/req-user.dto';
 import { isPhoneNumber } from 'class-validator';
 import * as moment from 'moment'
 import { InviteUserService } from '@app/modules/inviteuser/invite-user.service';
+import { AuthService } from '../system/auth/auth.service';
 
 @Injectable()
 export class LoginService {
@@ -41,7 +42,8 @@ export class LoginService {
         private readonly menuService: MenuService,
         private readonly logService: LogService,
         private readonly configService: ConfigService,
-        private readonly inviteUserService: InviteUserService
+        private readonly inviteUserService: InviteUserService,
+        private readonly authService: AuthService
     ) {
         this.logger = new Logger(LoginService.name)
     }
@@ -209,6 +211,7 @@ export class LoginService {
                 jwtSign = token
             }
         }
+
         //存储密码版本号，防止登录期间 密码被管理员更改后 还能继续登录
         await this.redis.set(`${USER_VERSION_KEY}:${user.userId}`, 1)
         //存储token, 防止重复登录问题，设置token过期时间(1天后 token 自动过期)，以及主动注销token。

@@ -2,7 +2,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { isEmpty } from 'lodash';
-import { CAPTCHA_IMG_KEY, USER_TOKEN_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
+import { CAPTCHA_IMG_KEY, USER_ACCESS_TOKEN_KEY, USER_TOKEN_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { SharedService } from '@app/shared/shared.service';
 import { UserService } from '../user/user.service';
@@ -95,5 +95,54 @@ export class AuthService {
     if (restoken !== token) throw new ApiException("登录状态已过期", 401)
     const passwordVersion = parseInt(await this.redis.get(`${USER_VERSION_KEY}:${userId}`))
     if (pv !== passwordVersion) throw new ApiException("用户信息已被修改", 401)
+  }
+
+  /* 获取微信登录access token */
+  async getAccessToken() {
+    try {
+      let accessToken = await this.redis.get(`${USER_ACCESS_TOKEN_KEY}`)
+      if (!accessToken) {
+        const url = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${this.appId}&secret=${this.secret}`
+        // const info = await this.getInfo(url) // 获取openid和session_key
+        this.logger.debug(url)
+        const info: any = await axios.get(url);
+        this.logger.debug(info.data)
+        if (info.data.errcode && info.data.errcode !== 0) {
+          throw new ApiException(info.data.errmsg)
+        }
+        await this.redis.set(`${USER_ACCESS_TOKEN_KEY}`, info.data.access_token, 'EX', 60 * 60 * 2)
+        accessToken = info.data.access_token
+      }
+      return accessToken
+    } catch(error) {
+      
+    }
+  }
+
+  /* 判断微信登录的逻辑 */
+  async securityCheck(openId: string, text: string) {
+    const accessToken = await this.getAccessToken()
+    /* Get openID and session_key from weixin service by code */
+    const url = `https://api.weixin.qq.com/wxa/msg_sec_check?access_token=${accessToken}`
+    // const info = await this.getInfo(url) // 获取openid和session_key
+    // this.logger.debug(url)
+
+    const info: any = await axios.post(url, {
+      "openid": openId,
+      "scene": 2,
+      "version": 2,
+      "content": text
+    });
+    // this.logger.debug(info.data)
+    // result.result.errcode === 0 && result.result.suggest === 'risky'
+    // this.logger.debug(info.data)
+    if (info.data.errcode !== 0 ) {
+      return false
+    }
+    if( info.data.result.suggest === 'pass') {
+      return true
+    }
+
+    return false
   }
 }
