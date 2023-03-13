@@ -53,6 +53,7 @@ export class DialogService {
       // return {code: 400, message: "输入参数不正确"}
       throw new WsException('参数不正确')
     }
+    this.logger.debug(`${openDialogDto.appmodelId} ${openDialogDto.userId}`)
     openDialogDto.appmodelId = openDialogDto.appmodelId || '1'
     // this.logger.debug(openDialogDto.appmodelId)
     // 寻找是否有已知对话，不存在就创建
