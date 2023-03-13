@@ -208,8 +208,6 @@ export class DialogService {
           nano2.content = content
           if (appModel.mode !== MODE_IMAGE) {
             try {
-              prompt.text = '这个问题牵涉到政治立场和历史背景，因此回答并不简单。在中国大陆政府的官方观点中，台湾是其领土不可分割的一部分。然而，在台湾方面，尤其是经历过多年民主化进程的民间观点中，认为台湾是一个独立的政治实体。亲民党和中华民国等政党也持有类似的观点。总而言之，这个问题并没有简单和一致的答案，需要考虑不同的政治和文化背景。'
-              
               const security = await this.authService.securityCheck(openId, prompt.text)
               if ( !security) {
                 nano2.content = '** 敏感内容 **'
