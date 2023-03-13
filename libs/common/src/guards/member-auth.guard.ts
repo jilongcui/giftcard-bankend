@@ -16,6 +16,7 @@ import { Reflector } from '@nestjs/core';
 import { USER_MEMBER_ENDTIME_KEY, USER_ROLEKEYS_KEY } from '../contants/redis.contant';
 import * as moment from 'moment';
 import { WsException } from '@nestjs/websockets';
+import { ApiException } from '../exceptions/api.exception';
 
 @Injectable()
 export class MemberAuthGuard implements CanActivate {
@@ -39,14 +40,24 @@ export class MemberAuthGuard implements CanActivate {
         const client = context.switchToRpc().getContext()
         userId = client.user?.userId
     } 
-
-    const endTime = await this.redis.get(`${USER_MEMBER_ENDTIME_KEY}:${userId}`)
-    if(!endTime) {
-      throw new WsException('还不是VIP会员，请升级为VIP')
+    try {
+      const endTime = await this.redis.get(`${USER_MEMBER_ENDTIME_KEY}:${userId}`)
+      if(!endTime) {
+        throw new Error('还不是VIP会员，请升级为VIP')
+      }
+  
+      const invalidMember = moment(endTime).isBefore(moment(moment.now()))
+      if (invalidMember) throw new Error('会员已到期')
+    } catch (error) {
+      if(context.getType() === 'http') {
+        throw new ApiException(error)
+      } else if (context.getType() === 'ws') {
+        throw new WsException(error)
+      } else if (context.getType() === 'rpc') {
+        throw new WsException(error)
+      } 
     }
-
-    const invalidMember = moment(endTime).isBefore(moment(moment.now()))
-    if (invalidMember) throw new WsException('会员已到期')
+    
     
     return true
   }
