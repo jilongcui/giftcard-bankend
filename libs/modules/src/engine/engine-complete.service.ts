@@ -165,15 +165,18 @@ export class EngineCompleteService implements EngineService{
     // We get promptpreset model
     if (!responseList) {
       ob.error("请重新进入此页面!")
+      return
     }
     const appmodel = this.presetMap.get(appmodelId + '-' + userId)
     if (!appmodel || !appmodel.preset) {
       ob.error("请重新进入此页面!")
+      return
     }
     
     const text = intext || '';
     if (text.trim().length === 0) {
       ob.error("输入文字无效!")
+      return 
     }
     
     let length = 2
@@ -229,7 +232,7 @@ export class EngineCompleteService implements EngineService{
       // })
     } catch(error) {
       // Consider adjusting the error handling logic for your use case
-      if(responseList.length > 0)
+      if(responseList && responseList.length > 0)
         responseList.shift()
       if (error.response) {
         this.logger.error(error.response.status, error.response.data);

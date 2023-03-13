@@ -179,14 +179,17 @@ export class EngineChatService implements EngineService{
     // We get promptpreset model
     if (!responseList) {
       ob.error("请重新进入本页面")
+      return
     }
     const appmodel = this.presetMap.get(appmodelId + '-' + userId)
     if (!appmodel || !appmodel.preset) {
       ob.error("请重新进入本页面")
+      return
     }
     const text = intext || '';
     if (text.trim().length === 0) {
       ob.error("输入文字无效")
+      return
     }
     
     let length = 2
