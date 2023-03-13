@@ -131,7 +131,7 @@ export class EngineImageService implements EngineService{
   async promptSse(ob:Subscriber<MessageEvent>, appmodelId: string, userId: string, nanoId: string, intext: string)
   {
     const appmodel = this.presetMap.get(appmodelId + '-' + userId)
-    if (!appmodel) {
+    if (!appmodel || !appmodel.preset) {
       ob.error("请重新进入此页面")
     }
     const text = intext || '';
