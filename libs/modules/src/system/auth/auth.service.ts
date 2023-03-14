@@ -133,7 +133,7 @@ export class AuthService {
       "version": 2,
       "content": text
     });
-    this.logger.debug(info.data)
+    // this.logger.debug(info.data)
     // result.result.errcode === 0 && result.result.suggest === 'risky'
     // this.logger.debug(info.data)
     if (info.data.errcode !== 0 ) {
