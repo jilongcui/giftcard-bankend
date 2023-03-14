@@ -210,7 +210,7 @@ export class DialogService {
               if ( !security) {
                 // this.logger.debug('** 敏感内容 **')
                 nano2.content = '** 敏感内容 **'
-                this.nanoRepository.save(nano2)
+                await this.nanoRepository.save(nano2)
                 throw new WsException('请不要讨论敏感内容，否则被封号')
               }
             } catch (error) {
