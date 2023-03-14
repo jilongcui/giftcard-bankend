@@ -12,6 +12,8 @@ import { AxiosResponse } from 'axios';
 import { Observable, Subscriber } from 'rxjs';
 import { Nano } from '../nano/entities/nano.entity';
 import { EngineService } from './engine.interface';
+import Redis from 'ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 
 @Injectable()
 export class EngineChatService implements EngineService{
@@ -26,6 +28,7 @@ export class EngineChatService implements EngineService{
   
   constructor(
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>, 
+    @InjectRedis() private readonly redis: Redis,
   ) {
     this.logger = new Logger(EngineChatService.name)
     this.organization = process.env.OPENAI_ORGANIZATION
@@ -106,7 +109,6 @@ export class EngineChatService implements EngineService{
     appModel.preset.completion.user = 'YaYaUser'+appmodelId + '-' +userId, 
     // We save appmodel 
     this.presetMap.set(appmodelId + '-' +userId, appModel)
-
     // We get history five nano.
     responseList = this.history.get('user' + userId)
 

@@ -198,17 +198,13 @@ export class DialogService {
     // 调用引擎发送 text
 
     return observable.pipe(
-      // tap(data =>{
-      //   // 把记录写入数据库
-      //   if (data.type === 'DONE') {
-          
-      //   }
-      // }),
-      switchMap(async data => {
+      tap(async data =>{
+        // 把记录写入数据库
         if (data.type === 'DONE'){
           const content = data.data.toString()
           nano2.content = content
           if (appModel.mode !== MODE_IMAGE) {
+            // this.logger.debug("Security Check")
             try {
               const security = await this.authService.securityCheck(openId, prompt.text)
               if ( !security) {
@@ -221,9 +217,16 @@ export class DialogService {
             }
           }
           
-          this.nanoRepository.save(nano2)
+          await this.nanoRepository.save(nano2)
           data.data = null
         }
+      }),
+      map(data => {
+        if (data.type === 'DONE'){
+          // await this.nanoRepository.save(nano2)
+          data.data = null
+        }
+        this.logger.debug(JSON.stringify(data))
         return data
       }),
       catchError(error => {throw new WsException(error)})
