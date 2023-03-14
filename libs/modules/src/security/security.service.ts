@@ -1,3 +1,4 @@
+import { ApiException } from '@app/common/exceptions/api.exception';
 import { Injectable } from '@nestjs/common';
 import { AuthService } from '../system/auth/auth.service';
 import { CreateSecurityDto } from './dto/create-security.dto';
@@ -32,6 +33,8 @@ export class SecurityService {
   }
 
   checkText(openId: string, text: string) {
+    if (!openId)
+      throw Error('先使用微信登录')
     return this.authService.securityCheck(openId, text)
   }
 }

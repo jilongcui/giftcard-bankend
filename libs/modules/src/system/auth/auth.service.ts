@@ -139,7 +139,7 @@ export class AuthService {
     // result.result.errcode === 0 && result.result.suggest === 'risky'
     // this.logger.debug(info.data)
     if (info.data.errcode !== 0 ) {
-      return false
+      throw Error("执行安全检测出错")
     }
     if( info.data.result.suggest === 'pass') {
       return true
