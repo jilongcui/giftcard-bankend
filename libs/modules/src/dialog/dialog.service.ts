@@ -226,7 +226,7 @@ export class DialogService {
           // await this.nanoRepository.save(nano2)
           data.data = null
         }
-        this.logger.debug(JSON.stringify(data))
+        // this.logger.debug(JSON.stringify(data))
         return data
       }),
       catchError(error => {throw new WsException(error)})
