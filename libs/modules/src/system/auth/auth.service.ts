@@ -127,13 +127,15 @@ export class AuthService {
     // const info = await this.getInfo(url) // 获取openid和session_key
     // this.logger.debug(url)
 
-    const info: any = await axios.post(url, {
+    const data = {
       "openid": openId,
       "scene": 2,
       "version": 2,
       "content": text
-    });
-    // this.logger.debug(info.data)
+    }
+    this.logger.debug(JSON.stringify(data))
+    const info: any = await axios.post(url, data);
+    this.logger.debug(info.data)
     // result.result.errcode === 0 && result.result.suggest === 'risky'
     // this.logger.debug(info.data)
     if (info.data.errcode !== 0 ) {

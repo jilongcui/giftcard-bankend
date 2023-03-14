@@ -53,7 +53,7 @@ export class DialogService {
       // return {code: 400, message: "输入参数不正确"}
       throw new WsException('参数不正确')
     }
-    this.logger.debug(`${openDialogDto.appmodelId} ${openDialogDto.userId}`)
+    // this.logger.debug(`${openDialogDto.appmodelId} ${openDialogDto.userId}`)
     openDialogDto.appmodelId = openDialogDto.appmodelId || '1'
     // this.logger.debug(openDialogDto.appmodelId)
     // 寻找是否有已知对话，不存在就创建
@@ -206,8 +206,9 @@ export class DialogService {
           if (appModel.mode !== MODE_IMAGE) {
             // this.logger.debug("Security Check")
             try {
-              const security = await this.authService.securityCheck(openId, prompt.text)
+              const security = await this.authService.securityCheck(openId, content)
               if ( !security) {
+                // this.logger.debug('** 敏感内容 **')
                 nano2.content = '** 敏感内容 **'
                 this.nanoRepository.save(nano2)
                 throw new WsException('请不要讨论敏感内容，否则被封号')

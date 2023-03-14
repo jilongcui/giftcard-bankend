@@ -47,7 +47,7 @@ export class DialogController {
         userName: nickName,
         appmodelId: openDialogDto.appmodelId,
         }
-        this.logger.debug(JSON.stringify(createDialogDto))
+        // this.logger.debug(JSON.stringify(createDialogDto))
         const result = await this.dialogService.open(createDialogDto)
         return result
     }

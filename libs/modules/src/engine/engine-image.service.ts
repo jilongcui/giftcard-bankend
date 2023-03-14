@@ -159,7 +159,7 @@ export class EngineImageService implements EngineService{
         const fullName = 'created_images' + '/' +userId + '/' + fileName
         const url = await this.uploadService.uploadBase64ToCos(fullName, completion.data.data[i].b64_json)
         const content = `![${fileName}](${url})`
-        this.logger.debug(content)
+        // this.logger.debug(content)
         contents.push(content)
         ob.next({id: nanoId, data: content});
       }
