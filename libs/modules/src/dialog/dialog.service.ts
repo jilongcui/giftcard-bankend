@@ -3,7 +3,7 @@ import { Injectable, Logger, MessageEvent } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WsException, WsResponse } from '@nestjs/websockets';
 import { Socket } from 'net';
-import { tap, map, Observable, catchError, switchMap } from 'rxjs';
+import { tap, map, Observable, catchError, switchMap, throwError } from 'rxjs';
 import { Repository } from 'typeorm';
 import { Appmodel } from '../appmodel/entities/appmodel.entity';
 import { EngineChatService } from '../engine/engine-chat.service';
@@ -196,34 +196,40 @@ export class DialogService {
         engine.promptSse(ob, dialog.appmodelId, userId.toString(), nano2.id.toString(), prompt.text)
       })
     // 调用引擎发送 text
-
+    if (appModel.mode === MODE_IMAGE) {
+      return observable.pipe(
+        map(data => {
+          if (data.type === 'DONE'){
+            const content = data.data.toString()
+            nano2.content = content
+            
+            this.nanoRepository.save(nano2)
+            data.data = null
+          }
+          return data
+        }),
+        catchError(error => {throw new WsException(error)})
+      )
+    }
     return observable.pipe(
-      tap(async data =>{
-        // 把记录写入数据库
+      switchMap(async data => {
         if (data.type === 'DONE'){
           const content = data.data.toString()
           nano2.content = content
-          if (appModel.mode !== MODE_IMAGE) {
-            // this.logger.debug("Security Check")
-            try {
-              const security = await this.authService.securityCheck(openId, content)
-              if ( !security) {
-                // this.logger.debug('** 敏感内容 **')
-                nano2.content = '** 敏感内容 **'
-                await this.nanoRepository.save(nano2)
-                throw new WsException('请不要讨论敏感内容，否则被封号')
-              }
-            } catch (error) {
-              throw new WsException(error)
+          // this.logger.debug("Security Check")
+          try {
+            const security = await this.authService.securityCheck(openId, content)
+            if ( !security) {
+              this.logger.debug('** 敏感内容 **')
+              nano2.content = '** 敏感内容 **'
+              await this.nanoRepository.save(nano2)
+              throw new WsException('请不要讨论敏感内容，否则被封号')
             }
+          } catch (error) {
+            throw new WsException(error)
           }
           
           await this.nanoRepository.save(nano2)
-          data.data = null
-        }
-      }),
-      map(data => {
-        if (data.type === 'DONE'){
           // await this.nanoRepository.save(nano2)
           data.data = null
         }
