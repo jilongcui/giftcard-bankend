@@ -50,6 +50,7 @@ import { MemberModule } from '@app/modules/member/member.module';
 import { DialogModule } from '@app/modules/dialog/dialog.module';
 import { NanoModule } from '@app/modules/nano/nano.module';
 import { AppmodelModule } from '@app/modules/appmodel/appmodel.module';
+import { SecurityModule } from '@app/modules/security/security.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService, OrderService, LoginService, CollectionService, AirdropWhitelistService,
@@ -117,7 +118,8 @@ const aliasProviders = createAliasProviders();
     DialogModule,
     NanoModule,
     AppmodelModule,
-    DialogModule
+    DialogModule,
+    SecurityModule,
   ],
   providers: [...aliasProviders],
   controllers: [MagicboxController, MagicboxCollectionController, SubmitterController]
