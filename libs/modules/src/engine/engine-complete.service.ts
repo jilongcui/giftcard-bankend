@@ -221,6 +221,9 @@ export class EngineCompleteService implements EngineService{
               const parsed = JSON.parse(message);
               const content = parsed.choices[0].text
 
+              if(!content || content.length === 0) {
+                return
+              }
               // ob.next({id: nanoId, data: content});
               length += 1
               strBuffer.push(content)
