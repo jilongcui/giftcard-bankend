@@ -236,10 +236,8 @@ export class EngineChatService implements EngineService{
               }
 
               const parsed = JSON.parse(message);
-              const content = parsed.choices[0].delta.content
-              if(!content || content.length === 0) {
-                return
-              }
+              const content = parsed.choices[0].delta.content || ''
+              
               length += 1
               strBuffer.push(content)
               ob.next({id: nanoId, data: content});

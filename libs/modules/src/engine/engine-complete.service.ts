@@ -182,7 +182,7 @@ export class EngineCompleteService implements EngineService{
       return 
     }
     
-    let length = 0
+    let length = 2
     let cont = true    
 
     const completionRequest = appmodel.preset.completion as CreateCompletionRequest
@@ -219,11 +219,8 @@ export class EngineCompleteService implements EngineService{
                 return
               }
               const parsed = JSON.parse(message);
-              const content = parsed.choices[0].text
+              const content = parsed.choices[0].text || ''
 
-              if(!content || content.length === 0) {
-                return
-              }
               // ob.next({id: nanoId, data: content});
               length += 1
               strBuffer.push(content)
