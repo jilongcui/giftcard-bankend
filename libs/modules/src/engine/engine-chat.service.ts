@@ -219,7 +219,10 @@ export class EngineChatService implements EngineService{
                 const content = strBuffer.join('')
                 // if (shortStr.length > 0)
                   // ob.next({id: nanoId, data: shortStr.join('')});
-                const security = await this.authService.securityCheck(openId, content)
+                let secStart = strBuffer.length-34>0?strBuffer.length-34:0
+                const secContent = strBuffer.slice(secStart, secStart+34).join('')
+                // this.logger.debug(secContent)
+                const security = await this.authService.securityCheck(openId, secContent)
                 if (!security) {
                   cont = false
                   this.logger.debug('** 敏感内容 **')

@@ -217,17 +217,17 @@ export class DialogService {
           const content = data.data.toString()
           nano2.content = content
           // this.logger.debug(content)
-          try {
-            const security = await this.authService.securityCheck(openId, content)
-            if (!security) {
-              this.logger.debug('** 敏感内容 **')
-              nano2.content = '** 敏感内容 **'
-              await this.nanoRepository.save(nano2)
-              throw new Error('请不要讨论敏感内容，否则被封号')
-            }
-          } catch (error) {
-            throw new Error(error.message)
-          }
+          // try {
+          //   const security = await this.authService.securityCheck(openId, content)
+          //   if (!security) {
+          //     this.logger.debug('** 敏感内容 **')
+          //     nano2.content = '** 敏感内容 **'
+          //     await this.nanoRepository.save(nano2)
+          //     throw new Error('请不要讨论敏感内容，否则被封号')
+          //   }
+          // } catch (error) {
+          //   throw new Error(error.message)
+          // }
           // this.logger.debug("Security Check")
           await this.nanoRepository.save(nano2)
           // await this.nanoRepository.save(nano2)
