@@ -7,6 +7,7 @@ import { EngineChatService } from './engine-chat.service';
 import { EngineCompleteService } from './engine-complete.service';
 import { EngineImageService } from './engine-image.service';
 import { UploadModule } from '../common/upload/upload.module';
+import { AuthModule } from '../system/auth/auth.module';
 
 // @Module({
 //   imports: [
@@ -22,7 +23,7 @@ export class EngineModule {
       module: EngineModule,
       imports: [
         TypeOrmModule.forFeature([Appmodel]),
-        UploadModule
+        UploadModule,AuthModule
       ],
       providers: [EngineChatService, EngineImageService, EngineCompleteService],
       exports: [EngineChatService, EngineImageService, EngineCompleteService]

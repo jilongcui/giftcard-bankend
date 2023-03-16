@@ -128,7 +128,7 @@ export class EngineImageService implements EngineService{
     }
   }
 
-  async promptSse(ob:Subscriber<MessageEvent>, appmodelId: string, userId: string, nanoId: string, intext: string)
+  async promptSse(ob:Subscriber<MessageEvent>, openId: string, appmodelId: string, userId: string, nanoId: string, intext: string)
   {
     const appmodel = this.presetMap.get(appmodelId + '-' + userId)
     if (!appmodel || !appmodel.preset) {

@@ -14,6 +14,7 @@ import { Nano } from '../nano/entities/nano.entity';
 import { EngineService } from './engine.interface';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { AuthService } from '../system/auth/auth.service';
 
 @Injectable()
 export class EngineChatService implements EngineService{
@@ -28,6 +29,7 @@ export class EngineChatService implements EngineService{
   
   constructor(
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>, 
+    private readonly authService: AuthService,
     @InjectRedis() private readonly redis: Redis,
   ) {
     this.logger = new Logger(EngineChatService.name)
@@ -173,7 +175,7 @@ export class EngineChatService implements EngineService{
     return Math.floor((Math.random() * 999999999) + 1000000000);
   }
 
-  async promptSse(ob:Subscriber<MessageEvent>, appmodelId: string, userId: string, nanoId: string, intext: string) {
+  async promptSse(ob:Subscriber<MessageEvent>, openId: string, appmodelId: string, userId: string, nanoId: string, intext: string) {
 
     let responseList: Array<ChatCompletionRequestMessage>
     // We get history five nano.
@@ -195,8 +197,7 @@ export class EngineChatService implements EngineService{
     }
     
     let length = 2
-    let shortStr = []
-    
+    let cont = true    
     // this.logger.debug(JSON.stringify(completionRequest.messages))
 
     try {
@@ -209,38 +210,55 @@ export class EngineChatService implements EngineService{
       // push new reponse to reponsesList
         const strBuffer = []
 
-        res.data.on('data', data => {
+        res.data.on('data', async data => {
+          if (!cont) return
           const lines = data.toString().split('\n').filter(line => line.trim() !== '');
           for (const line of lines) {
               const message = line.replace(/^data: /, '');
               if (message === '[DONE]') {
                 const content = strBuffer.join('')
-                if (shortStr.length > 0)
-                  ob.next({id: nanoId, data: shortStr.join('')});
+                // if (shortStr.length > 0)
+                  // ob.next({id: nanoId, data: shortStr.join('')});
+                const security = await this.authService.securityCheck(openId, content)
+                if (!security) {
+                  cont = false
+                  this.logger.debug('** 敏感内容 **')
+                  ob.error("不要包含敏感文字")
+                  return
+                }
                 ob.next({id: nanoId, type: 'DONE', data: content});
                 ob.complete()
-                shortStr = []
+                // shortStr = []
                 if(responseList && responseList.length >= appmodel.preset.historyLength)
                   responseList.shift()
                 responseList.push({role: 'assistant', content: content})
                 return
               }
-              try {
-                  // this.logger.debug(message)
-                  const parsed = JSON.parse(message);
-                  const content = parsed.choices[0].delta.content
-                  length += 1
-                  strBuffer.push(content)
-                  shortStr.push(content)
-                  if(length % 3 == 0) {
-                    ob.next({id: nanoId, data: shortStr.join('')});
-                    shortStr = []
-                  }
-                  // this.logger.debug(Buffer.from(parsed.chioces[0].text, 'utf-8').toString())
-                  // console.log(parsed.choices[0].text);
-              } catch(error) {
-                  // console.error('Could not JSON parse stream message', message, error);
+
+              const parsed = JSON.parse(message);
+              const content = parsed.choices[0].delta.content
+              length += 1
+              strBuffer.push(content)
+              ob.next({id: nanoId, data: content});
+
+              // shortStr.push(content)
+              if (strBuffer.length % 30 === 0) {
+                let secStart = strBuffer.length-34>0?strBuffer.length-34:0
+                const secContent = strBuffer.slice(secStart, secStart+34).join('')
+                // this.logger.debug(secContent)
+
+                const security = await this.authService.securityCheck(openId, secContent)
+                if (!security) {
+                  cont = false
+                  this.logger.debug('** 敏感内容 **')
+                  ob.error("不要包含敏感文字")
+                  return
+                }
               }
+                // if(length % 3 == 0) {
+                //   ob.next({id: nanoId, data: shortStr.join('')});
+                //   shortStr = []
+                // }
           }
         })
       // })
@@ -253,7 +271,8 @@ export class EngineChatService implements EngineService{
       } else {
         this.logger.error(`Error with OpenAI API request: ${error.message}`);
       }
-      ob.error("请求错误，不要包含敏感文字")
+      cont = false
+      ob.error("不要包含敏感文字")
     }
   }
 }

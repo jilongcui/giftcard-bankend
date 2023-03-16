@@ -27,7 +27,7 @@ export class DialogService {
     @InjectRepository(Nano) private readonly nanoRepository: Repository<Nano>,
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>,
     private readonly chatEngine: EngineChatService,
-    private readonly completeEngine: EngineChatService,
+    private readonly completeEngine: EngineCompleteService,
     private readonly imageEngine: EngineImageService,
     private readonly authService: AuthService
   ) {
@@ -65,7 +65,7 @@ export class DialogService {
     // 初始化Chatgpt引擎
 
     const appModel = await this.appmodelRepository.findOneBy({id: parseInt(openDialogDto.appmodelId)})
-    // this.logger.debug(appModel)
+    // this.logger.debug(JSON.stringify(appModel))
 
     // 等待初始化完成
     let result
@@ -193,8 +193,8 @@ export class DialogService {
 
     const observable = new Observable<MessageEvent>(ob => {
       ob.next({id: nano.id.toString(), type: 'PROMPT', data: nano.content});
-        engine.promptSse(ob, dialog.appmodelId, userId.toString(), nano2.id.toString(), prompt.text)
-      })
+      engine.promptSse(ob, openId, dialog.appmodelId, userId.toString(), nano2.id.toString(), prompt.text)
+    })
     // 调用引擎发送 text
     if (appModel.mode === MODE_IMAGE) {
       return observable.pipe(
@@ -216,24 +216,24 @@ export class DialogService {
         if (data.type === 'DONE'){
           const content = data.data.toString()
           nano2.content = content
-          // this.logger.debug("Security Check")
+          // this.logger.debug(content)
           try {
             const security = await this.authService.securityCheck(openId, content)
-            if ( !security) {
+            if (!security) {
               this.logger.debug('** 敏感内容 **')
               nano2.content = '** 敏感内容 **'
               await this.nanoRepository.save(nano2)
               throw new Error('请不要讨论敏感内容，否则被封号')
             }
           } catch (error) {
-            throw new Error(error)
+            throw new Error(error.message)
           }
-          
+          // this.logger.debug("Security Check")
           await this.nanoRepository.save(nano2)
           // await this.nanoRepository.save(nano2)
           data.data = null
         }
-        // this.logger.debug(JSON.stringify(data))
+        
         return data
       }),
       catchError(error => {throw new WsException(error)})

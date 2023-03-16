@@ -10,6 +10,7 @@ import { WsException } from '@nestjs/websockets';
 import { AxiosResponse } from 'axios';
 import { Observable, Subscriber } from 'rxjs';
 import { EngineService } from './engine.interface';
+import { AuthService } from '../system/auth/auth.service';
 
 @Injectable()
 export class EngineCompleteService implements EngineService{
@@ -24,6 +25,8 @@ export class EngineCompleteService implements EngineService{
   
   constructor(
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>, 
+    private readonly authService: AuthService,
+
   ) {
     this.logger = new Logger(EngineCompleteService.name)
     this.organization = process.env.OPENAI_ORGANIZATION
@@ -157,7 +160,7 @@ export class EngineCompleteService implements EngineService{
     return Math.floor((Math.random() * 999999999) + 1000000000);
   }
 
-  async promptSse(ob:Subscriber<MessageEvent>, appmodelId: string, userId: string, nanoId: string, intext: string) {
+  async promptSse(ob:Subscriber<MessageEvent>, openId: string, appmodelId: string, userId: string, nanoId: string, intext: string) {
 
     let responseList: Array<string>
     // We get history five nano.
@@ -179,8 +182,8 @@ export class EngineCompleteService implements EngineService{
       return 
     }
     
-    let length = 2
-    let shortStr = []
+    let length = 0
+    let cont = true    
 
     const completionRequest = appmodel.preset.completion as CreateCompletionRequest
     
@@ -193,39 +196,47 @@ export class EngineCompleteService implements EngineService{
       // push new reponse to reponsesList
         const strBuffer = []
 
-        res.data.on('data', data => {
+        res.data.on('data', async data => {
+          if (!cont) return
           const lines = data.toString().split('\n').filter(line => line.trim() !== '');
           for (const line of lines) {
               const message = line.replace(/^data: /, '');
               if (message === '[DONE]') {
                 const content = strBuffer.join('')
-                if (shortStr.length > 0)
-                  ob.next({id: nanoId, data: shortStr.join('')});
+                const security = await this.authService.securityCheck(openId, content)
+                if (!security) {
+                  cont = false
+                  this.logger.debug('** 敏感内容 **')
+                  ob.error("不要包含敏感文字")
+                  return
+                }
                 ob.next({id: nanoId, type: 'DONE', data: content});
                 ob.complete()
-                shortStr = []
-                if(responseList.length > 10)
+                // shortStr = []
+                if(responseList && responseList.length >= appmodel.preset.historyLength)
                   responseList.shift()
                 responseList.push( content + '\n' + appmodel.preset.startText)
                 return
               }
-              try {
-                  const parsed = JSON.parse(message);
-                  const content = parsed.choices[0].text
+              const parsed = JSON.parse(message);
+              const content = parsed.choices[0].text
 
-                  // ob.next({id: nanoId, data: content});
-                  length += 1
-                  strBuffer.push(content)
-                  shortStr.push(content)
-                  if(length % 3 == 0) {
-                    ob.next({id: nanoId, data: shortStr.join('')});
-                    this.logger.debug(content)
-                    shortStr = []
-                  }
-                  // this.logger.debug(Buffer.from(parsed.chioces[0].text, 'utf-8').toString())
-                  // console.log(parsed.choices[0].text);
-              } catch(error) {
-                  // console.error('Could not JSON parse stream message', message, error);
+              // ob.next({id: nanoId, data: content});
+              length += 1
+              strBuffer.push(content)
+              ob.next({id: nanoId, data: content});
+              // this.logger.debug(content)
+
+              // shortStr.push(content)
+              if (strBuffer.length % 30 === 0) {
+                let secStart = strBuffer.length-34>0?strBuffer.length-34:0
+                const secContent = strBuffer.slice(secStart, secStart+34).join('')
+                const security= await this.authService.securityCheck(openId, secContent)
+                if (!security) {
+                  cont = false
+                  this.logger.debug('** 敏感内容 **')
+                  ob.error("不要包含敏感文字")
+                }
               }
           }
         })
@@ -239,7 +250,8 @@ export class EngineCompleteService implements EngineService{
       } else {
         this.logger.error(`Error with OpenAI API request: ${error.message}`);
       }
-      ob.error("请求错误，不要包含敏感文字")
+      this.logger.debug(error)
+      ob.error("不要包含敏感文字")
     }
   }
 }

@@ -129,22 +129,36 @@ export class AuthService {
 
     const data = {
       "openid": openId,
-      "scene": 2,
+      "scene": 3,
       "version": 2,
       "content": text
     }
     // this.logger.debug(JSON.stringify(data))
     const info: any = await axios.post(url, data);
-    // this.logger.debug(info.data)
+    this.logger.debug(info.data)
     // result.result.errcode === 0 && result.result.suggest === 'risky'
     // this.logger.debug(info.data)
     if (info.data.errcode !== 0 ) {
       throw Error("执行安全检测出错")
     }
-    if( info.data.result.suggest === 'pass') {
+
+    const suggest = info.data.result.suggest
+
+    if( suggest === 'pass') {
       return true
+    } else if(suggest === 'review') {
+      // Check detail
+      for(const detail of info.data.detail) {
+        if(detail.strategy === 'keyword') {
+          if (detail.suggest === 'risky')
+            return false
+        }
+      }
+    } else if (suggest === 'risky') {
+      return false
     }
 
-    return false
+
+    return true
   }
 }

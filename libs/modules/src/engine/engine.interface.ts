@@ -7,5 +7,5 @@ export interface EngineService {
 
     prompt(appmodelId: string, userId: string, intext: string): any
 
-    promptSse(ob:Subscriber<MessageEvent>, appmodelId: string, userId: string, nanoId: string, intext: string): any
+    promptSse(ob:Subscriber<MessageEvent>, openId: string, appmodelId: string, userId: string, nanoId: string, intext: string): any
 }
