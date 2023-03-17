@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class OpenDialogDto {
@@ -9,8 +10,9 @@ export class OpenDialogDto {
 
 export class CloseDialogDto {
 
-    @IsString()
-    dialogId: string
+    @Type()
+    @IsNumber()
+    dialogId: number
 }
 
 export class CreateDialogDto {
