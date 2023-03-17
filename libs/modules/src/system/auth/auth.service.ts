@@ -135,7 +135,7 @@ export class AuthService {
     }
     // this.logger.debug(JSON.stringify(data))
     const info: any = await axios.post(url, data);
-    this.logger.debug(info.data)
+    // this.logger.debug(info.data)
     // result.result.errcode === 0 && result.result.suggest === 'risky'
     // this.logger.debug(info.data)
     if (info.data.errcode !== 0 ) {
@@ -150,14 +150,17 @@ export class AuthService {
       // Check detail
       for(const detail of info.data.detail) {
         if(detail.strategy === 'keyword') {
-          if (detail.suggest === 'risky')
+          if (detail.suggest === 'risky') {
+            this.logger.debug("Risky Keyword at " + openId +":"+ detail.keyword)
             return false
+          }
         }
       }
     } else if (suggest === 'risky') {
+      this.logger.debug("Risky Content at " + openId)
+      this.logger.debug(info.data)
       return false
     }
-
 
     return true
   }
