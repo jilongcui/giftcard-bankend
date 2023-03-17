@@ -71,8 +71,8 @@ export class DialogController {
     }
 
     @Post('close')
-    close(@Body() id: number, @UserDec(UserEnum.userId) userId: number) {
-        this.dialogService.close(id, userId);
+    close(@Body() closeDialogDto: CloseDialogDto, @UserDec(UserEnum.userId) userId: number) {
+        this.dialogService.close(closeDialogDto.dialogId, userId);
         return {}
     }
 

@@ -7,6 +7,12 @@ export class OpenDialogDto {
     appmodelId?: string
 }
 
+export class CloseDialogDto {
+
+    @IsString()
+    dialogId: string
+}
+
 export class CreateDialogDto {
     @IsNumber()
     userId: number
