@@ -118,7 +118,6 @@ const aliasProviders = createAliasProviders();
     DialogModule,
     NanoModule,
     AppmodelModule,
-    DialogModule,
     SecurityModule,
   ],
   providers: [...aliasProviders],
