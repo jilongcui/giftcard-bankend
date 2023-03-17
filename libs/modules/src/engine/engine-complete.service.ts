@@ -203,13 +203,18 @@ export class EngineCompleteService implements EngineService{
               const message = line.replace(/^data: /, '');
               if (message === '[DONE]') {
                 const content = strBuffer.join('')
-                const security = await this.authService.securityCheck(openId, content)
-                if (!security) {
-                  cont = false
-                  this.logger.debug('** 敏感内容 **')
-                  ob.error("不要包含敏感文字")
-                  return
+                try {
+                  const security = await this.authService.securityCheck(openId, content)
+                  if (!security) {
+                    cont = false
+                    this.logger.debug('** 敏感内容 **')
+                    ob.error("不要包含敏感文字")
+                    return
+                  }
+                } catch (error) {
+                  ob.error(error.message)
                 }
+                  
                 ob.next({id: nanoId, type: 'DONE', data: content});
                 ob.complete()
                 // shortStr = []
@@ -231,11 +236,15 @@ export class EngineCompleteService implements EngineService{
               if (strBuffer.length % 30 === 0) {
                 let secStart = strBuffer.length-34>0?strBuffer.length-34:0
                 const secContent = strBuffer.slice(secStart, secStart+34).join('')
-                const security= await this.authService.securityCheck(openId, secContent)
-                if (!security) {
-                  cont = false
-                  this.logger.debug('** 敏感内容 **')
-                  ob.error("不要包含敏感文字")
+                try {
+                  const security= await this.authService.securityCheck(openId, secContent)
+                  if (!security) {
+                    cont = false
+                    this.logger.debug('** 敏感内容 **')
+                    ob.error("不要包含敏感文字")
+                  }
+                } catch (error) {
+                  ob.error(error.message)
                 }
               }
           }
