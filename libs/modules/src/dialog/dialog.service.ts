@@ -1,4 +1,5 @@
 import { MODE_CHAT, MODE_COMPLETE, MODE_IMAGE } from '@app/common/contants/decorator.contant';
+import { ApiException } from '@app/common/exceptions/api.exception';
 import { Injectable, Logger, MessageEvent } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WsException, WsResponse } from '@nestjs/websockets';
@@ -87,17 +88,22 @@ export class DialogService {
 
   async close(id: number, userId: number) {
     // 关闭Chatgpt引擎
-    if(!id || !userId) {
-      throw new Error("参数有误")
+    try {
+      if(!id || !userId) {
+        throw new Error("参数有误")
+      }
+      // 修改dialog状态
+      let dialog = await this.dialogRepository.findOneBy({id: id, userId: userId})
+      if(!dialog) {
+        return
+      }
+      dialog.status = '0'
+      dialog = await this.dialogRepository.save(dialog)
+      return 
+    } catch (error) {
+      throw new ApiException(error.message || error)
     }
-    // 修改dialog状态
-    let dialog = await this.dialogRepository.findOneBy({id: id, userId: userId})
-    if(!dialog) {
-      return
-    }
-    dialog.status = '0'
-    dialog = await this.dialogRepository.save(dialog)
-    return 
+    
   }
 
   remove(id: number) {
