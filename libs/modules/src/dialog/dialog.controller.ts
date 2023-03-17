@@ -24,7 +24,6 @@ import { AllWsExceptionsFilter } from '@app/common/filters/all-ws-exception.filt
 import { AllExceptionsFilter } from '@app/common/filters/all-exception.filter';
 
 @ApiTags('对话接口')
-@UseFilters(new AllExceptionsFilter())
 @Controller('dialog')
 export class DialogController {
     logger  = new Logger(DialogController.name)
