@@ -182,7 +182,7 @@ export class EngineCompleteService implements EngineService{
       return 
     }
     
-    let length = 2
+    let length = 50
     let cont = true    
 
     const completionRequest = appmodel.preset.completion as CreateCompletionRequest
@@ -233,9 +233,9 @@ export class EngineCompleteService implements EngineService{
               // this.logger.debug(content)
 
               // shortStr.push(content)
-              if (strBuffer.length % 30 === 0) {
-                let secStart = strBuffer.length-34>0?strBuffer.length-34:0
-                const secContent = strBuffer.slice(secStart, secStart+34).join('')
+              if (length % 100 === 0) {
+                let secStart = strBuffer.length-104>0?strBuffer.length-104:0
+                const secContent = strBuffer.slice(secStart, secStart+104).join('')
                 try {
                   const security= await this.authService.securityCheck(openId, secContent)
                   if (!security) {

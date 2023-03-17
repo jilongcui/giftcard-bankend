@@ -196,7 +196,7 @@ export class EngineChatService implements EngineService{
       return
     }
     
-    let length = 2
+    let length = 500
     let cont = true    
     // this.logger.debug(JSON.stringify(completionRequest.messages))
 
@@ -251,9 +251,9 @@ export class EngineChatService implements EngineService{
               ob.next({id: nanoId, data: content});
 
               // shortStr.push(content)
-              if (strBuffer.length % 30 === 0) {
-                let secStart = strBuffer.length-34>0?strBuffer.length-34:0
-                const secContent = strBuffer.slice(secStart, secStart+34).join('')
+              if (length % 100 === 0) {
+                let secStart = strBuffer.length-104>0?strBuffer.length-104:0
+                const secContent = strBuffer.slice(secStart, secStart+104).join('')
                 // this.logger.debug(secContent)
 
                 try {
