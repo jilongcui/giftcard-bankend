@@ -2,7 +2,7 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Sse, MessageEvent, Logger, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Sse, MessageEvent, Logger, UseGuards, UseFilters } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
@@ -20,8 +20,11 @@ import { CreateDialogDto, OpenDialogDto, CloseDialogDto, PromptDto } from './dto
 import {Observable, map, interval} from 'rxjs';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { MemberAuthGuard } from '@app/common/guards/member-auth.guard';
+import { AllWsExceptionsFilter } from '@app/common/filters/all-ws-exception.filter';
+import { AllExceptionsFilter } from '@app/common/filters/all-exception.filter';
 
 @ApiTags('对话接口')
+@UseFilters(new AllExceptionsFilter())
 @Controller('dialog')
 export class DialogController {
     logger  = new Logger(DialogController.name)
@@ -72,8 +75,7 @@ export class DialogController {
 
     @Post('close')
     close(@Body() closeDialogDto: CloseDialogDto, @UserDec(UserEnum.userId) userId: number) {
-        this.dialogService.close(closeDialogDto.dialogId, userId);
-        return {}
+        return this.dialogService.close(closeDialogDto.dialogId, userId);
     }
 
     // /* 分页查询公告 */
