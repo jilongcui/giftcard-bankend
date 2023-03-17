@@ -16,7 +16,7 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { Dialog } from './entities/dialog.entity';
 import { DialogService } from './dialog.service';
-import { CreateDialogDto, OpenDialogDto, PromptDto } from './dto/create-dialog.dto';
+import { CreateDialogDto, OpenDialogDto, CloseDialogDto, PromptDto } from './dto/create-dialog.dto';
 import {Observable, map, interval} from 'rxjs';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { MemberAuthGuard } from '@app/common/guards/member-auth.guard';
