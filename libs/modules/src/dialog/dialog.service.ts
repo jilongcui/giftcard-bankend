@@ -159,14 +159,17 @@ export class DialogService {
       throw new WsException("输入参数不正确")
     }
 
-    try {
-      const security = await this.authService.securityCheck(openId, prompt.text)
-      if ( !security) {
-        throw new WsException('请不要使用敏感字，否则被封号')
+    if (openId) {
+      try {
+        const security = await this.authService.securityCheck(openId, prompt.text)
+        if ( !security) {
+          throw new WsException('请不要使用敏感字，否则被封号')
+        }
+      } catch (error) {
+        throw new WsException(error)
       }
-    } catch (error) {
-      throw new WsException(error)
     }
+    
 
     const dialog = await this.dialogRepository.findOneBy({
       id: parseInt(prompt.dialogId), userId: userId

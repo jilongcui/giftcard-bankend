@@ -196,7 +196,7 @@ export class EngineChatService implements EngineService{
       return
     }
     
-    let length = 500
+    let length = 50
     let cont = true    
     // this.logger.debug(JSON.stringify(completionRequest.messages))
 
@@ -219,20 +219,23 @@ export class EngineChatService implements EngineService{
                 const content = strBuffer.join('')
                 // if (shortStr.length > 0)
                   // ob.next({id: nanoId, data: shortStr.join('')});
-                let secStart = strBuffer.length-34>0?strBuffer.length-34:0
-                const secContent = strBuffer.slice(secStart, secStart+34).join('')
-                // this.logger.debug(secContent)
-                try {
-                  const security = await this.authService.securityCheck(openId, secContent)
-                  if (!security) {
-                    cont = false
-                    this.logger.debug('** 敏感内容 **')
-                    ob.error("不要包含敏感文字")
-                    return
+                if (openId) {
+                  let secStart = strBuffer.length-100>0?strBuffer.length-104:0
+                  const secContent = strBuffer.slice(secStart, secStart+104).join('')
+                  // this.logger.debug(secContent)
+                  try {
+                    const security = await this.authService.securityCheck(openId, secContent)
+                    if (!security) {
+                      cont = false
+                      this.logger.debug('** 敏感内容 **')
+                      ob.error("不要包含敏感文字")
+                      return
+                    }
+                  } catch (error) {
+                    ob.error(error.message)
                   }
-                } catch (error) {
-                  ob.error(error.message)
                 }
+                
                 
                 ob.next({id: nanoId, type: 'DONE', data: content});
                 ob.complete()
@@ -250,28 +253,23 @@ export class EngineChatService implements EngineService{
               strBuffer.push(content)
               ob.next({id: nanoId, data: content});
 
-              // shortStr.push(content)
-              if (length % 100 === 0) {
-                let secStart = strBuffer.length-104>0?strBuffer.length-104:0
-                const secContent = strBuffer.slice(secStart, secStart+104).join('')
-                // this.logger.debug(secContent)
-
-                try {
-                  const security = await this.authService.securityCheck(openId, secContent)
-                  if (!security) {
-                    cont = false
-                    this.logger.debug('** 敏感内容 **')
-                    ob.error("不要包含敏感文字")
-                    return
+              if(openId) {
+                if (length % 100 === 0) {
+                  let secStart = strBuffer.length-104>0?strBuffer.length-104:0
+                  const secContent = strBuffer.slice(secStart, secStart+104).join('')
+                  try {
+                    const security = await this.authService.securityCheck(openId, secContent)
+                    if (!security) {
+                      cont = false
+                      this.logger.debug('** 敏感内容 **')
+                      ob.error("不要包含敏感文字")
+                      return
+                    }
+                  } catch (error) {
+                    ob.error(error.message)
                   }
-                } catch (error) {
-                  ob.error(error.message)
                 }
               }
-                // if(length % 3 == 0) {
-                //   ob.next({id: nanoId, data: shortStr.join('')});
-                //   shortStr = []
-                // }
           }
         })
       // })

@@ -203,16 +203,18 @@ export class EngineCompleteService implements EngineService{
               const message = line.replace(/^data: /, '');
               if (message === '[DONE]') {
                 const content = strBuffer.join('')
-                try {
-                  const security = await this.authService.securityCheck(openId, content)
-                  if (!security) {
-                    cont = false
-                    this.logger.debug('** 敏感内容 **')
-                    ob.error("不要包含敏感文字")
-                    return
+                if(openId) {
+                  try {
+                    const security = await this.authService.securityCheck(openId, content)
+                    if (!security) {
+                      cont = false
+                      this.logger.debug('** 敏感内容 **')
+                      ob.error("不要包含敏感文字")
+                      return
+                    }
+                  } catch (error) {
+                    ob.error(error.message)
                   }
-                } catch (error) {
-                  ob.error(error.message)
                 }
                   
                 ob.next({id: nanoId, type: 'DONE', data: content});
@@ -230,23 +232,24 @@ export class EngineCompleteService implements EngineService{
               length += 1
               strBuffer.push(content)
               ob.next({id: nanoId, data: content});
-              // this.logger.debug(content)
 
-              // shortStr.push(content)
-              if (length % 100 === 0) {
-                let secStart = strBuffer.length-104>0?strBuffer.length-104:0
-                const secContent = strBuffer.slice(secStart, secStart+104).join('')
-                try {
-                  const security= await this.authService.securityCheck(openId, secContent)
-                  if (!security) {
-                    cont = false
-                    this.logger.debug('** 敏感内容 **')
-                    ob.error("不要包含敏感文字")
+              if(openId) {
+                if (length % 100 === 0) {
+                  let secStart = strBuffer.length-104>0?strBuffer.length-104:0
+                  const secContent = strBuffer.slice(secStart, secStart+104).join('')
+                  try {
+                    const security= await this.authService.securityCheck(openId, secContent)
+                    if (!security) {
+                      cont = false
+                      this.logger.debug('** 敏感内容 **')
+                      ob.error("不要包含敏感文字")
+                    }
+                  } catch (error) {
+                    ob.error(error.message)
                   }
-                } catch (error) {
-                  ob.error(error.message)
                 }
               }
+              
           }
         })
       // })
