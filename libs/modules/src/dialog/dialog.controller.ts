@@ -17,7 +17,7 @@ import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { Dialog } from './entities/dialog.entity';
 import { DialogService } from './dialog.service';
 import { CreateDialogDto, OpenDialogDto, CloseDialogDto, PromptDto } from './dto/create-dialog.dto';
-import {Observable, map, interval} from 'rxjs';
+import {Observable, map, interval, from} from 'rxjs';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { MemberAuthGuard } from '@app/common/guards/member-auth.guard';
 import { AllWsExceptionsFilter } from '@app/common/filters/all-ws-exception.filter';
@@ -56,10 +56,11 @@ export class DialogController {
 
     @Sse('promptSse')
     @Keep()
-    promptSse(@Body() promptDto: PromptDto, @UserDec(UserEnum.userId) userId: number): Observable<MessageEvent> {
-        // const result = await this.dialogService.promptSse(promptDto, userId);
-        // return result
-        return interval(1000).pipe(map((_) => ({ data: 'hello' })));
+    async promptSse(@Body() promptDto: PromptDto, @UserDec(UserEnum.userId) userId: number,
+        @UserDec(UserEnum.openId, UserInfoPipe) openId: string
+    ): Promise<Observable<MessageEvent>> {
+        const observable = await this.dialogService.promptSse(promptDto, userId, openId);
+        return from(observable).pipe(map(data => ({event: 'promptSse', data: data})))
     }
 
     @Sse('prompt')
