@@ -71,7 +71,8 @@ export class LoginController {
     /* 用户手机登录 */
     @Post('mlogin')
     @Public()
-    @UseGuards(SmsCodeGuard, MobileAuthGuard)
+    // @UseGuards(SmsCodeGuard, MobileAuthGuard)
+    @UseGuards(MobileAuthGuard)
     async mlogin(@Body() reqLoginDto: ReqMobileLoginDto, @Req() req: Request): Promise<ResLoginDto> {
         return await this.loginService.login(req)
     }
