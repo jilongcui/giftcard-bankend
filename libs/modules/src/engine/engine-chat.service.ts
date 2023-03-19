@@ -212,7 +212,7 @@ export class EngineChatService implements EngineService{
 
         res.data.on('data', async data => {
           if (!cont) return
-          const lines = data.split('\n').filter(line => line.trim() !== '');
+          const lines = data.toString().split('\n').filter(line => line.trim() !== '');
           for (const line of lines) {
               const message = line.replace(/^data: /, '');
               if (message === '[DONE]') {
