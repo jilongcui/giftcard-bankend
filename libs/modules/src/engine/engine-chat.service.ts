@@ -107,9 +107,9 @@ export class EngineChatService implements EngineService{
     await this.redis.set('Appmodel:' + appmodelId + ':' +userId, JSON.stringify(appModel))
     const reponseLenth = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
 
-    if (reponseLenth) {
-      const content = {role: 'user', content: appModel.preset.welcomeText}.toString()
-      await this.redis.rpush('Appmodel:' + appmodelId + ':' +userId, content)
+    if (reponseLenth == 0) {
+      // const content = {role: 'user', content: appModel.preset.welcomeText}
+      // await this.redis.rpush('Appmodel:' + appmodelId + ':' +userId, JSON.stringify((content)))
     }
 
     return {cpmlId: 0, object: null,
@@ -127,9 +127,9 @@ export class EngineChatService implements EngineService{
     let responseList: Array<ChatCompletionRequestMessage> = []
     if (appmodel.preset.historyLength >=2 ) {
       const length = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
-      const trimLen = length - appmodel.preset.historyLength + 2
+      const trimLen = length + 2 - appmodel.preset.historyLength
       if(length && trimLen > 0)
-        await this.redis.ltrim('History:Appmodel:' +appmodelId + ':' + userId, 0, trimLen-1)
+        await this.redis.ltrim('History:Appmodel:' +appmodelId + ':' + userId, trimLen, -1)
       responseList = (await this.redis.lrange('History:Appmodel:' + appmodelId + ':' + userId, 0, -1)).map( e => JSON.parse(e))
     }
     
@@ -151,8 +151,8 @@ export class EngineChatService implements EngineService{
       const completion = await this.openai.createChatCompletion(completionRequest);
       // push new reponse to reponsesList
       if(appmodel.preset.historyLength >= 2) {
-        this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, {role: 'user', content: intext}.toString())
-        this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, {role: 'assistant', content: completion.data.choices[0].message}.toString())
+        this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, JSON.stringify({role: 'user', content: intext}))
+        this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, JSON.stringify({role: 'assistant', content: completion.data.choices[0].message}))
       }
       return {cpmlId: completion.data.id, object: completion.data.object,
               text:completion.data.choices[0].message.content}
@@ -184,10 +184,10 @@ export class EngineChatService implements EngineService{
       const replength = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
       const trimLen = replength + 2 - appmodel.preset.historyLength
       if(trimLen > 0)
-        await this.redis.ltrim('History:Appmodel:' +appmodelId + ':' + userId, 0, trimLen-1)
+        await this.redis.ltrim('History:Appmodel:' +appmodelId + ':' + userId, trimLen, -1)
       responseList = (await this.redis.lrange('History:Appmodel:' + appmodelId + ':' + userId, 0, -1)).map( e => JSON.parse(e))
     }
-    
+
     const text = intext || '';
     if (text.trim().length === 0) {
       ob.error("输入文字无效")
@@ -212,7 +212,7 @@ export class EngineChatService implements EngineService{
 
         res.data.on('data', async data => {
           if (!cont) return
-          const lines = data.toString().split('\n').filter(line => line.trim() !== '');
+          const lines = data.split('\n').filter(line => line.trim() !== '');
           for (const line of lines) {
               const message = line.replace(/^data: /, '');
               if (message === '[DONE]') {
@@ -239,8 +239,8 @@ export class EngineChatService implements EngineService{
                 ob.next({id: nanoId, type: 'DONE', data: content});
                 ob.complete()
                 if(appmodel.preset.historyLength >= 2) {
-                  this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, {role: 'user', content: intext}.toString())
-                  this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, {role: 'assistant', content: content}.toString())
+                  this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, JSON.stringify({role: 'user', content: intext}))
+                  this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, JSON.stringify({role: 'assistant', content: content}))
                 }
                 return
               }
