@@ -22,8 +22,6 @@ export class EngineCompleteService implements EngineService{
   mode: string
   organization: string
   apiKey: string
-  history: Map<string, Array<string>>
-  presetMap: Map<string, Appmodel>
   
   constructor(
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>, 
@@ -44,8 +42,6 @@ export class EngineCompleteService implements EngineService{
       organization: this.organization,
     });
     this.openai = new OpenAIApi(this.configuration);
-    this.history = new Map()
-    this.presetMap = new Map()
   }
 
   setMode(mode: string) {
@@ -153,8 +149,6 @@ export class EngineCompleteService implements EngineService{
               text:completion.data.choices[0].text}
     } catch(error) {
       // Consider adjusting the error handling logic for your use case
-      if(responseList.length > 0)
-        responseList.shift()
       if (error.response) {
         this.logger.error(error.response.status, error.response.data);
       } else {

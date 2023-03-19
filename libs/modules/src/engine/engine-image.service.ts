@@ -11,6 +11,8 @@ import { Observable, Subscriber } from 'rxjs';
 import { EngineService } from './engine.interface';
 import { UploadService } from '../common/upload/upload.service';
 import strRandom from 'string-random';
+import Redis from 'ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 
 @Injectable()
 export class EngineImageService implements EngineService{
@@ -20,11 +22,11 @@ export class EngineImageService implements EngineService{
   mode: string
   organization: string
   apiKey: string
-  presetMap: Map<string, Appmodel>
   
   constructor(
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>, 
-    private readonly uploadService: UploadService
+    @InjectRedis() private readonly redis: Redis,
+    private readonly uploadService: UploadService,
   ) {
     this.logger = new Logger(EngineImageService.name)
     this.organization = process.env.OPENAI_ORGANIZATION
@@ -40,7 +42,6 @@ export class EngineImageService implements EngineService{
       organization: this.organization,
     });
     this.openai = new OpenAIApi(this.configuration);
-    this.presetMap = new Map()
   }
 
   setMode(mode: string) {
@@ -84,7 +85,7 @@ export class EngineImageService implements EngineService{
     appModel.preset.initText = initText
     appModel.preset.completion.user = 'YaYaUser' + ':' +userId, 
     // We save appmodel 
-    this.presetMap.set(appmodelId + '-' +userId, appModel)
+    await this.redis.set('Appmodel:' + appmodelId + ':' +userId, JSON.stringify(appModel))
 
 
     return {cpmlId: 0, object: null,
@@ -93,9 +94,10 @@ export class EngineImageService implements EngineService{
 
   async prompt(appmodelId: string, userId: string, intext: string) {
 
-    const appmodel = this.presetMap.get(appmodelId + '-' + userId)
-    if (!appmodel) {
-      throw new WsException("Need open first!")
+    const appmodel:Appmodel = JSON.parse(await this.redis.get('Appmodel:' +appmodelId + ':' + userId))
+    if (!appmodel || !appmodel.preset) {
+      throw new WsException("请重新进入本页面")
+      return
     }
     const text = intext || '';
     if (text.trim().length === 0) {
@@ -130,9 +132,10 @@ export class EngineImageService implements EngineService{
 
   async promptSse(ob:Subscriber<MessageEvent>, openId: string, appmodelId: string, userId: string, nanoId: string, intext: string)
   {
-    const appmodel = this.presetMap.get(appmodelId + '-' + userId)
+    const appmodel:Appmodel = JSON.parse(await this.redis.get('Appmodel:' +appmodelId + ':' + userId))
     if (!appmodel || !appmodel.preset) {
-      ob.error("请重新进入此页面")
+      throw new WsException("请重新进入本页面")
+      return
     }
     const text = intext || '';
     if (text.trim().length === 0) {
