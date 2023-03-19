@@ -82,7 +82,7 @@ export class EngineImageService implements EngineService{
     }
     const initText = appModel.preset.initText.replace('${username}', userName)
     appModel.preset.initText = initText
-    appModel.preset.completion.user = 'YaYaUser'+appmodelId + '-' +userId, 
+    appModel.preset.completion.user = 'YaYaUser' + ':' +userId, 
     // We save appmodel 
     this.presetMap.set(appmodelId + '-' +userId, appModel)
 

@@ -103,14 +103,14 @@ export class EngineChatService implements EngineService{
     }
     const initText = appModel.preset.initText.replace('${username}', userName)
     appModel.preset.initText = initText
-    appModel.preset.completion.user = 'YaYaUser'+appmodelId + '-' +userId, 
+    appModel.preset.completion.user = 'YaYaUser'+ ':' +userId, 
     await this.redis.set('Appmodel:' + appmodelId + ':' +userId, JSON.stringify(appModel))
-    const reponseLenth = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
+    // const reponseLenth = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
 
-    if (reponseLenth == 0) {
-      // const content = {role: 'user', content: appModel.preset.welcomeText}
-      // await this.redis.rpush('Appmodel:' + appmodelId + ':' +userId, JSON.stringify((content)))
-    }
+    // if (reponseLenth == 0) {
+    //   // const content = {role: 'user', content: appModel.preset.welcomeText}
+    //   // await this.redis.rpush('Appmodel:' + appmodelId + ':' +userId, JSON.stringify((content)))
+    // }
 
     return {cpmlId: 0, object: null,
         text: appModel.preset.welcomeText}
