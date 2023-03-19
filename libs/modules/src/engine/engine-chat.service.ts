@@ -24,8 +24,6 @@ export class EngineChatService implements EngineService{
   mode: string
   organization: string
   apiKey: string
-  history: Map<string, Array<ChatCompletionRequestMessage>>
-  presetMap: Map<string, Appmodel>
   
   constructor(
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>, 
@@ -46,8 +44,6 @@ export class EngineChatService implements EngineService{
       organization: this.organization,
     });
     this.openai = new OpenAIApi(this.configuration);
-    this.history = new Map()
-    this.presetMap = new Map()
   }
 
   setMode(mode: string) {
@@ -93,7 +89,6 @@ export class EngineChatService implements EngineService{
   }
 
   async open(appmodelId: number, userId: string, userName: string) {
-    let responseList: Array<ChatCompletionRequestMessage>
     if (!this.configuration.apiKey) {
       throw new WsException('OpenAI API key not configured!')
     }
@@ -109,14 +104,12 @@ export class EngineChatService implements EngineService{
     const initText = appModel.preset.initText.replace('${username}', userName)
     appModel.preset.initText = initText
     appModel.preset.completion.user = 'YaYaUser'+appmodelId + '-' +userId, 
-    // We save appmodel 
-    this.presetMap.set(appmodelId + '-' +userId, appModel)
-    // We get history five nano.
-    responseList = this.history.get('user' + userId)
+    await this.redis.set('Appmodel:' + appmodelId + ':' +userId, JSON.stringify(appModel))
+    const reponseLenth = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
 
-    if (!responseList) {
-      responseList = new Array<ChatCompletionRequestMessage>()
-      this.history.set(appmodelId + '-' + userId, responseList)
+    if (reponseLenth) {
+      const content = {role: 'user', content: appModel.preset.welcomeText}.toString()
+      await this.redis.rpush('Appmodel:' + appmodelId + ':' +userId, content)
     }
 
     return {cpmlId: 0, object: null,
@@ -124,44 +117,47 @@ export class EngineChatService implements EngineService{
   }
 
   async prompt(appmodelId: string, userId: string, intext: string) {
-
-    let responseList: Array<ChatCompletionRequestMessage>
     // We get history five nano.
-    responseList = this.history.get(appmodelId + '-' + userId)
-    // We get promptpreset model
-    if (!responseList) {
-      throw new WsException("Need open first!")
+    const appmodel:Appmodel = JSON.parse(await this.redis.get('Appmodel:' +appmodelId + ':' + userId))
+    if (!appmodel || !appmodel.preset) {
+      throw new WsException("请重新进入本页面")
+      return
     }
-    const appmodel = this.presetMap.get(appmodelId + '-' + userId)
-    if (!appmodel) {
-      throw new WsException("Need open first!")
+
+    let responseList: Array<ChatCompletionRequestMessage> = []
+    if (appmodel.preset.historyLength >=2 ) {
+      const length = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
+      const trimLen = length - appmodel.preset.historyLength + 2
+      if(length && trimLen > 0)
+        await this.redis.ltrim('History:Appmodel:' +appmodelId + ':' + userId, 0, trimLen-1)
+      responseList = (await this.redis.lrange('History:Appmodel:' + appmodelId + ':' + userId, 0, -1)).map( e => JSON.parse(e))
     }
+    
     const text = intext || '';
     if (text.trim().length === 0) {
       throw new WsException("输入文字无效")
     }
+
     try {
 
       const completionRequest =  (appmodel.preset.completion as CreateChatCompletionRequest)
       // completionRequest.stream = stream
       completionRequest.model = 'gpt-3.5-turbo'
       // this.logger.debug('responseList1 ' + responseList.length)
+
       completionRequest.messages = this.generateChatPrompt(appmodel.preset, intext, responseList)
       // this.logger.debug(completionRequest.prompt)
       // this.logger.debug(JSON.stringify(completionRequest.messages))
       const completion = await this.openai.createChatCompletion(completionRequest);
-      // this.logger.debug(completion)
       // push new reponse to reponsesList
-      if(responseList.length >= appmodel.preset.historyLength)
-        responseList.shift()
-      responseList.push(completion.data.choices[0].message)
-      // this.logger.debug('responseList 2' + responseList.length)
+      if(appmodel.preset.historyLength >= 2) {
+        this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, {role: 'user', content: intext}.toString())
+        this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, {role: 'assistant', content: completion.data.choices[0].message}.toString())
+      }
       return {cpmlId: completion.data.id, object: completion.data.object,
               text:completion.data.choices[0].message.content}
     } catch(error) {
       // Consider adjusting the error handling logic for your use case
-      if(responseList.length > 0)
-        responseList.shift()
       if (error.response) {
         this.logger.error(error.response.status, error.response.data);
       } else {
@@ -177,24 +173,27 @@ export class EngineChatService implements EngineService{
 
   async promptSse(ob:Subscriber<MessageEvent>, openId: string, appmodelId: string, userId: string, nanoId: string, intext: string) {
 
-    let responseList: Array<ChatCompletionRequestMessage>
-    // We get history five nano.
-    responseList = this.history.get(appmodelId + '-' + userId)
-    // We get promptpreset model
-    if (!responseList) {
-      ob.error("请重新进入本页面")
-      return
-    }
-    const appmodel = this.presetMap.get(appmodelId + '-' + userId)
+    const appmodel:Appmodel = JSON.parse(await this.redis.get('Appmodel:' +appmodelId + ':' + userId))
     if (!appmodel || !appmodel.preset) {
       ob.error("请重新进入本页面")
       return
     }
+
+    let responseList: Array<ChatCompletionRequestMessage> = []
+    if (appmodel.preset.historyLength >=2) {
+      const replength = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
+      const trimLen = replength + 2 - appmodel.preset.historyLength
+      if(trimLen > 0)
+        await this.redis.ltrim('History:Appmodel:' +appmodelId + ':' + userId, 0, trimLen-1)
+      responseList = (await this.redis.lrange('History:Appmodel:' + appmodelId + ':' + userId, 0, -1)).map( e => JSON.parse(e))
+    }
+    
     const text = intext || '';
     if (text.trim().length === 0) {
       ob.error("输入文字无效")
       return
     }
+    
     
     let length = 50
     let cont = true    
@@ -204,6 +203,7 @@ export class EngineChatService implements EngineService{
       const completionRequest =  (appmodel.preset.completion as CreateChatCompletionRequest)
       completionRequest.stream = true
       completionRequest.model = 'gpt-3.5-turbo'
+
       completionRequest.messages = this.generateChatPrompt(appmodel.preset, intext, responseList)
       const res: AxiosResponse<any> = await this.openai.createChatCompletion(completionRequest, { responseType: 'stream' });
       // this.logger.debug(completion)
@@ -236,13 +236,12 @@ export class EngineChatService implements EngineService{
                   }
                 }
                 
-                
                 ob.next({id: nanoId, type: 'DONE', data: content});
                 ob.complete()
-                // shortStr = []
-                if(responseList && responseList.length >= appmodel.preset.historyLength)
-                  responseList.shift()
-                responseList.push({role: 'assistant', content: content})
+                if(appmodel.preset.historyLength >= 2) {
+                  this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, {role: 'user', content: intext}.toString())
+                  this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, {role: 'assistant', content: content}.toString())
+                }
                 return
               }
 
@@ -275,8 +274,6 @@ export class EngineChatService implements EngineService{
       // })
     } catch(error) {
       // Consider adjusting the error handling logic for your use case
-      if(responseList && responseList.length > 0)
-        responseList.shift()
       if (error.response) {
         this.logger.error(error.response.status, error.response.data);
       } else {
