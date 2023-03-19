@@ -11,6 +11,8 @@ import { AxiosResponse } from 'axios';
 import { Observable, Subscriber } from 'rxjs';
 import { EngineService } from './engine.interface';
 import { AuthService } from '../system/auth/auth.service';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 
 @Injectable()
 export class EngineCompleteService implements EngineService{
@@ -26,7 +28,7 @@ export class EngineCompleteService implements EngineService{
   constructor(
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>, 
     private readonly authService: AuthService,
-
+    @InjectRedis() private readonly redis: Redis,
   ) {
     this.logger = new Logger(EngineCompleteService.name)
     this.organization = process.env.OPENAI_ORGANIZATION
@@ -97,15 +99,14 @@ export class EngineCompleteService implements EngineService{
     appModel.preset.initText = initText
     appModel.preset.completion.user = 'YaYaUser'+appmodelId + '-' +userId, 
     // We save appmodel 
-    this.presetMap.set(appmodelId + '-' +userId, appModel)
-
+    await this.redis.set('Appmodel:' + appmodelId + ':' +userId, JSON.stringify(appModel))
     // We get history five nano.
-    responseList = this.history.get('user' + userId)
+    // const reponseLenth = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
 
-    if (!responseList) {
-      responseList = new Array<string>()
-      this.history.set(appmodelId + '-' + userId, responseList)
-    }
+    // if (reponseLenth == 0) {
+    //   // const content = {role: 'user', content: appModel.preset.welcomeText}
+    //   // await this.redis.rpush('Appmodel:' + appmodelId + ':' +userId, JSON.stringify((content)))
+    // }
 
     return {cpmlId: 0, object: null,
         text: appModel.preset.welcomeText}
@@ -113,17 +114,22 @@ export class EngineCompleteService implements EngineService{
 
   async prompt(appmodelId: string, userId: string, intext: string) {
 
-    let responseList: Array<string>
     // We get history five nano.
-    responseList = this.history.get(appmodelId + '-' + userId)
-    // We get promptpreset model
-    if (!responseList) {
-      throw new WsException("Need open first!")
+    const appmodel:Appmodel = JSON.parse(await this.redis.get('Appmodel:' +appmodelId + ':' + userId))
+    if (!appmodel || !appmodel.preset) {
+      throw new WsException("请重新进入本页面")
+      return
     }
-    const appmodel = this.presetMap.get(appmodelId + '-' + userId)
-    if (!appmodel ) {
-      throw new WsException("Need open first!")
+
+    let responseList: Array<string> = []
+    if (appmodel.preset.historyLength >=2 ) {
+      const length = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
+      const trimLen = length + 2 - appmodel.preset.historyLength
+      if(length && trimLen > 0)
+        await this.redis.ltrim('History:Appmodel:' +appmodelId + ':' + userId, trimLen, -1)
+      responseList = (await this.redis.lrange('History:Appmodel:' + appmodelId + ':' + userId, 0, -1)).map( e => JSON.parse(e))
     }
+
     const text = intext || '';
     if (text.trim().length === 0) {
       throw new WsException("输入文字无效")
@@ -138,9 +144,11 @@ export class EngineCompleteService implements EngineService{
       const completion = await this.openai.createCompletion(completionRequest);
       // this.logger.debug(completion)
       // push new reponse to reponsesList
-      if(responseList.length > appmodel.preset.historyLength)
-        responseList.shift()
-      responseList.push(completion.data.choices[0].text + '\n' + appmodel.preset.startText)
+      if(appmodel.preset.historyLength >= 2) {
+        this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, JSON.stringify(text +'\n'+ appmodel.preset.restartText))
+        this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, JSON.stringify(completion.data.choices[0].text + '\n' + appmodel.preset.startText))
+      }
+      
       return {cpmlId: completion.data.id, object: completion.data.object,
               text:completion.data.choices[0].text}
     } catch(error) {
@@ -162,18 +170,19 @@ export class EngineCompleteService implements EngineService{
 
   async promptSse(ob:Subscriber<MessageEvent>, openId: string, appmodelId: string, userId: string, nanoId: string, intext: string) {
 
-    let responseList: Array<string>
-    // We get history five nano.
-    responseList = this.history.get(appmodelId + '-' + userId)
-    // We get promptpreset model
-    if (!responseList) {
-      ob.error("请重新进入此页面!")
+    const appmodel:Appmodel = JSON.parse(await this.redis.get('Appmodel:' +appmodelId + ':' + userId))
+    if (!appmodel || !appmodel.preset) {
+      throw new WsException("请重新进入本页面")
       return
     }
-    const appmodel = this.presetMap.get(appmodelId + '-' + userId)
-    if (!appmodel || !appmodel.preset) {
-      ob.error("请重新进入此页面!")
-      return
+
+    let responseList: Array<string> = []
+    if (appmodel.preset.historyLength >=2 ) {
+      const length = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
+      const trimLen = length + 2 - appmodel.preset.historyLength
+      if(length && trimLen > 0)
+        await this.redis.ltrim('History:Appmodel:' +appmodelId + ':' + userId, trimLen, -1)
+      responseList = (await this.redis.lrange('History:Appmodel:' + appmodelId + ':' + userId, 0, -1)).map( e => JSON.parse(e))
     }
     
     const text = intext || '';
@@ -219,10 +228,10 @@ export class EngineCompleteService implements EngineService{
                   
                 ob.next({id: nanoId, type: 'DONE', data: content});
                 ob.complete()
-                // shortStr = []
-                if(responseList && responseList.length >= appmodel.preset.historyLength)
-                  responseList.shift()
-                responseList.push( content + '\n' + appmodel.preset.startText)
+                if(appmodel.preset.historyLength >= 2) {
+                  this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, JSON.stringify(text +'\n'+ appmodel.preset.restartText))
+                  this.redis.rpush('History:Appmodel:' + appmodelId + ':' + userId, JSON.stringify(content + '\n' + appmodel.preset.startText))
+                }
                 return
               }
               const parsed = JSON.parse(message);
