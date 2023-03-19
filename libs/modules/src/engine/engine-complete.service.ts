@@ -119,11 +119,11 @@ export class EngineCompleteService implements EngineService{
 
     let responseList: Array<string> = []
     if (appmodel.preset.historyLength >=2 ) {
+      responseList = (await this.redis.lrange('History:Appmodel:' + appmodelId + ':' + userId, 0, -1)).map( e => JSON.parse(e))
       const length = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
       const trimLen = length + 2 - appmodel.preset.historyLength
       if(length && trimLen > 0)
         await this.redis.ltrim('History:Appmodel:' +appmodelId + ':' + userId, trimLen, -1)
-      responseList = (await this.redis.lrange('History:Appmodel:' + appmodelId + ':' + userId, 0, -1)).map( e => JSON.parse(e))
     }
 
     const text = intext || '';
@@ -172,11 +172,11 @@ export class EngineCompleteService implements EngineService{
 
     let responseList: Array<string> = []
     if (appmodel.preset.historyLength >=2 ) {
+      responseList = (await this.redis.lrange('History:Appmodel:' + appmodelId + ':' + userId, 0, -1)).map( e => JSON.parse(e))
       const length = await this.redis.llen('History:Appmodel:' + appmodelId + ':' + userId)
       const trimLen = length + 2 - appmodel.preset.historyLength
       if(length && trimLen > 0)
         await this.redis.ltrim('History:Appmodel:' +appmodelId + ':' + userId, trimLen, -1)
-      responseList = (await this.redis.lrange('History:Appmodel:' + appmodelId + ':' + userId, 0, -1)).map( e => JSON.parse(e))
     }
     
     const text = intext || '';
