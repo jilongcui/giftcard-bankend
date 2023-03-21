@@ -37,6 +37,7 @@ import { SysConfigModule } from '@app/modules/system/sys-config/sys-config.modul
 import { AddressModule } from '@app/modules/wallet/address/address.module';
 import { MemberModule } from '@app/modules/member/member.module';
 import { EmailModule } from '@app/modules/email/email.module';
+import { PdfModule } from '@app/modules/pdf/pdf.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
@@ -92,7 +93,8 @@ import { EmailModule } from '@app/modules/email/email.module';
     BankcardModule,
     PaymentModule,
     AirdropModule,
-    EmailModule
+    EmailModule,
+    PdfModule,
   ],
   controllers: [NotifyController],
   // providers: [...aliasProviders],
