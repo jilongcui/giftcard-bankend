@@ -48,6 +48,15 @@
         "tsConfigPath": "apps/payment/tsconfig.app.json"
       }
     },
+    "giftcard": {
+      "type": "application",
+      "root": "apps/giftcard",
+      "entryFile": "main",
+      "sourceRoot": "apps/giftcard/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/giftcard/tsconfig.app.json"
+      }
+    },
     "chain": {
       "type": "library",
       "root": "libs/chain",

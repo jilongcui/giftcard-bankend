@@ -13,6 +13,7 @@
     "start:debug": "cross-env NODE_ENV=development nest start --debug --watch",
     "start:prod": "cross-env NODE_ENV=production node dist/main",
     "start:backend": "cross-env NODE_ENV=production node dist/apps/nestjs-backend/main",
+    "start:giftcard": "cross-env NODE_ENV=production node dist/apps/giftcard/main",
     "start:blockchain": "cross-env NODE_ENV=production node dist/apps/blockchain-app/main",
     "start:payment": "cross-env NODE_ENV=production node dist/apps/payment/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

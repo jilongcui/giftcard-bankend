@@ -40,7 +40,7 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '../public'));
 
   /* 启动swagger */
-  setupSwagger(app)
+  setupSwagger(app, {title: 'Giftcard', version: '1.0.1'})
 
   /* 监听启动端口 */
   await app.listen(process.env.APP_PORT || 3000);
