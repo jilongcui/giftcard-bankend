@@ -8,7 +8,7 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 
 @Controller('email')
-@ApiTags('订单')
+@ApiTags('邮箱')
 @ApiBearerAuth()
 export class EmailController {
   constructor(private readonly emailService: EmailService) {}
