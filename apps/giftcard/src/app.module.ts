@@ -36,6 +36,7 @@ import { RoleModule } from '@app/modules/system/role/role.module';
 import { SysConfigModule } from '@app/modules/system/sys-config/sys-config.module';
 import { AddressModule } from '@app/modules/wallet/address/address.module';
 import { MemberModule } from '@app/modules/member/member.module';
+import { EmailModule } from '@app/modules/email/email.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
@@ -90,7 +91,8 @@ import { MemberModule } from '@app/modules/member/member.module';
     PreemptionModule,
     BankcardModule,
     PaymentModule,
-    AirdropModule
+    AirdropModule,
+    EmailModule
   ],
   controllers: [NotifyController],
   // providers: [...aliasProviders],
