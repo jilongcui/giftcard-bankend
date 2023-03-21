@@ -11,6 +11,40 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@app/chain": [
+        "libs/chain/src"
+      ],
+      "@app/chain/*": [
+        "libs/chain/src/*"
+      ],
+      "@app/common": [
+        "libs/common/src"
+      ],
+      "@app/common/*": [
+        "libs/common/src/*"
+      ],
+      "@app/modules": [
+        "libs/modules/src"
+      ],
+      "@app/modules/*": [
+        "libs/modules/src/*"
+      ],
+      "@app/shared": [
+        "libs/shared/src"
+      ],
+      "@app/shared/*": [
+        "libs/shared/src/*"
+      ],
+      "@app/crichain": [
+        "libs/crichain/src",
+        "libs/crichain/src"
+      ],
+      "@app/crichain/*": [
+        "libs/crichain/src/*",
+        "libs/crichain/src/*"
+      ]
+    }
   }
 }

@@ -7,6 +7,9 @@
 *.db
 *.rdb
 
+# env
+.env
+
 # Logs
 logs
 *.log
