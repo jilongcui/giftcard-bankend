@@ -38,6 +38,7 @@ import { AddressModule } from '@app/modules/wallet/address/address.module';
 import { MemberModule } from '@app/modules/member/member.module';
 import { EmailModule } from '@app/modules/email/email.module';
 import { PdfModule } from '@app/modules/pdf/pdf.module';
+import { KycModule } from '@app/modules/kyc/kyc.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
@@ -95,6 +96,7 @@ import { PdfModule } from '@app/modules/pdf/pdf.module';
     AirdropModule,
     EmailModule,
     PdfModule,
+    KycModule,
   ],
   controllers: [NotifyController],
   // providers: [...aliasProviders],
