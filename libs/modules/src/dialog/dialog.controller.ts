@@ -17,11 +17,12 @@ import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { Dialog } from './entities/dialog.entity';
 import { DialogService } from './dialog.service';
 import { CreateDialogDto, OpenDialogDto, CloseDialogDto, PromptDto } from './dto/create-dialog.dto';
-import {Observable, map, interval, from} from 'rxjs';
+import {Observable, map, interval, from, catchError, of} from 'rxjs';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { MemberAuthGuard } from '@app/common/guards/member-auth.guard';
 import { AllWsExceptionsFilter } from '@app/common/filters/all-ws-exception.filter';
 import { AllExceptionsFilter } from '@app/common/filters/all-exception.filter';
+import { ApiException } from '@app/common/exceptions/api.exception';
 
 @ApiTags('对话接口')
 @Controller('dialog')
@@ -60,7 +61,8 @@ export class DialogController {
         @UserDec(UserEnum.openId, UserInfoPipe) openId: string
     ): Observable<MessageEvent> {
         return from(this.dialogService.promptSse(promptDto, userId, openId)).pipe(
-            map(data => ({event: 'promptSse', data: data}))
+            map(data => ({event: 'promptSse', data: data})),
+            catchError(error => { throw new ApiException('Bad Request' + error.getError())})
         )
     }
 
@@ -71,7 +73,17 @@ export class DialogController {
         // const result = await this.dialogService.promptSse(promptDto, userId);
         // return result
         this.logger.debug('111')
-        return interval(1000).pipe(map((_) => ({ data: 'hello' })));
+        const myBadPromise = () =>
+  new       Promise((resolve, reject) => reject('Rejected!'));
+        // return from(myBadPromise()).pipe(
+        //     catchError(error => of( {data: `Bad Promise: ${error}`} )),
+        //     map((_) => ({ data: 'hello' })))
+
+            return from(myBadPromise()).pipe(
+                map((_) => ({ data: 'hello' })),
+                catchError(error => { throw new ApiException('Bad Request')})
+        )
+        // return interval(1000).pipe(map((_) => ({ data: 'hello' })));
     }
 
     @Post('close')
