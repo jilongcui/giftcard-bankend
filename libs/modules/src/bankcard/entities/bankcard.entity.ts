@@ -4,6 +4,7 @@ import { User } from "../../system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Identity } from "@app/modules/identity/entities/identity.entity";
 import { Type } from "class-transformer";
+import { Kyc } from "@app/modules/kyc/entities/kyc.entity";
 
 @Entity()
 export class Bankcard {
@@ -120,6 +121,21 @@ export class Bankcard {
         name: 'identity_id',
     })
     identity: Identity
+
+    /* 实名认证的Id */
+    @Column({
+        name: 'kyc_id',
+        comment: '银行卡的KYC认证'
+    })
+    @IsNumber()
+    kycId: number
+
+    @ApiHideProperty()
+    @ManyToOne(() => Kyc)
+    @JoinColumn({
+        name: 'kyc_id',
+    })
+    kyc: Kyc
 
     @Column({
         name: 'user_id',
