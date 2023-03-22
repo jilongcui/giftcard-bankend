@@ -56,11 +56,12 @@ export class DialogController {
 
     @Sse('promptSse')
     @Keep()
-    async promptSse(@Body() promptDto: PromptDto, @UserDec(UserEnum.userId) userId: number,
+    promptSse(@Body() promptDto: PromptDto, @UserDec(UserEnum.userId) userId: number,
         @UserDec(UserEnum.openId, UserInfoPipe) openId: string
-    ): Promise<Observable<MessageEvent>> {
-        const observable = await this.dialogService.promptSse(promptDto, userId, openId);
-        return from(observable).pipe(map(data => ({event: 'promptSse', data: data})))
+    ): Observable<MessageEvent> {
+        return from(this.dialogService.promptSse(promptDto, userId, openId)).pipe(
+            map(data => ({event: 'promptSse', data: data}))
+        )
     }
 
     @Sse('prompt')
