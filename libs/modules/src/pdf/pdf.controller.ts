@@ -1,15 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UploadedFile, UseInterceptors, Logger } from '@nestjs/common';
 import { PdfService } from './pdf.service';
 import { CreatePdfDto, ParsePdfDto } from './dto/create-pdf.dto';
 import { UpdatePdfDto } from './dto/update-pdf.dto';
 import { Public } from '@app/common/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes } from '@nestjs/swagger';
-import { ApiFile } from '../common/upload/upload.controller';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { UploadService } from '../common/upload/upload.service';
 
+export const ApiFile = (fileName: string = 'file'): MethodDecorator => (
+  target: any,
+  propertyKey: string,
+  descriptor: PropertyDescriptor,
+) => {
+  ApiBody({
+      schema: {
+          type: 'object',
+          properties: {
+              [fileName]: {
+                  type: 'string',
+                  format: 'binary',
+              },
+          },
+      },
+  })(target, propertyKey, descriptor);
+};
+
 @Controller('pdf')
+@ApiTags('PDF解析')
+@ApiBearerAuth()
 export class PdfController {
+
+  logger = new Logger(PdfController.name)
   constructor(private readonly pdfService: PdfService,
     private readonly uploadService: UploadService
   ) {}
@@ -26,9 +47,7 @@ export class PdfController {
   @ApiFile()
   @UseInterceptors(FileInterceptor('file'))
   async uploadFileCos(@UploadedFile() file: Express.Multer.File, @Query('fileName') fileName) {
-      const fullName = '/pdf/' + fileName
       const url = await this.uploadService.uploadToCos(fileName, file.path)
-
       return {
           fileName,
           originalname: file.originalname,
