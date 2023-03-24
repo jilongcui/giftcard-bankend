@@ -5,6 +5,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, Pri
 import { Identity } from "@app/modules/identity/entities/identity.entity";
 import { Type } from "class-transformer";
 import { Kyc } from "@app/modules/kyc/entities/kyc.entity";
+import { Cardinfo } from "@app/modules/cardinfo/entities/cardinfo.entity";
 
 @Entity()
 export class Bankcard {
@@ -151,6 +152,14 @@ export class Bankcard {
         name: 'user_id',
     })
     user: User
+
+    @ApiHideProperty()
+    @ManyToOne(() => Cardinfo)
+    @JoinColumn({
+        name: 'user_id',
+    })
+    @IsOptional()
+    cardinfo?: Cardinfo
 
     @ApiHideProperty()
     @CreateDateColumn({
