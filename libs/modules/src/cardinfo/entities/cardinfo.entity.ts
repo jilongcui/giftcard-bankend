@@ -1,8 +1,43 @@
 import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsObject, IsString } from "class-validator";
+import { IsNumber, IsObject, IsString } from "class-validator";
 import { Column, CreateDateColumn, PrimaryGeneratedColumn } from "typeorm";
-import { CardInfoDto } from "../dto/create-cardinfo.dto";
+
+export class CardInfoDetail {
+    @IsString()
+    typeName: string
+
+    @IsString()
+    typeId: string
+
+    @IsNumber()
+    openFee: number
+
+    @IsNumber()
+    monthFee: number
+
+    @IsNumber()
+    feeRatio: number
+
+    @IsNumber()
+    rechargeRatio: number
+
+    @IsNumber()
+    rechargeMinFee: number
+
+    @IsNumber()
+    validDay: number
+
+    @IsString()
+    amountPerMonth: string
+
+    @IsString()
+    image: string
+
+    @IsString()
+    signImage: string
+
+}
 
 export class Cardinfo {
 
@@ -22,7 +57,7 @@ export class Cardinfo {
         comment: '认证资料'
     })
     @IsObject()
-    info: CardInfoDto
+    info: CardInfoDetail
     
     @ApiHideProperty()
     @CreateDateColumn({
