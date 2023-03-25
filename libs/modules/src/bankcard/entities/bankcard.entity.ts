@@ -126,17 +126,19 @@ export class Bankcard {
     /* 实名认证的Id */
     @Column({
         name: 'kyc_id',
+        default: null,
         comment: '银行卡的KYC认证'
     })
     @IsNumber()
     kycId: number
 
     @ApiHideProperty()
+    @IsOptional()
     @ManyToOne(() => Kyc)
     @JoinColumn({
         name: 'kyc_id',
     })
-    kyc: Kyc
+    kyc?: Kyc
 
     @Column({
         name: 'user_id',
@@ -153,10 +155,20 @@ export class Bankcard {
     })
     user: User
 
+    @Column({
+        name: 'cardinfo_id',
+        default: null,
+        comment: '银行卡详情'
+    })
+    @Type()
+    @IsNumber()
+    cardinfoId: number
+
     @ApiHideProperty()
+    @IsOptional()
     @ManyToOne(() => Cardinfo)
     @JoinColumn({
-        name: 'user_id',
+        name: 'cardinfo_id',
     })
     @IsOptional()
     cardinfo?: Cardinfo

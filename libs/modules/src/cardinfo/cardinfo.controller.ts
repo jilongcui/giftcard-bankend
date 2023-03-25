@@ -29,13 +29,6 @@ export class CardinfoController {
     return await this.cardinfoService.list(listCardinfoDto, paginationDto);
   }
 
-  /* 我的银行卡列表 */
-  @Get('myList')
-  @ApiPaginatedResponse(Cardinfo)
-  async mylist(@Query() listMyCardinfoDto: ListMyCardinfoDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
-    return await this.cardinfoService.mylist(userId, listMyCardinfoDto, paginationDto);
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.cardinfoService.findOne(+id);

@@ -2,7 +2,7 @@ import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { User } from "@app/modules/system/user/entities/user.entity";
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsObject, IsString } from "class-validator";
-import { Column, CreateDateColumn, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 export class KycCertifyInfo {
     @IsString()
@@ -25,6 +25,7 @@ export class KycCertifyInfo {
 
 }
 
+@Entity()
 export class Kyc {
 
     @PrimaryGeneratedColumn()

@@ -1,44 +1,9 @@
-import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsObject, IsString } from "class-validator";
-import { Column, CreateDateColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { CardInfoDetail } from "./cardinfo-detail.entity";
 
-export class CardInfoDetail {
-    @IsString()
-    typeName: string
-
-    @IsString()
-    typeId: string
-
-    @IsNumber()
-    openFee: number
-
-    @IsNumber()
-    monthFee: number
-
-    @IsNumber()
-    feeRatio: number
-
-    @IsNumber()
-    rechargeRatio: number
-
-    @IsNumber()
-    rechargeMinFee: number
-
-    @IsNumber()
-    validDay: number
-
-    @IsString()
-    amountPerMonth: string
-
-    @IsString()
-    image: string
-
-    @IsString()
-    signImage: string
-
-}
-
+@Entity()
 export class Cardinfo {
 
     @PrimaryGeneratedColumn()
@@ -46,7 +11,6 @@ export class Cardinfo {
 
 
     @Column({
-        type: 'string',
         length: 10,
     })
     name: string 
