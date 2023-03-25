@@ -5,9 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
-import { CreateFund33Dto } from './dto/create-fund33.dto';
 import { Fund33QueryBalance, Fund33QueryTransaction, Fund33QueryUNTransaction, Fund33Response } from './dto/response-fund33.dto';
-import { UpdateFund33Dto } from './dto/update-fund33.dto';
 
 @Injectable()
 export class Fund33Service {

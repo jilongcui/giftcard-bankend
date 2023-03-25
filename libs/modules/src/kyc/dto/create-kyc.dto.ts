@@ -1,5 +1,6 @@
 import { OmitType } from "@nestjs/swagger"
-import { IsString } from "class-validator"
+import { Type } from "class-transformer"
+import { IsNumber, IsString } from "class-validator"
 import { Kyc } from "../entities/kyc.entity"
 
 export class CreateKycDto extends OmitType(Kyc, ['id', 'createTime', 'user', 'status'] as const) { }
@@ -26,10 +27,15 @@ export class KycCertifyInfoDto {
 }
 
 export class ListKycDto {
+    @Type()
+    @IsNumber()
     userId: number
+
+    @IsString()
     status: string
 }
 
 export class ListMyKycDto {
+    @IsString()
     status: string
 }
