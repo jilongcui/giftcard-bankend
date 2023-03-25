@@ -3,7 +3,27 @@ import { User } from "@app/modules/system/user/entities/user.entity";
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsObject, IsString } from "class-validator";
 import { Column, CreateDateColumn, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { KycCertifyInfoDto } from "../dto/create-kyc.dto";
+
+export class KycCertifyInfo {
+    @IsString()
+    userName: string
+
+    @IsString()
+    cardId: string
+
+    @IsString()
+    cardType: string
+
+    @IsString()
+    cardFrontImage: string
+
+    @IsString()
+    cardBackImage: string
+
+    @IsString()
+    signImage: string
+
+}
 
 export class Kyc {
 
@@ -19,7 +39,7 @@ export class Kyc {
         name: '认证资料',
     })
     @IsObject()
-    info: KycCertifyInfoDto
+    info: KycCertifyInfo
 
     /* 状态 0: 未认证 1: 认证中 2: 认证完成*/
     @Column({

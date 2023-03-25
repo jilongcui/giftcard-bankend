@@ -3,7 +3,7 @@ import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import moment from 'moment';
+import * as moment from 'moment';
 import { Repository, FindOptionsWhere, MoreThanOrEqual } from 'typeorm';
 import { CreateKycDto, ListKycDto, ListMyKycDto } from './dto/create-kyc.dto';
 import { UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
