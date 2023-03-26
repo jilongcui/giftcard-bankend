@@ -18,8 +18,8 @@ export class KycController {
   constructor(private readonly kycService: KycService) {}
 
   @Post()
-  create(@Body() createKycDto: CreateKycDto) {
-    return this.kycService.create(createKycDto);
+  create(@Body() createKycDto: CreateKycDto, @UserDec(UserEnum.userId) userId: number) {
+    return this.kycService.create(createKycDto, userId);
   }
 
   @Get()

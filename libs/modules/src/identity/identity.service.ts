@@ -84,7 +84,6 @@ export class IdentityService {
         }
 
         this.logger.debug(JSON.stringify(body));
-
         let res = await this.httpService.axiosRef.post<any>(this.remoteUrl, querystring.stringify(body), options);
         // res: AxiosResponse<any>;
         // this.logger.debug(res.data);

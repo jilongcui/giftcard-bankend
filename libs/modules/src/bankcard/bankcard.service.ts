@@ -15,6 +15,7 @@ import { KycService } from '../kyc/kyc.service';
 export class BankcardService {
   logger = new Logger(BankcardService.name)
   platformAddress: string
+  secret: string
   constructor(
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
     private readonly identityService: IdentityService,
@@ -23,6 +24,7 @@ export class BankcardService {
     private readonly sharedService: SharedService,
 
   ) {
+    this.secret = this.configService.get<string>('platform.secret')
     this.platformAddress = this.configService.get<string>('crichain.platformAddress')
   }
 
@@ -43,10 +45,11 @@ export class BankcardService {
   }
 
   async createWithKyc(createBankcardDto: CreateBankcardKycDto, userId: number) {
-    const kyc = await this.kycService.findOne(userId)
+    const kyc = await this.kycService.findOneByUser(createBankcardDto.kycId, userId)
     if (kyc === null) {
       throw new ApiException('没有KYC认证')
     }
+
     // const bgColor = this.sharedService.getBankBgColor(createBankcardDto.bankType)
     createBankcardDto.cardNo = createBankcardDto.cardNo.replace(/\s*/g, "")
     const bankcard = {
@@ -55,6 +58,8 @@ export class BankcardService {
       // bgColor: bgColor,
       kycId: kyc.id,
     }
+    this.logger.debug(bankcard.pinCode, this.secret)
+    bankcard.pinCode = this.sharedService.aesEncrypt(createBankcardDto.pinCode, this.secret)
     return this.bankcardRepository.save(bankcard)
   }
 

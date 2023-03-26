@@ -9,16 +9,16 @@ export class KycCertifyInfo {
     userName: string
 
     @IsString()
-    cardId: string
+    idCardNo: string
 
     @IsString()
-    cardType: string
+    idCardType: string // ‘0’ 身份证，护照
 
     @IsString()
-    cardFrontImage: string
+    idCardFrontImage: string
 
     @IsString()
-    cardBackImage: string
+    idCardBackImage: string
 
     @IsString()
     signImage: string

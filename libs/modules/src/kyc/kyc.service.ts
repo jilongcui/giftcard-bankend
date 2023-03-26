@@ -1,7 +1,7 @@
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { Repository, FindOptionsWhere, MoreThanOrEqual } from 'typeorm';
@@ -11,17 +11,26 @@ import { Kyc } from './entities/kyc.entity';
 
 @Injectable()
 export class KycService {
-  
+  logger = new Logger(KycService.name)
   constructor(
     @InjectRepository(Kyc) private readonly kycRepository: Repository<Kyc>,
   ) {}
 
-  create(createKycDto: CreateKycDto) {
-    this.kycRepository.save(createKycDto)
+  create(createKycDto: CreateKycDto, userId: number) {
+    const kycDto = {
+      ...createKycDto,
+      userId: userId
+    }
+    // this.logger.debug(kycDto)
+    this.kycRepository.save(kycDto)
   }
 
   findOne(id: number) {
     return this.kycRepository.findOneBy({ id })
+  }
+
+  findOneByUser(id: number, userId: number) {
+    return this.kycRepository.findOneBy({ id, userId})
   }
 
   update(id: number, updateKycDto: UpdateKycDto, userId: number) {

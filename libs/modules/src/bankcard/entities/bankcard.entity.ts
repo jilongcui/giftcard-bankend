@@ -22,6 +22,17 @@ export class Bankcard {
     @IsString()
     cardNo: string
 
+    /* 持卡人银行卡Pin */
+    @Column({
+        name: 'pin_code',
+        default: '',
+        length: 50,
+        comment: '持卡人Pin密码，以加密'
+    })
+    @IsOptional()
+    @IsString()
+    pinCode?: string
+
 
     /* 持卡人预留手机号 */
     @Column({
@@ -99,9 +110,20 @@ export class Bankcard {
     @IsString()
     status: string
 
+    /* 银行卡余额 */
+    @Column({
+        name: 'balance',
+        default: 0.00,
+        type: "decimal", precision: 10, scale: 2,
+        comment: '银行卡余额'
+    })
+    @IsNumber()
+    balance: number
+
     /* 实名认证的Id */
     @Column({
         name: 'identity_id',
+        default: null,
         comment: '银行卡的实名'
     })
     @IsNumber()
@@ -117,11 +139,12 @@ export class Bankcard {
     bgColor: string
 
     @ApiHideProperty()
+    @IsOptional()
     @ManyToOne(() => Identity)
     @JoinColumn({
         name: 'identity_id',
     })
-    identity: Identity
+    identity?: Identity
 
     /* 实名认证的Id */
     @Column({
@@ -161,7 +184,6 @@ export class Bankcard {
         comment: '银行卡详情'
     })
     @Type()
-    @IsNumber()
     cardinfoId: number
 
     @ApiHideProperty()
@@ -170,7 +192,6 @@ export class Bankcard {
     @JoinColumn({
         name: 'cardinfo_id',
     })
-    @IsOptional()
     cardinfo?: Cardinfo
 
     @ApiHideProperty()

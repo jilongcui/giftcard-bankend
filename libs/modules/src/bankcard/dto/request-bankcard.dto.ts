@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Bankcard } from "../entities/bankcard.entity";
 
 export class CreateBankcardDto extends OmitType(Bankcard, ['id', 'status', 'userId', 'signTradeNo', 'signTradeTime', 'signNo', 'identityId','bgColor', 'kyc', 'kycId','cardinfo'] as const) { }
-export class CreateBankcardKycDto extends OmitType(Bankcard, ['id', 'status', 'userId', 'signTradeNo', 'signTradeTime', 'signNo', 'bgColor', 'kyc', 'cardinfo'] as const) { }
+export class CreateBankcardKycDto extends OmitType(Bankcard, ['id', 'status', 'identityId', 'userId', 'signTradeNo', 'signTradeTime', 'signNo', 'bgColor', 'kyc', 'cardinfo'] as const) { }
 export class UpdateAllBankcardDto extends Bankcard { }
 export class UpdateBankcardDto extends PartialType(Bankcard) { }
 export class UpdateBankcardStatusDto extends PickType(Bankcard, ['status']) { }

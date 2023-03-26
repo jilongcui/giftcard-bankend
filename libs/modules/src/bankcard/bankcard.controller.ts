@@ -24,7 +24,7 @@ export class BankcardController {
     return this.bankcardService.create(createBankcardDto, userId);
   }
 
-  @Post()
+  @Post('createWithKyc')
   createWithKyc(@Body() createBankcardDto: CreateBankcardKycDto, @UserDec(UserEnum.userId) userId: number) {
     return this.bankcardService.createWithKyc(createBankcardDto, userId);
   }
