@@ -39,6 +39,8 @@ import { MemberModule } from '@app/modules/member/member.module';
 import { EmailModule } from '@app/modules/email/email.module';
 import { PdfModule } from '@app/modules/pdf/pdf.module';
 import { KycModule } from '@app/modules/kyc/kyc.module';
+import { CardinfoModule } from '@app/modules/cardinfo/cardinfo.module';
+import { Fund33Module } from '@app/modules/fund33/fund33.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
@@ -97,6 +99,8 @@ import { KycModule } from '@app/modules/kyc/kyc.module';
     EmailModule,
     PdfModule,
     KycModule,
+    CardinfoModule,
+    Fund33Module,
   ],
   controllers: [NotifyController],
   // providers: [...aliasProviders],

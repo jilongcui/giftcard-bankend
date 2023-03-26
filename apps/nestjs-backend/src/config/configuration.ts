@@ -136,6 +136,11 @@ export interface IConfig {
         baseUrl: string,
         appId: string,
         appKey: string,
+        appSecret: string,
+    }
+
+    platform?: {
+        secret: string
     }
 
     /* 是否演示环境 */

@@ -98,9 +98,15 @@ export default defineConfig({
   },
 
   fund33: {
-    baseUrl: 'https://test.asiatop.net/dtb',
+    // baseUrl2 'https://test.asiatop.net/dtb',
+    baseUrl: 'https://test.asiatop.net/card',
     appId: 'lj5uct0jt19zh1by3p3sdzlyz2yo4vmg',
-    appKey: 'zdvvtvzdxp79ihtcplfuzay7tzt6rx8x',
+    appKey: 'lj5uct0jt19zh1by3p3sdzlyz2yo4vmg',
+    appSecret: 'zdvvtvzdxp79ihtcplfuzay7tzt6rx8x',
+  },
+
+  platform: {
+    secret: process.env.PlatformSecret || '123456'
   },
 
   isDemoEnvironment: false,
