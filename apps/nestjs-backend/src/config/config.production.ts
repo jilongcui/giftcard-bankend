@@ -96,6 +96,16 @@ export default defineConfig({
     merchId: process.env.MERCH_ID || '1664502',
   },
 
+  fund33: {
+    baseUrl: 'https://test.asiatop.net/dtb',
+    appId: 'lj5uct0jt19zh1by3p3sdzlyz2yo4vmg',
+    appKey: 'lj5uct0jt19zh1by3p3sdzlyz2yo4vmg',
+    appSecret: 'zdvvtvzdxp79ihtcplfuzay7tzt6rx8x',
+  },
+
+  platform: {
+    secret: process.env.PlatformSecret || '156duv'
+  },
 
   isDemoEnvironment: false,
   isBlockchainAddress: false,
