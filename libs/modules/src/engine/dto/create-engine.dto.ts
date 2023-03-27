@@ -8,7 +8,7 @@ export interface CreateCompletionRequestDto extends CreateCompletionRequest {
 }
 
 export interface CompletionPresetDto {
-    completion: CreateCompletionRequest | CreateChatCompletionRequest
+    completion: CreateCompletionRequest | CreateChatCompletionRequest | any
     historyLength: number | 10
     welcomeText?: string | null
     initText?: string | null
