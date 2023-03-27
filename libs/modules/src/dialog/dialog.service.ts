@@ -1,4 +1,4 @@
-import { MODE_CHAT, MODE_COMPLETE, MODE_IMAGE } from '@app/common/contants/decorator.contant';
+import { MODE_CHAT, MODE_COMPLETE, MODE_IMAGE, MODE_MIDJOURNEY } from '@app/common/contants/decorator.contant';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { Injectable, Logger, MessageEvent } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -29,6 +29,7 @@ export class DialogService {
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>,
     private readonly chatEngine: EngineChatService,
     private readonly completeEngine: EngineCompleteService,
+    private readonly midjourneyEngine: EngineCompleteService,
     private readonly imageEngine: EngineImageService,
     private readonly authService: AuthService
   ) {
@@ -74,6 +75,8 @@ export class DialogService {
       result = await this.chatEngine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
     } else if (appModel.mode === MODE_COMPLETE) {
       result = await this.completeEngine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
+    } else if (appModel.mode === MODE_MIDJOURNEY) {
+      result = await this.midjourneyEngine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
     } else if (appModel.mode === MODE_IMAGE) {
       result = await this.imageEngine.open(parseInt(openDialogDto.appmodelId), openDialogDto.userId.toString(), openDialogDto.userName)
     }
@@ -135,6 +138,10 @@ export class DialogService {
     let engine 
     if (appModel.mode === MODE_CHAT) {
       engine = this.chatEngine
+    } else if (appModel.mode === MODE_MIDJOURNEY) {
+      engine = this.midjourneyEngine
+    } else if (appModel.mode === MODE_IMAGE) {
+      engine = this.imageEngine
     } else {
       engine = this.completeEngine
     }
@@ -196,6 +203,8 @@ export class DialogService {
     let engine 
     if (appModel.mode === MODE_CHAT) {
       engine = this.chatEngine
+    } else if (appModel.mode === MODE_MIDJOURNEY) {
+      engine = this.midjourneyEngine
     } else if (appModel.mode === MODE_IMAGE) {
       engine = this.imageEngine
     } else {
@@ -276,6 +285,10 @@ export class DialogService {
     let engine 
     if (appModel.mode === MODE_CHAT) {
       engine = this.chatEngine
+    } else if (appModel.mode === MODE_MIDJOURNEY) {
+      engine = this.midjourneyEngine
+    } else if (appModel.mode === MODE_IMAGE) {
+      engine = this.imageEngine
     } else {
       engine = this.completeEngine
     }
