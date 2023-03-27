@@ -3,7 +3,7 @@ import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-respo
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { Body, Controller, Get, Param, Post, Query, StreamableFile } from '@nestjs/common';
@@ -22,13 +22,13 @@ export class InviteUserController {
 
     /* 绑定邀请码 */
     @Post('inviteCode/:code')
-    async inviteParent(@Param('code') code: string, @User(UserEnum.userId) userId: number) {
+    async inviteParent(@Param('code') code: string, @UserDec(UserEnum.userId) userId: number) {
         return await this.inviteUserService.bindInviteCode(userId, code);
     }
 
     /* 绑定父用户 */
     @Post('inviteParent/:id')
-    async bindParent(@Param('id') parentId: number, @User(UserEnum.userId) userId: number) {
+    async bindParent(@Param('id') parentId: number, @UserDec(UserEnum.userId) userId: number) {
         return await this.inviteUserService.bindParent(userId, parentId);
     }
 

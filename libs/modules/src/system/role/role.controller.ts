@@ -11,7 +11,7 @@ import { Keep } from '@app/common/decorators/keep.decorator';
 import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { ExcelService } from '@app/modules/common/excel/excel.service';
@@ -36,7 +36,7 @@ export class RoleController {
         title: '角色管理',
         businessType: BusinessTypeEnum.insert
     })
-    async add(@Body() reqAddRoleDto: ReqAddRoleDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async add(@Body() reqAddRoleDto: ReqAddRoleDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         reqAddRoleDto.createBy = reqAddRoleDto.updateBy = userName
         await this.roleService.addOrUpdate(reqAddRoleDto)
     }
@@ -66,7 +66,7 @@ export class RoleController {
         title: '角色管理',
         businessType: BusinessTypeEnum.update
     })
-    async update(@Body() reqUpdateRoleDto: ReqUpdateRoleDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async update(@Body() reqUpdateRoleDto: ReqUpdateRoleDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         reqUpdateRoleDto.updateBy = userName
         await this.roleService.addOrUpdate(reqUpdateRoleDto)
     }
@@ -74,7 +74,7 @@ export class RoleController {
     /* 分配数据权限 */
     @RepeatSubmit()
     @Put('dataScope')
-    async dataScope(@Body() reqDataScopeDto: ReqDataScopeDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async dataScope(@Body() reqDataScopeDto: ReqDataScopeDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         reqDataScopeDto.updateBy = userName
         await this.roleService.updateDataScope(reqDataScopeDto)
     }
@@ -86,14 +86,14 @@ export class RoleController {
         title: '角色管理',
         businessType: BusinessTypeEnum.delete
     })
-    async delete(@Param('roleIds') roleIds: string, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async delete(@Param('roleIds') roleIds: string, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         await this.roleService.delete(roleIds.split(','), userName)
     }
 
     /* 更改角色状态 */
     @RepeatSubmit()
     @Put("changeStatus")
-    async changeStatus(@Body() reqChangeStatusDto: ReqChangeStatusDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async changeStatus(@Body() reqChangeStatusDto: ReqChangeStatusDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         await this.roleService.changeStatus(reqChangeStatusDto.roleId, reqChangeStatusDto.status, userName)
     }
 

@@ -11,7 +11,7 @@ import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { ReqAddNoticeDto, ReqNoeiceList } from './dto/req-notice.dto';
@@ -32,7 +32,7 @@ export class NoticeController {
         title: '通知公告',
         businessType: BusinessTypeEnum.insert
     })
-    async add(@Body() reqAddNoticeDto: ReqAddNoticeDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async add(@Body() reqAddNoticeDto: ReqAddNoticeDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         reqAddNoticeDto.createBy = reqAddNoticeDto.updateBy = userName
         await this.noticeService.addOrUpdate(reqAddNoticeDto)
     }
@@ -64,7 +64,7 @@ export class NoticeController {
         title: '通知公告',
         businessType: BusinessTypeEnum.update
     })
-    async update(@Body() notice: Notice, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async update(@Body() notice: Notice, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         notice.updateBy = userName
         await this.noticeService.addOrUpdate(notice)
     }

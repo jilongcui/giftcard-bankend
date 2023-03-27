@@ -8,7 +8,7 @@ import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { TreeDataDto } from '@app/common/dto/tree-data.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
@@ -26,7 +26,7 @@ export class MenuController {
     @RepeatSubmit()
     @Post()
     @RequiresPermissions('system:menu:add')
-    async add(@Body() reqAddMenuDto: ReqAddMenuDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async add(@Body() reqAddMenuDto: ReqAddMenuDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         reqAddMenuDto.createBy = reqAddMenuDto.updateBy = userName
         await this.menuService.addOrUpdate(reqAddMenuDto)
     }
@@ -69,7 +69,7 @@ export class MenuController {
     @RepeatSubmit()
     @Put()
     @RequiresPermissions('system:menu:edit')
-    async update(@Body() reqUpdateMenu: ReqUpdateMenu, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async update(@Body() reqUpdateMenu: ReqUpdateMenu, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         reqUpdateMenu.updateBy = userName
         await this.menuService.addOrUpdate(reqUpdateMenu)
     }

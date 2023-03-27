@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ReqIdentify3ElementDto } from './dto/req-identity-3e.dto';
 import { IdentityService } from './identity.service';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { Identity } from './entities/identity.entity';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
@@ -26,7 +26,7 @@ export class IdentityController {
     }
 
     @Post()
-    async identityWith3Element(@Body() reqId3Element: ReqIdentify3ElementDto, @User(UserEnum.userId) userId: number) {
+    async identityWith3Element(@Body() reqId3Element: ReqIdentify3ElementDto, @UserDec(UserEnum.userId) userId: number) {
         return this.identityService.identityWith3Element(reqId3Element.mobile, reqId3Element.cardId, reqId3Element.realName, userId);
     }
 }

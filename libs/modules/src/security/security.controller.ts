@@ -4,7 +4,7 @@ https://docs.nestjs.com/controllers#controllers
 
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, Sse, MessageEvent, Logger, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { User, UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { Security } from './entities/security.entity';
 import { SecurityService } from './security.service';
