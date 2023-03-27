@@ -11,7 +11,7 @@ import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
-import { User, UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { Dialog } from './entities/dialog.entity';
@@ -37,7 +37,7 @@ export class DialogController {
     //     title: '通知公告',
     //     businessType: BusinessTypeEnum.insert
     // })
-    // async add(@Body() reqAddDialogDto: ReqAddDialogDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    // async add(@Body() reqAddDialogDto: ReqAddDialogDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
     //     reqAddDialogDto.createBy = reqAddDialogDto.updateBy = userName
     //     await this.dialogService.addOrUpdate(reqAddDialogDto)
     // }

@@ -14,7 +14,7 @@ import { RoleService } from '../role/role.service';
 import { ReqAddUserDto, ReqChangeStatusDto, ReqResetPwdDto, ReqSetSelfPwd, ReqUpdataSelfDto, ReqUpdateAuthRoleDto, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
 import { ResAuthRoleDto, ResUserDto, ResUserInfoDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
-import { User as UserDec } from '@app/common/decorators/user.decorator';
+import { UserDec } from '@app/common/decorators/user.decorator';
 import { UserService } from './user.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';

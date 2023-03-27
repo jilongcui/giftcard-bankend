@@ -1,7 +1,7 @@
 
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
 import { BankcardService } from './bankcard.service';
-import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { CreateBankcardDto, CreateBankcardKycDto, UpdateBankcardDto } from './dto/request-bankcard.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';

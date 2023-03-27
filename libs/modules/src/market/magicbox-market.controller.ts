@@ -3,7 +3,7 @@ import { MarketService } from './market.service';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserEnum } from '@app/common/decorators/user.decorator';
-import { User as UserDec } from '@app/common/decorators/user.decorator';
+import { UserDec } from '@app/common/decorators/user.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from '@app/common/decorators/public.decorator';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';

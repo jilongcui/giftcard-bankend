@@ -10,7 +10,7 @@ import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-respo
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
@@ -34,7 +34,7 @@ export class DictController {
     @RepeatSubmit()
     @Post('dict/type')
     @RequiresPermissions('system:dict:add')
-    async addType(@Body() reqAddDictTypeDto: ReqAddDictTypeDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async addType(@Body() reqAddDictTypeDto: ReqAddDictTypeDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         reqAddDictTypeDto.createBy = reqAddDictTypeDto.updateBy = userName
         await this.dictService.addOrUpdateType(reqAddDictTypeDto)
     }
@@ -73,7 +73,7 @@ export class DictController {
     @RepeatSubmit()
     @Put('dict/type')
     @RequiresPermissions('system:dict:edit')
-    async updateDictType(@Body() dictType: DictType, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async updateDictType(@Body() dictType: DictType, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         dictType.updateBy = userName
         await this.dictService.addOrUpdateType(dictType)
     }
@@ -95,7 +95,7 @@ export class DictController {
     /* 新增字典数据 */
     @RepeatSubmit()
     @Post('dict/data')
-    async addDictData(@Body() reqAddDictDataDto: ReqAddDictDataDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async addDictData(@Body() reqAddDictDataDto: ReqAddDictDataDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         const dictData = await this.dictService.getDictDataByTypeOrValue(reqAddDictDataDto.dictType, reqAddDictDataDto.dictValue)
         if (dictData) throw new ApiException('该数据键值已存在，请更换')
         reqAddDictDataDto.createBy = reqAddDictDataDto.updateBy = userName
@@ -113,7 +113,7 @@ export class DictController {
     /* 编辑字典数据 */
     @RepeatSubmit()
     @Put('dict/data')
-    async updateDictData(@Body() reqUpdateDictDataDto: ReqUpdateDictDataDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async updateDictData(@Body() reqUpdateDictDataDto: ReqUpdateDictDataDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         reqUpdateDictDataDto.updateBy = userName
         await this.dictService.addOrUpdateDictData(reqUpdateDictDataDto)
     }

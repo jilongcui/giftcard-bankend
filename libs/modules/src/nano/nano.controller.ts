@@ -5,7 +5,7 @@ https://docs.nestjs.com/controllers#controllers
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, Sse, MessageEvent, Logger } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from '@app/common/decorators/public.decorator';
-import { User, UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { NanoService } from './nano.service';
 import { CreateNanoDto, ListNanoDto, MyListNanoDto, } from './dto/create-nano.dto';

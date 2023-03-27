@@ -13,7 +13,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { LocalAuthGuard } from '@app/common/guards/local-auth.guard';
 import { Router } from '../system/menu/dto/res-menu.dto';
 import { QueryInviteUserDto, ReqInnerRegDto, ReqLoginDto, ReqMobileLoginDto, ReqWeixinLoginDto, ReqMobileRegDto } from './dto/req-login.dto';
@@ -109,14 +109,14 @@ export class LoginController {
 
     /* 获取用户信息 */
     @Get('getInfo')
-    async getInfo(@User(UserEnum.userId) userId: number) {
+    async getInfo(@UserDec(UserEnum.userId) userId: number) {
         return await this.loginService.getInfo(userId)
     }
 
     /* 获取用户路由信息 */
     @Get('getRouters')
     @ApiDataResponse(typeEnum.objectArr, Router)
-    async getRouters(@User(UserEnum.userId) userId: number) {
+    async getRouters(@UserDec(UserEnum.userId) userId: number) {
         const router = await this.loginService.getRouterByUser(userId)
         return router
     }

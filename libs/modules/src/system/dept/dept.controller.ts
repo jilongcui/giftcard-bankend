@@ -9,7 +9,7 @@ import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-respo
 import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { TreeDataDto } from '@app/common/dto/tree-data.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
@@ -32,7 +32,7 @@ export class DeptController {
         title: '部门管理',
         businessType: BusinessTypeEnum.insert
     })
-    async add(@Body() ReqAddDeptDto: ReqAddDeptDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async add(@Body() ReqAddDeptDto: ReqAddDeptDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         ReqAddDeptDto.createBy = ReqAddDeptDto.updateBy = userName
         await this.deptService.addOrUpdate(ReqAddDeptDto)
     }
@@ -79,7 +79,7 @@ export class DeptController {
         title: '部门管理',
         businessType: BusinessTypeEnum.update
     })
-    async update(@Body() reqUpdateDept: ReqUpdateDept, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async update(@Body() reqUpdateDept: ReqUpdateDept, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         reqUpdateDept.updateBy = userName
         await this.deptService.addOrUpdate(reqUpdateDept)
     }
@@ -91,7 +91,7 @@ export class DeptController {
         title: '部门管理',
         businessType: BusinessTypeEnum.delete
     })
-    async delete(@Param('deptId') deptId: string, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async delete(@Param('deptId') deptId: string, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         const childs = await this.deptService.findChildsByParentId(deptId)
         if (childs && childs.length) throw new ApiException('该部门下还存在其他部门，无法删除')
         await this.deptService.delete(deptId, userName)
