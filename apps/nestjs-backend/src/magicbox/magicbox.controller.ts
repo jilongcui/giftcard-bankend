@@ -6,7 +6,7 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { Log, BusinessTypeEnum } from '@app/common/decorators/log.decorator';
-import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { MagicboxService } from '@app/modules/magicbox/magicbox.service';

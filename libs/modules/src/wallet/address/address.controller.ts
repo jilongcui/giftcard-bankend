@@ -4,7 +4,7 @@ import { ReqAddressCreateDto, ReqAddressList, ReqBindAddressDto } from './dto/re
 import { ResAddressDto } from './dto/res-address.dto';
 import { AddressService } from './address.service';
 import { Address } from './entities/address.entity';
-import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';

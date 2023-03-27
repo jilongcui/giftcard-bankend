@@ -4,7 +4,7 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Public } from '@app/common/decorators/public.decorator';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
-import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 import { MagicboxService } from '@app/modules/magicbox/magicbox.service';
 import { ListMyMagicboxDto } from '@app/modules/magicbox/dto/request-magicbox.dto';
