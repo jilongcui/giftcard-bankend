@@ -36,6 +36,17 @@ export class Appmodel {
     @IsString()
     mode: string
 
+    /* 模式 */
+    @Column({
+        name: 'model_version',
+        comment: '模型版本',
+        type: 'varchar',
+        default: '',
+        length: 256,
+    })
+    @IsString()
+    modelVersion: string
+
     /* 图片地址 */
     @Column({
         name: 'image',
