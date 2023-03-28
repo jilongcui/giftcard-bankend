@@ -1,21 +1,25 @@
 import { MODE_CHAT, MODE_COMPLETE, MODE_IMAGE, MODE_MIDJOURNEY } from '@app/common/contants/decorator.contant';
 import { ApiException } from '@app/common/exceptions/api.exception';
+import { SharedService } from '@app/shared';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger, MessageEvent } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WsException, WsResponse } from '@nestjs/websockets';
+import Redis from 'ioredis';
 import { Socket } from 'net';
-import { tap, map, Observable, catchError, switchMap, throwError } from 'rxjs';
+import { tap, map, Observable, catchError, switchMap, throwError, interval } from 'rxjs';
 import { Repository } from 'typeorm';
 import { Appmodel } from '../appmodel/entities/appmodel.entity';
 import { EngineChatService } from '../engine/engine-chat.service';
 import { EngineCompleteService } from '../engine/engine-complete.service';
 import { EngineImageService } from '../engine/engine-image.service';
+import { EngineMidjourneyService } from '../engine/engine-midjourney.service';
 import { InjectEngine } from '../engine/engine.decorator';
 import { EngineService } from '../engine/engine.interface';
 import { CreateNanoDto } from '../nano/dto/create-nano.dto';
 import { Nano } from '../nano/entities/nano.entity';
 import { AuthService } from '../system/auth/auth.service';
-import { CreateDialogDto, OpenDialogDto, PromptDto } from './dto/create-dialog.dto';
+import { CreateDialogDto, OpenDialogDto, PrepareSseDto, PromptDto, PromptSseDto } from './dto/create-dialog.dto';
 import { UpdateDialogDto } from './dto/update-dialog.dto';
 import { Dialog } from './entities/dialog.entity';
 
@@ -29,9 +33,11 @@ export class DialogService {
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>,
     private readonly chatEngine: EngineChatService,
     private readonly completeEngine: EngineCompleteService,
-    private readonly midjourneyEngine: EngineCompleteService,
+    private readonly midjourneyEngine: EngineMidjourneyService,
     private readonly imageEngine: EngineImageService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly sharedService: SharedService,
+    @InjectRedis() private readonly redis: Redis,
   ) {
 
     this.stringMap = new Map<string, [string]>()
@@ -113,7 +119,7 @@ export class DialogService {
     return `This action removes a #${id} dialog`;
   }
 
-  async prompt(prompt: PromptDto, userId: number){
+  async prompt(prompt: PrepareSseDto, userId: number){
     // this.logger.debug(`prompt> ${userId}: ${prompt.text}`)
 
     if(!prompt.dialogId || !userId || !prompt.text) {
@@ -158,9 +164,27 @@ export class DialogService {
     return result
   }
 
-  async promptSse(prompt: PromptDto, userId: number, openId: string){
-    // this.logger.debug(`prompt> ${userId}: ${prompt.text}`)
+  promptSse2(userId: number, openId: string){
+    return interval(1000).pipe(map((_) => ({ data: 'hello' })));
+  }
 
+  async prepareSse(prompt: PrepareSseDto, userId: number, openId: string){
+    const nonce = this.sharedService.generateNonce(8)
+    await this.redis.set('Dialog:Nonce' + nonce, JSON.stringify(prompt), 'EX', 60 * 5)
+    return {nonce: nonce}
+  }
+
+  async promptSse(promptRaw: PromptSseDto, userId: number, openId: string){
+    const promptStr = await this.redis.get('Dialog:Nonce' + promptRaw.nonce)
+    const prompt:PrepareSseDto  = JSON.parse(promptStr)
+    if (!prompt || !prompt.dialogId) {
+      throw new WsException("无效的Nonce")
+    }
+    return await this.promptDto(prompt, userId, openId)
+  }
+  
+  async promptDto(prompt: PromptDto, userId: number, openId: string){
+    // this.logger.debug(`prompt> ${userId}: ${prompt.text}`)
     if(!prompt.dialogId || !userId || !prompt.text) {
       this.logger.debug(`promptSse> ${prompt.dialogId}: ${userId}: ${prompt.text}`)
       throw new WsException("输入参数不正确")
@@ -176,17 +200,19 @@ export class DialogService {
         throw new WsException(error)
       }
     }
-    
 
     const dialog = await this.dialogRepository.findOneBy({
       id: parseInt(prompt.dialogId), userId: userId
     })
+    // this.logger.debug(JSON.stringify(dialog))
+
     let nanoDto: CreateNanoDto = {
       userId: userId,
       dialogId: parseInt(prompt.dialogId),
       type: '0', // prompt
       content: prompt.text
     }
+
     const nano = await this.nanoRepository.save(nanoDto)
     const content = ''
     nanoDto = {
@@ -216,7 +242,7 @@ export class DialogService {
       engine.promptSse(ob, openId, dialog.appmodelId, userId.toString(), nano2.id.toString(), prompt.text)
     })
     // 调用引擎发送 text
-    if (appModel.mode === MODE_IMAGE) {
+    if (appModel.mode === MODE_IMAGE || appModel.mode === MODE_MIDJOURNEY) {
       return observable.pipe(
         map(data => {
           if (data.type === 'DONE'){
@@ -231,12 +257,12 @@ export class DialogService {
         catchError(error => {throw new WsException(error)})
       )
     }
+
     return observable.pipe(
       switchMap(async data => {
         if (data.type === 'DONE'){
           const content = data.data.toString()
           nano2.content = content
-          // this.logger.debug(content)
           // try {
           //   const security = await this.authService.securityCheck(openId, content)
           //   if (!security) {
@@ -253,14 +279,13 @@ export class DialogService {
           // await this.nanoRepository.save(nano2)
           data.data = null
         }
-        
         return data
       }),
       catchError(error => {throw new WsException(error)})
     )
   }
 
-  async createImage(prompt: PromptDto, userId: number){
+  async createImage(prompt: PrepareSseDto, userId: number){
     // this.logger.debug(`prompt> ${userId}: ${prompt.text}`)
 
     if(!prompt.dialogId || !userId || !prompt.text) {

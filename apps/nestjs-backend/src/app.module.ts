@@ -5,6 +5,7 @@ import { SharedModule } from '@app/shared/shared.module';
 import { ExistingProvider, Module } from '@nestjs/common';
 import configuration from './config/configuration';
 import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from '@app/modules/system/auth/auth.module';
 import { UserModule } from '@app/modules/system/user/user.module';
 import { DictModule } from '@app/modules/system/dict/dict.module';
@@ -51,6 +52,8 @@ import { DialogModule } from '@app/modules/dialog/dialog.module';
 import { NanoModule } from '@app/modules/nano/nano.module';
 import { AppmodelModule } from '@app/modules/appmodel/appmodel.module';
 import { SecurityModule } from '@app/modules/security/security.module';
+import { ReplicateModule } from '@app/modules/replicate/replicate.module';
+import { join } from 'path';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService, OrderService, LoginService, CollectionService, AirdropWhitelistService,
@@ -73,6 +76,10 @@ const aliasProviders = createAliasProviders();
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration]
+    }),
+
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client'),   // <-- path to the static files
     }),
 
     /* 公共模块 */
@@ -119,6 +126,7 @@ const aliasProviders = createAliasProviders();
     NanoModule,
     AppmodelModule,
     SecurityModule,
+    ReplicateModule,
   ],
   providers: [...aliasProviders],
   controllers: [MagicboxController, MagicboxCollectionController, SubmitterController]

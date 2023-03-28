@@ -8,6 +8,8 @@ import { EngineCompleteService } from './engine-complete.service';
 import { EngineImageService } from './engine-image.service';
 import { UploadModule } from '../common/upload/upload.module';
 import { AuthModule } from '../system/auth/auth.module';
+import { ReplicateModule } from '../replicate/replicate.module';
+import { EngineMidjourneyService } from './engine-midjourney.service';
 
 // @Module({
 //   imports: [
@@ -23,10 +25,10 @@ export class EngineModule {
       module: EngineModule,
       imports: [
         TypeOrmModule.forFeature([Appmodel]),
-        UploadModule,AuthModule
+        UploadModule,AuthModule, ReplicateModule
       ],
-      providers: [EngineChatService, EngineImageService, EngineCompleteService],
-      exports: [EngineChatService, EngineImageService, EngineCompleteService]
+      providers: [EngineChatService, EngineImageService, EngineCompleteService, EngineMidjourneyService],
+      exports: [EngineChatService, EngineImageService, EngineCompleteService, EngineMidjourneyService]
     }
   }
 }
