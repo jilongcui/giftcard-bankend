@@ -56,24 +56,20 @@ export class DialogController {
         return result
     }
 
-    @Public()
     @Post('prepareSse')
     async prepareSse(@Body() promptDto: PrepareSseDto, @UserDec(UserEnum.userId) userId: number,
         @UserDec(UserEnum.openId, UserInfoPipe) openId: string) {
         // this.logger.debug(JSON.stringify(promptDto))
-        userId = userId??6
-        openId = undefined
         const prepareNone = await this.dialogService.prepareSse(promptDto, userId, openId)
         return prepareNone
     }
 
 
     @Sse('promptSse')
-    @Public()
     @Keep()
     async promptSse(@Query() promptDto: PromptSseDto, @UserDec(UserEnum.userId) userId: number,
         @UserDec(UserEnum.openId, UserInfoPipe) openId: string): Promise<Observable<MessageEvent>> {
-        const observable = await this.dialogService.promptSse(promptDto, 6, undefined)
+        const observable = await this.dialogService.promptSse(promptDto, userId, openId)
         return observable.pipe(
             map(data => ({event: 'promptSse', data: data})),
             catchError(error => { throw new ApiException('Bad Request ' + error.getError())})
