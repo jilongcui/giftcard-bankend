@@ -3,24 +3,28 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Repository, FindOptionsWhere } from 'typeorm';
-import { CreateBankcardDto, ListMyBankcardDto, ListBankcardDto, UpdateBankcardDto, UpdateBankcardStatusDto } from './dto/request-bankcard.dto';
+import { CreateBankcardDto, ListMyBankcardDto, ListBankcardDto, UpdateBankcardDto, UpdateBankcardStatusDto, CreateBankcardKycDto } from './dto/request-bankcard.dto';
 import { Bankcard } from './entities/bankcard.entity';
 import { ConfigService } from '@nestjs/config';
 import { IdentityService } from '../identity/identity.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { SharedService } from '@app/shared/shared.service';
+import { KycService } from '../kyc/kyc.service';
 
 @Injectable()
 export class BankcardService {
   logger = new Logger(BankcardService.name)
   platformAddress: string
+  secret: string
   constructor(
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
     private readonly identityService: IdentityService,
+    private readonly kycService: KycService,
     private readonly configService: ConfigService,
     private readonly sharedService: SharedService,
 
   ) {
+    this.secret = this.configService.get<string>('platform.secret')
     this.platformAddress = this.configService.get<string>('crichain.platformAddress')
   }
 
@@ -37,6 +41,25 @@ export class BankcardService {
       bgColor: bgColor,
       identityId: identity.identityId,
     }
+    return this.bankcardRepository.save(bankcard)
+  }
+
+  async createWithKyc(createBankcardDto: CreateBankcardKycDto, userId: number) {
+    const kyc = await this.kycService.findOneByUser(createBankcardDto.kycId, userId)
+    if (kyc === null) {
+      throw new ApiException('没有KYC认证')
+    }
+
+    // const bgColor = this.sharedService.getBankBgColor(createBankcardDto.bankType)
+    createBankcardDto.cardNo = createBankcardDto.cardNo.replace(/\s*/g, "")
+    const bankcard = {
+      ...createBankcardDto,
+      userId,
+      // bgColor: bgColor,
+      kycId: kyc.id,
+    }
+    this.logger.debug(bankcard.pinCode, this.secret)
+    bankcard.pinCode = this.sharedService.aesEncrypt(createBankcardDto.pinCode, this.secret)
     return this.bankcardRepository.save(bankcard)
   }
 

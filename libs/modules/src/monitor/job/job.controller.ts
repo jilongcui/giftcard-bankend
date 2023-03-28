@@ -10,7 +10,7 @@ import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-respo
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { ExcelService } from '@app/modules/common/excel/excel.service';
@@ -32,7 +32,7 @@ export class JobController {
     @RepeatSubmit()
     @Post('job')
     @RequiresPermissions('monitor:job:add')
-    async addJob(@Body() reqAddJob: ReqAddJob, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async addJob(@Body() reqAddJob: ReqAddJob, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         reqAddJob.createBy = reqAddJob.updateBy = userName
         await this.jobService.addJob(reqAddJob)
     }
@@ -58,7 +58,7 @@ export class JobController {
     @RepeatSubmit()
     @Put('job')
     @RequiresPermissions('monitor:job:edit')
-    async updataJob(@Body() job: Job, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async updataJob(@Body() job: Job, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         job.updateBy = userName
         await this.jobService.updataJob(job)
     }
@@ -83,7 +83,7 @@ export class JobController {
     @RepeatSubmit()
     @Put('job/changeStatus')
     @RequiresPermissions('monitor:job:changeStatus')
-    async changeStatus(@Body() reqChangStatusDto: ReqChangStatusDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async changeStatus(@Body() reqChangStatusDto: ReqChangStatusDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         await this.jobService.changeStatus(reqChangStatusDto, userName)
     }
 

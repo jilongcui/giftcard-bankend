@@ -5,7 +5,7 @@ https://docs.nestjs.com/controllers#controllers
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, StreamableFile } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
@@ -36,7 +36,7 @@ export class PostController {
         title: '岗位管理',
         businessType: BusinessTypeEnum.insert
     })
-    async add(@Body() reqAddPostDto: ReqAddPostDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async add(@Body() reqAddPostDto: ReqAddPostDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         const post = await this.postService.findByPostCode(reqAddPostDto.postCode)
         if (post) throw new ApiException('岗位编码已存在，请更换')
         reqAddPostDto.createBy = reqAddPostDto.updateBy = userName
@@ -68,7 +68,7 @@ export class PostController {
         title: '岗位管理',
         businessType: BusinessTypeEnum.update
     })
-    async update(@Body() post: SysPost, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async update(@Body() post: SysPost, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         post.updateBy = userName
         await this.postService.addOrUpdate(post)
     }

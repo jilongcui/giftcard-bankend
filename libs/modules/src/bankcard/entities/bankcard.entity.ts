@@ -4,6 +4,8 @@ import { User } from "../../system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Identity } from "@app/modules/identity/entities/identity.entity";
 import { Type } from "class-transformer";
+import { Kyc } from "@app/modules/kyc/entities/kyc.entity";
+import { Cardinfo } from "@app/modules/cardinfo/entities/cardinfo.entity";
 
 @Entity()
 export class Bankcard {
@@ -19,6 +21,17 @@ export class Bankcard {
     })
     @IsString()
     cardNo: string
+
+    /* 持卡人银行卡Pin */
+    @Column({
+        name: 'pin_code',
+        default: '',
+        length: 50,
+        comment: '持卡人Pin密码，以加密'
+    })
+    @IsOptional()
+    @IsString()
+    pinCode?: string
 
 
     /* 持卡人预留手机号 */
@@ -97,9 +110,20 @@ export class Bankcard {
     @IsString()
     status: string
 
+    /* 银行卡余额 */
+    @Column({
+        name: 'balance',
+        default: 0.00,
+        type: "decimal", precision: 10, scale: 2,
+        comment: '银行卡余额'
+    })
+    @IsNumber()
+    balance: number
+
     /* 实名认证的Id */
     @Column({
         name: 'identity_id',
+        default: null,
         comment: '银行卡的实名'
     })
     @IsNumber()
@@ -115,11 +139,29 @@ export class Bankcard {
     bgColor: string
 
     @ApiHideProperty()
+    @IsOptional()
     @ManyToOne(() => Identity)
     @JoinColumn({
         name: 'identity_id',
     })
-    identity: Identity
+    identity?: Identity
+
+    /* 实名认证的Id */
+    @Column({
+        name: 'kyc_id',
+        default: null,
+        comment: '银行卡的KYC认证'
+    })
+    @IsNumber()
+    kycId: number
+
+    @ApiHideProperty()
+    @IsOptional()
+    @ManyToOne(() => Kyc)
+    @JoinColumn({
+        name: 'kyc_id',
+    })
+    kyc?: Kyc
 
     @Column({
         name: 'user_id',
@@ -135,6 +177,22 @@ export class Bankcard {
         name: 'user_id',
     })
     user: User
+
+    @Column({
+        name: 'cardinfo_id',
+        default: null,
+        comment: '银行卡详情'
+    })
+    @Type()
+    cardinfoId: number
+
+    @ApiHideProperty()
+    @IsOptional()
+    @ManyToOne(() => Cardinfo)
+    @JoinColumn({
+        name: 'cardinfo_id',
+    })
+    cardinfo?: Cardinfo
 
     @ApiHideProperty()
     @CreateDateColumn({

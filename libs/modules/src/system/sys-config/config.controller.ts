@@ -11,7 +11,7 @@ import { Keep } from '@app/common/decorators/keep.decorator';
 import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { ExcelService } from '@app/modules/common/excel/excel.service';

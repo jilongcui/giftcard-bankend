@@ -11,7 +11,7 @@ import { Keep } from '@app/common/decorators/keep.decorator';
 import { BusinessTypeEnum, Log } from '@app/common/decorators/log.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
-import { User, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { ExcelService } from '@app/modules/common/excel/excel.service';
@@ -35,7 +35,7 @@ export class SysConfigController {
         businessType: BusinessTypeEnum.insert
     })
     @RequiresPermissions('system:config:add')
-    async add(@Body() reqAddConfigDto: ReqAddConfigDto, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async add(@Body() reqAddConfigDto: ReqAddConfigDto, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         reqAddConfigDto.createBy = reqAddConfigDto.updateBy = userName
         await this.sysConfigService.addOrUpdate(reqAddConfigDto)
     }
@@ -83,7 +83,7 @@ export class SysConfigController {
         businessType: BusinessTypeEnum.update
     })
     @RequiresPermissions('system:config:edit')
-    async updata(@Body() sysConfig: SysConfig, @User(UserEnum.userName, UserInfoPipe) userName: string) {
+    async updata(@Body() sysConfig: SysConfig, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         sysConfig.updateBy = userName
         await this.sysConfigService.addOrUpdate(sysConfig)
     }

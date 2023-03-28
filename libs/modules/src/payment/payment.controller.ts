@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, Query, Logger, Header, Render, All } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { ConfirmPayWithCardDto, CreatePaymentDto, PayWithBalanceDto, PayWithCardDto, ReqCryptoNotifyDto, ReqWeixinPaymentNotifyDto, UpdatePaymentDto, WebSignDto, WeixinPayForMemberDto } from './dto/request-payment.dto';
-import { User as UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ApiTags, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { Public } from '@app/common/decorators/public.decorator';
 import { SharedService } from '@app/shared';

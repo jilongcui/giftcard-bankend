@@ -22,6 +22,7 @@ import { isEmpty } from 'lodash';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { generateKeyPairSync, publicEncrypt } from 'crypto';
+import strRandom from 'string-random';
 const fs = require("fs");
 const xml2js = require('xml2js');
 const parser = new xml2js.Parser({
@@ -139,6 +140,17 @@ export class SharedService {
         return CryptoJS.AES.decrypt(encrypted, secret).toString(CryptoJS.enc.Utf8);
     }
 
+    aesEncryptNoSalt(msg: string, secret: string): string {
+        const iv = { words: [ 0, 0, 0, 0 ], sigBytes: 16, concat: null, clamp: null, clone: null}
+        return CryptoJS.AES.encrypt(msg, CryptoJS.enc.Utf8.parse(secret), { iv:iv }).toString()
+    }
+
+    aesDecryptNoSalt(encrypted: string, secret: string): string {
+        const iv = { words: [ 0, 0, 0, 0 ], sigBytes: 16, concat: null, clamp: null, clone: null}
+        return CryptoJS.AES.decrypt(encrypted, CryptoJS.enc.Utf8.parse(secret), { iv }).toString(CryptoJS.enc.Utf8)
+        // return CryptoJS.AES.decrypt(encrypted, secret, {iv: iv}).toString(CryptoJS.enc.Utf8);
+    }
+
     /**
      * @description: md5加密
      * @param {string} msg
@@ -224,6 +236,10 @@ export class SharedService {
         return customNanoid();
     }
 
+    generateNonce(length: number) {
+        return strRandom(length, {letters: false})
+    }
+
     async checkImageCaptcha(uuid: string, code: string) {
         const cacheCode = await this.redis.get(`${CAPTCHA_IMG_KEY}:${uuid}`)
         if (isEmpty(cacheCode) || code.toLowerCase() !== cacheCode.toLowerCase())
@@ -235,7 +251,8 @@ export class SharedService {
     compactJsonToString(data: Object) {
         let sign = '';
         for (let key in data) {
-            sign += '&' + key + '=' + data[key]
+            if(data[key] != undefined)
+                sign += '&' + key + '=' + data[key]
         }
         return sign.slice(1)
     }

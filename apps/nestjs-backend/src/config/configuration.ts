@@ -132,6 +132,17 @@ export interface IConfig {
         merchId: string,
     }
 
+    fund33?: {
+        baseUrl: string,
+        appId: string,
+        appKey: string,
+        appSecret: string,
+    }
+
+    platform?: {
+        secret: string
+    }
+
     /* 是否演示环境 */
     isDemoEnvironment?: Boolean;
     /* 是否生成区块链地址 */
