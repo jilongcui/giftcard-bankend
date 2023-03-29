@@ -89,6 +89,40 @@ export class AuthService {
     return user
   }
 
+  /* 判断微信登录的逻辑 */
+  async validateWeixinWeb(code: string) {
+    /* Get openID and session_key from weixin service by code */
+    const url = `https://api.weixin.qq.com/sns/oauth2/access_token?grant_type=${this.grant_type}&appid=${this.appId}&secret=${this.secret}&code=${code}`
+    // const info = await this.getInfo(url) // 获取openid和session_key
+    // this.logger.debug(url)
+    const info: any = await axios.get(url);
+    // this.logger.debug(info.data)
+    if (info.data.errcode && info.data.errcode !== 0) {
+      throw new ApiException(info.data.errmsg)
+    }
+
+    // 通过openid 来查找用户是否存在
+    const user = await this.userService.findOneByOpenId(info.data.openid)
+    if (!user) {
+      /* 如果用户不存在，需要创建新的用户 */
+
+      const reqAddUserDto = new ReqAddUserDto()
+      const wxName = "wx_" + strRandom(8).toLowerCase()
+      // reqAddUserDto.phonenumber = phone;
+      reqAddUserDto.userName = wxName;
+      reqAddUserDto.nickName = wxName;
+      reqAddUserDto.userType = '02'; // weixin user.
+      reqAddUserDto.postIds = [];
+      reqAddUserDto.roleIds = [];
+      reqAddUserDto.openId = info.data.openid;
+
+      reqAddUserDto.createBy = reqAddUserDto.updateBy = 'admin'
+      return await this.userService.addUser(reqAddUserDto)
+
+    }
+    return user
+  }
+
   /* 判断token 是否过期 或者被重置 */
   async validateToken(userId: number, pv: number, restoken: string) {
     const token = await this.redis.get(`${USER_TOKEN_KEY}:${userId}`)

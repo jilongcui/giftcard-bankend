@@ -31,6 +31,7 @@ import { Keep } from '@app/common/decorators/keep.decorator';
 import { WeixinAuthGuard } from '@app/common/guards/weixin-auth.guard';
 import { InviteUserService } from '../inviteuser/invite-user.service';
 import { MemberService } from '../member/member.service';
+import { WeixinWebAuthGuard } from '@app/common/guards/weixinweb-auth.guard';
 @ApiTags('登录')
 @ApiBearerAuth()
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -92,6 +93,21 @@ export class LoginController {
         return result
     }
 
+    /* 微信web端登录登录 */
+    @Post('weilogin')
+    @Public()
+    @UseGuards(WeixinWebAuthGuard)
+    async weilogin(@Body() reqLoginDto: ReqWeixinLoginDto, @Req() req: Request): Promise<ResLoginDto> {
+
+        const result = await this.loginService.login(req)
+        const { user } = req as any
+        if(reqLoginDto.inviteCode) {
+            await this.inviteService.bindInviteCode(user.userId, reqLoginDto.inviteCode)
+            await this.memberService.create({ memberInfoId: 0}, user.userId)
+        }
+        return result
+    }
+    
     /* 用户手机注册 */
     @Post('mregister')
     @Public()
