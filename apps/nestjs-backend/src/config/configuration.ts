@@ -77,6 +77,8 @@ export interface IConfig {
     weixinLogin?: {
         appId: string,
         appSecret: string,
+        webAppId: string,
+        webAppSecret: string,
     },
 
     weixinPayment?: {
