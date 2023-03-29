@@ -9,7 +9,7 @@ export interface CreateMidjourneyRequest {
      * @type {string}
      * @memberof CreateMidjourneyRequest
      */
-    'seed'?: string;
+    'seed'?: number;
 
     /**
      * A text description of the desired image(s). The maximum length is 1000 characters.

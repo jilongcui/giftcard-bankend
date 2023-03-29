@@ -124,7 +124,7 @@ export class EngineMidjourneyService implements EngineService{
     }
     const completionRequest =  (appmodel.preset.completion as CreateMidjourneyRequest)
     completionRequest.prompt = appmodel.preset.initText + ' ' +text
-    completionRequest.seed = seed ??undefined
+    completionRequest.seed = undefined
     // this.logger.debug(completionRequest.prompt)
     // this.logger.debug(JSON.stringify(completionRequest.messages))
     try {
