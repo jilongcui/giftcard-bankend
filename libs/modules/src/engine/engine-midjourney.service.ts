@@ -15,6 +15,7 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { CreateMidjourneyRequest } from './dto/create-midjourney.dto';
 import { ReplicateService } from '../replicate/replicate.service';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class EngineMidjourneyService implements EngineService{
@@ -30,6 +31,7 @@ export class EngineMidjourneyService implements EngineService{
     @InjectRedis() private readonly redis: Redis,
     private readonly replicateService: ReplicateService,
     private readonly uploadService: UploadService,
+    private readonly httpService: HttpService,
   ) {
     this.logger = new Logger(EngineMidjourneyService.name)
     this.organization = process.env.OPENAI_ORGANIZATION
@@ -137,10 +139,15 @@ export class EngineMidjourneyService implements EngineService{
       const contents = []
       
       for(let i=0; i< completion.length; i++) {
-        // const fileName = strRandom(8).toLowerCase() + '.png'
-        // const fullName = 'created_images' + '/' +userId + '/' + fileName
-        // const url = await this.uploadService.uploadBase64ToCos(fullName, completion.data.data[i].b64_json)
-        const url = completion[i]
+        const midurl = completion[i]
+        if (!midurl || midurl.length < 10)
+          continue
+        const response = await this.httpService.axiosRef.get(midurl, {
+          responseType: 'arraybuffer'
+        })
+        const fileName = strRandom(8).toLowerCase() + '.png'
+        const fullName = 'created_images' + '/' +userId + '/' + fileName
+        const url = await this.uploadService.uploadBase64ToCos(fullName, response.data)
         const content = `![${i}](${url})`
         contents.push(content)
         ob.next({id: nanoId, type: 'DATA', data: content});

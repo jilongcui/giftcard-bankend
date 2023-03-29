@@ -10,6 +10,7 @@ import { UploadModule } from '../common/upload/upload.module';
 import { AuthModule } from '../system/auth/auth.module';
 import { ReplicateModule } from '../replicate/replicate.module';
 import { EngineMidjourneyService } from './engine-midjourney.service';
+import { HttpModule } from '@nestjs/axios';
 
 // @Module({
 //   imports: [
@@ -24,6 +25,10 @@ export class EngineModule {
     return {
       module: EngineModule,
       imports: [
+        HttpModule.register({
+          timeout: 5000,
+          maxRedirects: 5,
+        }),
         TypeOrmModule.forFeature([Appmodel]),
         UploadModule,AuthModule, ReplicateModule
       ],
