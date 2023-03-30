@@ -100,8 +100,8 @@ export class EngineMidjourneyService implements EngineService{
     try {
       const model = appmodel.modelVersion
       const completion = await this.replicateService.run(model, completionRequest)
-      // return {cpmlId: completion.data.created, object: null,
-      //         text: completion.JSON.stringify(completion)}
+      return {cpmlId: completion.data.created, object: null,
+              text: completion.JSON.stringify(completion)}
     } catch(error) {
       // Consider adjusting the error handling logic for your use case
       if (error.response) {
