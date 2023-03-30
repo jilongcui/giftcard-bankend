@@ -88,6 +88,11 @@ export default defineConfig({
     merchId: process.env.MERCH_ID || '1664502',
     orderSN: process.env.ORDER_SN || 'SN'
   },
+
+  wallet: {
+    baseUrl: process.env.WALLET_BASEURL || 'https://wallet.base.com/',
+  },
+
   fund: {
     baseCertUrl: 'https://www.heepay.com/',
     basePayUrl: 'https://Pay.heepay.com/',

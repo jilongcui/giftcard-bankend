@@ -1,9 +1,9 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ResAddressDto } from './dto/res-address.dto';
-import { ReqAddressAddDto, ReqAddressCreateDto, ReqAddressList, ReqMyAddressDto } from './dto/req-address.dto';
+import { ReqAddressAddDto, ReqAddressCreateDto, ReqAddressList, ReqAddressRequestDto, ReqMyAddressDto } from './dto/req-address.dto';
 import * as jaysonPromise from 'jayson/promise';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
-import { Address, AddressBTC, AddressCRI, AddressETH, AddressTRC } from './entities/address.entity';
+import { Address, AddressBEP, AddressBTC, AddressCRI, AddressETH, AddressTRC } from './entities/address.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { firstValueFrom } from 'rxjs';
@@ -11,20 +11,34 @@ import { ClientProxy } from '@nestjs/microservices';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { Identity } from '@app/modules/identity/entities/identity.entity';
 import { RealAuthDto } from '@app/chain/dto/request-chain.dto';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AddressService implements OnModuleInit {
     private rpcClient: any;
     private response: ResAddressDto;
-
+    secret: string
+    baseUrl: string
+    appKey: string
+    appSecret: string
+    
     constructor(
         @InjectRepository(AddressETH) private readonly addressEthRepository: Repository<AddressETH>,
-        @InjectRepository(AddressBTC) private readonly addressBtcRepository: Repository<AddressETH>,
+        @InjectRepository(AddressBEP) private readonly addressBepRepository: Repository<AddressBEP>,
+        @InjectRepository(AddressBTC) private readonly addressBtcRepository: Repository<AddressBTC>,
         @InjectRepository(AddressTRC) private readonly addressTrcRepository: Repository<AddressTRC>,
         @InjectRepository(AddressCRI) private readonly addressCriRepository: Repository<AddressCRI>,
         @InjectRepository(Identity) private readonly identityRepository: Repository<Identity>,
         @Inject('CHAIN_SERVICE') private client: ClientProxy,
-    ) { }
+        private readonly httpService: HttpService,
+        private readonly configService: ConfigService,
+    ) { 
+        this.secret = this.configService.get<string>('wallet.secret')
+        this.baseUrl = this.configService.get<string>('wallet.baseUrl')
+        this.appKey = this.configService.get<string>('wallet.appKey')
+        this.appSecret = this.configService.get<string>('wallet.appSecret')
+    }
 
     onModuleInit() {
         console.log("onModuleInit");
@@ -45,6 +59,10 @@ export class AddressService implements OnModuleInit {
         }
         else if (data.addressType === 'TRC') {
             if (await this.addressTrcRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === 'BEP'|| data.addressType === 'BSC') {
+            if (await this.addressBepRepository.findOneBy({ userId: data.userId, appId: data.appId }))
                 exist = true;
         }
         else if (data.addressType === 'BTC') {
@@ -77,6 +95,8 @@ export class AddressService implements OnModuleInit {
             await this.addressCriRepository.save(reqAddrAddDto)
         else if (data.addressType === 'ETH')
             await this.addressEthRepository.save(reqAddrAddDto)
+        else if (data.addressType === 'BEP' || data.addressType === 'BSC')
+            await this.addressBepRepository.save(reqAddrAddDto)
         else if (data.addressType === 'TRC')
             await this.addressTrcRepository.save(reqAddrAddDto)
         else if (data.addressType === 'BTC')
@@ -84,12 +104,86 @@ export class AddressService implements OnModuleInit {
         return response
     }
 
+    async addressRequest(data: ReqAddressRequestDto, userId): Promise<ResAddressDto> {
+        // Check if exist 
+        let exist = false;
+        if (data.addressType === 'CRI') {
+            if (await this.addressCriRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === 'TRC') {
+            if (await this.addressTrcRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === 'BEP'|| data.addressType === 'BSC') {
+            if (await this.addressBepRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === 'BTC') {
+            if (await this.addressBtcRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === 'ETH') {
+            if (await this.addressCriRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+                exist = true;
+        }
+
+        if (exist) {
+            throw new ApiException('User address exist.')
+        }
+        let response;
+        if (data.addressType === 'CRI') {
+            // Get address from chain microservice
+            const pattern = { cmd: 'createAddress' }
+            response = await firstValueFrom(this.client.send<ResAddressDto>(pattern, {}))
+
+        } else {
+            response = await this.requestAddress(data.addressType, userId);
+        }
+        const reqAddrAddDto = new ReqAddressAddDto()
+        reqAddrAddDto.address = response.address
+        reqAddrAddDto.privateKey = ''
+        reqAddrAddDto.appId = 0
+        reqAddrAddDto.userId = data.userId
+        if (data.addressType === 'CRI')
+            await this.addressCriRepository.save(reqAddrAddDto)
+        else if (data.addressType === 'ETH')
+            await this.addressEthRepository.save(reqAddrAddDto)
+        else if (data.addressType === 'BEP' || data.addressType === 'BSC')
+            await this.addressBepRepository.save(reqAddrAddDto)
+        else if (data.addressType === 'TRC')
+            await this.addressTrcRepository.save(reqAddrAddDto)
+        else if (data.addressType === 'BTC')
+            await this.addressBtcRepository.save(reqAddrAddDto)
+        return response
+    }
+
+    async requestAddress(addressType: string, userId: number) {
+        const requestUri = '/api/login'
+        const body = {
+            user: userId.toString()
+        }
+        let options = {
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: body
+        }
+        const remoteUrl = this.baseUrl + requestUri
+        let res = await this.httpService.axiosRef.post(remoteUrl, options);
+        const responseData = res.data
+        return {address: responseData.address, addressType: addressType}
+    }
+
     async findOne(userId: number) {
-        let response = { cri: { address: '', status: '' }, eth: { address: '', status: '' }, trc: { address: '', status: '' }, btc: { address: '', status: '' } }
+        let response = { cri: { address: '', status: '' }, bep: { address: '', status: '' }, eth: { address: '', status: '' }, trc: { address: '', status: '' }, btc: { address: '', status: '' } }
         let address: Address
         address = await this.addressCriRepository.findOne({ where: { userId: userId } })
         response.cri.address = address ? address.address : undefined
         response.cri.status = address ? address.status : undefined
+        address = await this.addressBepRepository.findOne({ where: { userId: userId } })
+        response.bep.address = address ? address.address : undefined
+        response.bep.status = address ? address.status : undefined
         address = await this.addressEthRepository.findOne({ where: { userId: userId } })
         response.eth.address = address ? address.address : undefined
         response.eth.status = address ? address.status : undefined
@@ -100,6 +194,22 @@ export class AddressService implements OnModuleInit {
         response.btc.address = address ? address.address : undefined
         response.btc.status = address ? address.status : undefined
         return response
+    }
+
+    async findAddress(addressValue: string, addressType: string) {
+        // let response = { cri: { address: '', status: '' }, eth: { address: '', status: '' }, trc: { address: '', status: '' }, btc: { address: '', status: '' } }
+        let address: Address
+        if (addressType === 'CRI')
+            address = await this.addressCriRepository.findOne({ where: { address: addressValue, addressType: addressType } })
+        else if (addressType === 'ETH')
+            address = await this.addressEthRepository.findOne({ where: { address: addressValue, addressType: addressType } })
+        else if (addressType === 'BEP' || addressType === 'BSC')
+            address = await this.addressBepRepository.findOne({ where: { address: addressValue, addressType: addressType } })
+        else if (addressType === 'TRC')
+            address = await this.addressTrcRepository.findOne({ where: { address: addressValue, addressType: addressType } })
+        else if (addressType === 'BTC')
+            address = await this.addressBtcRepository.findOne({ where: { address: addressValue, addressType: addressType } })
+        return address
     }
 
     async bindWithCrichain(address: string, userId: number) {
@@ -151,6 +261,13 @@ export class AddressService implements OnModuleInit {
         }
         if (reqAddressList.addressType === 'ETH') {
             result = await this.addressEthRepository.findAndCount({
+                // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+                where,
+                skip: reqAddressList.skip,
+                take: reqAddressList.take
+            })
+        } else if (reqAddressList.addressType === 'BEP' || reqAddressList.addressType === 'BSC') {
+            result = await this.addressBepRepository.findAndCount({
                 // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
                 where,
                 skip: reqAddressList.skip,

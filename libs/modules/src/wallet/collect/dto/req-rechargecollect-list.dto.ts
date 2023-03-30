@@ -4,6 +4,7 @@ import { PaginationDto } from "@app/common/dto/pagination.dto";
 import { RechargeCollect } from "../entities/rechage-collect.entity";
 
 export class ReqAddRechageCollectDto extends OmitType(RechargeCollect, ['id'] as const) { }
+export class ReqCollectRechageNotifyDto extends OmitType(RechargeCollect, ['id', 'state', 'confirmState'] as const) { }
 
 export class ReqRechargeCollectListDto extends PaginationDto {
 

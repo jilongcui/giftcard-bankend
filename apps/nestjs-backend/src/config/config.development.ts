@@ -89,6 +89,10 @@ export default defineConfig({
     orderSN: process.env.ORDER_SN || 'SN'
   },
 
+  wallet: {
+    baseUrl: process.env.WALLET_BASEURL || 'https://api.wallet.com/',
+  },
+
   fund: {
     baseCertUrl: 'https://www.heepay.com/',
     basePayUrl: 'https://Pay.heepay.com/',

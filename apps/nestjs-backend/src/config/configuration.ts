@@ -124,6 +124,10 @@ export interface IConfig {
         orderSN: string,
     }
 
+    wallet?: {
+        baseUrl: string
+    }
+
     fund?: {
         baseCertUrl: string,
         basePayUrl: string,

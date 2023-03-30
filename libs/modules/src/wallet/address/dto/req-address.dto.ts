@@ -17,6 +17,20 @@ export class ReqAddressCreateDto {
     addressType: string;
 }
 
+export class ReqAddressRequestDto {
+    // @IsString()
+    // currencyId: string;
+
+    @IsString()
+    userId: number;
+
+    @IsString()
+    appId: number;
+
+    @IsString()
+    addressType: string;
+}
+
 export class ReqMyAddressDto {
     // @IsString()
     // currencyId: string;
