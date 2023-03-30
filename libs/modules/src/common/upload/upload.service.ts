@@ -44,6 +44,22 @@ export class UploadService {
         return this.cosDomain + '/' + fileName
     }
 
+    async uploadBufferToCos(fileName: string, buffer: Buffer): Promise<string> {
+        // 分片上传
+        await this.cos.putObject({
+            Bucket: this.bucket,
+            Region: this.region,
+            Key: fileName,              /* 必须 */
+            ContentType:"image/png",
+            Body: buffer, // 上传文件对象
+            onProgress: function(progressData) {
+                //console.log(JSON.stringify(progressData));
+            }
+        });
+
+        return this.cosDomain + '/' + fileName
+    }
+
     async uploadBase64ToCos(fileName: string, base64: string): Promise<string> {
         // 分片上传
         await this.cos.putObject({

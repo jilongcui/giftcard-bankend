@@ -106,6 +106,11 @@ export class UserService {
         return await this.userRepository.findOneBy({ openId: openId })
     }
 
+    /* 根据微信openid查询用户 */
+    async findOneByUnionId(unionId: string) {
+        return await this.userRepository.findOneBy({ unionId: unionId })
+    }
+
     /* 通过用户名获取用户,排除停用和删除的,用于登录 */
     async findOneByInviteCode(inviteCode: string) {
         return await this.userRepository.findOne({ where: { inviteCode: inviteCode } })
@@ -352,6 +357,16 @@ export class UserService {
             .createQueryBuilder()
             .update()
             .set({ status, updateBy })
+            .where({ userId })
+            .execute()
+    }
+
+    /* 改变用户状态 */
+    async changeUnionId(userId: number, unionId: string) {
+        return await this.userRepository
+            .createQueryBuilder()
+            .update()
+            .set({ unionId })
             .where({ userId })
             .execute()
     }

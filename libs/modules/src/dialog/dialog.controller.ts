@@ -3,7 +3,7 @@ https://docs.nestjs.com/controllers#controllers
 */
 
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, Sse, MessageEvent, Logger, UseGuards, UseFilters } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
@@ -16,7 +16,7 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { UserInfoPipe } from '@app/common/pipes/user-info.pipe';
 import { Dialog } from './entities/dialog.entity';
 import { DialogService } from './dialog.service';
-import { CreateDialogDto, OpenDialogDto, CloseDialogDto, PromptDto } from './dto/create-dialog.dto';
+import { CreateDialogDto, OpenDialogDto, CloseDialogDto,PrepareSseDto, PromptSseDto } from './dto/create-dialog.dto';
 import {Observable, map, interval, from, catchError, of} from 'rxjs';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { MemberAuthGuard } from '@app/common/guards/member-auth.guard';
@@ -25,6 +25,7 @@ import { AllExceptionsFilter } from '@app/common/filters/all-exception.filter';
 import { ApiException } from '@app/common/exceptions/api.exception';
 
 @ApiTags('对话接口')
+@ApiBearerAuth()
 @Controller('dialog')
 export class DialogController {
     logger  = new Logger(DialogController.name)
@@ -55,15 +56,24 @@ export class DialogController {
         return result
     }
 
+    @Post('prepareSse')
+    async prepareSse(@Body() promptDto: PrepareSseDto, @UserDec(UserEnum.userId) userId: number,
+        @UserDec(UserEnum.openId, UserInfoPipe) openId: string) {
+        // this.logger.debug(JSON.stringify(promptDto))
+        const prepareNone = await this.dialogService.prepareSse(promptDto, userId, openId)
+        return prepareNone
+    }
+
+
     @Sse('promptSse')
     @Keep()
-    promptSse(@Body() promptDto: PromptDto, @UserDec(UserEnum.userId) userId: number,
-        @UserDec(UserEnum.openId, UserInfoPipe) openId: string
-    ): Observable<MessageEvent> {
-        return from(this.dialogService.promptSse(promptDto, userId, openId)).pipe(
+    async promptSse(@Query() promptDto: PromptSseDto, @UserDec(UserEnum.userId) userId: number,
+        @UserDec(UserEnum.openId, UserInfoPipe) openId: string): Promise<Observable<MessageEvent>> {
+        const observable = await this.dialogService.promptSse(promptDto, userId, openId)
+        return observable.pipe(
             map(data => ({event: 'promptSse', data: data})),
-            catchError(error => { throw new ApiException('Bad Request' + error.getError())})
-        )
+            catchError(error => { throw new ApiException('Bad Request ' + error.getError())})
+        )   
     }
 
     @Sse('prompt')
@@ -72,18 +82,17 @@ export class DialogController {
     prompt(): Observable<MessageEvent> {
         // const result = await this.dialogService.promptSse(promptDto, userId);
         // return result
-        this.logger.debug('111')
-        const myBadPromise = () =>
-  new       Promise((resolve, reject) => reject('Rejected!'));
+        // const myBadPromise = () =>
+//   new       Promise((resolve, reject) => reject('Rejected!'));
         // return from(myBadPromise()).pipe(
         //     catchError(error => of( {data: `Bad Promise: ${error}`} )),
         //     map((_) => ({ data: 'hello' })))
 
-            return from(myBadPromise()).pipe(
-                map((_) => ({ data: 'hello' })),
-                catchError(error => { throw new ApiException('Bad Request')})
-        )
-        // return interval(1000).pipe(map((_) => ({ data: 'hello' })));
+            // return from(myBadPromise()).pipe(
+                // map((_) => ({ data: 'hello' })),
+                // catchError(error => { throw new ApiException('Bad Request')})
+        // )
+        return interval(1000).pipe(map((_) => ({ data: 'hello' })));
     }
 
     @Post('close')

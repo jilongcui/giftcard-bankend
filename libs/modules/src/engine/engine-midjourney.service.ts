@@ -13,8 +13,9 @@ import { UploadService } from '../common/upload/upload.service';
 import strRandom from 'string-random';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import replicate from "node-replicate"
 import { CreateMidjourneyRequest } from './dto/create-midjourney.dto';
+import { ReplicateService } from '../replicate/replicate.service';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class EngineMidjourneyService implements EngineService{
@@ -28,7 +29,9 @@ export class EngineMidjourneyService implements EngineService{
   constructor(
     @InjectRepository(Appmodel) private readonly appmodelRepository: Repository<Appmodel>, 
     @InjectRedis() private readonly redis: Redis,
+    private readonly replicateService: ReplicateService,
     private readonly uploadService: UploadService,
+    private readonly httpService: HttpService,
   ) {
     this.logger = new Logger(EngineMidjourneyService.name)
     this.organization = process.env.OPENAI_ORGANIZATION
@@ -90,14 +93,13 @@ export class EngineMidjourneyService implements EngineService{
       throw new WsException("输入文字无效")
     }
     const completionRequest =  (appmodel.preset.completion as CreateMidjourneyRequest)
-    completionRequest.prompt = appmodel.preset.initText + text
-
-    completionRequest.prompt = text
+    completionRequest.prompt = appmodel.preset.initText + ' ' +text
+    
     // this.logger.debug(completionRequest.prompt)
     // this.logger.debug(JSON.stringify(completionRequest.messages))
     try {
       const model = appmodel.modelVersion
-      const completion = await replicate.run(model, completionRequest)
+      const completion = await this.replicateService.run(model, completionRequest)
       return {cpmlId: completion.data.created, object: null,
               text: completion.JSON.stringify(completion)}
     } catch(error) {
@@ -111,11 +113,11 @@ export class EngineMidjourneyService implements EngineService{
     }
   }
 
-  async promptSse(ob:Subscriber<MessageEvent>, openId: string, appmodelId: string, userId: string, nanoId: string, intext: string)
+  async promptSse(ob:Subscriber<MessageEvent>, seed: string, appmodelId: string, userId: string, nanoId: string, intext: string)
   {
     const appmodel:Appmodel = JSON.parse(await this.redis.get('Appmodel:' +appmodelId + ':' + userId))
     if (!appmodel || !appmodel.preset) {
-      throw new WsException("请重新进入本页面")
+      ob.error("请重新进入本页面")
       return
     }
     const text = intext || '';
@@ -123,25 +125,32 @@ export class EngineMidjourneyService implements EngineService{
       ob.error("输入文字无效")
     }
     const completionRequest =  (appmodel.preset.completion as CreateMidjourneyRequest)
-    completionRequest.prompt = appmodel.preset.initText + text
+    completionRequest.prompt = appmodel.preset.initText + ' ' +text
+    completionRequest.seed = undefined
     // this.logger.debug(completionRequest.prompt)
     // this.logger.debug(JSON.stringify(completionRequest.messages))
     try {
       const model = appmodel.modelVersion
 
-      const completion = await replicate.run(model, completionRequest)
+      // this.logger.debug('promptSse ' + JSON.stringify(completionRequest))
+      const completion = await this.replicateService.run(model, completionRequest)
       // 还是把身材的图片直接以base64的方式传递给前端呢
-
+      
       const contents = []
+      
       for(let i=0; i< completion.length; i++) {
-        // const fileName = strRandom(8).toLowerCase() + '.png'
-        // const fullName = 'created_images' + '/' +userId + '/' + fileName
-        // const url = await this.uploadService.uploadBase64ToCos(fullName, completion.data.data[i].b64_json)
-        const url = completion[i]
-        const content = `![](${url})`
-        // this.logger.debug(content)
+        const midurl = completion[i]
+        if (!midurl || midurl.length < 10)
+          continue
+        const response = await this.httpService.axiosRef.get(midurl, {
+          responseType: 'arraybuffer'
+        })
+        const fileName = strRandom(8).toLowerCase() + '.png'
+        const fullName = 'created_images' + '/' +userId + '/' + fileName
+        const url = await this.uploadService.uploadBase64ToCos(fullName, response.data)
+        const content = `![${i}](${url})`
         contents.push(content)
-        ob.next({id: nanoId, data: content});
+        ob.next({id: nanoId, type: 'DATA', data: content});
       }
       
       ob.next({id: nanoId, type: 'DONE', data: contents.join()});
@@ -154,7 +163,7 @@ export class EngineMidjourneyService implements EngineService{
       if (error.response) {
         this.logger.error(error.response.status, error.response.data);
       } else {
-        this.logger.error(`Error with OpenAI API request: ${error.message}`);
+        this.logger.error(`Error with Midjourney API request: ${error.message}`);
       }
       ob.error("请求错误：不要包含敏感文字")
     }

@@ -22,7 +22,7 @@ import { AuthModule } from '../system/auth/auth.module';
       signOptions: { expiresIn: '168h' },
   }),
     EngineModule.forRoot(),
-    NanoModule, SharedModule, UserModule, AuthModule
+    NanoModule, SharedModule, UserModule, AuthModule, 
   ],
   controllers: [DialogController],
   providers: [DialogGateway, DialogService],

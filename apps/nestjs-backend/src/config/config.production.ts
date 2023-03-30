@@ -43,6 +43,8 @@ export default defineConfig({
   weixinLogin: {
     appId: process.env.WEIXIN_APPID,
     appSecret: process.env.WEIXIN_APPSECRET,
+    webAppId: process.env.WEIXIN_WEBAPPID,
+    webAppSecret: process.env.WEIXIN_WEBAPPSECRET,
   },
 
   weixinPayment: {

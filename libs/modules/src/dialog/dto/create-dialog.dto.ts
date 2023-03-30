@@ -28,10 +28,23 @@ export class CreateDialogDto {
     appmodelId?: string
 }
 
+export class PrepareSseDto {
+    @IsString()
+    dialogId: string
+
+    @IsString()
+    text: string
+}
+
 export class PromptDto {
     @IsString()
     dialogId: string
 
     @IsString()
     text: string
+}
+
+export class PromptSseDto {
+    @IsString()
+    nonce: string
 }

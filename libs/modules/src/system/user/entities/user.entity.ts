@@ -100,6 +100,19 @@ export class User extends BaseEntity {
     })
     openId?: string
 
+    /* 微信UnionID */
+    @Column({
+        comment: '微信UnionID',
+        length: 128,
+        default: null
+    })
+    @IsOptional()
+    @IsString()
+    @Excel({
+        name: '微信UnionID'
+    })
+    unionId?: string
+
     @Column({
         comment: '用户性别（0男 1女 2未知）',
         type: 'char',
