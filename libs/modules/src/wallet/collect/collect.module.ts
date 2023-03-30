@@ -1,3 +1,4 @@
+import { CurrencyModule } from '@app/modules/currency/currency.module';
 import { SysConfigModule } from '@app/modules/system/sys-config/sys-config.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,7 +9,7 @@ import { RechargeCollect } from './entities/rechage-collect.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([RechargeCollect]),
-    SysConfigModule, AddressModule
+    SysConfigModule, AddressModule, CurrencyModule
   ],
   controllers: [CollectController],
   providers: [CollectService]

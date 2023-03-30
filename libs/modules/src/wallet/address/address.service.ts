@@ -1,5 +1,5 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ResAddressDto } from './dto/res-address.dto';
+import { ResAddressDto, ResRequestAddressDto } from './dto/res-address.dto';
 import { ReqAddressAddDto, ReqAddressCreateDto, ReqAddressList, ReqAddressRequestDto, ReqMyAddressDto } from './dto/req-address.dto';
 import * as jaysonPromise from 'jayson/promise';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
@@ -70,7 +70,7 @@ export class AddressService implements OnModuleInit {
                 exist = true;
         }
         else if (data.addressType === 'ETH') {
-            if (await this.addressCriRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+            if (await this.addressEthRepository.findOneBy({ userId: data.userId, appId: data.appId }))
                 exist = true;
         }
 
@@ -104,61 +104,40 @@ export class AddressService implements OnModuleInit {
         return response
     }
 
-    async addressRequest(data: ReqAddressRequestDto, userId): Promise<ResAddressDto> {
+    async addressRequest(data: ReqAddressRequestDto, userId): Promise<ResRequestAddressDto[]> {
         // Check if exist 
-        let exist = false;
-        if (data.addressType === 'CRI') {
-            if (await this.addressCriRepository.findOneBy({ userId: data.userId, appId: data.appId }))
-                exist = true;
-        }
-        else if (data.addressType === 'TRC') {
-            if (await this.addressTrcRepository.findOneBy({ userId: data.userId, appId: data.appId }))
-                exist = true;
-        }
-        else if (data.addressType === 'BEP'|| data.addressType === 'BSC') {
-            if (await this.addressBepRepository.findOneBy({ userId: data.userId, appId: data.appId }))
-                exist = true;
-        }
-        else if (data.addressType === 'BTC') {
-            if (await this.addressBtcRepository.findOneBy({ userId: data.userId, appId: data.appId }))
-                exist = true;
-        }
-        else if (data.addressType === 'ETH') {
-            if (await this.addressCriRepository.findOneBy({ userId: data.userId, appId: data.appId }))
-                exist = true;
-        }
-
-        if (exist) {
+        if (await this.addressCriRepository.findOneBy({ userId: data.userId, appId: data.appId }))
             throw new ApiException('User address exist.')
-        }
-        let response;
-        if (data.addressType === 'CRI') {
-            // Get address from chain microservice
-            const pattern = { cmd: 'createAddress' }
-            response = await firstValueFrom(this.client.send<ResAddressDto>(pattern, {}))
 
-        } else {
-            response = await this.requestAddress(data.addressType, userId);
+        const responses = await this.requestAddress(userId);
+        for(let i=0; i< responses.length; i++) {
+            const addressInfo = responses[i]
+            const reqAddrAddDto = new ReqAddressAddDto()
+            reqAddrAddDto.address = addressInfo.address
+            reqAddrAddDto.privateKey = ''
+            reqAddrAddDto.appId = 0
+            reqAddrAddDto.userId = data.userId
+            if (addressInfo.chain === 'CRI') {
+                await this.addressCriRepository.save(reqAddrAddDto)
+            }
+            else if (addressInfo.chain === 'ETH') {
+                await this.addressEthRepository.save(reqAddrAddDto)
+            }
+            else if (addressInfo.chain === 'BSC' || data.addressType === 'BEP') {
+                await this.addressBepRepository.save(reqAddrAddDto)
+            }
+            else if (addressInfo.chain === 'TRC') {
+                await this.addressTrcRepository.save(reqAddrAddDto)
+            }
+            else if (addressInfo.chain === 'BTC') {
+                await this.addressBtcRepository.save(reqAddrAddDto)
+            }
         }
-        const reqAddrAddDto = new ReqAddressAddDto()
-        reqAddrAddDto.address = response.address
-        reqAddrAddDto.privateKey = ''
-        reqAddrAddDto.appId = 0
-        reqAddrAddDto.userId = data.userId
-        if (data.addressType === 'CRI')
-            await this.addressCriRepository.save(reqAddrAddDto)
-        else if (data.addressType === 'ETH')
-            await this.addressEthRepository.save(reqAddrAddDto)
-        else if (data.addressType === 'BEP' || data.addressType === 'BSC')
-            await this.addressBepRepository.save(reqAddrAddDto)
-        else if (data.addressType === 'TRC')
-            await this.addressTrcRepository.save(reqAddrAddDto)
-        else if (data.addressType === 'BTC')
-            await this.addressBtcRepository.save(reqAddrAddDto)
-        return response
+        
+        return responses
     }
 
-    async requestAddress(addressType: string, userId: number) {
+    async requestAddress(userId: number): Promise<ResRequestAddressDto[]> {
         const requestUri = '/api/login'
         const body = {
             user: userId.toString()
@@ -170,9 +149,9 @@ export class AddressService implements OnModuleInit {
             body: body
         }
         const remoteUrl = this.baseUrl + requestUri
-        let res = await this.httpService.axiosRef.post(remoteUrl, options);
+        let res = await this.httpService.axiosRef.post<ResRequestAddressDto[]>(remoteUrl, options);
         const responseData = res.data
-        return {address: responseData.address, addressType: addressType}
+        return responseData
     }
 
     async findOne(userId: number) {

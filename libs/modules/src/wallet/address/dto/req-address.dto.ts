@@ -69,3 +69,12 @@ export class ReqAddressList extends PaginationDto {
     @IsString()
     addressType: string;
 }
+
+export declare const AddressTypeEnum: {
+    readonly _1: 'ETH';
+    readonly _56: 'BSC';
+    readonly _195: 'TRC';
+    readonly _186: 'CRI';
+    readonly _6: 'BTC';
+};
+export declare type AddressTypeEnum = typeof AddressTypeEnum[keyof typeof AddressTypeEnum];

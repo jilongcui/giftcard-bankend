@@ -9,6 +9,7 @@ import { Account } from '@app/modules/account/entities/account.entity';
 import { SysConfigService } from '@app/modules/system/sys-config/sys-config.service';
 import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
 import { AddressService } from '../address/address.service';
+import { CurrencyService } from '@app/modules/currency/currency.service';
 
 @Injectable()
 export class CollectService {
@@ -16,7 +17,8 @@ export class CollectService {
     constructor(
         @InjectRepository(RechargeCollect) private readonly collectRepository: Repository<RechargeCollect>,
         private readonly sysconfigService: SysConfigService,
-        private readonly addressService: AddressService
+        private readonly addressService: AddressService,
+        private readonly currencyService: CurrencyService,
         ) { }
     /* 分页查询 */
     async list(reqRechargecollectList: ReqRechargeCollectListDto): Promise<PaginatedDto<RechargeCollect>> {
@@ -53,9 +55,9 @@ export class CollectService {
             // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
             await this.collectRepository.manager.transaction(async manager => {
                 let marketRatio = Number(0)
-                const address = await this.addressService.findAddress(rechargeNotifyDto.address, rechargeNotifyDto.currencyType)
-                if (address) {
-                    
+                const currency = await this.currencyService.findOne(rechargeNotifyDto.currencyId)
+                if (currency) {
+                    const address = await this.addressService.findAddress(rechargeNotifyDto.address, rechargeNotifyDto.currencyType)
                     const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
                     if (configString) {
                         const configValue = JSON.parse(configString)
