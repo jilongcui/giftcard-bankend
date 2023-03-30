@@ -94,7 +94,7 @@ import { Fund33Module } from '@app/modules/fund33/fund33.module';
     CurrencyModule,
     PreemptionModule,
     BankcardModule,
-    PaymentModule,
+    // PaymentModule,
     AirdropModule,
     EmailModule,
     PdfModule,
@@ -102,7 +102,7 @@ import { Fund33Module } from '@app/modules/fund33/fund33.module';
     CardinfoModule,
     Fund33Module,
   ],
-  controllers: [NotifyController],
+  // controllers: [NotifyController],
   // providers: [...aliasProviders],
 })
 export class AppModule { }
