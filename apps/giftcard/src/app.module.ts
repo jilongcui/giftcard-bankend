@@ -86,6 +86,8 @@ import { SubmitterModule } from '@app/modules/submitter/submitter.module';
     SysConfigModule,
     NoticeModule,
     LogModule,
+    OnlineModule,
+    JobModule,
     ServerModule,
     AddressModule,
     IdentityModule,
