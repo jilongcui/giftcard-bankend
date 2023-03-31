@@ -16,10 +16,10 @@ export class ImageCaptchaGuard implements CanActivate {
         const uuid = request.body?.uuid
         const cacheCode = request.body?.code
         if (!uuid)
-            return false;
+            throw new ApiException('图形验证码错误');
         const code = await this.redis.get(`${CAPTCHA_IMG_KEY}:${uuid}`)
         if (isEmpty(code) || code.toLowerCase() !== cacheCode.toLowerCase())
-            return false;
+            throw new ApiException('图形验证码错误');
         await this.redis.del(`${CAPTCHA_IMG_KEY}:${uuid}`)
         return true;
     }

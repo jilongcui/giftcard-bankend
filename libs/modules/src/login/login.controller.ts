@@ -59,9 +59,9 @@ export class LoginController {
     /* 用户密码登录 */
     @Post('login')
     @Public()
-    // @UseGuards(ImageCaptchaGuard, LocalAuthGuard)
+    @UseGuards(ImageCaptchaGuard, LocalAuthGuard)
     @Keep()
-    @UseGuards(LocalAuthGuard)
+    // @UseGuards(LocalAuthGuard)
     async login(@Body() reqLoginDto: ReqLoginDto, @Req() req: Request, @Res() response: Response) {
         // Todo: forTest
         // if (!await this.sharedService.checkImageCaptcha(reqLoginDto.uuid, reqLoginDto.code))
