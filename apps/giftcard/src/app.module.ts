@@ -100,6 +100,7 @@ import { SubmitterModule } from '@app/modules/submitter/submitter.module';
     PreemptionModule,
     BankcardModule,
     // PaymentModule,
+    CurrencyModule,
     AirdropModule,
     CollectModule,
     FundModule,
