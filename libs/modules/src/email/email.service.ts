@@ -1,22 +1,30 @@
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { stubObject } from 'lodash';
 import { FindOptionsWhere, Repository } from 'typeorm';
-import { CreateEmailDto, ListEmailDto, SendEmailDto } from './dto/create-email.dto';
+import { CreateEmailDto, ListEmailDto, SendEmailDto, SendEmailWithAttachDto } from './dto/create-email.dto';
 import { UpdateEmailDto } from './dto/update-email.dto';
 import { Email } from './entities/email.entity';
-const AWS = require('aws-sdk');
+import { SES, SendRawEmailCommand } from '@aws-sdk/client-ses';
 const nodemailer = require("nodemailer");
 
 @Injectable()
 export class EmailService {
   logger = new Logger(EmailService.name)
-
+  platformEmail: string
+  emailRegion: string
+  emailVersion: string
   constructor(
     @InjectRepository(Email) private readonly emailRepository: Repository<Email>,
-  ) {}
+    private readonly configService: ConfigService
+  ) {
+    this.platformEmail = this.configService.get<string>('aws.platformEmail')
+    this.emailRegion = this.configService.get<string>('aws.emailRegion')
+    this.emailVersion = this.configService.get<string>('aws.emailRegion')
+  }
 
 
   create(createEmailDto: CreateEmailDto, userId: number) {
@@ -62,18 +70,28 @@ export class EmailService {
     return `This action removes a #${id} email`;
   }
   
-  async send(sendEmailDto: SendEmailDto) {
+  async send(sendEmailDto: SendEmailDto, userId: number) {
 
-    let transporter = nodemailer.createTransport({
-      SES: new AWS.SES({ region: 'us-east-1', apiVersion: "2010-12-01" })
+    const ses = new SES({
+      region: this.emailRegion,
+      apiVersion: this.emailVersion,
+      credentials: {
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID
+      }
     });
-    
+    let transporter = nodemailer.createTransport({
+      SES: {
+        ses: ses,
+        aws: { SendRawEmailCommand},
+      }
+    });
 
     // send mail with defined transport object
     let info = await transporter.sendMail({
-      from: sendEmailDto.from,
+      from: this.platformEmail,
       to: sendEmailDto.to,
-      subject: stubObject,                // Subject line
+      subject: sendEmailDto.subject,                // Subject line
       text: sendEmailDto.text,                      // plaintext version
       html: '<div>' + sendEmailDto.text + '</div>', // html version
     });
@@ -83,20 +101,31 @@ export class EmailService {
     return info; // or something
   }
 
-  async sendWithAttach(sendEmailDto: SendEmailDto, userId: number) {
+  async sendWithAttach(sendEmailDto: SendEmailWithAttachDto, userId: number) {
 
     let usefulData = 'some,stuff,to,send';
     
+    const ses = new SES({
+      region: this.emailRegion,
+      apiVersion: this.emailVersion,
+      credentials: {
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID
+      }
+    });
     let transporter = nodemailer.createTransport({
-      SES: new AWS.SES({ region: 'us-east-1', apiVersion: "2010-12-01" })
+      SES: {
+        ses: ses,
+        aws: { SendRawEmailCommand},
+      }
     });
     
 
     // send mail with defined transport object
     let info = await transporter.sendMail({
-      from: sendEmailDto.from,
+      from: this.platformEmail,
       to: sendEmailDto.to,
-      subject: stubObject,                // Subject line
+      subject: sendEmailDto.subject,                // Subject line
       text: sendEmailDto.text,                      // plaintext version
       html: '<div>' + sendEmailDto.text + '</div>', // html version
     });

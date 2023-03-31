@@ -128,6 +128,12 @@ export interface IConfig {
         baseUrl: string
     }
 
+    aws?: {
+        platformEmail: string,
+        emailRegion: string,
+        emailVersion: string,
+    }
+
     fund?: {
         baseCertUrl: string,
         basePayUrl: string,

@@ -92,6 +92,11 @@ export default defineConfig({
   wallet: {
     baseUrl: process.env.WALLET_BASEURL || 'https://api.wallet.com/',
   },
+  aws: {
+    platformEmail: process.env.PLATFORM_EMAIl || 'jilongcui@gmail.com',
+    emailRegion: process.env.EMAIL_REGION || 'ap-southeast-1',
+    emailVersion: process.env.EMAIL_VERSION || '2010-12-01',
+  },
 
   fund: {
     baseCertUrl: 'https://www.heepay.com/',

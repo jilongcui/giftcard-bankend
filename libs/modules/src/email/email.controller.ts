@@ -1,11 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { EmailService } from './email.service';
-import { CreateEmailDto, ListEmailDto } from './dto/create-email.dto';
+import { CreateEmailDto, ListEmailDto, SendEmailDto } from './dto/create-email.dto';
 import { UpdateEmailDto } from './dto/update-email.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 
 @Controller('email')
 @ApiTags('邮箱')
@@ -19,6 +20,7 @@ export class EmailController {
   }
 
   @Get('list')
+  @RequiresRoles(['admin', 'system'])
   list(@Query() listEmailDto: ListEmailDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return this.emailService.list(listEmailDto, paginationDto);
   }
@@ -36,5 +38,10 @@ export class EmailController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.emailService.remove(+id);
+  }
+
+  @Post('send')
+  send(@Body() sendEmailDto: SendEmailDto, @UserDec(UserEnum.userId) userId: number,) {
+    return this.emailService.send(sendEmailDto, userId);
   }
 }
