@@ -5,10 +5,14 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { stubObject } from 'lodash';
 import { FindOptionsWhere, Repository } from 'typeorm';
-import { CreateEmailDto, ListEmailDto, SendEmailDto, SendEmailWithAttachDto } from './dto/create-email.dto';
+import { CreateEmailDto, ListEmailDto, ReqEmailCodeCheckDto, SendEmailDto, SendEmailWithAttachDto } from './dto/create-email.dto';
 import { UpdateEmailDto } from './dto/update-email.dto';
 import { Email } from './entities/email.entity';
 import { SES, SendRawEmailCommand } from '@aws-sdk/client-ses';
+import { ApiException } from '@app/common/exceptions/api.exception';
+import { USER_EMAILCODE_KEY } from '@app/common/contants/redis.contant';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 const nodemailer = require("nodemailer");
 
 @Injectable()
@@ -19,6 +23,7 @@ export class EmailService {
   emailVersion: string
   constructor(
     @InjectRepository(Email) private readonly emailRepository: Repository<Email>,
+    @InjectRedis() private readonly redis: Redis,
     private readonly configService: ConfigService
   ) {
     this.platformEmail = this.configService.get<string>('aws.platformEmail')
@@ -69,8 +74,48 @@ export class EmailService {
   remove(id: number) {
     return `This action removes a #${id} email`;
   }
+
+  async sendRegCode(email: string, lang: string) {
+    await this.sendEmailCode(email, 'regCodeTemplate', lang);
+  }
+
+  async sendLoginCode(email: string, lang: string) {
+      await this.sendEmailCode(email, 'loginCodeTemplate', lang);
+  }
+
+  async checkEmailCode(reqCodeCheckDto: ReqEmailCodeCheckDto) {
+      const cacheCode = await this.redis.get(`${USER_EMAILCODE_KEY}:${reqCodeCheckDto.email}`)
+      if (!cacheCode) throw new ApiException("邮箱验证码已过期")
+      if (reqCodeCheckDto.code != cacheCode) throw new ApiException("邮箱验证码错误")
+  }
+
+  async checkAndDeleteEmailCode(reqSmsCodeCheckDto: ReqEmailCodeCheckDto) {
+      this.checkEmailCode(reqSmsCodeCheckDto)
+      await this.redis.del(`${USER_EMAILCODE_KEY}:${reqSmsCodeCheckDto.code}`)
+  }
   
-  async send(sendEmailDto: SendEmailDto, userId: number) {
+  async sendEmailCode(email: string, codeTemplateName: string, lang: string) {
+    
+    const code = `${this.random()}`;
+    const subject = this.configService.get<any>(`email.${codeTemplateName}.subject.${lang}`)
+    const content = this.configService.get<any>(`email.${codeTemplateName}.content.${lang}`)
+
+    const sendEmailDto: SendEmailDto = {
+      to: email,
+      subject: subject.replace('{code}', code),
+      text: content.replace('{code}', code),
+    };
+
+    try {
+        await this.send(sendEmailDto);
+        await this.redis.set(`${USER_EMAILCODE_KEY}:${email}`, code, 'EX', 30)
+
+    } catch (err) {
+        throw new ApiException(err)
+    }
+  }
+
+  async send(sendEmailDto: SendEmailDto) {
 
     const ses = new SES({
       region: this.emailRegion,
@@ -135,4 +180,8 @@ export class EmailService {
     // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
     return info; // or something
   }
+
+  private random(): number {
+    return Math.floor((Math.random() * 9999) + 1000);
+}
 }

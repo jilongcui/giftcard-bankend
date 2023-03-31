@@ -34,7 +34,7 @@ export class ReqEmailLoginDto {
 
     /* 邮箱 */
     @IsString()
-    mail: string
+    email: string
 
     /* 验证码code */
     @IsString()

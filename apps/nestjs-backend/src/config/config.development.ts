@@ -98,6 +98,34 @@ export default defineConfig({
     emailVersion: process.env.EMAIL_VERSION || '2010-12-01',
   },
 
+  email: {
+    regCodeTemplate: {
+      subject: {
+        'CN': '注册验证码 {code}',
+        'EN': 'Register Code {code}',
+        'HK': '注册验证码 {code}',
+      },
+      content: {
+        'CN': '注册验证码 {code}',
+        'EN': 'Register Code {code}',
+        'HK': '注册验证码 {code}',
+      }
+    },
+
+    loginCodeTemplate: {
+      subject: {
+        'CN': '登录验证码 {code}',
+        'EN': 'Login Code {code}',
+        'HK': '登录验证码 {code}',
+      },
+      content: {
+        'CN': '登录验证码 {code}',
+        'EN': 'Login Code {code}',
+        'HK': '登录验证码 {code}',
+      }
+    },
+  },
+
   fund: {
     baseCertUrl: 'https://www.heepay.com/',
     basePayUrl: 'https://Pay.heepay.com/',

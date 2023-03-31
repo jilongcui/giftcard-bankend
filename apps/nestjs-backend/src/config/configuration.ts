@@ -134,6 +134,36 @@ export interface IConfig {
         emailVersion: string,
     }
 
+    email?: {
+        regCodeTemplate: {
+            subject: {
+                'CN': string,
+                'EN': string,
+                'HK': string,
+            }
+
+            content: {
+                'CN': string,
+                'EN': string,
+                'HK': string,
+            }
+        },
+
+        loginCodeTemplate: {
+            subject: {
+                'CN': string,
+                'EN': string,
+                'HK': string,
+            }
+
+            content: {
+                'CN': string,
+                'EN': string,
+                'HK': string,
+            }
+        }
+    }
+
     fund?: {
         baseCertUrl: string,
         basePayUrl: string,

@@ -45,3 +45,31 @@ export class SendEmailWithAttachDto {
     @IsOptional()
     filenames?: string[]
 }
+export class ReqEmailCodeSendDto {
+    /* 语言 */
+
+    @IsString()
+    lang: string
+    
+    /* 手机号 */
+    @IsString()
+    email: string
+
+    /* imagecha uuid */
+    @IsString()
+    uuid: string
+
+    /* imagecha code */
+    @IsString()
+    code: string
+}
+
+export class ReqEmailCodeCheckDto {
+    /* email */
+    @IsString()
+    email: string
+
+    /* code */
+    @IsString()
+    code: string
+}

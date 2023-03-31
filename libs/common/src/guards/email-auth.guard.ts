@@ -14,7 +14,7 @@ import { ApiException } from '../exceptions/api.exception';
 import { LogService } from '@app/modules/monitor/log/log.service';
 
 @Injectable()
-export class EmailAuthGuard extends AuthGuard('mobile') {
+export class EmailAuthGuard extends AuthGuard('email') {
     logger: Logger
     constructor(
         private readonly logService: LogService
