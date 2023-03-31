@@ -30,6 +30,18 @@ export class ReqMobileLoginDto {
 
 }
 
+export class ReqEmailLoginDto {
+
+    /* 邮箱 */
+    @IsString()
+    mail: string
+
+    /* 验证码code */
+    @IsString()
+    code: string
+
+}
+
 export class ReqWeixinLoginDto {
 
     /* 手机号 */
@@ -52,6 +64,20 @@ export class ReqMobileRegDto {
     /* 用户名 */
     @IsString()
     phone: string
+
+    /* 验证码code */
+    @IsString()
+    code: string
+
+    @IsOptional()
+    @IsString()
+    invite?: string
+}
+
+export class ReqEmailRegDto {
+    /* 用户名 */
+    @IsString()
+    email: string
 
     /* 验证码code */
     @IsString()

@@ -23,6 +23,7 @@ export const USER_ACCESS_TOKEN_KEY = "admin:user:access:token"  // 用户token
 
 export const USER_ONLINE_KEY = "admin:online:token"  // 在线用户
 export const USER_SMSCODE_KEY = "user:smscode:token"  // 用户SMS Code
+export const USER_EMAILCODE_KEY = "user:emailcode:token"  // 用户EMAIL Code
 export const ACTIVITY_START_TIME = "ACTIVITY:START:TIME"  // 活动开始时间
 export const ACTIVITY_PRESTART_TIME = "ACTIVITY:PRESTART:TIME"  // 活动开始时间
 export const COLLECTION_ORDER_COUNT = "COLLECTION:ORDER:COUNT"  // 订单统计

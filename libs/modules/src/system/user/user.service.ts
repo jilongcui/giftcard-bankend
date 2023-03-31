@@ -101,6 +101,28 @@ export class UserService {
         return user
     }
 
+     /* 通过邮箱获取用户,排除停用和删除的,用于登录 */
+     async findOneByEmail(email: string) {
+        const user = await this.userRepository.createQueryBuilder('user')
+            .select('user.userId')
+            .addSelect('user.userName')
+            .addSelect('user.password')
+            .addSelect('user.securityStatus')
+            .addSelect('user.salt')
+            .addSelect('user.dept')
+            .leftJoinAndSelect('user.dept', 'dept')
+            .leftJoinAndSelect('user.identity', 'identity')
+            .leftJoinAndSelect('user.member', 'member')
+            // .innerJoin('member.memberInfo', 'memberInfo')
+            .where({
+                email: email,
+                delFlag: '0',
+                status: '0'
+            })
+            .getOne()
+        return user
+    }
+
     /* 根据微信openid查询用户 */
     async findOneByOpenId(openId: string) {
         return await this.userRepository.findOneBy({ openId: openId })

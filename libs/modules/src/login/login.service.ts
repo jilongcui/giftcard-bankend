@@ -24,7 +24,7 @@ import { Request } from 'express';
 import { LogService } from '../monitor/log/log.service';
 import { ConfigService } from '@nestjs/config';
 import { Captcha } from 'captcha.gif';
-import { QueryInviteUserDto, ReqInnerRegDto, ReqMobileRegDto } from './dto/req-login.dto';
+import { QueryInviteUserDto, ReqEmailRegDto, ReqInnerRegDto, ReqMobileRegDto } from './dto/req-login.dto';
 import { ReqAddUserDto } from '../system/user/dto/req-user.dto';
 import { isPhoneNumber } from 'class-validator';
 import * as moment from 'moment'
@@ -67,13 +67,22 @@ export class LoginService {
     }
 
     /* 注册 */
-    async register(reqMobileRegDto: ReqMobileRegDto, request: Request) {
-        let user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
-        if (user) throw new ApiException('该用户名已存在')
+    async register(reqMobileRegDto: ReqMobileRegDto |ReqEmailRegDto, request: Request) {
 
         const reqAddUserDto = new ReqAddUserDto()
-        reqAddUserDto.phonenumber = reqMobileRegDto.phone;
-        reqAddUserDto.userName = reqMobileRegDto.phone;
+        let user: User;
+        if (reqMobileRegDto instanceof ReqMobileRegDto) {
+            user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
+            if (user) throw new ApiException('该手机号已存在')
+            reqAddUserDto.phonenumber = reqMobileRegDto.phone;
+            reqAddUserDto.userName = reqMobileRegDto.phone;
+        } else if (reqMobileRegDto instanceof ReqEmailRegDto) {
+            user = await this.userService.findOneByPhone(reqMobileRegDto.email)
+            if (user) throw new ApiException('该邮箱已存在')
+            reqAddUserDto.email = reqMobileRegDto.email;
+            reqAddUserDto.userName = reqMobileRegDto.email;
+        }
+        
         reqAddUserDto.nickName = '';
         reqAddUserDto.userType = '01'; // normal user.
         reqAddUserDto.postIds = [];
@@ -82,7 +91,11 @@ export class LoginService {
         reqAddUserDto.createBy = reqAddUserDto.updateBy = 'admin'
         await this.userService.addUser(reqAddUserDto)
 
-        user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
+        if (reqMobileRegDto instanceof ReqMobileRegDto) {
+            user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
+        } else if (reqMobileRegDto instanceof ReqEmailRegDto) {
+            user = await this.userService.findOneByEmail(reqMobileRegDto.email)
+        }
         if (!user) throw new ApiException('创建用户失败')
 
         // Add invite relationship.

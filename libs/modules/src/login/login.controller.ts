@@ -16,7 +16,7 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { LocalAuthGuard } from '@app/common/guards/local-auth.guard';
 import { Router } from '../system/menu/dto/res-menu.dto';
-import { QueryInviteUserDto, ReqInnerRegDto, ReqLoginDto, ReqMobileLoginDto, ReqWeixinLoginDto, ReqMobileRegDto } from './dto/req-login.dto';
+import { QueryInviteUserDto, ReqInnerRegDto, ReqLoginDto, ReqMobileLoginDto, ReqWeixinLoginDto, ReqMobileRegDto, ReqEmailLoginDto, ReqEmailRegDto } from './dto/req-login.dto';
 import { ResImageCaptchaDto, ResLoginDto } from './dto/res-login.dto';
 import { LoginService } from './login.service';
 import { Request, Response } from 'express';
@@ -32,6 +32,8 @@ import { WeixinAuthGuard } from '@app/common/guards/weixin-auth.guard';
 import { InviteUserService } from '../inviteuser/invite-user.service';
 import { MemberService } from '../member/member.service';
 import { WeixinWebAuthGuard } from '@app/common/guards/weixinweb-auth.guard';
+import { EmailAuthGuard } from '@app/common/guards/email-auth.guard';
+import { EmailCodeGuard } from '@app/common/guards/email-code.guard';
 @ApiTags('登录')
 @ApiBearerAuth()
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -78,6 +80,15 @@ export class LoginController {
         return await this.loginService.login(req)
     }
 
+    /* 用户邮箱登录 */
+    @Post('elogin')
+    @Public()
+    // @UseGuards(SmsCodeGuard, MobileAuthGuard)
+    @UseGuards(EmailAuthGuard)
+    async elogin(@Body() reqLoginDto: ReqEmailLoginDto, @Req() req: Request): Promise<ResLoginDto> {
+        return await this.loginService.login(req)
+    }
+
     /* 微信登录 */
     @Post('wxlogin')
     @Public()
@@ -113,6 +124,14 @@ export class LoginController {
     @Public()
     @UseGuards(SmsCodeGuard)
     async register(@Body() reqRegDto: ReqMobileRegDto, @Req() req: Request): Promise<ResLoginDto> {
+        return await this.loginService.register(reqRegDto, req)
+    }
+
+    /* 用户邮箱注册 */
+    @Post('eregister')
+    @Public()
+    @UseGuards(EmailCodeGuard)
+    async eregister(@Body() reqRegDto: ReqEmailRegDto, @Req() req: Request): Promise<ResLoginDto> {
         return await this.loginService.register(reqRegDto, req)
     }
 
