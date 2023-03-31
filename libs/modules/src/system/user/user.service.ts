@@ -25,7 +25,7 @@ import { DeptService } from '../dept/dept.service';
 import { PostService } from '../post/post.service';
 import { ReqRoleListDto } from '../role/dto/req-role.dto';
 import { RoleService } from '../role/role.service';
-import { ReqAddUserDto, ReqSetSelfPwd, ReqUpdataSelfDto, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
+import { ReqAddUserDto, ReqSetSelfPwd, ReqUpdataSelfDto, ReqUpdatePhone, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
 import { ResAuthRoleDto, ResHasRoleDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
 import { AddressService } from '@app/modules/wallet/address/address.service';
@@ -94,6 +94,28 @@ export class UserService {
             // .innerJoin('member.memberInfo', 'memberInfo')
             .where({
                 phonenumber: phone,
+                delFlag: '0',
+                status: '0'
+            })
+            .getOne()
+        return user
+    }
+
+     /* 通过邮箱获取用户,排除停用和删除的,用于登录 */
+     async findOneByEmail(email: string) {
+        const user = await this.userRepository.createQueryBuilder('user')
+            .select('user.userId')
+            .addSelect('user.userName')
+            .addSelect('user.password')
+            .addSelect('user.securityStatus')
+            .addSelect('user.salt')
+            .addSelect('user.dept')
+            .leftJoinAndSelect('user.dept', 'dept')
+            .leftJoinAndSelect('user.identity', 'identity')
+            .leftJoinAndSelect('user.member', 'member')
+            // .innerJoin('member.memberInfo', 'memberInfo')
+            .where({
+                email: email,
                 delFlag: '0',
                 status: '0'
             })
@@ -385,6 +407,15 @@ export class UserService {
         return await this.userRepository.createQueryBuilder()
             .update()
             .set(reqUpdataSelfDto)
+            .where({ userId })
+            .execute()
+    }
+
+    /* 更改用户自己手机号 */
+    async updatePhone(reqUpdataPhone: ReqUpdatePhone, userId: number) {
+        return await this.userRepository.createQueryBuilder()
+            .update()
+            .set({phonenumber: reqUpdataPhone.phone})
             .where({ userId })
             .execute()
     }

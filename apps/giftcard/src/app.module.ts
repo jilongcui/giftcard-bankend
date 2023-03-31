@@ -41,6 +41,11 @@ import { PdfModule } from '@app/modules/pdf/pdf.module';
 import { KycModule } from '@app/modules/kyc/kyc.module';
 import { CardinfoModule } from '@app/modules/cardinfo/cardinfo.module';
 import { Fund33Module } from '@app/modules/fund33/fund33.module';
+import { CollectModule } from '@app/modules/wallet/collect/collect.module';
+import { FundModule } from '@app/modules/fund/fund.module';
+import { StatsModule } from '@app/modules/stats/stats.module';
+import { MagicboxModule } from '@app/modules/magicbox/magicbox.module';
+import { SubmitterModule } from '@app/modules/submitter/submitter.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
@@ -81,6 +86,8 @@ import { Fund33Module } from '@app/modules/fund33/fund33.module';
     SysConfigModule,
     NoticeModule,
     LogModule,
+    OnlineModule,
+    JobModule,
     ServerModule,
     AddressModule,
     IdentityModule,
@@ -94,15 +101,27 @@ import { Fund33Module } from '@app/modules/fund33/fund33.module';
     CurrencyModule,
     PreemptionModule,
     BankcardModule,
-    PaymentModule,
+    // PaymentModule,
+    ContractModule,
+    CurrencyModule,
+    AccountModule,
+    BannerModule,
+    MarketModule,
+    CurrencyModule,
     AirdropModule,
+    CollectModule,
+    FundModule,
+    StatsModule,
+    MagicboxModule,
+    SubmitterModule,
     EmailModule,
     PdfModule,
     KycModule,
     CardinfoModule,
     Fund33Module,
+    
   ],
-  controllers: [NotifyController],
+  // controllers: [NotifyController],
   // providers: [...aliasProviders],
 })
 export class AppModule { }

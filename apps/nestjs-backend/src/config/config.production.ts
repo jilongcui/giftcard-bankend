@@ -88,6 +88,45 @@ export default defineConfig({
     merchId: process.env.MERCH_ID || '1664502',
     orderSN: process.env.ORDER_SN || 'SN'
   },
+
+  wallet: {
+    baseUrl: process.env.WALLET_BASEURL || 'https://wallet.base.com/',
+  },
+
+  aws: {
+    platformEmail: process.env.PLATFORM_EMAIl || 'jilongcui@gmail.com',
+    emailRegion: process.env.EMAIL_REGION || 'ap-southeast-1',
+    emailVersion: process.env.EMAIL_VERSION || '2010-12-01',
+  },
+
+  email: {
+    regCodeTemplate: {
+      subject: {
+        'CN': '注册验证码 {code}',
+        'EN': 'Register Code {code}',
+        'HK': '注册验证码 {code}',
+      },
+      content: {
+        'CN': '注册验证码 {code}',
+        'EN': 'Register Code {code}',
+        'HK': '注册验证码 {code}',
+      }
+    },
+
+    loginCodeTemplate: {
+      subject: {
+        'CN': '登录验证码 {code}',
+        'EN': 'Login Code {code}',
+        'HK': '登录验证码 {code}',
+      },
+      content: {
+        'CN': '登录验证码 {code}',
+        'EN': 'Login Code {code}',
+        'HK': '登录验证码 {code}',
+      }
+    },
+  },
+
   fund: {
     baseCertUrl: 'https://www.heepay.com/',
     basePayUrl: 'https://Pay.heepay.com/',

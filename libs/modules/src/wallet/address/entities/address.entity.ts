@@ -85,6 +85,10 @@ export class AddressBTC extends Address {
 export class AddressETH extends Address {
 }
 
+@Entity('address_bep')
+export class AddressBEP extends Address {
+}
+
 @Entity('address_tron')
 export class AddressTRC extends Address {
 }

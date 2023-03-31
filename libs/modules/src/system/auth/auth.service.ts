@@ -61,6 +61,13 @@ export class AuthService {
     return user
   }
 
+  /* 判断手机号是否正确 */
+  async validateEmail(phone: string) {
+    const user = await this.userService.findOneByEmail(phone);
+    if (!user) throw new ApiException("邮箱不存在")
+    return user
+  }
+
   /* 判断微信登录的逻辑 */
   async validateWeixin(code: string) {
     /* Get openID and session_key from weixin service by code */

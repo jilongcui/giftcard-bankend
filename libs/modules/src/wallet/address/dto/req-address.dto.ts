@@ -17,6 +17,20 @@ export class ReqAddressCreateDto {
     addressType: string;
 }
 
+export class ReqAddressRequestDto {
+    // @IsString()
+    // currencyId: string;
+
+    @IsString()
+    userId: number;
+
+    @IsString()
+    appId: number;
+
+    @IsString()
+    addressType: string;
+}
+
 export class ReqMyAddressDto {
     // @IsString()
     // currencyId: string;
@@ -55,3 +69,12 @@ export class ReqAddressList extends PaginationDto {
     @IsString()
     addressType: string;
 }
+
+export declare const AddressTypeEnum: {
+    readonly _1: 'ETH';
+    readonly _56: 'BSC';
+    readonly _195: 'TRC';
+    readonly _186: 'CRI';
+    readonly _6: 'BTC';
+};
+export declare type AddressTypeEnum = typeof AddressTypeEnum[keyof typeof AddressTypeEnum];

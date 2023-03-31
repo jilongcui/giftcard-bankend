@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { Public } from '@app/common/decorators/public.decorator';
-import { ReqAddressCreateDto, ReqAddressList, ReqBindAddressDto } from './dto/req-address.dto';
-import { ResAddressDto } from './dto/res-address.dto';
+import { ReqAddressCreateDto, ReqAddressList, ReqAddressRequestDto, ReqBindAddressDto } from './dto/req-address.dto';
+import { ResAddressDto, ResRequestAddressDto } from './dto/res-address.dto';
 import { AddressService } from './address.service';
 import { Address } from './entities/address.entity';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
@@ -41,6 +41,11 @@ export class AddressController {
     @Public()
     addressCreate(@Body() addressCreate: ReqAddressCreateDto): Promise<ResAddressDto> {
         return this.addressService.addressCreate(addressCreate);
+    }
+
+    @Post('request')
+    addressRequest(@Body() addressCreate: ReqAddressRequestDto, @UserDec(UserEnum.userId) userId: number): Promise<ResRequestAddressDto[]> {
+        return this.addressService.addressRequest(addressCreate, userId);
     }
 
     @Post('bind/crichain')

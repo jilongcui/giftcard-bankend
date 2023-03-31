@@ -7,6 +7,7 @@ import { Currency } from './entities/currency.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Currency])],
   controllers: [CurrencyController],
-  providers: [CurrencyService]
+  providers: [CurrencyService],
+  exports: [CurrencyService],
 })
 export class CurrencyModule { }

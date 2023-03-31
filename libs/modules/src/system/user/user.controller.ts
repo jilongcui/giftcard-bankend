@@ -11,7 +11,7 @@ import { ReqPostListDto } from '../post/dto/req-post.dto';
 import { PostService } from '../post/post.service';
 import { ReqRoleListDto } from '../role/dto/req-role.dto';
 import { RoleService } from '../role/role.service';
-import { ReqAddUserDto, ReqChangeStatusDto, ReqResetPwdDto, ReqSetSelfPwd, ReqUpdataSelfDto, ReqUpdateAuthRoleDto, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
+import { ReqAddUserDto, ReqChangeStatusDto, ReqResetPwdDto, ReqSetSelfPwd, ReqUpdataSelfDto, ReqUpdateAuthRoleDto, ReqUpdatePhone, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
 import { ResAuthRoleDto, ResUserDto, ResUserInfoDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
 import { UserDec } from '@app/common/decorators/user.decorator';
@@ -30,6 +30,7 @@ import { UploadService } from '@app/modules/common/upload/upload.service';
 import { join } from 'path';
 import { ThrottlerBehindProxyGuard } from '@app/common/guards/throttler-behind-proxy.guard';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { SmsCodeGuard } from '@app/common/guards/sms-code.guard';
 
 @ApiTags('用户管理')
 @ApiBearerAuth()
@@ -127,6 +128,18 @@ export class UserController {
     })
     async updateSelfPwd(@Query() reqUpdateSelfPwd: ReqUpdateSelfPwd, @UserDec(UserEnum.userName, UserInfoPipe) userName: string) {
         await this.userService.updateSelfPwd(reqUpdateSelfPwd, userName)
+    }
+
+    /* 更改手机号 */
+    @RepeatSubmit()
+    @Put('profile/phone')
+    @Log({
+        title: '用户管理',
+        businessType: BusinessTypeEnum.update
+    })
+    @UseGuards(SmsCodeGuard)
+    async updatePhone(@Body() reqUpdatePhone: ReqUpdatePhone, @UserDec(UserEnum.userId) userId: number) {
+        await this.userService.updatePhone(reqUpdatePhone, userId)
     }
 
     /* 上传头像 */

@@ -9,7 +9,13 @@ export class KycCertifyInfo {
     userName: string
 
     @IsString()
+    birthDay: string // 生日
+
+    @IsString()
     idCardNo: string
+
+    @IsString()
+    country: string // 国籍
 
     @IsString()
     idCardType: string // ‘0’ 身份证，护照

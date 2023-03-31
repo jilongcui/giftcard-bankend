@@ -23,7 +23,7 @@ export class RechargeCollect {
 
     @Column({
         name: 'currency_type',
-        comment: '代币类型 BTC/ETH/ETH-TOKEN/TRC/TRC-TOKEN',
+        comment: '代币类型 BTC/ETH/ETH-TOKEN/TRC/TRC-TOKEN/BSC/BEP',
         type: "varchar",
         length: 12,
     })
