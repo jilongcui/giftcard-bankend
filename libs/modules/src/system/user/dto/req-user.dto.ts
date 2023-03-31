@@ -136,6 +136,16 @@ export class ReqUpdateSelfPwd {
 }
 
 /* 更改自己的用户信息 */
+export class ReqUpdatePhone {
+    /* 电话号码 */
+    @IsString()
+    phone: string
+
+    @IsString()
+    code: string
+}
+
+/* 更改自己的用户信息 */
 export class ReqSetSelfPwd {
     /* 新密码 */
     @IsString()

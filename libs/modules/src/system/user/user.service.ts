@@ -25,7 +25,7 @@ import { DeptService } from '../dept/dept.service';
 import { PostService } from '../post/post.service';
 import { ReqRoleListDto } from '../role/dto/req-role.dto';
 import { RoleService } from '../role/role.service';
-import { ReqAddUserDto, ReqSetSelfPwd, ReqUpdataSelfDto, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
+import { ReqAddUserDto, ReqSetSelfPwd, ReqUpdataSelfDto, ReqUpdatePhone, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
 import { ResAuthRoleDto, ResHasRoleDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
 import { AddressService } from '@app/modules/wallet/address/address.service';
@@ -407,6 +407,15 @@ export class UserService {
         return await this.userRepository.createQueryBuilder()
             .update()
             .set(reqUpdataSelfDto)
+            .where({ userId })
+            .execute()
+    }
+
+    /* 更改用户自己手机号 */
+    async updatePhone(reqUpdataPhone: ReqUpdatePhone, userId: number) {
+        return await this.userRepository.createQueryBuilder()
+            .update()
+            .set({phonenumber: reqUpdataPhone.phone})
             .where({ userId })
             .execute()
     }
