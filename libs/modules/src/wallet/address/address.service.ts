@@ -1,9 +1,9 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ResAddressDto, ResRequestAddressDto } from './dto/res-address.dto';
 import { ReqAddressAddDto, ReqAddressCreateDto, ReqAddressList, ReqAddressRequestDto, ReqMyAddressDto } from './dto/req-address.dto';
 import * as jaysonPromise from 'jayson/promise';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
-import { Address, AddressBEP, AddressBTC, AddressCRI, AddressETH, AddressTRC } from './entities/address.entity';
+import { Address, AddressBSC, AddressBTC, AddressCRI, AddressETH, AddressTRC, AddressTypeEnum, AddressTypeNumber } from './entities/address.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { firstValueFrom } from 'rxjs';
@@ -22,10 +22,12 @@ export class AddressService implements OnModuleInit {
     baseUrl: string
     appKey: string
     appSecret: string
+
+    logger = new Logger(AddressService.name)
     
     constructor(
         @InjectRepository(AddressETH) private readonly addressEthRepository: Repository<AddressETH>,
-        @InjectRepository(AddressBEP) private readonly addressBepRepository: Repository<AddressBEP>,
+        @InjectRepository(AddressBSC) private readonly addressBscRepository: Repository<AddressBSC>,
         @InjectRepository(AddressBTC) private readonly addressBtcRepository: Repository<AddressBTC>,
         @InjectRepository(AddressTRC) private readonly addressTrcRepository: Repository<AddressTRC>,
         @InjectRepository(AddressCRI) private readonly addressCriRepository: Repository<AddressCRI>,
@@ -53,23 +55,23 @@ export class AddressService implements OnModuleInit {
     async addressCreate(data: ReqAddressCreateDto): Promise<ResAddressDto> {
         // Check if exist 
         let exist = false;
-        if (data.addressType === 'CRI') {
+        if (data.addressType === AddressTypeEnum.CRI) {
             if (await this.addressCriRepository.findOneBy({ userId: data.userId, appId: data.appId }))
                 exist = true;
         }
-        else if (data.addressType === 'TRC') {
+        else if (data.addressType === AddressTypeEnum.TRC) {
             if (await this.addressTrcRepository.findOneBy({ userId: data.userId, appId: data.appId }))
                 exist = true;
         }
-        else if (data.addressType === 'BEP'|| data.addressType === 'BSC') {
-            if (await this.addressBepRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+        else if (data.addressType === AddressTypeEnum.BSC) {
+            if (await this.addressBscRepository.findOneBy({ userId: data.userId, appId: data.appId }))
                 exist = true;
         }
-        else if (data.addressType === 'BTC') {
+        else if (data.addressType === AddressTypeEnum.BTC) {
             if (await this.addressBtcRepository.findOneBy({ userId: data.userId, appId: data.appId }))
                 exist = true;
         }
-        else if (data.addressType === 'ETH') {
+        else if (data.addressType === AddressTypeEnum.ETH) {
             if (await this.addressEthRepository.findOneBy({ userId: data.userId, appId: data.appId }))
                 exist = true;
         }
@@ -78,7 +80,7 @@ export class AddressService implements OnModuleInit {
             throw new ApiException('User address exist.')
         }
         let response: ResAddressDto;
-        if (data.addressType === 'CRI') {
+        if (data.addressType === AddressTypeEnum.CRI) {
             // Get address from chain microservice
             const pattern = { cmd: 'createAddress' }
             response = await firstValueFrom(this.client.send<ResAddressDto>(pattern, {}))
@@ -91,23 +93,46 @@ export class AddressService implements OnModuleInit {
         reqAddrAddDto.privateKey = response.privatekeyEncode
         reqAddrAddDto.appId = 0
         reqAddrAddDto.userId = data.userId
-        if (data.addressType === 'CRI')
+        if (data.addressType === AddressTypeEnum.CRI)
             await this.addressCriRepository.save(reqAddrAddDto)
-        else if (data.addressType === 'ETH')
+        else if (data.addressType === AddressTypeEnum.ETH)
             await this.addressEthRepository.save(reqAddrAddDto)
-        else if (data.addressType === 'BEP' || data.addressType === 'BSC')
-            await this.addressBepRepository.save(reqAddrAddDto)
-        else if (data.addressType === 'TRC')
+        else if (data.addressType === AddressTypeEnum.BSC)
+            await this.addressBscRepository.save(reqAddrAddDto)
+        else if (data.addressType === AddressTypeEnum.TRC)
             await this.addressTrcRepository.save(reqAddrAddDto)
-        else if (data.addressType === 'BTC')
+        else if (data.addressType === AddressTypeEnum.BTC)
             await this.addressBtcRepository.save(reqAddrAddDto)
         return response
     }
 
     async addressRequest(data: ReqAddressRequestDto, userId): Promise<ResRequestAddressDto[]> {
         // Check if exist 
-        if (await this.addressCriRepository.findOneBy({ userId: data.userId, appId: data.appId }))
+        this.logger.debug('addressRequest ' + data.addressType)
+        let exist = false;
+        if (data.addressType === AddressTypeEnum.CRI) {
+            if (await this.addressCriRepository.findOneBy({ userId: userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === AddressTypeEnum.TRC) {
+            if (await this.addressTrcRepository.findOneBy({ userId: userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === AddressTypeEnum.BSC) {
+            if (await this.addressBscRepository.findOneBy({ userId: userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === AddressTypeEnum.BTC) {
+            if (await this.addressBtcRepository.findOneBy({ userId: userId, appId: data.appId }))
+                exist = true;
+        }
+        else if (data.addressType === AddressTypeEnum.ETH) {
+            if (await this.addressEthRepository.findOneBy({ userId: userId, appId: data.appId }))
+                exist = true;
+        }
+        if (exist) {
             throw new ApiException('User address exist.')
+        }
 
         const responses = await this.requestAddress(userId);
         for(let i=0; i< responses.length; i++) {
@@ -116,20 +141,20 @@ export class AddressService implements OnModuleInit {
             reqAddrAddDto.address = addressInfo.address
             reqAddrAddDto.privateKey = ''
             reqAddrAddDto.appId = 0
-            reqAddrAddDto.userId = data.userId
-            if (addressInfo.chain === 'CRI') {
+            reqAddrAddDto.userId = userId
+            if (addressInfo.addressType === AddressTypeNumber.CRI) {
                 await this.addressCriRepository.save(reqAddrAddDto)
             }
-            else if (addressInfo.chain === 'ETH') {
+            else if (addressInfo.addressType === AddressTypeNumber.ETH) {
                 await this.addressEthRepository.save(reqAddrAddDto)
             }
-            else if (addressInfo.chain === 'BSC' || data.addressType === 'BEP') {
-                await this.addressBepRepository.save(reqAddrAddDto)
+            else if (addressInfo.addressType === AddressTypeNumber.BSC) {
+                await this.addressBscRepository.save(reqAddrAddDto)
             }
-            else if (addressInfo.chain === 'TRC') {
+            else if (addressInfo.addressType === AddressTypeNumber.TRC) {
                 await this.addressTrcRepository.save(reqAddrAddDto)
             }
-            else if (addressInfo.chain === 'BTC') {
+            else if (addressInfo.addressType === AddressTypeNumber.BTC) {
                 await this.addressBtcRepository.save(reqAddrAddDto)
             }
         }
@@ -160,7 +185,7 @@ export class AddressService implements OnModuleInit {
         address = await this.addressCriRepository.findOne({ where: { userId: userId } })
         response.cri.address = address ? address.address : undefined
         response.cri.status = address ? address.status : undefined
-        address = await this.addressBepRepository.findOne({ where: { userId: userId } })
+        address = await this.addressBscRepository.findOne({ where: { userId: userId } })
         response.bep.address = address ? address.address : undefined
         response.bep.status = address ? address.status : undefined
         address = await this.addressEthRepository.findOne({ where: { userId: userId } })
@@ -175,18 +200,18 @@ export class AddressService implements OnModuleInit {
         return response
     }
 
-    async findAddress(addressValue: string, addressType: string) {
+    async findAddress(addressValue: string, addressType: AddressTypeEnum) {
         // let response = { cri: { address: '', status: '' }, eth: { address: '', status: '' }, trc: { address: '', status: '' }, btc: { address: '', status: '' } }
         let address: Address
-        if (addressType === 'CRI')
+        if (addressType === AddressTypeEnum.CRI)
             address = await this.addressCriRepository.findOne({ where: { address: addressValue, addressType: addressType } })
-        else if (addressType === 'ETH')
+        else if (addressType === AddressTypeEnum.ETH)
             address = await this.addressEthRepository.findOne({ where: { address: addressValue, addressType: addressType } })
-        else if (addressType === 'BEP' || addressType === 'BSC')
-            address = await this.addressBepRepository.findOne({ where: { address: addressValue, addressType: addressType } })
-        else if (addressType === 'TRC')
+        else if (addressType === AddressTypeEnum.BSC)
+            address = await this.addressBscRepository.findOne({ where: { address: addressValue, addressType: addressType } })
+        else if (addressType === AddressTypeEnum.TRC)
             address = await this.addressTrcRepository.findOne({ where: { address: addressValue, addressType: addressType } })
-        else if (addressType === 'BTC')
+        else if (addressType === AddressTypeEnum.BTC)
             address = await this.addressBtcRepository.findOne({ where: { address: addressValue, addressType: addressType } })
         return address
     }
@@ -238,28 +263,28 @@ export class AddressService implements OnModuleInit {
         if (reqAddressList.userId) {
             where.userId = reqAddressList.userId
         }
-        if (reqAddressList.addressType === 'ETH') {
+        if (reqAddressList.addressType === AddressTypeEnum.ETH) {
             result = await this.addressEthRepository.findAndCount({
                 // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
                 where,
                 skip: reqAddressList.skip,
                 take: reqAddressList.take
             })
-        } else if (reqAddressList.addressType === 'BEP' || reqAddressList.addressType === 'BSC') {
-            result = await this.addressBepRepository.findAndCount({
+        } else if (reqAddressList.addressType === AddressTypeEnum.BSC) {
+            result = await this.addressBscRepository.findAndCount({
                 // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
                 where,
                 skip: reqAddressList.skip,
                 take: reqAddressList.take
             })
-        } else if (reqAddressList.addressType === 'BTC') {
+        } else if (reqAddressList.addressType === AddressTypeEnum.BTC) {
             result = await this.addressBtcRepository.findAndCount({
                 // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
                 where,
                 skip: reqAddressList.skip,
                 take: reqAddressList.take
             })
-        } else if (reqAddressList.addressType === 'TRC') {
+        } else if (reqAddressList.addressType === AddressTypeEnum.TRC) {
             result = await this.addressTrcRepository.findAndCount({
                 // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
                 where,

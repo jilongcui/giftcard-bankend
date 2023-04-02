@@ -1,10 +1,26 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { BaseEntity } from "@app/common/entities/base.entity";
 import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { ExcelTypeEnum } from "@app/modules/common/excel/excel.enum";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+
+export enum AddressTypeNumber {
+    ETH = 1,
+    BSC = 56,
+    TRC = 195,
+    BTC = 6,
+    CRI = 186,
+}
+
+export enum AddressTypeEnum {
+    ETH = 'ETH',
+    BSC = 'BSC',
+    TRC = 'TRC',
+    BTC = 'BTC',
+    CRI = 'CRI',
+}
 
 export class Address {
     @PrimaryGeneratedColumn({
@@ -54,8 +70,8 @@ export class Address {
     //     type: 'char',
     //     length: 1
     // })
-    @IsString()
-    addressType: string
+    @IsEnum(AddressTypeEnum)
+    addressType: AddressTypeEnum
 
     /* 地址状态状态（0正常 1已绑定）*/
     @Column({
@@ -85,11 +101,11 @@ export class AddressBTC extends Address {
 export class AddressETH extends Address {
 }
 
-@Entity('address_bep')
-export class AddressBEP extends Address {
+@Entity('address_bsc')
+export class AddressBSC extends Address {
 }
 
-@Entity('address_tron')
+@Entity('address_trc')
 export class AddressTRC extends Address {
 }
 

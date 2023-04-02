@@ -35,6 +35,7 @@ import { InviteUserService } from '@app/modules/inviteuser/invite-user.service';
 import { ReqUpdateInviteUserDto } from '@app/modules/inviteuser/dto/request-inviteuser.dto';
 import { InviteUser } from '@app/modules/inviteuser/entities/invite-user.entity';
 import { ConfigService } from '@nestjs/config';
+import { AddressTypeEnum } from '@app/modules/wallet/address/entities/address.entity';
 const strRandom = require('string-random');
 
 @Injectable()
@@ -272,7 +273,7 @@ export class UserService {
         if (this.isBlockchainAddress) {
             const createAddressDto = new ReqAddressCreateDto()
             createAddressDto.appId = 0
-            createAddressDto.addressType = 'CRI'
+            createAddressDto.addressType = AddressTypeEnum.CRI
             createAddressDto.userId = user.userId
             await this.addressService.addressCreate(createAddressDto)
         }

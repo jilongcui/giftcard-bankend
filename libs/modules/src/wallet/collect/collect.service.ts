@@ -30,8 +30,8 @@ export class CollectService {
 
             where.txid = Like(`%${reqRechargecollectList.txid}%`)
         }
-        if (reqRechargecollectList.currencyType) {
-            where.currencyType = reqRechargecollectList.currencyType
+        if (reqRechargecollectList.addressType) {
+            where.addressType = reqRechargecollectList.addressType
         }
         if (reqRechargecollectList.confirmState) {
             where.confirmState = reqRechargecollectList.confirmState
@@ -57,7 +57,7 @@ export class CollectService {
                 let marketRatio = Number(0)
                 const currency = await this.currencyService.findOne(rechargeNotifyDto.currencyId)
                 if (currency) {
-                    const address = await this.addressService.findAddress(rechargeNotifyDto.address, rechargeNotifyDto.currencyType)
+                    const address = await this.addressService.findAddress(rechargeNotifyDto.address, rechargeNotifyDto.addressType)
                     const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
                     if (configString) {
                         const configValue = JSON.parse(configString)

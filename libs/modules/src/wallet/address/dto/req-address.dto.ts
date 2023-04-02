@@ -1,7 +1,7 @@
 import { OmitType } from "@nestjs/swagger";
-import { IsOptional, IsString } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { PaginationDto } from "@app/common/dto/pagination.dto";
-import { Address } from "../entities/address.entity";
+import { Address, AddressTypeEnum } from "../entities/address.entity";
 
 export class ReqAddressCreateDto {
     // @IsString()
@@ -13,22 +13,19 @@ export class ReqAddressCreateDto {
     @IsString()
     appId: number;
 
-    @IsString()
-    addressType: string;
+    @IsEnum(AddressTypeEnum)
+    addressType: AddressTypeEnum;
 }
 
 export class ReqAddressRequestDto {
     // @IsString()
     // currencyId: string;
 
-    @IsString()
-    userId: number;
-
-    @IsString()
+    @IsNumber()
     appId: number;
 
-    @IsString()
-    addressType: string;
+    @IsEnum(AddressTypeEnum)
+    addressType: AddressTypeEnum;
 }
 
 export class ReqMyAddressDto {
@@ -66,15 +63,6 @@ export class ReqAddressList extends PaginationDto {
 
     /* 代币类型 */
     @IsOptional()
-    @IsString()
-    addressType: string;
+    @IsEnum(AddressTypeEnum)
+    addressType: AddressTypeEnum;
 }
-
-export declare const AddressTypeEnum: {
-    readonly _1: 'ETH';
-    readonly _56: 'BSC';
-    readonly _195: 'TRC';
-    readonly _186: 'CRI';
-    readonly _6: 'BTC';
-};
-export declare type AddressTypeEnum = typeof AddressTypeEnum[keyof typeof AddressTypeEnum];
