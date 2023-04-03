@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
-import { ReqAddRechageCollectDto, ReqCollectRechargeNotifyDto, ReqRechargeCollectListDto } from './dto/req-rechargecollect-list.dto';
+import { ReqAddRechargeCollectDto, ReqCollectRechargeNotifyDto, ReqRechargeCollectListDto } from './dto/req-rechargecollect-list.dto';
 import { RechargeCollect } from './entities/rechage-collect.entity';
 import { CollectionService } from '@app/modules/collection/collection.service';
 import { Account } from '@app/modules/account/entities/account.entity';
@@ -73,7 +73,7 @@ export class CollectService {
                     await manager.increment(Account, { userId: address.userId }, "usable", rechargeNotifyDto.amount - marketFee)
                     await manager.increment(Account, { userId: 1 }, "usable", marketFee)
 
-                    const reqAddRechageCollectDto:ReqAddRechageCollectDto = {
+                    const reqAddRechageCollectDto:ReqAddRechargeCollectDto = {
                         ...rechargeNotifyDto,
                         state: 1,
                         confirmState: 1,
