@@ -1,4 +1,4 @@
-import { Query, Controller, Get, Inject, Post } from '@nestjs/common';
+import { Query, Controller, Get, Inject, Post, Body } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
