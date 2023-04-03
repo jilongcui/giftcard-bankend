@@ -138,7 +138,7 @@ export default defineConfig({
   },
 
   fund33: {
-    baseUrl: 'https://test.asiatop.net/dtb',
+    baseUrl: 'https://test.asiatop.net/card',
     appId: 'lj5uct0jt19zh1by3p3sdzlyz2yo4vmg',
     appKey: 'lj5uct0jt19zh1by3p3sdzlyz2yo4vmg',
     appSecret: 'zdvvtvzdxp79ihtcplfuzay7tzt6rx8x',

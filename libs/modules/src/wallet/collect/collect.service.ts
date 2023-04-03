@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
-import { ReqAddRechageCollectDto, ReqCollectRechageNotifyDto, ReqRechargeCollectListDto } from './dto/req-rechargecollect-list.dto';
+import { ReqAddRechageCollectDto, ReqCollectRechargeNotifyDto, ReqRechargeCollectListDto } from './dto/req-rechargecollect-list.dto';
 import { RechargeCollect } from './entities/rechage-collect.entity';
 import { CollectionService } from '@app/modules/collection/collection.service';
 import { Account } from '@app/modules/account/entities/account.entity';
@@ -49,7 +49,7 @@ export class CollectService {
     }
 
     // 钱包充值通知
-    async collectionRechargeNotify(rechargeNotifyDto: ReqCollectRechageNotifyDto) {
+    async collectionRechargeNotify(rechargeNotifyDto: ReqCollectRechargeNotifyDto) {
         try {
             this.logger.debug("Recharge Notice: " + JSON.stringify(rechargeNotifyDto))
             // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
