@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { ApiHideProperty } from "@nestjs/swagger";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { AddressTypeEnum } from "../../address/entities/address.entity";
 
 @Entity()
@@ -82,9 +83,10 @@ export class RechargeCollect {
     })
     dealTime: number;
 
-    @Column({
-        name: 'createtime',
+    @ApiHideProperty()
+    @CreateDateColumn({
+        name: 'create_time',
         comment: '创建时间'
     })
-    createTime: number;
+    createTime: number
 }

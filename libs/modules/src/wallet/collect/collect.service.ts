@@ -73,12 +73,13 @@ export class CollectService {
                     await manager.increment(Account, { userId: address.userId }, "usable", rechargeNotifyDto.amount - marketFee)
                     await manager.increment(Account, { userId: 1 }, "usable", marketFee)
 
-                    const reqAddRechageCollectDto:ReqAddRechargeCollectDto = {
+                    const reqAddRechargeCollectDto:ReqAddRechargeCollectDto = {
                         ...rechargeNotifyDto,
+                        feeState: 1,
                         state: 1,
                         confirmState: 1,
                     }
-                    await manager.save(RechargeCollect, reqAddRechageCollectDto) // 支付完成
+                    await manager.save(RechargeCollect, reqAddRechargeCollectDto) // 支付完成
                 }
             })
         } catch (error) {

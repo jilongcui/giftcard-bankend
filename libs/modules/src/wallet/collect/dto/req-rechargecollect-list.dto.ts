@@ -4,8 +4,8 @@ import { PaginationDto } from "@app/common/dto/pagination.dto";
 import { RechargeCollect } from "../entities/rechage-collect.entity";
 import { AddressTypeEnum } from "../../address/entities/address.entity";
 
-export class ReqAddRechargeCollectDto extends OmitType(RechargeCollect, ['id'] as const) { }
-export class ReqCollectRechargeNotifyDto extends OmitType(RechargeCollect, ['id', 'state', 'confirmState', 'dealTime', 'feeState', 'createTime'] as const) { }
+export class ReqAddRechargeCollectDto extends OmitType(RechargeCollect, ['id', 'createTime'] as const) { }
+export class ReqCollectRechargeNotifyDto extends OmitType(RechargeCollect, ['id', 'state', 'confirmState', 'feeState', 'createTime'] as const) { }
 
 export class ReqRechargeCollectListDto extends PaginationDto {
 
