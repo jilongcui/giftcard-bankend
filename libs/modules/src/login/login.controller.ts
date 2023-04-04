@@ -157,7 +157,7 @@ export class LoginController {
     @Post('mixPhoneRegister')
     @Public()
     @UseGuards(SmsCodeGuard)
-    async mixPhoneregister(@Body() reqRegDto: ReqEmailRegDto, @Req() req: Request): Promise<ResLoginDto> {
+    async mixPhoneregister(@Body() reqRegDto: ReqMobileRegDto, @Req() req: Request): Promise<ResLoginDto> {
         return await this.loginService.register(reqRegDto, req)
     }
 
