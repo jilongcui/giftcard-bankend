@@ -10,6 +10,7 @@ import { SysConfigService } from '@app/modules/system/sys-config/sys-config.serv
 import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
 import { AddressService } from '../address/address.service';
 import { CurrencyService } from '@app/modules/currency/currency.service';
+import { ApiException } from '@app/common/exceptions/api.exception';
 
 @Injectable()
 export class CollectService {
@@ -58,6 +59,8 @@ export class CollectService {
                 const currency = await this.currencyService.findOne(rechargeNotifyDto.currencyId)
                 if (currency) {
                     const address = await this.addressService.findAddress(rechargeNotifyDto.address, rechargeNotifyDto.addressType)
+                    if(!address)
+                        throw new ApiException("Address is not exist.")
                     const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
                     if (configString) {
                         const configValue = JSON.parse(configString)
