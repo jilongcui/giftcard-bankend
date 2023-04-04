@@ -21,6 +21,6 @@ export class CollectController {
     @Post('notify')
     @Public() 
     async rechargeNotify(@Body() rechargeNotifyDto: ReqCollectRechargeNotifyDto) {
-        this.collectService.collectionRechargeNotify(rechargeNotifyDto)
+        return this.collectService.collectionRechargeNotify(rechargeNotifyDto)
     }
 }
