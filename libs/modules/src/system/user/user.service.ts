@@ -20,7 +20,7 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { CreateAccountDto } from '@app/modules/account/dto/request-account.dto';
 import { Account } from '@app/modules/account/entities/account.entity';
 import { SharedService } from '@app/shared/shared.service';
-import { Between, FindOptionsWhere, In, Like, Repository } from 'typeorm';
+import { Between, Brackets, FindOptionsWhere, In, Like, Repository } from 'typeorm';
 import { DeptService } from '../dept/dept.service';
 import { PostService } from '../post/post.service';
 import { ReqRoleListDto } from '../role/dto/req-role.dto';
@@ -76,6 +76,40 @@ export class UserService {
                 delFlag: '0',
                 status: '0'
             })
+            .getOne()
+        return user
+    }
+
+    /* 通过用户名获取用户,排除停用和删除的,用于登录 */
+    async findOneByMixName(username: string) {
+        const user = await this.userRepository.createQueryBuilder('user')
+            .select('user.userId')
+            .addSelect('user.userName')
+            .addSelect('user.password')
+            .addSelect('user.securityStatus')
+            .addSelect('user.salt')
+            .addSelect('user.dept')
+            .leftJoinAndSelect('user.dept', 'dept')
+            .leftJoinAndSelect('user.identity', 'identity')
+            .leftJoinAndSelect('user.member', 'member')
+            // .innerJoin('member.memberInfo', 'memberInfo')
+            .where({
+                delFlag: '0',
+                status: '0'
+            })
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where({
+                        userName: username,
+                    })
+                    .orWhere({
+                        email: username,
+                    })
+                    .orWhere({
+                        phonenumber: username,
+                    })
+                }),
+            )
             .getOne()
         return user
     }

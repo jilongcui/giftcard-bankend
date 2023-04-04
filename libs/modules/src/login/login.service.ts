@@ -114,6 +114,10 @@ export class LoginService {
             // this.logger.debug(inviteInfo)
         }
 
+        if(reqMobileRegDto.password != undefined && reqMobileRegDto.password !== '') {
+            await this.userService.setSelfPwd({newPassword: reqMobileRegDto.password} , user.userName)
+        }
+
         const payload = { userId: user.userId, pv: 1, };
         //生成token
         let jwtSign = this.jwtService.sign(payload)

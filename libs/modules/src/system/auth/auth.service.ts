@@ -54,6 +54,15 @@ export class AuthService {
     return user
   }
 
+  /* 判断手机号或者邮箱是否正确 */
+  async validateMixName(phoneOrEmail: string, password: string) {
+    const user = await this.userService.findOneByMixName(phoneOrEmail);
+    if (!user) throw new ApiException("用户不存在")
+    const comparePassword = this.sharedService.md5(password + user.salt)
+    if (comparePassword !== user.password) throw new ApiException("密码错误")
+    return user
+  }
+
   /* 判断手机号是否正确 */
   async validatePhone(phone: string) {
     const user = await this.userService.findOneByPhone(phone);
@@ -61,7 +70,7 @@ export class AuthService {
     return user
   }
 
-  /* 判断手机号是否正确 */
+  /* 判断邮箱是否正确 */
   async validateEmail(phone: string) {
     const user = await this.userService.findOneByEmail(phone);
     if (!user) throw new ApiException("邮箱不存在")
