@@ -25,13 +25,10 @@ export class CardInfoDetail {
     @IsNumber()
     validDay: number
 
-    @IsString()
-    amountPerMonth: string
+    @IsNumber()
+    amountPerMonth: number
 
     @IsString()
     image: string
-
-    @IsString()
-    signImage: string
 
 }

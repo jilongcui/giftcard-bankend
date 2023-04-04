@@ -10,15 +10,16 @@ export class Cardinfo {
     id: number
 
 
+    /* 卡的名称 */
     @Column({
-        length: 10,
+        length: 50,
     })
-    name: string 
+    name: string // VISA MASTER
 
-    /* 卡片资料 */
+    /* 卡片详细资料 类的种类及费率 */
     @Column( 'simple-json',{
         name: 'info',
-        comment: '认证资料'
+        comment: '卡的资料'
     })
     @IsObject()
     info: CardInfoDetail
