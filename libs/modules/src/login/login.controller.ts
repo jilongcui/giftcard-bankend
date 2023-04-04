@@ -153,7 +153,7 @@ export class LoginController {
         return await this.loginService.register(reqRegDto, req)
     }
 
-    /* 手机号证码和密码注册 */
+    /* 手机验证码和密码注册 */
     @Post('mixPhoneRegister')
     @Public()
     @UseGuards(SmsCodeGuard)
