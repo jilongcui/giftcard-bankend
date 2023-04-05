@@ -40,7 +40,7 @@ export class SmscodeService {
     async sendRegCode(mobile: string) {
         const templateId = this.configService.get<string>('tencentSMS.TemplateRegId')
         const code = await this.sendSmSCode(mobile, templateId);
-        await this.redis.set(`${USER_SMSCODE_KEY}:${mobile}`, code, 'EX', 30)
+        await this.redis.set(`${USER_SMSCODE_KEY}:${mobile}`, code, 'EX', 300)
     }
 
     async sendLoginCode(mobile: string) {

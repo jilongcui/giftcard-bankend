@@ -2,9 +2,10 @@ import { OmitType } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { PaginationDto } from "@app/common/dto/pagination.dto";
 import { RechargeCollect } from "../entities/rechage-collect.entity";
+import { AddressTypeEnum } from "../../address/entities/address.entity";
 
-export class ReqAddRechageCollectDto extends OmitType(RechargeCollect, ['id'] as const) { }
-export class ReqCollectRechageNotifyDto extends OmitType(RechargeCollect, ['id', 'state', 'confirmState'] as const) { }
+export class ReqAddRechargeCollectDto extends OmitType(RechargeCollect, ['id', 'createTime'] as const) { }
+export class ReqCollectRechargeNotifyDto extends OmitType(RechargeCollect, ['id', 'state', 'confirmState', 'feeState', 'createTime'] as const) { }
 
 export class ReqRechargeCollectListDto extends PaginationDto {
 
@@ -26,7 +27,7 @@ export class ReqRechargeCollectListDto extends PaginationDto {
     /* 代币类型 */
     @IsOptional()
     @IsString()
-    currencyType?: string;
+    addressType?: AddressTypeEnum;
 
     /* 确认状态 */
     @IsOptional()

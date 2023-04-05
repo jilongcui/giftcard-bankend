@@ -165,11 +165,12 @@ export class Bankcard {
 
     @Column({
         name: 'user_id',
+        default: null,
         comment: '订单所属用户'
     })
     @Type()
     @IsNumber()
-    userId: number
+    userId?: number
 
     @ApiHideProperty()
     @ManyToOne(() => User, user => user.bankcards)

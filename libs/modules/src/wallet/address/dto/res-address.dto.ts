@@ -1,5 +1,5 @@
 import { IsEnum, IsString } from "class-validator";
-import { AddressTypeEnum } from "./req-address.dto";
+import { AddressTypeEnum, AddressTypeNumber } from "../entities/address.entity";
 
 export class ResAddressDto {
     @IsString()
@@ -13,5 +13,5 @@ export class ResRequestAddressDto {
     address: string;
 
     @IsEnum(AddressTypeEnum)
-    chain: AddressTypeEnum;
+    addressType: AddressTypeNumber;
 }

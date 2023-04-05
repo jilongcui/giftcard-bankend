@@ -9,6 +9,7 @@ import { Cardinfo } from './entities/cardinfo.entity';
     TypeOrmModule.forFeature([Cardinfo])
   ],
   controllers: [CardinfoController],
-  providers: [CardinfoService]
+  providers: [CardinfoService],
+  exports: [CardinfoService]
 })
 export class CardinfoModule {}

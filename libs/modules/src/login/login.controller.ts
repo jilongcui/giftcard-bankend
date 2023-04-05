@@ -16,7 +16,7 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { LocalAuthGuard } from '@app/common/guards/local-auth.guard';
 import { Router } from '../system/menu/dto/res-menu.dto';
-import { QueryInviteUserDto, ReqInnerRegDto, ReqLoginDto, ReqMobileLoginDto, ReqWeixinLoginDto, ReqMobileRegDto, ReqEmailLoginDto, ReqEmailRegDto } from './dto/req-login.dto';
+import { QueryInviteUserDto, ReqInnerRegDto, ReqLoginDto, ReqMobileLoginDto, ReqWeixinLoginDto, ReqMobileRegDto, ReqEmailLoginDto, ReqEmailRegDto, ReqMixLoginDto } from './dto/req-login.dto';
 import { ResImageCaptchaDto, ResLoginDto } from './dto/res-login.dto';
 import { LoginService } from './login.service';
 import { Request, Response } from 'express';
@@ -34,6 +34,7 @@ import { MemberService } from '../member/member.service';
 import { WeixinWebAuthGuard } from '@app/common/guards/weixinweb-auth.guard';
 import { EmailAuthGuard } from '@app/common/guards/email-auth.guard';
 import { EmailCodeGuard } from '@app/common/guards/email-code.guard';
+import { MixerAuthGuard } from '@app/common/guards/mixer-auth.guard';
 @ApiTags('登录')
 @ApiBearerAuth()
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -59,10 +60,27 @@ export class LoginController {
     /* 用户密码登录 */
     @Post('login')
     @Public()
+    // @UseGuards(ImageCaptchaGuard, LocalAuthGuard)
     @UseGuards(ImageCaptchaGuard, LocalAuthGuard)
     @Keep()
     // @UseGuards(LocalAuthGuard)
     async login(@Body() reqLoginDto: ReqLoginDto, @Req() req: Request, @Res() response: Response) {
+        // Todo: forTest
+        // if (!await this.sharedService.checkImageCaptcha(reqLoginDto.uuid, reqLoginDto.code))
+        // throw new ApiException('图形验证码错误')
+        const data = await this.loginService.login(req)
+        response.set({ "X-Token": data.token }).send({ code: 200, msg: "Success", data: data }).end();
+        // return data
+    }
+
+    /* 混合邮箱/手机号密码登录 */
+    @Post('mixlogin')
+    @Public()
+    // @UseGuards(ImageCaptchaGuard, LocalAuthGuard)
+    @UseGuards(MixerAuthGuard)
+    @Keep()
+    // @UseGuards(LocalAuthGuard)
+    async mixlogin(@Body() reqLoginDto: ReqMixLoginDto, @Req() req: Request, @Res() response: Response) {
         // Todo: forTest
         // if (!await this.sharedService.checkImageCaptcha(reqLoginDto.uuid, reqLoginDto.code))
         // throw new ApiException('图形验证码错误')
@@ -132,6 +150,22 @@ export class LoginController {
     @Public()
     @UseGuards(EmailCodeGuard)
     async eregister(@Body() reqRegDto: ReqEmailRegDto, @Req() req: Request): Promise<ResLoginDto> {
+        return await this.loginService.register(reqRegDto, req)
+    }
+
+    /* 手机验证码和密码注册 */
+    @Post('mixPhoneRegister')
+    @Public()
+    @UseGuards(SmsCodeGuard)
+    async mixPhoneregister(@Body() reqRegDto: ReqMobileRegDto, @Req() req: Request): Promise<ResLoginDto> {
+        return await this.loginService.register(reqRegDto, req)
+    }
+
+    /* 邮箱验证码和密码注册 */
+    @Post('mixEmailRegister')
+    @Public()
+    @UseGuards(EmailCodeGuard)
+    async mixEmailregister(@Body() reqRegDto: ReqEmailRegDto, @Req() req: Request): Promise<ResLoginDto> {
         return await this.loginService.register(reqRegDto, req)
     }
 

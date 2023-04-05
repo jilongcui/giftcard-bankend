@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
-import { ReqAddRechageCollectDto, ReqCollectRechageNotifyDto, ReqRechargeCollectListDto } from './dto/req-rechargecollect-list.dto';
+import { ReqAddRechargeCollectDto, ReqCollectRechargeNotifyDto, ReqRechargeCollectListDto } from './dto/req-rechargecollect-list.dto';
 import { RechargeCollect } from './entities/rechage-collect.entity';
 import { CollectionService } from '@app/modules/collection/collection.service';
 import { Account } from '@app/modules/account/entities/account.entity';
@@ -10,6 +10,7 @@ import { SysConfigService } from '@app/modules/system/sys-config/sys-config.serv
 import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
 import { AddressService } from '../address/address.service';
 import { CurrencyService } from '@app/modules/currency/currency.service';
+import { ApiException } from '@app/common/exceptions/api.exception';
 
 @Injectable()
 export class CollectService {
@@ -30,8 +31,8 @@ export class CollectService {
 
             where.txid = Like(`%${reqRechargecollectList.txid}%`)
         }
-        if (reqRechargecollectList.currencyType) {
-            where.currencyType = reqRechargecollectList.currencyType
+        if (reqRechargecollectList.addressType) {
+            where.addressType = reqRechargecollectList.addressType
         }
         if (reqRechargecollectList.confirmState) {
             where.confirmState = reqRechargecollectList.confirmState
@@ -49,7 +50,7 @@ export class CollectService {
     }
 
     // 钱包充值通知
-    async collectionRechargeNotify(rechargeNotifyDto: ReqCollectRechageNotifyDto) {
+    async collectionRechargeNotify(rechargeNotifyDto: ReqCollectRechargeNotifyDto) {
         try {
             this.logger.debug("Recharge Notice: " + JSON.stringify(rechargeNotifyDto))
             // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
@@ -57,7 +58,9 @@ export class CollectService {
                 let marketRatio = Number(0)
                 const currency = await this.currencyService.findOne(rechargeNotifyDto.currencyId)
                 if (currency) {
-                    const address = await this.addressService.findAddress(rechargeNotifyDto.address, rechargeNotifyDto.currencyType)
+                    const address = await this.addressService.findAddress(rechargeNotifyDto.address, rechargeNotifyDto.addressType)
+                    if(!address)
+                        throw new ApiException("Address is not exist.")
                     const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
                     if (configString) {
                         const configValue = JSON.parse(configString)
@@ -73,12 +76,13 @@ export class CollectService {
                     await manager.increment(Account, { userId: address.userId }, "usable", rechargeNotifyDto.amount - marketFee)
                     await manager.increment(Account, { userId: 1 }, "usable", marketFee)
 
-                    const reqAddRechageCollectDto:ReqAddRechageCollectDto = {
+                    const reqAddRechargeCollectDto:ReqAddRechargeCollectDto = {
                         ...rechargeNotifyDto,
+                        feeState: 1,
                         state: 1,
                         confirmState: 1,
                     }
-                    await manager.save(RechargeCollect, reqAddRechageCollectDto) // 支付完成
+                    await manager.save(RechargeCollect, reqAddRechargeCollectDto) // 支付完成
                 }
             })
         } catch (error) {

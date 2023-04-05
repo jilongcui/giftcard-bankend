@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { ApiHideProperty } from "@nestjs/swagger";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { AddressTypeEnum } from "../../address/entities/address.entity";
 
 @Entity()
 export class RechargeCollect {
@@ -16,18 +18,16 @@ export class RechargeCollect {
     address: string;
 
     @Column({
+        name: 'currency_type',
+        comment: '代币类型 BTC/ETH/TRC/BSC',
+    })
+    addressType: AddressTypeEnum;
+
+    @Column({
         name: 'currency_id',
         comment: '关联currency表',
     })
     currencyId: number;
-
-    @Column({
-        name: 'currency_type',
-        comment: '代币类型 BTC/ETH/ETH-TOKEN/TRC/TRC-TOKEN/BSC/BEP',
-        type: "varchar",
-        length: 12,
-    })
-    currencyType: string;
 
     @Column({
         name: 'to',
@@ -83,9 +83,10 @@ export class RechargeCollect {
     })
     dealTime: number;
 
-    @Column({
-        name: 'createtime',
+    @ApiHideProperty()
+    @CreateDateColumn({
+        name: 'create_time',
         comment: '创建时间'
     })
-    createTime: number;
+    createTime: number
 }

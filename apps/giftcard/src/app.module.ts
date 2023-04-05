@@ -46,6 +46,7 @@ import { FundModule } from '@app/modules/fund/fund.module';
 import { StatsModule } from '@app/modules/stats/stats.module';
 import { MagicboxModule } from '@app/modules/magicbox/magicbox.module';
 import { SubmitterModule } from '@app/modules/submitter/submitter.module';
+import { ApplyCardModule } from '@app/modules/apply-card/apply-card.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
@@ -119,6 +120,7 @@ import { SubmitterModule } from '@app/modules/submitter/submitter.module';
     KycModule,
     CardinfoModule,
     Fund33Module,
+    ApplyCardModule
     
   ],
   // controllers: [NotifyController],
