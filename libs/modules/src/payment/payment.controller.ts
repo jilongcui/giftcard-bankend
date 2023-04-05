@@ -120,7 +120,7 @@ export class PaymentController {
   @Header('Content-Type', 'application/json; charset=utf-8')
   async weixinNotify(@Body() cryptNotifyDto: ReqWeixinPaymentNotifyDto, @Res() response: Response) {
     this.logger.debug(JSON.stringify(cryptNotifyDto))
-    const result = await this.paymentService.weixinPaymentNotify(cryptNotifyDto, 0)
+    const result = await this.paymentService.weixinPaymentNotify(cryptNotifyDto, 'XCX')
     response.status(result.code).end(result.data)
   }
 
@@ -131,7 +131,7 @@ export class PaymentController {
   @Header('Content-Type', 'application/json; charset=utf-8')
   async weixinGzhNotify(@Body() cryptNotifyDto: ReqWeixinPaymentNotifyDto, @Res() response: Response) {
     this.logger.debug(JSON.stringify(cryptNotifyDto))
-    const result = await this.paymentService.weixinPaymentNotify(cryptNotifyDto, 1)
+    const result = await this.paymentService.weixinPaymentNotify(cryptNotifyDto, 'GZH')
     response.status(result.code).end(result.data)
   }
 }

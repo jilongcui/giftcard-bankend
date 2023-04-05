@@ -767,12 +767,12 @@ export class PaymentService {
   }
 
   // 微信支付通知
-  async weixinPaymentNotify(cryptoNotifyDto: ReqWeixinPaymentNotifyDto, type: number) {
+  async weixinPaymentNotify(cryptoNotifyDto: ReqWeixinPaymentNotifyDto, type: string) {
     const resource = cryptoNotifyDto.resource
     let asset: Asset | Magicbox
     try {
       let paymentNotify
-      if (type==undefined || type === 0) {
+      if (type==undefined || type === WeixinPayType.XCX) {
         paymentNotify = this.xcxWxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
           resource.associated_data, resource.nonce);
       } else {
