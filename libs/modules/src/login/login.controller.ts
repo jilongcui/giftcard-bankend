@@ -122,7 +122,7 @@ export class LoginController {
         return result
     }
 
-    /* 微信web端登录登录 */
+    /* 微信web端登录 */
     @Post('weilogin')
     @Public()
     @UseGuards(WeixinWebAuthGuard)

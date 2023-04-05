@@ -221,6 +221,7 @@ export class AuthService {
     // const info = await this.getInfo(url) // 获取openid和session_key
     // this.logger.debug(url)
 
+    return true
     const data = {
       "openid": openId,
       "scene": 3,
