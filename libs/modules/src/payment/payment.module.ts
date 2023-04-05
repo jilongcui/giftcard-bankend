@@ -36,7 +36,7 @@ import { readFileSync } from 'fs';
       name: 'XCXPayment',
       useFactory: async () => {
         return {
-          appid: process.env.WEIXIN_APPID_XCX,
+          appid: process.env.WEIXIN_APPID, // 小程序
           mchid: process.env.WEIXIN_MCHID,
           publicKey: readFileSync('./certs/apiclient_cert.pem'), // 公钥
           privateKey: readFileSync('./certs/apiclient_key.pem'), // 秘钥
@@ -48,7 +48,7 @@ import { readFileSync } from 'fs';
       name: 'GZHPayment',
       useFactory: async () => {
         return {
-          appid: process.env.WEIXIN_APPID_GZH,
+          appid: process.env.WEIXIN_GZHAPPID, // 公众号
           mchid: process.env.WEIXIN_MCHID,
           publicKey: readFileSync('./certs/apiclient_cert.pem'), // 公钥
           privateKey: readFileSync('./certs/apiclient_key.pem'), // 秘钥
