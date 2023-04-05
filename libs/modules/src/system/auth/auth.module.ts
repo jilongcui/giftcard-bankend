@@ -21,6 +21,7 @@ import { JwtWsStrategy } from './strategies/jwt-ws.strategy';
 import { WeixinWebStrategy } from './strategies/weixinweb.strategy';
 import { EmailStrategy } from './strategies/email.strategy';
 import { MixerStrategy } from './strategies/mixer.strategy';
+import { WeixinGzhStrategy } from './strategies/weixingzh.strategy';
 
 @Module({
     imports: [
@@ -28,7 +29,8 @@ import { MixerStrategy } from './strategies/mixer.strategy';
         PassportModule,
     ],
     controllers: [],
-    providers: [AuthService, LocalStrategy, MobileStrategy, MixerStrategy, EmailStrategy, WeixinStrategy,WeixinWebStrategy, JwtStrategy, JwtWsStrategy],
+    providers: [AuthService, LocalStrategy, MobileStrategy, MixerStrategy, EmailStrategy, 
+        WeixinStrategy,WeixinWebStrategy, JwtStrategy, JwtWsStrategy, WeixinGzhStrategy],
     exports: [AuthService],
 })
 export class AuthModule { }

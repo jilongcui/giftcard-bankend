@@ -35,6 +35,7 @@ import { WeixinWebAuthGuard } from '@app/common/guards/weixinweb-auth.guard';
 import { EmailAuthGuard } from '@app/common/guards/email-auth.guard';
 import { EmailCodeGuard } from '@app/common/guards/email-code.guard';
 import { MixerAuthGuard } from '@app/common/guards/mixer-auth.guard';
+import { WeixinGzhAuthGuard } from '@app/common/guards/weixingzh-auth.guard';
 @ApiTags('登录')
 @ApiBearerAuth()
 @UseGuards(ThrottlerBehindProxyGuard)
@@ -107,7 +108,7 @@ export class LoginController {
         return await this.loginService.login(req)
     }
 
-    /* 微信登录 */
+    /* 微信小程序登录 */
     @Post('wxlogin')
     @Public()
     @UseGuards(WeixinAuthGuard)
@@ -127,6 +128,21 @@ export class LoginController {
     @Public()
     @UseGuards(WeixinWebAuthGuard)
     async weilogin(@Body() reqLoginDto: ReqWeixinLoginDto, @Req() req: Request): Promise<ResLoginDto> {
+
+        const result = await this.loginService.login(req)
+        const { user } = req as any
+        if(reqLoginDto.inviteCode) {
+            await this.inviteService.bindInviteCode(user.userId, reqLoginDto.inviteCode)
+            await this.memberService.create({ memberInfoId: 0}, user.userId)
+        }
+        return result
+    }
+
+    /* 微信gzh端登录登录 */
+    @Post('gzhlogin')
+    @Public()
+    @UseGuards(WeixinGzhAuthGuard)
+    async gzhlogin(@Body() reqLoginDto: ReqWeixinLoginDto, @Req() req: Request): Promise<ResLoginDto> {
 
         const result = await this.loginService.login(req)
         const { user } = req as any
