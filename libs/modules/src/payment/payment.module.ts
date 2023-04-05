@@ -45,6 +45,18 @@ import { readFileSync } from 'fs';
       },
     }),
     WeChatPayModule.registerAsync({
+      name: 'NTVPayment',
+      useFactory: async () => {
+        return {
+          appid: process.env.WEIXIN_NTVAPPID, // 公众号
+          mchid: process.env.WEIXIN_MCHID,
+          publicKey: readFileSync('./certs/apiclient_cert.pem'), // 公钥
+          privateKey: readFileSync('./certs/apiclient_key.pem'), // 秘钥
+          key: process.env.WEIXIN_API3KEY,
+        };
+      },
+    }),
+    WeChatPayModule.registerAsync({
       name: 'GZHPayment',
       useFactory: async () => {
         return {

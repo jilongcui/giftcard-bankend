@@ -37,7 +37,7 @@ import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/
 import { CreateMagicboxRecordDto } from '../magicbox/dto/request-magicbox-record.dto';
 import WxPay from 'wechatpay-node-v3';
 import { WECHAT_PAY_MANAGER } from 'nest-wechatpay-node-v3';
-import { Ijsapi } from 'wechatpay-node-v3/dist/lib/interface';
+import { Ijsapi, Inative } from 'wechatpay-node-v3/dist/lib/interface';
 import { MemberService } from '../member/member.service';
 
 const NodeRSA = require('node-rsa');
@@ -87,6 +87,7 @@ export class PaymentService {
     @InjectRedis() private readonly redis: Redis,
     @Inject('CHAIN_SERVICE') private client: ClientProxy,
     @Inject('XCXPayment') private xcxWxPay: WxPay,
+    @Inject('NTVPayment') private ntvWxPay: WxPay,
     @Inject('GZHPayment') private gzhWxPay: WxPay,
   ) {
     this.baseUrl = this.configService.get<string>('payment.baseUrl')
@@ -713,6 +714,8 @@ export class PaymentService {
       notifyUrl = notifyUrl + '/payment/weixinNotify'
     } else if(weixinPay.type === WeixinPayType.GZH) {
       notifyUrl = notifyUrl + '/payment/weixinGzhNotify'
+    } else if(weixinPay.type === WeixinPayType.NTV) {
+      notifyUrl = notifyUrl + '/payment/weixinGzhNotify'
     }
     this.logger.debug(notifyUrl)
     const params: Ijsapi = {
@@ -730,6 +733,32 @@ export class PaymentService {
         payer_client_ip: userIp,
       },
     };
+
+    const params2: Inative = {
+      description: order.desc,
+      out_trade_no: weixinPay.orderId.toString(),
+      notify_url: notifyUrl,
+      // time_expire:,
+      // goods_tag:,
+      amount: {
+        total: Math.floor(order.totalPrice * 100), // 单位为分
+        currency: 'CNY',
+      },
+      scene_info: {
+        payer_client_ip: userIp,
+      },
+      detail: {
+        invoice_id:"wx123",
+        goods_detail:[
+        {
+          goods_name: order.desc,
+          wechatpay_goods_id:order.id.toString(),
+          quantity:1,
+          merchant_goods_id:"商品编码",
+          unit_price:828800
+        }]
+      }
+    }
     // console.log(params);
     let result
     if( weixinPay.type == undefined) weixinPay.type = WeixinPayType.XCX
@@ -737,6 +766,8 @@ export class PaymentService {
       result = await this.xcxWxPay.transactions_jsapi(params);
     } else if(weixinPay.type === WeixinPayType.GZH) {
       result = await this.gzhWxPay.transactions_jsapi(params);
+    } else if(weixinPay.type === WeixinPayType.NTV) {
+      result = await this.ntvWxPay.transactions_native(params2);
     }
     console.log(result);
     if(result.status !== 200)
@@ -774,6 +805,9 @@ export class PaymentService {
       let paymentNotify
       if (type==undefined || type === WeixinPayType.XCX) {
         paymentNotify = this.xcxWxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
+          resource.associated_data, resource.nonce);
+      } else if (type === WeixinPayType.NTV) {
+        paymentNotify = this.ntvWxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
           resource.associated_data, resource.nonce);
       } else {
         paymentNotify = this.gzhWxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 

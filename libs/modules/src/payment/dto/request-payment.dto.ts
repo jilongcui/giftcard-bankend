@@ -33,7 +33,8 @@ export class PayWithBalanceDto {
 
 export  enum WeixinPayType {
     XCX = 'XCX',
-    GZH = 'GZH'
+    GZH = 'GZH',
+    NTV = 'NTV', // Native
 }
 
 export class WeixinPayForMemberDto {
