@@ -790,7 +790,13 @@ export class PaymentService {
     payment.status = '1' // 支付中
     payment.orderId = weixinPay.orderId
     payment.userId = userId
-    payment.orderTokenId = result.package.substr(10) // trim('prepay_id=')
+    if(weixinPay.type === WeixinPayType.XCX) {
+      payment.orderTokenId = result.package.substr(10) // trim('prepay_id=')
+    } else if(weixinPay.type === WeixinPayType.GZH) {
+      payment.orderTokenId = result.package.substr(10) // trim('prepay_id=')
+    } else if(weixinPay.type === WeixinPayType.NTV) {
+      payment.orderTokenId = result.code_url // trim('prepay_id=')
+    }
 
     await this.paymentRepository.save(payment)
 
