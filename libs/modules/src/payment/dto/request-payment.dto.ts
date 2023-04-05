@@ -1,6 +1,6 @@
-import { OmitType, PartialType, PickType } from "@nestjs/swagger";
+import { ApiProperty, OmitType, PartialType, PickType } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { Column } from "typeorm";
 import { Payment } from "../entities/payment.entity";
 
@@ -31,10 +31,24 @@ export class PayWithBalanceDto {
     orderId: number
 }
 
+export  enum WeixinPayType {
+    XCX = 'XCX',
+    GZH = 'GZH'
+}
+
 export class WeixinPayForMemberDto {
     @IsNumber()
     @Type()
     orderId: number
+
+    @IsOptional()
+    @Type()
+    @ApiProperty({
+        description: 'List of enums',
+        enum: WeixinPayType
+    })
+    @IsEnum(WeixinPayType)
+    type?: WeixinPayType // 1: 小程序 2: 公众号
 }
 
 export class ConfirmPayWithCardDto {

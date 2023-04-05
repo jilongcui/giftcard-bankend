@@ -33,9 +33,22 @@ import { readFileSync } from 'fs';
       { name: 'CHAIN_SERVICE', transport: Transport.TCP, options: { port: 4000 } },
     ]),
     WeChatPayModule.registerAsync({
+      name: 'XCXPayment',
       useFactory: async () => {
         return {
-          appid: process.env.WEIXIN_APPID,
+          appid: process.env.WEIXIN_APPID_XCX,
+          mchid: process.env.WEIXIN_MCHID,
+          publicKey: readFileSync('./certs/apiclient_cert.pem'), // 公钥
+          privateKey: readFileSync('./certs/apiclient_key.pem'), // 秘钥
+          key: process.env.WEIXIN_API3KEY,
+        };
+      },
+    }),
+    WeChatPayModule.registerAsync({
+      name: 'GZHPayment',
+      useFactory: async () => {
+        return {
+          appid: process.env.WEIXIN_APPID_GZH,
           mchid: process.env.WEIXIN_MCHID,
           publicKey: readFileSync('./certs/apiclient_cert.pem'), // 公钥
           privateKey: readFileSync('./certs/apiclient_key.pem'), // 秘钥

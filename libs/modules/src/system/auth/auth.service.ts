@@ -17,11 +17,12 @@ export class AuthService {
   logger = new Logger(AuthService.name);
 
   private appId: string;
+  private webAppId: string;
   private secret: string;
 
   private grant_type = 'authorization_code'
 
-  private appSecretMap = {}
+  private appSecretMap = []
 
   constructor(
     @InjectRedis() private readonly redis: Redis,
@@ -34,6 +35,7 @@ export class AuthService {
 
     const webAppId = this.configService.get<string>('weixinLogin.webAppId')
     const webSecret = this.configService.get<string>('weixinLogin.webAppSecret')
+    this.webAppId = webAppId
     this.appSecretMap[webAppId] = webSecret
 
     const gzhAppId = this.configService.get<string>('weixinLogin.gzhAppId')
@@ -127,7 +129,10 @@ export class AuthService {
   /* 判断微信登录的逻辑 */
   async validateWeixinWeb(appId: string, code: string) {
     /* Get openID and session_key from weixin service by code */
+    if(appId === undefined)
+      appId = this.webAppId
     const appSecret = this.appSecretMap[appId]
+    this.logger.debug(appSecret)
     const url = `https://api.weixin.qq.com/sns/oauth2/access_token?grant_type=${this.grant_type}&appid=${appId}&secret=${appSecret}&code=${code}`
     // const info = await this.getInfo(url) // 获取openid和session_key
     this.logger.debug(url)
