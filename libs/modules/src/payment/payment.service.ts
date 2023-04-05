@@ -714,6 +714,7 @@ export class PaymentService {
     } else if(weixinPay.type === WeixinPayType.GZH) {
       notifyUrl = notifyUrl + '/payment/weixinGzhNotify'
     }
+    this.logger.debug(notifyUrl)
     const params: Ijsapi = {
       description: order.desc,
       out_trade_no: weixinPay.orderId.toString(),
@@ -737,7 +738,12 @@ export class PaymentService {
     } else if(weixinPay.type === WeixinPayType.GZH) {
       result = await this.gzhWxPay.transactions_jsapi(params);
     }
-    // console.log(result);
+    console.log(result);
+    if(result.status !== 200)
+      throw new ApiException(result.message)
+    // Error:
+    // { status: 400, code: 'PARAM_ERROR', message: 'JSAPI支付必须传openid' }
+    // Success:
     //   {
     //     appId: 'appid',
     //     timeStamp: '1609918952',

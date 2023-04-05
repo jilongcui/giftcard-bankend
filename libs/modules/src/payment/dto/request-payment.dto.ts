@@ -42,11 +42,11 @@ export class WeixinPayForMemberDto {
     orderId: number
 
     @IsOptional()
-    @Type()
-    @ApiProperty({
-        description: 'List of enums',
-        enum: WeixinPayType
-    })
+    // @Type()
+    // @ApiProperty({
+    //     description: 'List of enums',
+    //     enum: WeixinPayType
+    // })
     @IsEnum(WeixinPayType)
     type?: WeixinPayType // 1: 小程序 2: 公众号
 }
