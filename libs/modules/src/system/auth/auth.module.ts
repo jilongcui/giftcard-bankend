@@ -21,7 +21,6 @@ import { JwtWsStrategy } from './strategies/jwt-ws.strategy';
 import { WeixinWebStrategy } from './strategies/weixinweb.strategy';
 import { EmailStrategy } from './strategies/email.strategy';
 import { MixerStrategy } from './strategies/mixer.strategy';
-import { WeixinGzhStrategy } from './strategies/weixingzh.strategy';
 
 @Module({
     imports: [
@@ -30,7 +29,7 @@ import { WeixinGzhStrategy } from './strategies/weixingzh.strategy';
     ],
     controllers: [],
     providers: [AuthService, LocalStrategy, MobileStrategy, MixerStrategy, EmailStrategy, 
-        WeixinStrategy,WeixinWebStrategy, JwtStrategy, JwtWsStrategy, WeixinGzhStrategy],
+        WeixinStrategy,WeixinWebStrategy, JwtStrategy, JwtWsStrategy],
     exports: [AuthService],
 })
 export class AuthModule { }

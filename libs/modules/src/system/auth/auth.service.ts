@@ -19,12 +19,9 @@ export class AuthService {
   private appId: string;
   private secret: string;
 
-  private webAppId: string;
-  private webSecret: string;
-
-  private gzhAppId: string;
-  private gzhSecret: string;
   private grant_type = 'authorization_code'
+
+  private appSecretMap = {}
 
   constructor(
     @InjectRedis() private readonly redis: Redis,
@@ -35,11 +32,13 @@ export class AuthService {
     this.appId = this.configService.get<string>('weixinLogin.appId')
     this.secret = this.configService.get<string>('weixinLogin.appSecret')
 
-    this.webAppId = this.configService.get<string>('weixinLogin.webAppId')
-    this.webSecret = this.configService.get<string>('weixinLogin.webAppSecret')
+    const webAppId = this.configService.get<string>('weixinLogin.webAppId')
+    const webSecret = this.configService.get<string>('weixinLogin.webAppSecret')
+    this.appSecretMap[webAppId] = webSecret
 
-    this.gzhAppId = this.configService.get<string>('weixinLogin.gzhAppId')
-    this.gzhSecret = this.configService.get<string>('weixinLogin.gzhAppSecret')
+    const gzhAppId = this.configService.get<string>('weixinLogin.gzhAppId')
+    const gzhSecret = this.configService.get<string>('weixinLogin.gzhAppSecret')
+    this.appSecretMap[gzhAppId] = gzhSecret
   }
 
   /* 判断验证码是否正确 */
@@ -126,53 +125,10 @@ export class AuthService {
   }
 
   /* 判断微信登录的逻辑 */
-  async validateWeixinWeb(code: string) {
+  async validateWeixinWeb(appId: string, code: string) {
     /* Get openID and session_key from weixin service by code */
-    const url = `https://api.weixin.qq.com/sns/oauth2/access_token?grant_type=${this.grant_type}&appid=${this.webAppId}&secret=${this.webSecret}&code=${code}`
-    // const info = await this.getInfo(url) // 获取openid和session_key
-    this.logger.debug(url)
-    const info: any = await axios.get(url);
-    this.logger.debug(info.data)
-    if (info.data.errcode && info.data.errcode !== 0) {
-      throw new ApiException(info.data.errmsg)
-    }
-
-    // 通过unionId来查找用户是否存在
-    let user = await this.userService.findOneByUnionId(info.data.unionid)
-
-    if(!user) {
-      // 通过openid 来查找用户是否存在
-      user = await this.userService.findOneByOpenId(info.data.openid)
-    }
-    
-    if (!user) {
-      /* 如果用户不存在，需要创建新的用户 */
-      const reqAddUserDto = new ReqAddUserDto()
-      const wxName = "wx_" + strRandom(8).toLowerCase()
-      // reqAddUserDto.phonenumber = phone;
-      reqAddUserDto.userName = wxName;
-      reqAddUserDto.nickName = wxName;
-      reqAddUserDto.userType = '02'; // weixin user.
-      reqAddUserDto.postIds = [];
-      reqAddUserDto.roleIds = [];
-      reqAddUserDto.openId = info.data.openid;
-      reqAddUserDto.unionId = info.data.unionid;
-
-      reqAddUserDto.createBy = reqAddUserDto.updateBy = 'admin'
-      return await this.userService.addUser(reqAddUserDto)
-
-    }
-    if (!user.unionId) {
-      user.unionId = info.data.unionid;
-      await this.userService.changeUnionId(user.userId, info.data.unionid)
-    }
-    return user
-  }
-
-  /* 判断微信登录的逻辑 */
-  async validateWeixinGzh(code: string) {
-    /* Get openID and session_key from weixin service by code */
-    const url = `https://api.weixin.qq.com/sns/oauth2/access_token?grant_type=${this.grant_type}&appid=${this.gzhAppId}&secret=${this.gzhSecret}&code=${code}`
+    const appSecret = this.appSecretMap[appId]
+    const url = `https://api.weixin.qq.com/sns/oauth2/access_token?grant_type=${this.grant_type}&appid=${appId}&secret=${appSecret}&code=${code}`
     // const info = await this.getInfo(url) // 获取openid和session_key
     this.logger.debug(url)
     const info: any = await axios.get(url);

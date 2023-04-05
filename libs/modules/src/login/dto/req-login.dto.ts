@@ -53,11 +53,9 @@ export class ReqEmailLoginDto {
 }
 
 export class ReqWeixinLoginDto {
-
-    /* 手机号 */
-    @IsOptional()
+    /* 微信应用ID */
     @IsString()
-    phone: string
+    appId: string
 
     /* 微信小程序code */
     @IsString()
@@ -67,7 +65,6 @@ export class ReqWeixinLoginDto {
     @IsOptional()
     @IsString()
     inviteCode?: string
-
 }
 
 export class ReqMobileRegDto {
