@@ -34,7 +34,7 @@ export class SecurityService {
 
   checkText(openId: string, text: string) {
     if (!openId)
-      throw Error('先使用微信登录')
+      return true
     return this.authService.securityCheck(openId, text)
   }
 }
