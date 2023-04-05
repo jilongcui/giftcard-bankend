@@ -124,7 +124,7 @@ export class AuthService {
       await this.userService.changeUnionId(user.userId, user.unionId)
     }
 
-    if (user.openId != info.data.openId) {
+    if (user.openId != info.data.openid) {
       user.openId = info.data.openId;
       await this.userService.changeOpenId(user.userId, user.openId)
     }
@@ -176,7 +176,7 @@ export class AuthService {
       user.unionId = info.data.unionid;
       await this.userService.changeUnionId(user.userId, info.data.unionid)
     }
-    if (user.openId != info.data.openId) {
+    if (user.openId != info.data.openid) {
       user.openId = info.data.openId;
       await this.userService.changeOpenId(user.userId, user.openId)
     }
