@@ -720,7 +720,7 @@ export class PaymentService {
     this.logger.debug(notifyUrl)
     const params: Ijsapi = {
       description: order.desc,
-      out_trade_no: weixinPay.orderId.toString(),
+      out_trade_no: 'wx' + weixinPay.orderId.toString(),
       notify_url: notifyUrl,
       amount: {
         total: Math.floor(order.totalPrice * 100), // 单位为分
@@ -747,17 +747,17 @@ export class PaymentService {
       scene_info: {
         payer_client_ip: userIp,
       },
-      detail: {
-        invoice_id:"wx123",
-        goods_detail:[
-        {
-          goods_name: order.desc,
-          wechatpay_goods_id:order.id.toString(),
-          quantity:1,
-          merchant_goods_id:"商品编码",
-          unit_price:828800
-        }]
-      }
+      // detail: {
+      //   invoice_id:"wx123",
+      //   goods_detail:[
+      //   {
+      //     goods_name: order.desc,
+      //     wechatpay_goods_id:order.id.toString(),
+      //     quantity:1,
+      //     merchant_goods_id:"商品编码",
+      //     unit_price:828800
+      //   }]
+      // }
     }
     // console.log(params);
     let result

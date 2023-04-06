@@ -143,7 +143,7 @@ export class OrderService {
       throw new ApiException('无法创建订单', 401)
     }
     const order = new Order()
-    order.id = parseInt('1' + strRandom(8, {letters: false}))
+    order.id = parseInt('1' + strRandom(10, {letters: false}))
     order.type = orderType
     order.status = '1'
     order.userId = userId
