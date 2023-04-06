@@ -48,7 +48,7 @@ import { readFileSync } from 'fs';
       name: 'NTVPayment',
       useFactory: async () => {
         return {
-          appid: process.env.WEIXIN_WEBAPPID, // Web网页
+          appid: process.env.WEIXIN_GZHAPPID, // Web网页使用公众号
           mchid: process.env.WEIXIN_MCHID,
           publicKey: readFileSync('./certs/apiclient_cert.pem'), // 公钥
           privateKey: readFileSync('./certs/apiclient_key.pem'), // 秘钥
