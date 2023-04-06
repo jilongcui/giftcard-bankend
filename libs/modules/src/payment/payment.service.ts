@@ -715,7 +715,7 @@ export class PaymentService {
     } else if(weixinPay.type === WeixinPayType.GZH) {
       notifyUrl = notifyUrl + '/payment/weixinGzhNotify'
     } else if(weixinPay.type === WeixinPayType.NTV) {
-      notifyUrl = notifyUrl + '/payment/weixinGzhNotify'
+      notifyUrl = notifyUrl + '/payment/weixinNtvNotify'
     }
     this.logger.debug(notifyUrl)
     const params: Ijsapi = {
