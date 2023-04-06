@@ -187,6 +187,10 @@ export interface IConfig {
         secret: string
     }
 
+    screenshot?: {
+        execPath: string
+    }
+
     /* 是否演示环境 */
     isDemoEnvironment?: Boolean;
     /* 是否生成区块链地址 */

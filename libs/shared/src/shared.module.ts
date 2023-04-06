@@ -28,6 +28,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { JwtWsAuthGuard } from '@app/common/guards/jwt-ws-auth.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from '@app/modules/system/auth/auth.constants';
+import { PuppeteerModule } from 'nest-puppeteer';
+
 
 @Global()
 @Module({
@@ -68,6 +70,16 @@ import { jwtConstants } from '@app/modules/system/auth/auth.constants';
             inject: [ConfigService]
 
         }),
+        PuppeteerModule.forRoot(
+        { executablePath: process.env.SCREENSHOT_EXECPATH, isGlobal: true }, // optional, any Puppeteer launch options here or leave empty for good defaults */,
+        ),
+        // {executablePath: configService.get<string>('screenshot.execPath')
+        // PuppeteerModule.forRootAsync({
+        //     useFactory: async (configService: ConfigService) => ({
+        //         launchOptions: {executablePath:'/Applications/Chromium.app/Contents/MacOS/Chromium', isGlobal: true }, 
+        //     }),
+        //     inject: [ConfigService]
+        // }),
         LogModule,
         ThrottlerModule.forRoot({
             ttl: 10,

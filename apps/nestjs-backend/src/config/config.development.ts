@@ -150,6 +150,10 @@ export default defineConfig({
     secret: process.env.PlatformSecret || '123456'
   },
 
+  screenshot: {
+    execPath: process.env.SCREENSHOT_EXECPATH || '/Applications/Chromium.app/Contents/MacOS/Chromium'
+  },
+  
   isDemoEnvironment: false,
   isBlockchainAddress: false,
 });
