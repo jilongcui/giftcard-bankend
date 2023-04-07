@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CreateScreenshotDto } from './dto/create-screenshot.dto';
+import { CreateScreenshotDto, SetCreateScreenshotDto } from './dto/create-screenshot.dto';
 import { UpdateScreenshotDto } from './dto/update-screenshot.dto';
 import { InjectBrowser } from 'nest-puppeteer';
 import { Browser } from 'puppeteer';
@@ -30,6 +30,46 @@ export class ScreenshotService {
       await page.goto(createScreenshotDto.url, {
         // waitUntil: ['load', 'domcontentloaded']
         waitUntil: 'networkidle0'
+        // waitUntil: 'load', timeout: 0 
+      });
+      // await page.waitForNavigation({
+      //   waitUntil: "load",
+      //   timeout: 0
+      // })
+      // await page.waitForSelector('.load-complete')
+      // return page
+      screenshot = await page.screenshot({
+        fullPage: true,
+        // quality: 100,
+        type: 'png'
+      });
+      page.close()
+      const fileName = strRandom(8).toLowerCase() + '.png'
+      const fullName = 'screenshot' + '/' + fileName
+      // this.logger.debug(screenshot)
+      const url = await this.uploadService.uploadBufferToCos(fullName, screenshot)
+      return {
+          fileName,
+          location: url,
+      }
+
+    } catch (err) {
+      console.log(err)
+    }
+    
+    return screenshot
+  }
+
+  async setCreate(createScreenshotDto: SetCreateScreenshotDto) {
+
+    let screenshot
+    try {
+      const iPhone = KnownDevices['iPhone X'];
+      const page = await this.browser.newPage();
+      await page.emulate(iPhone)
+      await page.setContent(createScreenshotDto.content, {
+        waitUntil: ['load', 'domcontentloaded']
+        // waitUntil: 'networkidle0'
         // waitUntil: 'load', timeout: 0 
       });
       // await page.waitForNavigation({

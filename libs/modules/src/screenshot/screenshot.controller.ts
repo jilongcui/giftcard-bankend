@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ScreenshotService } from './screenshot.service';
-import { CreateScreenshotDto } from './dto/create-screenshot.dto';
+import { CreateScreenshotDto, SetCreateScreenshotDto } from './dto/create-screenshot.dto';
 import { UpdateScreenshotDto } from './dto/update-screenshot.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -13,6 +13,11 @@ export class ScreenshotController {
   @Post()
   create(@Body() createScreenshotDto: CreateScreenshotDto) {
     return this.screenshotService.create(createScreenshotDto);
+  }
+
+  @Post('set')
+  setCreate(@Body() createScreenshotDto: SetCreateScreenshotDto) {
+    return this.screenshotService.setCreate(createScreenshotDto);
   }
 
   @Get()
