@@ -128,7 +128,6 @@ const aliasProviders = createAliasProviders();
     AppmodelModule,
     SecurityModule,
     ReplicateModule,
-    ScreenshotModule
   ],
   providers: [...aliasProviders],
   controllers: [MagicboxController, MagicboxCollectionController, SubmitterController]
