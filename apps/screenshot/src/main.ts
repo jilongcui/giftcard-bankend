@@ -7,6 +7,7 @@ import { WsAdapter } from '@nestjs/platform-ws';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as history from 'connect-history-api-fallback'
 import { AllExceptionsFilter } from '@app/common/filters/all-exception.filter';
+import { setupSwagger } from 'apps/nestjs-backend/src/setup-swagger';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
@@ -41,7 +42,7 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '../public'));
 
   /* 启动swagger */
-  // setupSwagger(app, {title: 'backend', version: '1.0.1'})
+  setupSwagger(app, {title: 'screenshot', version: '1.0.1'})
 
   /* 监听启动端口 */
   await app.listen(process.env.APP_PORT || 3000);
