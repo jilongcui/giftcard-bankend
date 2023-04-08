@@ -25,7 +25,7 @@ export class CollectService {
     async list(reqRechargecollectList: ReqRechargeCollectListDto): Promise<PaginatedDto<RechargeCollect>> {
         let where: FindOptionsWhere<RechargeCollect> = {}
         if (reqRechargecollectList.address) {
-            where.address = Like(`%${reqRechargecollectList.address}%`)
+            where.from = Like(`%${reqRechargecollectList.address}%`)
         }
         if (reqRechargecollectList.txid) {
 
@@ -58,7 +58,7 @@ export class CollectService {
                 let marketRatio = Number(0)
                 const currency = await this.currencyService.findOne(rechargeNotifyDto.currencyId)
                 if (currency) {
-                    const address = await this.addressService.findAddress(rechargeNotifyDto.address, rechargeNotifyDto.addressType)
+                    const address = await this.addressService.findAddress(rechargeNotifyDto.from, rechargeNotifyDto.addressType)
                     if(!address)
                         throw new ApiException("Address is not exist.")
                     const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)

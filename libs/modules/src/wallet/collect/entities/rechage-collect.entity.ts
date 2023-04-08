@@ -18,7 +18,7 @@ export class RechargeCollect {
         length: 128
     })
     @IsString()
-    address: string;
+    from: string;
 
     @Column({
         name: 'currency_type',
