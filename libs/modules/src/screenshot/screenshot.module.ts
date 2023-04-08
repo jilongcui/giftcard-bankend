@@ -6,6 +6,9 @@ import { UploadModule } from '../common/upload/upload.module';
 
 @Module({
   imports: [
+    PuppeteerModule.forRoot(
+      { executablePath: process.env.SCREENSHOT_EXECPATH, isGlobal: true }, // optional, any Puppeteer launch options here or leave empty for good defaults */,
+    ),
     UploadModule
   ],
 
