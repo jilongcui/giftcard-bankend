@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ResAddressDto, ResRequestAddressDto } from './dto/res-address.dto';
+import { ResAddressDto, ResRequestAddressDto, ResWalletAddressDto } from './dto/res-address.dto';
 import { ReqAddressAddDto, ReqAddressCreateDto, ReqAddressList, ReqAddressRequestDto, ReqMyAddressDto } from './dto/req-address.dto';
 import * as jaysonPromise from 'jayson/promise';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
@@ -20,6 +20,7 @@ export class AddressService implements OnModuleInit {
     private response: ResAddressDto;
     secret: string
     baseUrl: string
+    withdrawUrl: string
     appKey: string
     appSecret: string
 
@@ -38,6 +39,7 @@ export class AddressService implements OnModuleInit {
     ) { 
         this.secret = this.configService.get<string>('wallet.secret')
         this.baseUrl = this.configService.get<string>('wallet.baseUrl')
+        this.withdrawUrl = this.configService.get<string>('wallet.withdrawUrl')
         this.appKey = this.configService.get<string>('wallet.appKey')
         this.appSecret = this.configService.get<string>('wallet.appSecret')
     }
@@ -134,36 +136,53 @@ export class AddressService implements OnModuleInit {
             throw new ApiException('User address exist.')
         }
 
+        const addressesRes = []
         const responses = await this.requestAddress(userId);
         for(let i=0; i< responses.length; i++) {
             const addressInfo = responses[i]
             const reqAddrAddDto = new ReqAddressAddDto()
+            this.logger.debug(addressInfo)
             reqAddrAddDto.address = addressInfo.address
             reqAddrAddDto.privateKey = ''
             reqAddrAddDto.appId = 0
             reqAddrAddDto.userId = userId
-            if (addressInfo.addressType === AddressTypeNumber.CRI) {
+            const addressRes = new ResRequestAddressDto()
+            addressRes.address = addressInfo.address
+
+            if (addressInfo.chain === AddressTypeNumber.CRI) {
+                addressRes.addressType = AddressTypeEnum.CRI
+                reqAddrAddDto.addressType = AddressTypeEnum.CRI
                 await this.addressCriRepository.save(reqAddrAddDto)
             }
-            else if (addressInfo.addressType === AddressTypeNumber.ETH) {
+            else if (addressInfo.chain === AddressTypeNumber.ETH) {
+                addressRes.addressType = AddressTypeEnum.ETH
+                reqAddrAddDto.addressType = AddressTypeEnum.ETH
                 await this.addressEthRepository.save(reqAddrAddDto)
             }
-            else if (addressInfo.addressType === AddressTypeNumber.BSC) {
+            else if (addressInfo.chain === AddressTypeNumber.BSC) {
+                addressRes.addressType = AddressTypeEnum.BSC
+                reqAddrAddDto.addressType = AddressTypeEnum.BSC
                 await this.addressBscRepository.save(reqAddrAddDto)
             }
-            else if (addressInfo.addressType === AddressTypeNumber.TRC) {
+            else if (addressInfo.chain === AddressTypeNumber.TRC) {
+                addressRes.addressType = AddressTypeEnum.TRC
+                reqAddrAddDto.addressType = AddressTypeEnum.TRC
                 await this.addressTrcRepository.save(reqAddrAddDto)
             }
-            else if (addressInfo.addressType === AddressTypeNumber.BTC) {
+            else if (addressInfo.chain === AddressTypeNumber.BTC) {
+                addressRes.addressType = AddressTypeEnum.BTC
+                reqAddrAddDto.addressType = AddressTypeEnum.BTC
                 await this.addressBtcRepository.save(reqAddrAddDto)
             }
+            
+            addressesRes.push(addressRes)
         }
         
-        return responses
+        return addressesRes
     }
 
-    async requestAddress(userId: number): Promise<ResRequestAddressDto[]> {
-        const requestUri = '/api/login'
+    async requestAddress(userId: number): Promise<ResWalletAddressDto[]> {
+        const requestUri = '/wallet/address/create/address'
         const body = {
             user: userId.toString()
         }
@@ -171,10 +190,10 @@ export class AddressService implements OnModuleInit {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: body
+            params: body
         }
         const remoteUrl = this.baseUrl + requestUri
-        let res = await this.httpService.axiosRef.post<ResRequestAddressDto[]>(remoteUrl, options);
+        let res = await this.httpService.axiosRef.get<ResWalletAddressDto[]>(remoteUrl, options);
         const responseData = res.data
         return responseData
     }

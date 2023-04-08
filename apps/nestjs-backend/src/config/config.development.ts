@@ -93,6 +93,7 @@ export default defineConfig({
 
   wallet: {
     baseUrl: process.env.WALLET_BASEURL || 'https://api.wallet.com/',
+    withdrawUrl: process.env.WALLET_WITHDRAW_URL
   },
   aws: {
     platformEmail: process.env.PLATFORM_EMAIl || 'jilongcui@gmail.com',

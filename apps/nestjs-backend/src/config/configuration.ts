@@ -128,6 +128,7 @@ export interface IConfig {
 
     wallet?: {
         baseUrl: string
+        withdrawUrl: string
     }
 
     aws?: {

@@ -93,6 +93,7 @@ export default defineConfig({
 
   wallet: {
     baseUrl: process.env.WALLET_BASEURL || 'https://wallet.base.com/',
+    withdrawUrl: process.env.WALLET_WITHDRAW_URL
   },
 
   aws: {

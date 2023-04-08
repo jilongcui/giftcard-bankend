@@ -1,4 +1,4 @@
-import { IsEnum, IsString } from "class-validator";
+import { IsEnum, IsNumber, IsString } from "class-validator";
 import { AddressTypeEnum, AddressTypeNumber } from "../entities/address.entity";
 
 export class ResAddressDto {
@@ -13,5 +13,20 @@ export class ResRequestAddressDto {
     address: string;
 
     @IsEnum(AddressTypeEnum)
-    addressType: AddressTypeNumber;
+    addressType: AddressTypeEnum;
+}
+
+export class ResWalletAddressDto {
+
+    @IsString()
+    user: string
+
+    @IsString()
+    address: string;
+
+    @IsNumber()
+    chain: number
+
+    @IsNumber()
+    balance: number
 }
