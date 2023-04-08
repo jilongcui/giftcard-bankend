@@ -9,6 +9,12 @@ export class KycCertifyInfo {
     userName: string
 
     @IsString()
+    firstName: string // 名
+
+    @IsString()
+    lastName: string // 姓
+
+    @IsString()
     birthDay: string // 生日
 
     @IsString()
@@ -25,6 +31,9 @@ export class KycCertifyInfo {
 
     @IsString()
     idCardBackImage: string
+
+    @IsString()
+    holderImage: string
 
     @IsString()
     signImage: string
