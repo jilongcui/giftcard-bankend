@@ -284,10 +284,12 @@ export class UserService {
             reqAddUserDto.password = this.sharedService.md5(reqAddUserDto.password + reqAddUserDto.salt)
         }
 
+        const letters = ['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T',
+                    'U','V','W','X','Y','Z']
         // Add invite code.
         const userDto = {
             ...reqAddUserDto,
-            inviteCode: strRandom(6).toLowerCase()
+            inviteCode: strRandom(2, {numbers: false, letters:letters}) + strRandom(6, {letters:false})
         }
         const user = await this.userRepository.save(userDto)
 
