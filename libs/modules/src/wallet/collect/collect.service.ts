@@ -58,7 +58,7 @@ export class CollectService {
                 let marketRatio = Number(0)
                 const currency = await this.currencyService.findOne(rechargeNotifyDto.currencyId)
                 if (currency) {
-                    const address = await this.addressService.findAddress(rechargeNotifyDto.from, rechargeNotifyDto.addressType)
+                    const address = await this.addressService.findAddress(rechargeNotifyDto.to, rechargeNotifyDto.addressType)
                     if(!address)
                         throw new ApiException("Address is not exist.")
                     const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
