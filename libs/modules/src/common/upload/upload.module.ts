@@ -44,6 +44,10 @@ export let storage = multer.diskStorage({
     imports: [
         SharedModule,
         MulterModule.register({
+            limits: {
+                fieldNameSize: 300,
+                fileSize: 1048576, // 10 Mb
+            },
             storage: storage,
             preservePath: false,
         })],
