@@ -17,11 +17,12 @@ export class AuthService {
   logger = new Logger(AuthService.name);
 
   private appId: string;
+  private webAppId: string;
   private secret: string;
 
-  private webAppId: string;
-  private webSecret: string;
   private grant_type = 'authorization_code'
+
+  private appSecretMap = []
 
   constructor(
     @InjectRedis() private readonly redis: Redis,
@@ -32,8 +33,14 @@ export class AuthService {
     this.appId = this.configService.get<string>('weixinLogin.appId')
     this.secret = this.configService.get<string>('weixinLogin.appSecret')
 
-    this.webAppId = this.configService.get<string>('weixinLogin.webAppId')
-    this.webSecret = this.configService.get<string>('weixinLogin.webAppSecret')
+    const webAppId = this.configService.get<string>('weixinLogin.webAppId')
+    const webSecret = this.configService.get<string>('weixinLogin.webAppSecret')
+    this.webAppId = webAppId
+    this.appSecretMap[webAppId] = webSecret
+
+    const gzhAppId = this.configService.get<string>('weixinLogin.gzhAppId')
+    const gzhSecret = this.configService.get<string>('weixinLogin.gzhAppSecret')
+    this.appSecretMap[gzhAppId] = gzhSecret
   }
 
   /* 判断验证码是否正确 */
@@ -114,15 +121,24 @@ export class AuthService {
     }
     if (!user.unionId) {
       user.unionId = info.data.unionid;
-      await this.userService.changeUnionId(user.userId, info.data.unionid)
+      await this.userService.changeUnionId(user.userId, user.unionId)
+    }
+
+    if (user.openId != info.data.openid) {
+      user.openId = info.data.openid;
+      await this.userService.changeOpenId(user.userId, user.openId)
     }
     return user
   }
 
   /* 判断微信登录的逻辑 */
-  async validateWeixinWeb(code: string) {
+  async validateWeixinWeb(appId: string, code: string) {
     /* Get openID and session_key from weixin service by code */
-    const url = `https://api.weixin.qq.com/sns/oauth2/access_token?grant_type=${this.grant_type}&appid=${this.webAppId}&secret=${this.webSecret}&code=${code}`
+    if(appId === undefined)
+      appId = this.webAppId
+    const appSecret = this.appSecretMap[appId]
+    this.logger.debug(appSecret)
+    const url = `https://api.weixin.qq.com/sns/oauth2/access_token?grant_type=${this.grant_type}&appid=${appId}&secret=${appSecret}&code=${code}`
     // const info = await this.getInfo(url) // 获取openid和session_key
     this.logger.debug(url)
     const info: any = await axios.get(url);
@@ -159,6 +175,10 @@ export class AuthService {
     if (!user.unionId) {
       user.unionId = info.data.unionid;
       await this.userService.changeUnionId(user.userId, info.data.unionid)
+    }
+    if (user.openId != info.data.openid) {
+      user.openId = info.data.openid;
+      await this.userService.changeOpenId(user.userId, user.openId)
     }
     return user
   }
@@ -201,6 +221,7 @@ export class AuthService {
     // const info = await this.getInfo(url) // 获取openid和session_key
     // this.logger.debug(url)
 
+    return true
     const data = {
       "openid": openId,
       "scene": 3,

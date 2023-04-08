@@ -28,7 +28,8 @@ import { MixerStrategy } from './strategies/mixer.strategy';
         PassportModule,
     ],
     controllers: [],
-    providers: [AuthService, LocalStrategy, MobileStrategy, MixerStrategy, EmailStrategy, WeixinStrategy,WeixinWebStrategy, JwtStrategy, JwtWsStrategy],
+    providers: [AuthService, LocalStrategy, MobileStrategy, MixerStrategy, EmailStrategy, 
+        WeixinStrategy,WeixinWebStrategy, JwtStrategy, JwtWsStrategy],
     exports: [AuthService],
 })
 export class AuthModule { }

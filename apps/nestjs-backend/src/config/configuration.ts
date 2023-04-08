@@ -79,6 +79,8 @@ export interface IConfig {
         appSecret: string,
         webAppId: string,
         webAppSecret: string,
+        gzhAppId: string,
+        gzhAppSecret: string,
     },
 
     weixinPayment?: {
@@ -183,6 +185,10 @@ export interface IConfig {
 
     platform?: {
         secret: string
+    }
+
+    screenshot?: {
+        execPath: string
     }
 
     /* 是否演示环境 */

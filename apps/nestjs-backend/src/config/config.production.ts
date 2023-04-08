@@ -45,6 +45,8 @@ export default defineConfig({
     appSecret: process.env.WEIXIN_APPSECRET,
     webAppId: process.env.WEIXIN_WEBAPPID,
     webAppSecret: process.env.WEIXIN_WEBAPPSECRET,
+    gzhAppId: process.env.WEIXIN_GZHAPPID,
+    gzhAppSecret: process.env.WEIXIN_GZHAPPSECRET,
   },
 
   weixinPayment: {
@@ -146,6 +148,10 @@ export default defineConfig({
 
   platform: {
     secret: process.env.PlatformSecret || '156duv'
+  },
+
+  screenshot: {
+    execPath: process.env.SCREENSHOT_EXECPATH || '/Applications/Chromium.app/Contents/MacOS/Chromium'
   },
 
   isDemoEnvironment: false,

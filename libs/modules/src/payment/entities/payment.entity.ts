@@ -37,7 +37,7 @@ export class Payment {
     @Column({
         name: 'order_token_id',
         comment: '来自支付平台的 支付订单创建成功标志',
-        length: 50
+        length: 160
     })
     @IsOptional()
     @IsString()

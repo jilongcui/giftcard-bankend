@@ -54,6 +54,7 @@ import { AppmodelModule } from '@app/modules/appmodel/appmodel.module';
 import { SecurityModule } from '@app/modules/security/security.module';
 import { ReplicateModule } from '@app/modules/replicate/replicate.module';
 import { join } from 'path';
+import { ScreenshotModule } from '@app/modules/screenshot/screenshot.module';
 
 /* 将 provider的类名作为别名，方便定时器调用 */
 const providers = [JobService, OrderService, LoginService, CollectionService, AirdropWhitelistService,

@@ -428,6 +428,15 @@ export class UserService {
             .execute()
     }
 
+    async changeOpenId(userId: number, openId: string) {
+        return await this.userRepository
+            .createQueryBuilder()
+            .update()
+            .set({ openId })
+            .where({ userId })
+            .execute()
+    }
+
     /* 更新自己的用户信息 */
     async updataProfile(reqUpdataSelfDto: ReqUpdataSelfDto, userId: number) {
         if (reqUpdataSelfDto.nickName || reqUpdataSelfDto.avatar) {

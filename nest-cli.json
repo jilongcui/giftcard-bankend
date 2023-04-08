@@ -92,6 +92,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/shared/tsconfig.lib.json"
       }
+    },
+    "screenshot": {
+      "type": "application",
+      "root": "apps/screenshot",
+      "entryFile": "main",
+      "sourceRoot": "apps/screenshot/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/screenshot/tsconfig.app.json"
+      }
     }
   }
 }

@@ -107,7 +107,7 @@ export class LoginController {
         return await this.loginService.login(req)
     }
 
-    /* 微信登录 */
+    /* 微信小程序登录 */
     @Post('wxlogin')
     @Public()
     @UseGuards(WeixinAuthGuard)
@@ -122,7 +122,7 @@ export class LoginController {
         return result
     }
 
-    /* 微信web端登录登录 */
+    /* 微信web端登录 */
     @Post('weilogin')
     @Public()
     @UseGuards(WeixinWebAuthGuard)

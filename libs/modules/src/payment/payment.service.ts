@@ -12,7 +12,7 @@ import { SharedService } from '@app/shared';
 import { BankcardService } from '@app/modules/bankcard/bankcard.service';
 import { OrderService } from '@app/modules/order/order.service';
 
-import { ConfirmPayWithCardDto, PayWithCardDto, ReqConfirmPayDto, ReqCryptoNotifyDto, ReqWeixinPaymentNotifyDto, WeixinPayForMemberDto, WeixinPaymentNotify } from './dto/request-payment.dto';
+import { ConfirmPayWithCardDto, PayWithCardDto, ReqConfirmPayDto, ReqCryptoNotifyDto, ReqWeixinPaymentNotifyDto, WeixinPayForMemberDto, WeixinPaymentNotify, WeixinPayType } from './dto/request-payment.dto';
 import { ReqPaymentNotify, ReqSendSMSDto, ReqSubmitPayDto, WebSignDto, WebSignNotifyDto } from './dto/request-payment.dto';
 import { ConfirmPayResponse, CryptoResponse, PayResponse, SendSMSResponse, WebSignResponse } from './dto/response-payment.dto';
 import { RES_CODE_SUCCESS, RES_NET_CODE } from './payment.const';
@@ -37,7 +37,7 @@ import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/
 import { CreateMagicboxRecordDto } from '../magicbox/dto/request-magicbox-record.dto';
 import WxPay from 'wechatpay-node-v3';
 import { WECHAT_PAY_MANAGER } from 'nest-wechatpay-node-v3';
-import { Ijsapi } from 'wechatpay-node-v3/dist/lib/interface';
+import { Ijsapi, Inative } from 'wechatpay-node-v3/dist/lib/interface';
 import { MemberService } from '../member/member.service';
 
 const NodeRSA = require('node-rsa');
@@ -61,7 +61,8 @@ export class PaymentService {
   notifyHost: string
   weixinNotifyHost: string
   weixinMerchId: string
-  weixinAppId: string
+  weixinXcxAppId: string
+  weixinGzhAppId: string
   weixinApi3Key: string
 
   constructor(
@@ -85,13 +86,16 @@ export class PaymentService {
     @InjectRepository(MagicboxRecord) private readonly magicboxRecordRepository: Repository<MagicboxRecord>,
     @InjectRedis() private readonly redis: Redis,
     @Inject('CHAIN_SERVICE') private client: ClientProxy,
-    @Inject(WECHAT_PAY_MANAGER) private wxPay: WxPay
+    @Inject('XCXPayment') private xcxWxPay: WxPay,
+    @Inject('NTVPayment') private ntvWxPay: WxPay,
+    @Inject('GZHPayment') private gzhWxPay: WxPay,
   ) {
     this.baseUrl = this.configService.get<string>('payment.baseUrl')
     this.notifyHost = this.configService.get<string>('payment.notifyHost')
     this.merchId = this.configService.get<string>('payment.merchId')
     this.orderSN = this.configService.get<string>('payment.orderSN')
-    this.weixinAppId = this.configService.get<string>('weixinPayment.appId')
+    this.weixinXcxAppId = this.configService.get<string>('weixinPayment.xcxAppId')
+    this.weixinGzhAppId = this.configService.get<string>('weixinPayment.gzhAppId')
     this.weixinMerchId = this.configService.get<string>('weixinPayment.merchId')
     this.weixinApi3Key = this.configService.get<string>('weixinPayment.api3Key')
     this.weixinNotifyHost = this.configService.get<string>('weixinPayment.notifyHost')
@@ -705,10 +709,19 @@ export class PaymentService {
   async payWithWeixin(weixinPay: WeixinPayForMemberDto, userId: number, openId: string, userIp: string) {
 
     const order = await this.orderService.findOne(weixinPay.orderId)
+    let notifyUrl = this.weixinNotifyHost
+    if(weixinPay.type === WeixinPayType.XCX) {
+      notifyUrl = notifyUrl + '/payment/weixinNotify'
+    } else if(weixinPay.type === WeixinPayType.GZH) {
+      notifyUrl = notifyUrl + '/payment/weixinGzhNotify'
+    } else if(weixinPay.type === WeixinPayType.NTV) {
+      notifyUrl = notifyUrl + '/payment/weixinNtvNotify'
+    }
+    this.logger.debug(notifyUrl)
     const params: Ijsapi = {
       description: order.desc,
-      out_trade_no: weixinPay.orderId.toString(),
-      notify_url: this.weixinNotifyHost + '/payment/weixinNotify',
+      out_trade_no: 'wx' + weixinPay.orderId.toString(),
+      notify_url: notifyUrl,
       amount: {
         total: Math.floor(order.totalPrice * 100), // 单位为分
         currency: 'CNY',
@@ -720,9 +733,48 @@ export class PaymentService {
         payer_client_ip: userIp,
       },
     };
+
+    const params2: Inative = {
+      description: order.desc,
+      out_trade_no: weixinPay.orderId.toString(),
+      notify_url: notifyUrl,
+      // time_expire:,
+      // goods_tag:,
+      amount: {
+        total: Math.floor(order.totalPrice * 100), // 单位为分
+        currency: 'CNY',
+      },
+      scene_info: {
+        payer_client_ip: userIp,
+      },
+      // detail: {
+      //   invoice_id:"wx123",
+      //   goods_detail:[
+      //   {
+      //     goods_name: order.desc,
+      //     wechatpay_goods_id:order.id.toString(),
+      //     quantity:1,
+      //     merchant_goods_id:"商品编码",
+      //     unit_price:828800
+      //   }]
+      // }
+    }
     // console.log(params);
-    const result = await this.wxPay.transactions_jsapi(params);
-    // console.log(result);
+    let result
+    if( weixinPay.type == undefined) weixinPay.type = WeixinPayType.XCX
+    if(weixinPay.type === WeixinPayType.XCX) {
+      result = await this.xcxWxPay.transactions_jsapi(params);
+    } else if(weixinPay.type === WeixinPayType.GZH) {
+      result = await this.gzhWxPay.transactions_jsapi(params);
+    } else if(weixinPay.type === WeixinPayType.NTV) {
+      result = await this.ntvWxPay.transactions_native(params2);
+    }
+    console.log(result);
+    if(result.status !== 200)
+      throw new ApiException(result.message)
+    // Error:
+    // { status: 400, code: 'PARAM_ERROR', message: 'JSAPI支付必须传openid' }
+    // Success:
     //   {
     //     appId: 'appid',
     //     timeStamp: '1609918952',
@@ -738,7 +790,13 @@ export class PaymentService {
     payment.status = '1' // 支付中
     payment.orderId = weixinPay.orderId
     payment.userId = userId
-    payment.orderTokenId = result.package.substr(10) // trim('prepay_id=')
+    if(weixinPay.type === WeixinPayType.XCX) {
+      payment.orderTokenId = result.package.substr(10) // trim('prepay_id=')
+    } else if(weixinPay.type === WeixinPayType.GZH) {
+      payment.orderTokenId = result.package.substr(10) // trim('prepay_id=')
+    } else if(weixinPay.type === WeixinPayType.NTV) {
+      payment.orderTokenId = result.code_url // trim('prepay_id=')
+    }
 
     await this.paymentRepository.save(payment)
 
@@ -746,12 +804,22 @@ export class PaymentService {
   }
 
   // 微信支付通知
-  async weixinPaymentNotify(cryptoNotifyDto: ReqWeixinPaymentNotifyDto) {
+  async weixinPaymentNotify(cryptoNotifyDto: ReqWeixinPaymentNotifyDto, type: string) {
     const resource = cryptoNotifyDto.resource
     let asset: Asset | Magicbox
     try {
-      const paymentNotify = this.wxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
-        resource.associated_data, resource.nonce);
+      let paymentNotify
+      if (type==undefined || type === WeixinPayType.XCX) {
+        paymentNotify = this.xcxWxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
+          resource.associated_data, resource.nonce);
+      } else if (type === WeixinPayType.NTV) {
+        paymentNotify = this.ntvWxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
+          resource.associated_data, resource.nonce);
+      } else {
+        paymentNotify = this.gzhWxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
+          resource.associated_data, resource.nonce);
+      }
+      
       this.logger.debug("Payment Notice Decoded result: " + JSON.stringify(paymentNotify))
       const orderId = paymentNotify.out_trade_no
       const order = await this.orderRepository.findOne({ where: { id: parseInt(orderId), status: '1' }, relations: { user: true, payment: true } })
