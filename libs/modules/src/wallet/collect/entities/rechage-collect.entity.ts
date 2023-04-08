@@ -1,4 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger";
+import { IsNumber, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { AddressTypeEnum } from "../../address/entities/address.entity";
 
@@ -8,6 +9,7 @@ export class RechargeCollect {
         name: 'id',
         comment: '主ID',
     })
+    @IsNumber()
     id: number;
 
     @Column({
@@ -15,6 +17,7 @@ export class RechargeCollect {
         comment: '付款地址',
         length: 128
     })
+    @IsString()
     address: string;
 
     @Column({
@@ -27,6 +30,7 @@ export class RechargeCollect {
         name: 'currency_id',
         comment: '关联currency表',
     })
+    @IsNumber()
     currencyId: number;
 
     @Column({
@@ -36,6 +40,7 @@ export class RechargeCollect {
         nullable: true,
         default: null
     })
+    @IsString()
     to: string;
 
     @Column({
@@ -44,6 +49,7 @@ export class RechargeCollect {
         nullable: true,
         default: 0
     })
+    @IsNumber()
     amount: number;
 
     @Column({
@@ -52,6 +58,7 @@ export class RechargeCollect {
         nullable: true,
         default: null,
     })
+    @IsString()
     txid: string;
 
     @Column({
@@ -59,6 +66,7 @@ export class RechargeCollect {
         comment: '是否提供了汇总手续费，1为是，0为否，防止重复提供手续费',
         default: 0
     })
+    @IsNumber()
     feeState: number;
 
     @Column({
@@ -67,6 +75,7 @@ export class RechargeCollect {
         type: 'tinyint',
         default: 0,
     })
+    @IsNumber()
     state: number;
 
     @Column({
@@ -75,12 +84,14 @@ export class RechargeCollect {
         type: 'tinyint',
         default: 0
     })
+    @IsNumber()
     confirmState: number;
 
     @Column({
         name: 'dealtime',
         comment: '汇总时间'
     })
+    @IsNumber()
     dealTime: number;
 
     @ApiHideProperty()
