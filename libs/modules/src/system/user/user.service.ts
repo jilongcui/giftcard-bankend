@@ -69,7 +69,6 @@ export class UserService {
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
             .leftJoinAndSelect('user.identity', 'identity')
-            .leftJoinAndSelect('user.kycs', 'kycs')
             .leftJoinAndSelect('user.member', 'member')
             // .innerJoin('member.memberInfo', 'memberInfo')
             .where({
@@ -92,7 +91,6 @@ export class UserService {
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
             .leftJoinAndSelect('user.identity', 'identity')
-            .leftJoinAndSelect('user.kycs', 'kycs')
             .leftJoinAndSelect('user.member', 'member')
             // .innerJoin('member.memberInfo', 'memberInfo')
             .where({
@@ -127,7 +125,6 @@ export class UserService {
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
             .leftJoinAndSelect('user.identity', 'identity')
-            .leftJoinAndSelect('user.kycs', 'kycs')
             .leftJoinAndSelect('user.member', 'member')
             // .innerJoin('member.memberInfo', 'memberInfo')
             .where({
@@ -150,7 +147,6 @@ export class UserService {
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
             .leftJoinAndSelect('user.identity', 'identity')
-            .leftJoinAndSelect('user.kycs', 'kycs')
             .leftJoinAndSelect('user.member', 'member')
             // .innerJoin('member.memberInfo', 'memberInfo')
             .where({
@@ -244,6 +240,7 @@ export class UserService {
         return await this.userRepository.createQueryBuilder('user')
             .leftJoinAndSelect('user.dept', 'dept', "dept.delFlag = 0")
             .leftJoinAndSelect('user.identity', 'identity')
+            .leftJoinAndSelect('user.kycs', 'kycs')
             .leftJoinAndSelect('user.member', 'member')
             // .innerJoin('member.memberInfo', 'memberInfo')
             .leftJoinAndSelect('user.posts', 'post')
@@ -257,6 +254,7 @@ export class UserService {
         const user: User = await this.userRepository.createQueryBuilder('user')
             .leftJoinAndSelect('user.dept', 'dept', "dept.delFlag = 0 and dept.status = 0")
             .leftJoinAndSelect('user.identity', 'identity')
+            .leftJoinAndSelect('user.kycs', 'kycs')
             .leftJoinAndSelect('user.member', 'member')
             // .leftJoinAndSelect('member.memberInfo', 'memberInfo', 'memberInfo.id=1')
             .leftJoinAndSelect('user.posts', 'post', "dept.status = 0")
