@@ -44,7 +44,8 @@ export class UploadService {
             FilePath: localPath // 本地文件地址，需自行替换
         });
 
-        return this.cosDomain + '/' + fileName
+        return await this.thumbnail(fileName, '/2/w/1024')
+        // return this.cosDomain + '/' + fileName
     }
 
     async uploadBufferToCos(fileName: string, buffer: Buffer): Promise<string> {
@@ -81,7 +82,7 @@ export class UploadService {
 
     async thumbnail(fileName: string, scale: string) {
         // 生成带图片处理参数的文件 URL，不带签名。
-        const url = await new Promise((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             this.cos.getObjectUrl({
                 Bucket: this.bucket,
                 Region: this.region,
@@ -91,10 +92,11 @@ export class UploadService {
             }, (err, data) => {
                 if (data) {
                     resolve(data.Url)
+                } else {
+                    reject(new Error("thumbnail error."))
                 }
             })
         })
-        return url
     }
 
     /**

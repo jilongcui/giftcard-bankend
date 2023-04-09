@@ -69,6 +69,7 @@ export class UserService {
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
             .leftJoinAndSelect('user.identity', 'identity')
+            .leftJoinAndSelect('user.kycs', 'kycs')
             .leftJoinAndSelect('user.member', 'member')
             // .innerJoin('member.memberInfo', 'memberInfo')
             .where({
@@ -91,6 +92,7 @@ export class UserService {
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
             .leftJoinAndSelect('user.identity', 'identity')
+            .leftJoinAndSelect('user.kycs', 'kycs')
             .leftJoinAndSelect('user.member', 'member')
             // .innerJoin('member.memberInfo', 'memberInfo')
             .where({
@@ -125,6 +127,7 @@ export class UserService {
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
             .leftJoinAndSelect('user.identity', 'identity')
+            .leftJoinAndSelect('user.kycs', 'kycs')
             .leftJoinAndSelect('user.member', 'member')
             // .innerJoin('member.memberInfo', 'memberInfo')
             .where({
@@ -147,6 +150,7 @@ export class UserService {
             .addSelect('user.dept')
             .leftJoinAndSelect('user.dept', 'dept')
             .leftJoinAndSelect('user.identity', 'identity')
+            .leftJoinAndSelect('user.kycs', 'kycs')
             .leftJoinAndSelect('user.member', 'member')
             // .innerJoin('member.memberInfo', 'memberInfo')
             .where({
