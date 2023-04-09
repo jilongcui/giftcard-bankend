@@ -50,43 +50,38 @@ export class CollectService {
 
     // 钱包充值通知
     async collectionRechargeNotify(rechargeNotifyDto: ReqCollectRechargeNotifyDto) {
-        try {
-            this.logger.debug("Recharge Notice: " + JSON.stringify(rechargeNotifyDto))
-            // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
-            return await this.collectRepository.manager.transaction(async manager => {
-                let marketRatio = Number(0)
-                const currency = await this.currencyService.findOne(rechargeNotifyDto.currencyId)
-                if (currency) {
-                    const address = await this.addressService.findAddress(rechargeNotifyDto.to, rechargeNotifyDto.addressType)
-                    if(!address)
-                        throw new ApiException("Address is not exist.")
-                    const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
-                    if (configString) {
-                        const configValue = JSON.parse(configString)
-                        this.logger.debug('collection config ratio ' + configValue.ratio)
-                        marketRatio = rechargeNotifyDto.amount * Number(configValue.ratio)
-                    }
-
-                    if (marketRatio > 1.0 || marketRatio < 0.0) {
-                        marketRatio = 0.0
-                    }
-                    let marketFee = rechargeNotifyDto.amount * marketRatio
-    
-                    await manager.increment(Account, { userId: address.userId }, "usable", rechargeNotifyDto.amount - marketFee)
-                    await manager.increment(Account, { userId: 1 }, "usable", marketFee)
-
-                    const reqAddRechargeCollectDto:ReqAddRechargeCollectDto = {
-                        ...rechargeNotifyDto,
-                        feeState: 1,
-                        state: 1,
-                        confirmState: 1,
-                    }
-                    await manager.save(RechargeCollect, reqAddRechargeCollectDto) // 支付完成
+        this.logger.debug("Recharge Notice: " + JSON.stringify(rechargeNotifyDto))
+        // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+        return await this.collectRepository.manager.transaction(async manager => {
+            let marketRatio = Number(0)
+            const currency = await this.currencyService.findOne(rechargeNotifyDto.currencyId)
+            if (currency) {
+                const address = await this.addressService.findAddress(rechargeNotifyDto.to, rechargeNotifyDto.addressType)
+                if(!address)
+                    throw new ApiException("Address is not exist.")
+                const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
+                if (configString) {
+                    const configValue = JSON.parse(configString)
+                    this.logger.debug('collection config ratio ' + configValue.ratio)
+                    marketRatio = rechargeNotifyDto.amount * Number(configValue.ratio)
                 }
-            })
-        } catch (error) {
-            this.logger.error("Payment Notice : " + error)
-            throw new ApiException(error)
-        }
+
+                if (marketRatio > 1.0 || marketRatio < 0.0) {
+                    marketRatio = 0.0
+                }
+                let marketFee = rechargeNotifyDto.amount * marketRatio
+
+                await manager.increment(Account, { userId: address.userId }, "usable", rechargeNotifyDto.amount - marketFee)
+                await manager.increment(Account, { userId: 1 }, "usable", marketFee)
+
+                const reqAddRechargeCollectDto:ReqAddRechargeCollectDto = {
+                    ...rechargeNotifyDto,
+                    feeState: 1,
+                    state: 1,
+                    confirmState: 1,
+                }
+                await manager.save(RechargeCollect, reqAddRechargeCollectDto) // 支付完成
+            }
+        })
     }
 }
