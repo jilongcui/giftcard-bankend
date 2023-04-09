@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from "class-validator"
+import { IsNumber, IsOptional, IsString } from "class-validator"
 
 export class CardInfoDetail {
     @IsString()
@@ -14,7 +14,16 @@ export class CardInfoDetail {
     monthFee: number
 
     @IsNumber()
-    feeRatio: number
+    upgradeFee: number
+
+    @IsNumber()
+    exchangeToHKDRatio: number
+
+    @IsNumber()
+    exchangeToCardRatio: number
+
+    @IsNumber()
+    transferFee: number
 
     @IsNumber()
     rechargeRatio: number
@@ -26,9 +35,9 @@ export class CardInfoDetail {
     validDay: number
 
     @IsNumber()
-    amountPerMonth: number
+    quotaPerMonth: number
 
+    @IsOptional()
     @IsString()
-    image: string
-
+    image?: string
 }
