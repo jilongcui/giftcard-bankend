@@ -104,6 +104,7 @@ export interface IConfig {
         SecretId: string,
         SecretKey: string,
         CosDomain: string,
+        CosGlobalDomain: string,
         CosRegion: string,
         CosBucket: string,
     }

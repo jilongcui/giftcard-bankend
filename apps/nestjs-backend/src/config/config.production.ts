@@ -69,6 +69,7 @@ export default defineConfig({
     SecretId: process.env.CosSecretId,
     SecretKey: process.env.CosSecretKey,
     CosDomain: process.env.CosDomain || 'https://img.xiaohe.biz',
+    CosGlobalDomain: process.env.CosGlobalDomain || 'https://image.xiaohe.biz',
     CosBucket: process.env.CosBucket || 'startland-1312838165',
     CosRegion: process.env.CosRegion || 'ap-shanghai',
   },

@@ -14,6 +14,7 @@ export class UploadService {
     bucket: string
     region: string
     cosDomain: string
+    cosGlobalDomain: string
 
     constructor(
         private readonly configService: ConfigService,
@@ -21,12 +22,14 @@ export class UploadService {
         const secretId = this.configService.get<string>('tencentCOS.SecretId')
         const secretKey = this.configService.get<string>('tencentCOS.SecretKey')
         this.cosDomain = this.configService.get<string>('tencentCOS.CosDomain')
+        this.cosGlobalDomain = this.configService.get<string>('tencentCOS.cosGlobalDomain')
         this.bucket = this.configService.get<string>('tencentCOS.CosBucket')
         this.region = this.configService.get<string>('tencentCOS.CosRegion')
         // this.logger.debug('secretId ' + secretId)
         this.cos = new COS({
             SecretId: secretId,
             SecretKey: secretKey,
+            Domain: this.cosGlobalDomain
         });
 
     }
