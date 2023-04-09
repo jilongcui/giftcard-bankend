@@ -9,6 +9,7 @@ import { CardinfoService } from './cardinfo.service';
 import { CreateCardinfoDto, ListCardinfoDto } from './dto/create-cardinfo.dto';
 import { UpdateCardinfoDto } from './dto/update-cardinfo.dto';
 import { Cardinfo } from './entities/cardinfo.entity';
+import { Public } from '@app/common/decorators/public.decorator';
 
 @ApiTags('银行卡信息')
 @ApiBearerAuth()
@@ -23,6 +24,7 @@ export class CardinfoController {
 
   /* 银行卡介绍列表 */
   @Get('list')
+  @Public()
   // @RequiresPermissions('system:cardinfo:list')
   @ApiPaginatedResponse(Cardinfo)
   async list(@Query() listCardinfoDto: ListCardinfoDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
