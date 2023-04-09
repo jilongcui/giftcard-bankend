@@ -4,7 +4,6 @@ import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { ReqAddRechargeCollectDto, ReqCollectRechargeNotifyDto, ReqRechargeCollectListDto } from './dto/req-rechargecollect-list.dto';
 import { RechargeCollect } from './entities/rechage-collect.entity';
-import { CollectionService } from '@app/modules/collection/collection.service';
 import { Account } from '@app/modules/account/entities/account.entity';
 import { SysConfigService } from '@app/modules/system/sys-config/sys-config.service';
 import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
@@ -14,7 +13,7 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 
 @Injectable()
 export class CollectService {
-    logger = new Logger(CollectionService.name)
+    logger = new Logger(CollectService.name)
     constructor(
         @InjectRepository(RechargeCollect) private readonly collectRepository: Repository<RechargeCollect>,
         private readonly sysconfigService: SysConfigService,
