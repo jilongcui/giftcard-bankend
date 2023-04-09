@@ -64,12 +64,12 @@ export class Address {
     @IsString()
     privateKey: string
 
-    // @Column({
-    //     name: 'type',
-    //     comment: '公告类型（1通知 2公告）',
-    //     type: 'char',
-    //     length: 1
-    // })
+    @Column({
+        name: 'address_type',
+        comment: '地址类型',
+        type: 'varchar',
+        length: 10
+    })
     @IsEnum(AddressTypeEnum)
     addressType: AddressTypeEnum
 

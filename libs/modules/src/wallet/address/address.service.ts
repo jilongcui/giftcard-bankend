@@ -226,6 +226,7 @@ export class AddressService implements OnModuleInit {
     async findAddress(addressValue: string, addressType: AddressTypeEnum) {
         // let response = { cri: { address: '', status: '' }, eth: { address: '', status: '' }, trc: { address: '', status: '' }, btc: { address: '', status: '' } }
         let address: Address
+        this.logger.debug(`AddressValue ${addressValue}, ${addressType} `)
         if (addressType === AddressTypeEnum.CRI)
             address = await this.addressCriRepository.findOne({ where: { address: addressValue, addressType: addressType } })
         else if (addressType === AddressTypeEnum.ETH)
