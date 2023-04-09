@@ -21,8 +21,9 @@ export class AddressController {
     addressCreate(@Body() addressCreate: ReqAddressCreateDto): Promise<ResAddressDto> {
         return this.addressService.addressCreate(addressCreate);
     }
-    
+
     @Get('mylist')
+    @ApiPaginatedResponse(Address)
     myList(@Query() query: any, @UserDec(UserEnum.userId) userId: number) {
         this.logger.debug(userId)
         return this.addressService.findOneByUser(userId)
