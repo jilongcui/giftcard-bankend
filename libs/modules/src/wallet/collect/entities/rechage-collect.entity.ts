@@ -13,7 +13,7 @@ export class RechargeCollect {
     id: number;
 
     @Column({
-        name: 'address',
+        name: 'from',
         comment: '付款地址',
         length: 128
     })

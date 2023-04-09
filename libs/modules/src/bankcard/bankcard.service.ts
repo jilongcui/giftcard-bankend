@@ -45,7 +45,7 @@ export class BankcardService {
   }
 
   async createWithKyc(createBankcardDto: CreateBankcardKycDto, userId: number) {
-    const kyc = await this.kycService.findOneByUser(createBankcardDto.kycId, userId)
+    const kyc = await this.kycService.findOneByUser(userId)
     if (kyc === null) {
       throw new ApiException('没有KYC认证')
     }

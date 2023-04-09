@@ -17,6 +17,10 @@ export class KycService {
   ) {}
 
   create(createKycDto: CreateKycDto, userId: number) {
+    const kyc = this.findOneByUser(userId)
+    if(kyc) {
+      throw new ApiException("已存在KYC")
+    }
     const kycDto = {
       ...createKycDto,
       userId: userId
@@ -29,8 +33,8 @@ export class KycService {
     return this.kycRepository.findOneBy({ id })
   }
 
-  findOneByUser(id: number, userId: number) {
-    return this.kycRepository.findOneBy({ id, userId})
+  findOneByUser(userId: number) {
+    return this.kycRepository.findOneBy({userId})
   }
 
   update(id: number, updateKycDto: UpdateKycDto, userId: number) {

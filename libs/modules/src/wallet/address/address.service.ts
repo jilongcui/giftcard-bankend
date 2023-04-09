@@ -198,15 +198,19 @@ export class AddressService implements OnModuleInit {
         return responseData
     }
 
-    async findOne(userId: number) {
-        let response = { cri: { address: '', status: '' }, bep: { address: '', status: '' }, eth: { address: '', status: '' }, trc: { address: '', status: '' }, btc: { address: '', status: '' } }
+    async findOneByUser(userId: number) {
+        let response = { cri: { address: '', status: '' },
+            bsc: { address: '', status: '' },
+            eth: { address: '', status: '' },
+            trc: { address: '', status: '' },
+            btc: { address: '', status: '' } }
         let address: Address
         address = await this.addressCriRepository.findOne({ where: { userId: userId } })
         response.cri.address = address ? address.address : undefined
         response.cri.status = address ? address.status : undefined
         address = await this.addressBscRepository.findOne({ where: { userId: userId } })
-        response.bep.address = address ? address.address : undefined
-        response.bep.status = address ? address.status : undefined
+        response.bsc.address = address ? address.address : undefined
+        response.bsc.status = address ? address.status : undefined
         address = await this.addressEthRepository.findOne({ where: { userId: userId } })
         response.eth.address = address ? address.address : undefined
         response.eth.status = address ? address.status : undefined

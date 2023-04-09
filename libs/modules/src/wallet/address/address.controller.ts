@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Query } from '@nestjs/common';
 import { Public } from '@app/common/decorators/public.decorator';
 import { ReqAddressCreateDto, ReqAddressList, ReqAddressRequestDto, ReqBindAddressDto } from './dto/req-address.dto';
 import { ResAddressDto, ResRequestAddressDto } from './dto/res-address.dto';
@@ -13,6 +13,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 @ApiBearerAuth()
 @Controller('wallet/address')
 export class AddressController {
+    logger = new Logger(AddressController.name)
     constructor(private readonly addressService: AddressService,
     ) { }
 
@@ -32,15 +33,16 @@ export class AddressController {
         return this.addressService.list(reqAddressList)
     }
 
-    @Get('my')
-    myAddr(@UserDec(UserEnum.userId) userId: number) {
-        return this.addressService.findOne(userId)
-    }
-
     @Post()
     @Public()
     addressCreate(@Body() addressCreate: ReqAddressCreateDto): Promise<ResAddressDto> {
         return this.addressService.addressCreate(addressCreate);
+    }
+
+    @Get('my')
+    myAddr(@UserDec(UserEnum.userId) userId: number) {
+        this.logger.debug(userId)
+        return this.addressService.findOneByUser(userId)
     }
 
     @Post('request')
