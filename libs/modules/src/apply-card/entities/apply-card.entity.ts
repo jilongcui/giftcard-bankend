@@ -57,10 +57,10 @@ export class ApplyCard {
 
     @Column({
         name: 'bankcard_id',
+        default: null,
         comment: '关联的银行卡'
     })
     @IsOptional()
-    @Type()
     @IsNumber()
     bankcardId?: number
 
