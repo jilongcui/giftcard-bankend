@@ -19,11 +19,10 @@ export class AddressController {
 
     // @RequiresPermissions('system:address:query')
 
-    @Get()
-    @Public()
-    @ApiPaginatedResponse(Address)
-    list(@Query(PaginationPipe) reqAddressList: ReqAddressList) {
-        return this.addressService.list(reqAddressList)
+    @Get('my')
+    myAddr(@UserDec(UserEnum.userId) userId: number) {
+        this.logger.debug(userId)
+        return this.addressService.findOneByUser(userId)
     }
 
     @Get('list')
@@ -37,12 +36,6 @@ export class AddressController {
     @Public()
     addressCreate(@Body() addressCreate: ReqAddressCreateDto): Promise<ResAddressDto> {
         return this.addressService.addressCreate(addressCreate);
-    }
-
-    @Get('my')
-    myAddr(@UserDec(UserEnum.userId) userId: number) {
-        this.logger.debug(userId)
-        return this.addressService.findOneByUser(userId)
     }
 
     @Post('request')

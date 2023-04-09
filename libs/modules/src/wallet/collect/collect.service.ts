@@ -53,7 +53,7 @@ export class CollectService {
         try {
             this.logger.debug("Recharge Notice: " + JSON.stringify(rechargeNotifyDto))
             // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
-            await this.collectRepository.manager.transaction(async manager => {
+            return await this.collectRepository.manager.transaction(async manager => {
                 let marketRatio = Number(0)
                 const currency = await this.currencyService.findOne(rechargeNotifyDto.currencyId)
                 if (currency) {
@@ -86,9 +86,7 @@ export class CollectService {
             })
         } catch (error) {
             this.logger.error("Payment Notice : " + error)
-            return {code: 500, data: {code:'FAIL', message: '失败'}}
+            throw new ApiException(error)
         }
-
-        return {code: 200, data: null}
     }
 }
