@@ -22,7 +22,7 @@ export class UploadService {
         const secretId = this.configService.get<string>('tencentCOS.SecretId')
         const secretKey = this.configService.get<string>('tencentCOS.SecretKey')
         this.cosDomain = this.configService.get<string>('tencentCOS.CosDomain')
-        this.cosGlobalDomain = this.configService.get<string>('tencentCOS.cosGlobalDomain')
+        this.cosGlobalDomain = this.configService.get<string>('tencentCOS.CosGlobalDomain')
         this.bucket = this.configService.get<string>('tencentCOS.CosBucket')
         this.region = this.configService.get<string>('tencentCOS.CosRegion')
         // this.logger.debug('secretId ' + secretId)
