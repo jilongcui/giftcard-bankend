@@ -83,7 +83,7 @@ export class ApplyCardService {
 
   async create(createApplyCardDto: CreateApplyCardDto, userId: number) {
     // 读取卡片内容，是否存在
-    const cardInfo = await this.cardInfoService.findOne(createApplyCardDto.cardInfoId)
+    const cardInfo = await this.cardInfoService.findOne(createApplyCardDto.cardinfoId)
     if (cardInfo === null) {
       throw new ApiException('银行卡类型错误')
     }

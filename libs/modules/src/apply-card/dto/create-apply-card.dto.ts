@@ -2,7 +2,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator"
 
 export class CreateApplyCardDto {
     @IsNumber()
-    cardInfoId: number
+    cardinfoId: number
 
     @IsNumber()
     kycId: number
