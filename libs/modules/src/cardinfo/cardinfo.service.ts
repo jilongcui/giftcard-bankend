@@ -44,7 +44,7 @@ export class CardinfoService {
   }
 
   update(id: number, updateCardinfoDto: UpdateCardinfoDto) {
-    return `This action updates a #${id} cardinfo`;
+    return this.cardinfoRepository.update(id, updateCardinfoDto)
   }
 
   remove(id: number) {
