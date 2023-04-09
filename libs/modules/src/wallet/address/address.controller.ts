@@ -17,6 +17,11 @@ export class AddressController {
     constructor(private readonly addressService: AddressService,
     ) { }
 
+    @Post()
+    addressCreate(@Body() addressCreate: ReqAddressCreateDto): Promise<ResAddressDto> {
+        return this.addressService.addressCreate(addressCreate);
+    }
+    
     @Get('mylist')
     myList(@Query() query: any, @UserDec(UserEnum.userId) userId: number) {
         this.logger.debug(userId)
@@ -28,12 +33,6 @@ export class AddressController {
     @ApiPaginatedResponse(Address)
     list2(@Query(PaginationPipe) reqAddressList: ReqAddressList) {
         return this.addressService.list(reqAddressList)
-    }
-
-    @Post()
-    @Public()
-    addressCreate(@Body() addressCreate: ReqAddressCreateDto): Promise<ResAddressDto> {
-        return this.addressService.addressCreate(addressCreate);
     }
 
     @Post('request')
