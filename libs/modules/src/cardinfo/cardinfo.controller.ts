@@ -21,9 +21,9 @@ export class CardinfoController {
     return this.cardinfoService.create(createCardinfoDto);
   }
 
-  /* 银行卡列表 */
+  /* 银行卡介绍列表 */
   @Get('list')
-  @RequiresPermissions('system:cardinfo:list')
+  // @RequiresPermissions('system:cardinfo:list')
   @ApiPaginatedResponse(Cardinfo)
   async list(@Query() listCardinfoDto: ListCardinfoDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.cardinfoService.list(listCardinfoDto, paginationDto);
