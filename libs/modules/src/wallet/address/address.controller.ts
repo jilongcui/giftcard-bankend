@@ -17,10 +17,8 @@ export class AddressController {
     constructor(private readonly addressService: AddressService,
     ) { }
 
-    // @RequiresPermissions('system:address:query')
-
-    @Get('my')
-    myAddr(@UserDec(UserEnum.userId) userId: number) {
+    @Get('mylist')
+    myList(@Query() query: any, @UserDec(UserEnum.userId) userId: number) {
         this.logger.debug(userId)
         return this.addressService.findOneByUser(userId)
     }
