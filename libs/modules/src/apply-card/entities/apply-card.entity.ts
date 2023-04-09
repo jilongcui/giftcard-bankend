@@ -5,7 +5,7 @@ import { User } from "@app/modules/system/user/entities/user.entity"
 import { ApiHideProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
 import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator"
-import { PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, CreateDateColumn } from "typeorm"
+import { PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, CreateDateColumn, Entity } from "typeorm"
 
 /* 0: 开始申请 1: 已绑定KYC资料 2: KYC认证通过 3:已获得一张卡 4: KYC审核失败 */
 export enum ApplyCardStatus {
@@ -16,6 +16,7 @@ export enum ApplyCardStatus {
     KycFailed = 4
 }
 
+@Entity()
 export class ApplyCard {
     @PrimaryGeneratedColumn()
     @IsNumber()

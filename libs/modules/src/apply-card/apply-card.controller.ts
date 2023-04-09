@@ -24,7 +24,6 @@ export class ApplyCardController {
 
   /* 银行卡列表 */
   @Get('list')
-  @RequiresPermissions('system:applycard:list')
   @ApiPaginatedResponse(ApplyCard)
   async list(@Query() listApplyCardDto: ListApplyCardDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.applyCardService.list(listApplyCardDto, paginationDto);
