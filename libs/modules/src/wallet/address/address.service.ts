@@ -151,27 +151,22 @@ export class AddressService implements OnModuleInit {
 
             if (addressInfo.chain === AddressTypeNumber.CRI) {
                 addressRes.addressType = AddressTypeEnum.CRI
-                reqAddrAddDto.addressType = AddressTypeEnum.CRI
                 await this.addressCriRepository.save(reqAddrAddDto)
             }
             else if (addressInfo.chain === AddressTypeNumber.ETH) {
                 addressRes.addressType = AddressTypeEnum.ETH
-                reqAddrAddDto.addressType = AddressTypeEnum.ETH
                 await this.addressEthRepository.save(reqAddrAddDto)
             }
             else if (addressInfo.chain === AddressTypeNumber.BSC) {
                 addressRes.addressType = AddressTypeEnum.BSC
-                reqAddrAddDto.addressType = AddressTypeEnum.BSC
                 await this.addressBscRepository.save(reqAddrAddDto)
             }
             else if (addressInfo.chain === AddressTypeNumber.TRC) {
                 addressRes.addressType = AddressTypeEnum.TRC
-                reqAddrAddDto.addressType = AddressTypeEnum.TRC
                 await this.addressTrcRepository.save(reqAddrAddDto)
             }
             else if (addressInfo.chain === AddressTypeNumber.BTC) {
                 addressRes.addressType = AddressTypeEnum.BTC
-                reqAddrAddDto.addressType = AddressTypeEnum.BTC
                 await this.addressBtcRepository.save(reqAddrAddDto)
             }
             
@@ -228,15 +223,15 @@ export class AddressService implements OnModuleInit {
         let address: Address
         this.logger.debug(`AddressValue ${addressValue}, ${addressType} `)
         if (addressType === AddressTypeEnum.CRI)
-            address = await this.addressCriRepository.findOne({ where: { address: addressValue, addressType: addressType } })
+            address = await this.addressCriRepository.findOne({ where: { address: addressValue} })
         else if (addressType === AddressTypeEnum.ETH)
-            address = await this.addressEthRepository.findOne({ where: { address: addressValue, addressType: addressType } })
+            address = await this.addressEthRepository.findOne({ where: { address: addressValue} })
         else if (addressType === AddressTypeEnum.BSC)
-            address = await this.addressBscRepository.findOne({ where: { address: addressValue, addressType: addressType } })
+            address = await this.addressBscRepository.findOne({ where: { address: addressValue} })
         else if (addressType === AddressTypeEnum.TRC)
-            address = await this.addressTrcRepository.findOne({ where: { address: addressValue, addressType: addressType } })
+            address = await this.addressTrcRepository.findOne({ where: { address: addressValue} })
         else if (addressType === AddressTypeEnum.BTC)
-            address = await this.addressBtcRepository.findOne({ where: { address: addressValue, addressType: addressType } })
+            address = await this.addressBtcRepository.findOne({ where: { address: addressValue} })
         return address
     }
 

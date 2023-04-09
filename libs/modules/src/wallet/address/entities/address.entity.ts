@@ -64,15 +64,6 @@ export class Address {
     @IsString()
     privateKey: string
 
-    @Column({
-        name: 'address_type',
-        comment: '地址类型',
-        type: 'varchar',
-        length: 10
-    })
-    @IsEnum(AddressTypeEnum)
-    addressType: AddressTypeEnum
-
     /* 地址状态状态（0正常 1已绑定）*/
     @Column({
         name: 'state',

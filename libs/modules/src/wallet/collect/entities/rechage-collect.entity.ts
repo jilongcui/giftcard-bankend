@@ -1,5 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsNumber, IsString } from "class-validator";
+import { IsEnum, IsNumber, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { AddressTypeEnum } from "../../address/entities/address.entity";
 
@@ -24,6 +24,7 @@ export class RechargeCollect {
         name: 'currency_type',
         comment: '代币类型 BTC/ETH/TRC/BSC',
     })
+    @IsEnum(AddressTypeEnum)
     addressType: AddressTypeEnum;
 
     @Column({
