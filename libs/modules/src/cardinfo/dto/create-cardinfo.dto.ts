@@ -1,4 +1,4 @@
-import { IsNumber, IsObject, IsString } from "class-validator"
+import { IsNumber, IsObject, IsOptional, IsString } from "class-validator"
 import { CardInfoDetail } from "../entities/cardinfo-detail.entity"
 
 export class CreateCardinfoDto {
@@ -12,5 +12,6 @@ export class CreateCardinfoDto {
 
 export class ListCardinfoDto {
     @IsString()
-    name: string     
+    @IsOptional()
+    name?: string     
 }

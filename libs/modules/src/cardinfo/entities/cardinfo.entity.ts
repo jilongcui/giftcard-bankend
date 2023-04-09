@@ -9,7 +9,6 @@ export class Cardinfo {
     @PrimaryGeneratedColumn()
     id: number
 
-
     /* 卡的名称 */
     @Column({
         length: 50,
