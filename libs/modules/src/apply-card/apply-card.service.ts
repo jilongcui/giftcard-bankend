@@ -108,7 +108,7 @@ export class ApplyCardService {
     const applycard = await this.applycardRepository.save(applycardDto)
 
     const currency = await this.currencyService.findOneByName('USDT')
-    const bankcard = await this.requestBankcard(userId, currency.id, cardInfo.info.openFee)
+    const bankcard = await this.requestBankcard(userId, currency.id, cardInfo.id, cardInfo.info.openFee)
 
     // KYC是否存在
     await this.applycardRepository.update(applycard.id, {bankcardId: bankcard.id, status: ApplyCardStatus.ApplySuccess})
@@ -116,10 +116,10 @@ export class ApplyCardService {
   }
 
   // request bankcard
-  async requestBankcard(userId: number, currencyId: number, openfee: number) {
+  async requestBankcard(userId: number, currencyId: number, cardinfoId:number, openfee: number) {
     // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
     return await this.applycardRepository.manager.transaction(async manager => {
-      const bankcard = await manager.findOne(Bankcard, { where: { status:'0' } })
+      const bankcard = await manager.findOne(Bankcard, { where: { status:'0', cardinfoId } })
       if(!bankcard) {
         throw new ApiException('银行卡已经申领完')
       }
