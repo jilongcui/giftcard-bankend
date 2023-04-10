@@ -104,14 +104,14 @@ export class AccountService {
 
   async exchange(exhangeAccountDto: ExhangeAccountDto, userId: number) {
 
-    this.logger.debug('exchange')
+    // this.logger.debug('exchange')
     const currencyFrom = await this.currencyRepository.findOneBy({id: exhangeAccountDto.currIdFrom})
     const currencyTo = await this.currencyRepository.findOneBy({id: exhangeAccountDto.currIdTo})
     // this.logger.debug(`ratio ${currencyTo.exratio} / ${currencyFrom.exratio}`)
     const ratio = currencyFrom.exratio / currencyTo.exratio
 
     const fromAmount = exhangeAccountDto.amount
-    const exchangeFee = fromAmount * 0.1 // toFixed
+    const exchangeFee = fromAmount * 0.01 // toFixed
     const toAmount = (fromAmount - exchangeFee) * ratio
 
     // Exchange
