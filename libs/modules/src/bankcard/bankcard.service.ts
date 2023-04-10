@@ -30,6 +30,16 @@ export class BankcardService {
   }
 
   async create(createBankcardDto: CreateBankcardDto, userId: number) {
+    const bgColor = this.sharedService.getBankBgColor(createBankcardDto.bankType)
+    createBankcardDto.cardNo = createBankcardDto.cardNo.replace(/\s*/g, "")
+    const bankcard = {
+      ...createBankcardDto,
+      bgColor: bgColor,
+    }
+    return this.bankcardRepository.save(bankcard)
+  }
+
+  async createWithIdentity(createBankcardDto: CreateBankcardDto, userId: number) {
     const identity = await this.identityService.findOneByUser(userId)
     if (identity === null) {
       throw new ApiException('没有实名认证')
