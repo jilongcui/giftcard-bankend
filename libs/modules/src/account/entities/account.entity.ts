@@ -31,6 +31,7 @@ export class Account {
     @Column({
         name: 'status',
         comment: '账户状态 0: 未认证 1: 正常 2:冻结',
+        default: '0',
         type: 'char',
         length: 1
     })
