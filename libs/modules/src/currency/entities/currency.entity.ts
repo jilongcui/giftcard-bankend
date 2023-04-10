@@ -75,7 +75,6 @@ export class Currency {
     @IsNumber()
     exratio: number
 
-    @ApiHideProperty()
     @Column({
         name: 'exratio_bias',
         default: 0,
