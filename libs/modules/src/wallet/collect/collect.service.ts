@@ -70,9 +70,9 @@ export class CollectService {
                     marketRatio = 0.0
                 }
                 let marketFee = rechargeNotifyDto.amount * marketRatio
-
-                await manager.increment(Account, { userId: address.userId }, "usable", rechargeNotifyDto.amount - marketFee)
-                await manager.increment(Account, { userId: 1 }, "usable", marketFee)
+                let currencyId = rechargeNotifyDto.currencyId
+                await manager.increment(Account, { userId: address.userId, currencyId }, "usable", rechargeNotifyDto.amount - marketFee)
+                await manager.increment(Account, { userId: 1, currencyId}, "usable", marketFee)
 
                 const reqAddRechargeCollectDto:ReqAddRechargeCollectDto = {
                     ...rechargeNotifyDto,

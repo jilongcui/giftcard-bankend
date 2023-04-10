@@ -45,6 +45,10 @@ export class CurrencyService {
     return this.currencyRepository.findOneBy({ id })
   }
 
+  findOneByName(name: string) {
+    return this.currencyRepository.findOneBy({ symbol: name })
+  }
+
   update(id: number, updateCurrencyDto: UpdateCurrencyDto) {
     return this.currencyRepository.update(id, updateCurrencyDto)
   }

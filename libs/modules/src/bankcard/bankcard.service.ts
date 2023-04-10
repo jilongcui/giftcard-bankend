@@ -10,6 +10,7 @@ import { IdentityService } from '../identity/identity.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { SharedService } from '@app/shared/shared.service';
 import { KycService } from '../kyc/kyc.service';
+import { Account } from '../account/entities/account.entity';
 
 @Injectable()
 export class BankcardService {
@@ -113,6 +114,10 @@ export class BankcardService {
       rows: result[0],
       total: result[1]
     }
+  }
+
+  findFreeOne() {
+    return this.bankcardRepository.findOne({ where: { status:'0' }, relations: { user: true, identity: true } })
   }
 
   findOne(id: number) {

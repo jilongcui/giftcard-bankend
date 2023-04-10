@@ -3,12 +3,17 @@ import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
 import { CardinfoService } from '../cardinfo/cardinfo.service';
 import { KycService } from '../kyc/kyc.service';
 import { CreateApplyCardDto, ListMyApplyCardDto } from './dto/create-apply-card.dto';
 import { ListApplyCardDto, UpdateApplyCardDto, UpdateApplyCardStatusDto } from './dto/update-apply-card.dto';
 import { ApplyCard, ApplyCardStatus } from './entities/apply-card.entity';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { BankcardService } from '../bankcard/bankcard.service';
+import { Account } from '../account/entities/account.entity';
+import { Bankcard } from '../bankcard/entities/bankcard.entity';
+import { CurrencyService } from '../currency/currency.service';
 
 @Injectable()
 export class ApplyCardService {
@@ -17,6 +22,8 @@ export class ApplyCardService {
     @InjectRepository(ApplyCard) private readonly applycardRepository: Repository<ApplyCard>,
     private readonly cardInfoService: CardinfoService,
     private readonly kycService: KycService,
+    private readonly bankcardService: BankcardService,
+    private readonly currencyService: CurrencyService,
   ) {}
   findAll() {
     return `This action returns all applyCard`;
@@ -93,11 +100,47 @@ export class ApplyCardService {
     if (kyc === null) {
       throw new ApiException('KYC资料不存在')
     }
-    const bankcard = {
+    if (kyc.status != '1') {
+      throw new ApiException('KYC还没通过审核')
+    }
+
+    const applycardDto = {
       ...createApplyCardDto,
       userId,
     }
-    return this.applycardRepository.save(bankcard)
+    const applycard = await this.applycardRepository.save(applycardDto)
+
+    const currency = await this.currencyService.findOneByName('USDT')
+    const bankcard = await this.requestBankcard(userId, currency.id, cardInfo.info.openFee)
+
+    // KYC是否存在
+    await this.applycardRepository.update(applycard.id, {bankcardId: bankcard.id, status: ApplyCardStatus.ApplySuccess})
+
+  }
+
+  // request bankcard
+  async requestBankcard(userId: number, currencyId: number, openfee: number) {
+    // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+    return await this.applycardRepository.manager.transaction(async manager => {
+      const bankcard = await manager.findOne(Bankcard, { where: { status:'0' } })
+      if(!bankcard) {
+        throw new ApiException('银行卡已经申领完')
+      }
+
+      const account = await manager.findOne(Account, { where: { currencyId, userId, usable: MoreThanOrEqual(openfee)} })
+      if(!account) {
+        throw new ApiException('资金不足')
+      }
+      if(account.usable ) {
+        throw new ApiException('未找到用户名')
+      }
+
+      await manager.decrement(Account, { userId: userId, currencyId }, "usable", openfee)
+      await manager.increment(Account, { userId: 1 }, "usable", openfee)
+            
+      await manager.update(Bankcard, { id: bankcard.id }, { userId: userId, status: '1' }) // 完成认领
+      return await manager.findOneBy(Bankcard, {id: bankcard.id})
+    })
   }
 
   deleteOne(id: number) {
@@ -108,36 +151,36 @@ export class ApplyCardService {
     return this.applycardRepository.delete(noticeIdArr)
   }
 
-  /* Kyc验证成功 */
-  async kycCertified(id:number, userId: number) {
-    let updateApplyCardDto: UpdateApplyCardDto = {
-      status: ApplyCardStatus.KycCertified
-    }
-    return this.applycardRepository.update(id, updateApplyCardDto)
-  }
+  // /* Kyc验证成功 */
+  // async kycCertified(id:number, userId: number) {
+  //   let updateApplyCardDto: UpdateApplyCardDto = {
+  //     status: ApplyCardStatus.KycCertified
+  //   }
+  //   return this.applycardRepository.update(id, updateApplyCardDto)
+  // }
 
-  /* 申请成功 */
-  async applySuccess(id:number, bankcardId:number, userId: number) {
-    let updateApplyCardDto: UpdateApplyCardDto = {
-      status: ApplyCardStatus.ApplySuccess,
-      bankcardId: bankcardId
-    }
-    return this.applycardRepository.update(id, updateApplyCardDto)
-  }
+  // /* 申请成功 */
+  // async applySuccess(id:number, bankcardId:number, userId: number) {
+  //   let updateApplyCardDto: UpdateApplyCardDto = {
+  //     status: ApplyCardStatus.ApplySuccess,
+  //     bankcardId: bankcardId
+  //   }
+  //   return this.applycardRepository.update(id, updateApplyCardDto)
+  // }
 
-  /* KYC失败 */
-  async kycCertifyFailed(id:number, userId: number) {
-    let updateApplyCardDto: UpdateApplyCardDto = {
-      status: ApplyCardStatus.KycFailed
-    }
-    return this.applycardRepository.update(id, updateApplyCardDto)
-  }
+  // /* KYC失败 */
+  // async kycCertifyFailed(id:number, userId: number) {
+  //   let updateApplyCardDto: UpdateApplyCardDto = {
+  //     status: ApplyCardStatus.KycFailed
+  //   }
+  //   return this.applycardRepository.update(id, updateApplyCardDto)
+  // }
 
-  /* 申请失败 */
-  async applyFailed(id:number, userId: number) {
-    let updateApplyCardDto: UpdateApplyCardDto = {
-      status: ApplyCardStatus.KycFailed
-    }
-    return this.applycardRepository.update(id, updateApplyCardDto)
-  }
+  // /* 申请失败 */
+  // async applyFailed(id:number, userId: number) {
+  //   let updateApplyCardDto: UpdateApplyCardDto = {
+  //     status: ApplyCardStatus.KycFailed
+  //   }
+  //   return this.applycardRepository.update(id, updateApplyCardDto)
+  // }
 }

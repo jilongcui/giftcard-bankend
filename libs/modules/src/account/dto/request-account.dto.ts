@@ -15,3 +15,4 @@ export class CreateAccountDto extends OmitType(Account, ['id', 'createTime'] as 
 export class UpdateAllAccountDto extends Account { }
 export class UpdateAccountDto extends PartialType(CreateAccountDto) { }
 export class ListAccountDto extends PartialType(OmitType(Account, ['user', 'currency'] as const)) { }
+export class ListMyAccountDto extends PartialType(OmitType(Account, ['user', 'currency', 'userId'] as const)) { }

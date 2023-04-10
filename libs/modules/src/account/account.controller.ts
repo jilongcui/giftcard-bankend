@@ -6,9 +6,10 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { AccountService } from './account.service';
-import { CreateAccountDto, ListAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
+import { CreateAccountDto, ListAccountDto, ListMyAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
 import { Account } from './entities/account.entity';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 
 @ApiTags('资金账户')
 @ApiBearerAuth()
@@ -46,12 +47,19 @@ export class AccountController {
     return await this.accountService.update(+id, updateAccountDto);
   }
 
-  /* 产品列表 */
+  /* 账户列表 */
   @Get('list')
-  @Public()
+  @RequiresRoles(['admin', 'system'])
   @ApiPaginatedResponse(Account)
   async list(@Query() listAccountDto: ListAccountDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.accountService.list(listAccountDto, paginationDto);
+  }
+
+  /* 账户列表 */
+  @Get('mylist')
+  @ApiPaginatedResponse(Account)
+  async mylist(@Query() listAccountDto: ListMyAccountDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.accountService.mylist(listAccountDto, userId, paginationDto);
   }
 
   @Get(':id')

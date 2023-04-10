@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Repository, FindOptionsWhere } from 'typeorm';
-import { CreateAccountDto, ListAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
+import { CreateAccountDto, ListAccountDto, ListMyAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
 import { Account } from './entities/account.entity';
 
 @Injectable()
@@ -26,6 +26,32 @@ export class AccountService {
     let where: FindOptionsWhere<Account> = {}
     let result: any;
     where = listAccountList;
+    result = await this.accountRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      where,
+      // relations: { user: true },
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+
+  /* 分页查询 */
+  async mylist(listAccountList: ListMyAccountDto, userId: number, paginationDto: PaginationDto): Promise<PaginatedDto<Account>> {
+    let where: FindOptionsWhere<Account> = {}
+    let result: any;
+    where = {
+      ... listAccountList,
+      userId
+    }
     result = await this.accountRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,

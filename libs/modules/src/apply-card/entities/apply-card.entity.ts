@@ -9,11 +9,9 @@ import { PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, CreateDateColumn
 
 /* 0: 开始申请 1: 已绑定KYC资料 2: KYC认证通过 3:已获得一张卡 4: KYC审核失败 */
 export enum ApplyCardStatus {
-    Start= 0,
-    KycBind = 1,
-    KycCertified = 2,
-    ApplySuccess = 3,
-    KycFailed = 4
+    Start= 0, // 开始申领
+    ApplySuccess = 1,
+    KycFailed = 2
 }
 
 @Entity()
@@ -76,7 +74,7 @@ export class ApplyCard {
     @Column({
         name: 'status',
         default: 0,
-        comment: '申请状态 0: 开始申请 1: 已绑定KYC资料 2: KYC认证通过 3:已获得一张卡 4: KYC审核失败'
+        comment: '申请状态 0: 开始申请 1: 申请成功 2: 申请失败'
     })
     @IsEnum(ApplyCardStatus)
     status: ApplyCardStatus
