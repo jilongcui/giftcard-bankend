@@ -3,7 +3,7 @@ https://docs.nestjs.com/controllers#controllers
 */
 
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
@@ -19,6 +19,7 @@ import { Notice } from './entities/notice.entity';
 import { NoticeService } from './notice.service';
 
 @ApiTags('通知公告')
+@ApiBearerAuth()
 @Controller('system/notice')
 export class NoticeController {
     constructor(
