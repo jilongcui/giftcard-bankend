@@ -58,7 +58,7 @@ export class AccountService {
     result = await this.accountRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
-      // relations: { user: true },
+      relations: { currency: true },
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
