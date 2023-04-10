@@ -307,6 +307,13 @@ export class UserService {
         createAccountDto.status = '0'
         await this.accountRepository.save(createAccountDto)
 
+
+        createAccountDto = new CreateAccountDto()
+        createAccountDto.userId = user.userId
+        createAccountDto.currencyId = 2
+        createAccountDto.status = '0'
+        await this.accountRepository.save(createAccountDto)
+
         // Create address record.
         if (this.isBlockchainAddress) {
             const createAddressDto = new ReqAddressCreateDto()
