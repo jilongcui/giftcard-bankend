@@ -6,7 +6,7 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { AccountService } from './account.service';
-import { CreateAccountDto, ListAccountDto, ListMyAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
+import { CreateAccountDto, ExhangeAccountDto, ListAccountDto, ListMyAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
 import { Account } from './entities/account.entity';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
@@ -77,5 +77,10 @@ export class AccountController {
   @RequiresRoles(['admin', 'system'])
   async remove(@Param('ids') ids: string) {
     return await this.accountService.delete(ids.split(','));
+  }
+
+  @Post('exchange')
+  async exchange(@Body() createAccountDto: ExhangeAccountDto, @UserDec(UserEnum.userId) userId: number) {
+    return await this.accountService.exchange(createAccountDto, userId);
   }
 }

@@ -128,9 +128,6 @@ export class ApplyCardService {
       if(!account) {
         throw new ApiException('资金不足')
       }
-      if(account.usable ) {
-        throw new ApiException('未找到用户名')
-      }
 
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", openfee)
       await manager.increment(Account, { userId: 1 }, "usable", openfee)

@@ -16,3 +16,17 @@ export class UpdateAllAccountDto extends Account { }
 export class UpdateAccountDto extends PartialType(CreateAccountDto) { }
 export class ListAccountDto extends PartialType(OmitType(Account, ['user', 'currency'] as const)) { }
 export class ListMyAccountDto extends PartialType(OmitType(Account, ['user', 'currency', 'userId'] as const)) { }
+
+export class ExhangeAccountDto {
+    @Type()
+    @IsNumber()
+    currIdFrom: number
+
+    @Type()
+    @IsNumber()
+    currIdTo: number
+
+    @Type()
+    @IsNumber()
+    amount: number
+}
