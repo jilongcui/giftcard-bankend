@@ -186,6 +186,7 @@ export class Bankcard {
         comment: '银行卡详情'
     })
     @Type()
+    @IsNumber()
     cardinfoId: number
 
     @ApiHideProperty()
