@@ -24,7 +24,10 @@ export class CurrencyService {
   async list(listCurrencyList: ListCurrencyDto, paginationDto: PaginationDto): Promise<PaginatedDto<Currency>> {
     let where: FindOptionsWhere<Currency> = {}
     let result: any;
-    where = listCurrencyList;
+    where = {
+      ...listCurrencyList,
+      status: '1'
+    }
     result = await this.currencyRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,

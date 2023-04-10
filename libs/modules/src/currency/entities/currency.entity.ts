@@ -68,6 +68,23 @@ export class Currency {
     gatherMin: number
 
     @Column({
+        name: 'price',
+        default: 1.0,
+        comment: 'exchange price', // exchange ratio
+    })
+    @IsNumber()
+    price: number
+
+    @ApiHideProperty()
+    @Column({
+        name: 'price_bias',
+        default: 0,
+        comment: 'exchange price bias', // exchange ratio
+    })
+    @IsNumber()
+    priceBias: number
+
+    @Column({
         name: 'status',
         comment: '代币状态 0: 下架 1: 正常',
         type: 'char',
