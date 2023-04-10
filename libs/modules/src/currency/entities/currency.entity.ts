@@ -94,6 +94,14 @@ export class Currency {
     @IsString()
     status: string
 
+    @Column({
+        name: 'image',
+        comment: '代币logo',
+        length: 100
+    })
+    @IsString()
+    image: string
+
     @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',
