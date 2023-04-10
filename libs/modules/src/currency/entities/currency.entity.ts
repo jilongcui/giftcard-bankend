@@ -68,21 +68,21 @@ export class Currency {
     gatherMin: number
 
     @Column({
-        name: 'price',
+        name: 'exratio',
         default: 1.0,
-        comment: 'exchange price', // exchange ratio
+        comment: 'exchange ratio to usdt', // exchange ratio
     })
     @IsNumber()
-    price: number
+    exratio: number
 
     @ApiHideProperty()
     @Column({
-        name: 'price_bias',
+        name: 'exratio_bias',
         default: 0,
-        comment: 'exchange price bias', // exchange ratio
+        comment: 'exchange ratio bias percent', // exchange ratio
     })
     @IsNumber()
-    priceBias: number
+    exratioBisa: number
 
     @Column({
         name: 'status',
