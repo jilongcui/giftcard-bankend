@@ -37,11 +37,12 @@ export class Bankcard {
     /* 持卡人预留手机号 */
     @Column({
         name: 'mobile',
-        length: 11,
+        length: 15,
         comment: '持卡人预留手机号'
     })
+    @IsOptional()
     @IsString()
-    mobile: string
+    mobile?: string
 
     /* 银行名称 */
     @Column({
