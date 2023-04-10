@@ -69,6 +69,7 @@ export class Currency {
 
     @Column({
         name: 'exratio',
+        type: "decimal", precision: 10, scale: 2,
         default: 1.0,
         comment: 'exchange ratio to usdt', // exchange ratio
     })
@@ -77,6 +78,7 @@ export class Currency {
 
     @Column({
         name: 'exratio_bias',
+        type: "decimal", precision: 10, scale: 2,
         default: 0,
         comment: 'exchange ratio bias percent', // exchange ratio
     })

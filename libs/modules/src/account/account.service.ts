@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -10,6 +10,7 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 
 @Injectable()
 export class AccountService {
+  logger = new Logger(AccountService.name)
   constructor(
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRepository(Currency) private readonly currencyRepository: Repository<Currency>,
@@ -103,8 +104,10 @@ export class AccountService {
 
   async exchange(exhangeAccountDto: ExhangeAccountDto, userId: number) {
 
+    this.logger.debug('exchange')
     const currencyFrom = await this.currencyRepository.findOneBy({id: exhangeAccountDto.currIdFrom})
     const currencyTo = await this.currencyRepository.findOneBy({id: exhangeAccountDto.currIdTo})
+    // this.logger.debug(`ratio ${currencyTo.exratio} / ${currencyFrom.exratio}`)
     const ratio = currencyTo.exratio / currencyFrom.exratio
 
     const fromAmount = exhangeAccountDto.amount
@@ -114,14 +117,11 @@ export class AccountService {
     // Exchange
     return this.accountRepository.manager.transaction(async manager => {
 
-      const account = await manager.findOne(Account,
-        {
-          where: {
-          currencyId:exhangeAccountDto.currIdFrom,
-          userId:userId,
-          usable: MoreThanOrEqual(fromAmount)} 
-        }
-      )
+      const account = await manager.findOneBy(Account,{
+        currencyId:exhangeAccountDto.currIdFrom,
+        userId:userId,
+        usable: MoreThanOrEqual(fromAmount)
+      })
       if(!account) {
         throw new ApiException('资金不足')
       }
