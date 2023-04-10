@@ -113,6 +113,7 @@ export class ApplyCardService {
     // KYC是否存在
     await this.applycardRepository.update(applycard.id, {bankcardId: bankcard.id, status: ApplyCardStatus.ApplySuccess})
 
+    return bankcard
   }
 
   // request bankcard
