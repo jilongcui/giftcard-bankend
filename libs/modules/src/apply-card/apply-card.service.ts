@@ -9,8 +9,6 @@ import { KycService } from '../kyc/kyc.service';
 import { CreateApplyCardDto, ListMyApplyCardDto } from './dto/create-apply-card.dto';
 import { ListApplyCardDto, UpdateApplyCardDto, UpdateApplyCardStatusDto } from './dto/update-apply-card.dto';
 import { ApplyCard, ApplyCardStatus } from './entities/apply-card.entity';
-import { ApiExcludeEndpoint } from '@nestjs/swagger';
-import { BankcardService } from '../bankcard/bankcard.service';
 import { Account } from '../account/entities/account.entity';
 import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { CurrencyService } from '../currency/currency.service';
@@ -22,7 +20,6 @@ export class ApplyCardService {
     @InjectRepository(ApplyCard) private readonly applycardRepository: Repository<ApplyCard>,
     private readonly cardInfoService: CardinfoService,
     private readonly kycService: KycService,
-    private readonly bankcardService: BankcardService,
     private readonly currencyService: CurrencyService,
   ) {}
   findAll() {
