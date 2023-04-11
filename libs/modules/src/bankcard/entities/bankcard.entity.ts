@@ -102,7 +102,9 @@ export class Bankcard {
     @IsOptional()
     @IsString()
     signNo?: string
+
     /* 签约状态 0: 未签约 1: 已经签约 2:签约失败 3: 已经鉴权 4: 鉴权失败 */
+    /* 签约状态 0: 未注册 1: 已经注册 2:已注销 */
     @Column({
         name: 'status',
         default: '0',

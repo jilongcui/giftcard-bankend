@@ -61,9 +61,9 @@ export class BankcardController {
   }
 
   @Put(':id/invalidate')
-  @RequiresRoles(['admin', 'system'])
-  invalidate(@Param('id') id: string) {
-    return this.bankcardService.invalidate(+id);
+  // @RequiresRoles(['admin', 'system'])
+  invalidate(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+    return this.bankcardService.invalidate(+id, userId);
   }
 
   @Patch(':id')

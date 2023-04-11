@@ -156,7 +156,7 @@ export class BankcardService {
             
       await manager.update(Bankcard, { id: bankcard.id }, { cardinfoId: nextCardinfo.id })
       await manager.update(User, {userId: userId}, {vip: nextCardinfo.index})
-      return await manager.findOneBy(Bankcard, {id: bankcard.id})
+      return await manager.findOne(Bankcard, {where: {id: bankcard.id}, relations: {cardinfo: true}})
     })
 
   }
@@ -185,9 +185,9 @@ export class BankcardService {
     return this.bankcardRepository.delete(noticeIdArr)
   }
 
-  async invalidate(id: number) {
+  async invalidate(id: number, userId: number) {
     let updateBankcardDto: UpdateBankcardDto = {
-      status: '0'
+      status: '2'
     }
     return this.bankcardRepository.update(id, updateBankcardDto)
   }
