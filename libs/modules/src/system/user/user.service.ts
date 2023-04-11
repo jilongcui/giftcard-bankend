@@ -429,6 +429,16 @@ export class UserService {
             .execute()
     }
 
+    /* 改变用户等级 */
+    async changeVip(userId: number, vip: number) {
+        return await this.userRepository
+            .createQueryBuilder()
+            .update()
+            .set({ vip })
+            .where({ userId })
+            .execute()
+    }
+
     /* 改变用户状态 */
     async changeUnionId(userId: number, unionId: string) {
         return await this.userRepository

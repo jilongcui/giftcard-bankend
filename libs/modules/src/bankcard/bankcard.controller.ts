@@ -34,6 +34,11 @@ export class BankcardController {
     return this.bankcardService.createWithKyc(createBankcardDto, userId);
   }
 
+  @Post(':id/upgrade')
+  upgrade(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+    return this.bankcardService.upgrade(+id, userId);
+  }
+
   /* 银行卡列表 */
   @Get('list')
   @RequiresPermissions('system:bankcard:list')

@@ -13,7 +13,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CAPTCHA_IMG_KEY, USER_ACCESS_TOKEN_KEY, USER_AVATAR_KEY, USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_MEMBER_ENDTIME_KEY, USER_NICKNAME_KEY, USER_OPENID_KEY, USER_PERMISSIONS_KEY, USER_ROLEKEYS_KEY, USER_ROLEKS_KEY, USER_TOKEN_KEY, USER_USERNAME_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
+import { CAPTCHA_IMG_KEY, USER_ACCESS_TOKEN_KEY, USER_AVATAR_KEY, USER_DEPTID_KEY, USER_DEPTNAME_KEY, USER_MEMBER_ENDTIME_KEY, USER_NICKNAME_KEY, USER_OPENID_KEY, USER_PERMISSIONS_KEY, USER_ROLEKEYS_KEY, USER_ROLEKS_KEY, USER_TOKEN_KEY, USER_USERNAME_KEY, USER_VIP_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { SharedService } from '@app/shared/shared.service';
 import { MenuService } from '../system/menu/menu.service';
@@ -277,6 +277,7 @@ export class LoginService {
         /* 将用户信息、权限数组、角色数组 存放进入缓存 */
         const promiseArr = [
             this.redis.set(`${USER_USERNAME_KEY}:${userId}`, user.userName),
+            this.redis.set(`${USER_VIP_KEY}:${userId}`, user.vip),
             this.redis.set(`${USER_NICKNAME_KEY}:${userId}`, user.nickName),
             this.redis.set(`${USER_DEPTID_KEY}:${userId}`, deptId),
             this.redis.set(`${USER_DEPTNAME_KEY}:${userId}`, deptName),

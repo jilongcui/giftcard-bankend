@@ -11,6 +11,12 @@ export class Cardinfo {
 
     /* 卡的名称 */
     @Column({
+        default: 1,
+    })
+    index: number // 0, 1, 2, 3
+
+    /* 卡的名称 */
+    @Column({
         length: 50,
     })
     name: string // VISA MASTER

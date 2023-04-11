@@ -43,6 +43,10 @@ export class CardinfoService {
     return this.cardinfoRepository.findOne({ where: { id: id }, relations: { } })
   }
 
+  findOneByIndex(index: number) {
+    return this.cardinfoRepository.findOne({ where: { index: index }, relations: { } })
+  }
+
   update(id: number, updateCardinfoDto: UpdateCardinfoDto) {
     return this.cardinfoRepository.update(id, updateCardinfoDto)
   }

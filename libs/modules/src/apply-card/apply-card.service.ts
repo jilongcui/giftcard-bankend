@@ -12,6 +12,7 @@ import { ApplyCard, ApplyCardStatus } from './entities/apply-card.entity';
 import { Account } from '../account/entities/account.entity';
 import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { CurrencyService } from '../currency/currency.service';
+import { User } from '../system/user/entities/user.entity';
 
 @Injectable()
 export class ApplyCardService {
@@ -120,7 +121,7 @@ export class ApplyCardService {
   async requestBankcard(userId: number, currencyId: number, cardinfoId:number, openfee: number) {
     // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
     return await this.applycardRepository.manager.transaction(async manager => {
-      const bankcard = await manager.findOne(Bankcard, { where: { status:'0', cardinfoId } })
+      const bankcard = await manager.findOne(Bankcard, { where: { status:'0', cardinfoId }, relations: {cardinfo: true} })
       if(!bankcard) {
         throw new ApiException('银行卡已经申领完')
       }
@@ -134,6 +135,7 @@ export class ApplyCardService {
       await manager.increment(Account, { userId: 1 }, "usable", openfee)
             
       await manager.update(Bankcard, { id: bankcard.id }, { userId: userId, status: '1' }) // 完成认领
+      await manager.update(User, {userId: userId}, {vip: bankcard.cardinfo.index})
       return await manager.findOneBy(Bankcard, {id: bankcard.id})
     })
   }

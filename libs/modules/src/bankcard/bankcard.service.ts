@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
-import { Repository, FindOptionsWhere } from 'typeorm';
+import { Repository, FindOptionsWhere, MoreThanOrEqual } from 'typeorm';
 import { CreateBankcardDto, ListMyBankcardDto, ListBankcardDto, UpdateBankcardDto, UpdateBankcardStatusDto, CreateBankcardKycDto } from './dto/request-bankcard.dto';
 import { Bankcard } from './entities/bankcard.entity';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +11,8 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { SharedService } from '@app/shared/shared.service';
 import { KycService } from '../kyc/kyc.service';
 import { Account } from '../account/entities/account.entity';
+import { CardinfoService } from '../cardinfo/cardinfo.service';
+import { User } from '../system/user/entities/user.entity';
 
 @Injectable()
 export class BankcardService {
@@ -21,6 +23,7 @@ export class BankcardService {
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
     private readonly identityService: IdentityService,
     private readonly kycService: KycService,
+    private readonly cardinfoService: CardinfoService,
     private readonly configService: ConfigService,
     private readonly sharedService: SharedService,
 
@@ -125,6 +128,37 @@ export class BankcardService {
       rows: result[0],
       total: result[1]
     }
+  }
+
+  async upgrade(id: number, userId: number) {
+    const bankcard = await this.bankcardRepository.findOne({where: {id: id}, relations: {cardinfo: true} })
+    const updateFee = bankcard.cardinfo.info.upgradeFee
+    if(updateFee == 0) {
+      throw new ApiException("此卡无需升级")
+    }
+
+    const nextCardinfo = await this.cardinfoService.findOneByIndex(bankcard.cardinfo.index + 1)
+    if(!nextCardinfo) {
+      throw new ApiException("此卡无需升级")
+    }
+    let updateBankcardDto: UpdateBankcardDto = {
+      cardinfoId: nextCardinfo.id
+    }
+    return await this.bankcardRepository.manager.transaction(async manager => {
+      const currencyId = 1
+      const account = await manager.findOne(Account, { where: { currencyId, userId, usable: MoreThanOrEqual(updateFee)} })
+      if(!account) {
+        throw new ApiException('资金不足')
+      }
+
+      await manager.decrement(Account, { userId: userId, currencyId }, "usable", updateFee)
+      await manager.increment(Account, { userId: 1 }, "usable", updateFee)
+            
+      await manager.update(Bankcard, { id: bankcard.id }, { cardinfoId: nextCardinfo.id })
+      await manager.update(User, {userId: userId}, {vip: nextCardinfo.index})
+      return await manager.findOneBy(Bankcard, {id: bankcard.id})
+    })
+
   }
 
   findFreeOne() {

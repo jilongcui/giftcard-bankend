@@ -6,6 +6,7 @@ export const CAPTCHA_IMG_KEY = "captcha:img"
 export const USER_VERSION_KEY = "admin:user:version"  // 存储版本号
 export const USER_TOKEN_KEY = "admin:user:token"  // 用户token
 export const USER_USERNAME_KEY = "admin:userName:token"  // 用户名 userName
+export const USER_VIP_KEY = "admin:vip:token"  // 用户等级 VIP
 export const USER_NICKNAME_KEY = "admin:nickName:token"  // 用昵称 nickName
 export const USER_CID_KEY = "admin:cId:token"  // 用户实名认证的ID
 export const USER_DEPTID_KEY = "admin:deptId:token"  // 用部门id  deptId

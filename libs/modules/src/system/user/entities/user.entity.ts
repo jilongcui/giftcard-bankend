@@ -54,6 +54,15 @@ export class User extends BaseEntity {
     })
     nickName: string
 
+    /* 用户Vip等级 */
+    @Column({
+        name: 'vip',
+        default: 0,
+        comment: '用户Vip等级'
+    })
+    @IsNumber()
+    vip: number
+
     /* 用户类型 */
     @Column({
         name: 'user_type',
