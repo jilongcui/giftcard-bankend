@@ -1,34 +1,64 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Put, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto } from './dto/create-withdraw.dto';
 import { WithdrawService } from './withdraw.service';
-import { CreateWithdrawDto } from './dto/create-withdraw.dto';
-import { UpdateWithdrawDto } from './dto/update-withdraw.dto';
+import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
+import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
+import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
+import { Withdraw } from './entities/withdraw.entity';
+import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
 
+@ApiTags('提现管理')
+@ApiBearerAuth()
 @Controller('withdraw')
 export class WithdrawController {
-  constructor(private readonly withdrawService: WithdrawService) {}
+    constructor(
+        private readonly withdrawService: WithdrawService
+    ) { }
 
-  @Post()
-  create(@Body() createWithdrawDto: CreateWithdrawDto) {
-    return this.withdrawService.create(createWithdrawDto);
-  }
+    @Post()
+    async createWithdraw(@Body() creatWithdrawDto: CreateWithdrawDto, @UserDec(UserEnum.userId) userId: number) {
+        return await this.withdrawService.createWithdrawRequest(creatWithdrawDto, userId);
+    }
 
-  @Get()
-  findAll() {
-    return this.withdrawService.findAll();
-  }
+    @Post('confirm')
+    @RequiresRoles(['admin', 'system'])
+    async confirmWithdraw(@Body() confirmWithdrawDto: ConfirmWithdrawDto, @UserDec(UserEnum.userId) userId: number) {
+        return await this.withdrawService.confirmWithdrawRequest(confirmWithdrawDto, userId);
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.withdrawService.findOne(+id);
-  }
+    /* 订单列表 */
+    @Get('list')
+    @ApiPaginatedResponse(PaginatedDto<Withdraw>)
+    async list(@Query() listWithdrawDto: ListWithdrawDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+        return await this.withdrawService.list(listWithdrawDto, paginationDto);
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWithdrawDto: UpdateWithdrawDto) {
-    return this.withdrawService.update(+id, updateWithdrawDto);
-  }
+    /* 我的订单列表 */
+    @Get('mylist')
+    @ApiPaginatedResponse(PaginatedDto<Withdraw>)
+    async mylist(@Query() listMyWithdrawDto: ListMyWithdrawDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+        return await this.withdrawService.mylist(userId, listMyWithdrawDto, paginationDto);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.withdrawService.remove(+id);
-  }
+    @Put(':id/cancel')
+    async cancel(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+        return await this.withdrawService.cancel(+id, userId);
+    }
+
+    @Put(':id/fail')
+    @RequiresRoles(['admin', 'system'])
+    async fail(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+        return await this.withdrawService.fail(+id, userId);
+    }
+
+    @Get(':id')
+    @ApiDataResponse(typeEnum.object, Withdraw)
+    async findOne(@Param('id') id: string) {
+        return await this.withdrawService.findOne(+id);
+    }
+
 }
