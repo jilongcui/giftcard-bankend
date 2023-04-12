@@ -215,7 +215,7 @@ export class Fund33Service {
     // 对所有的原始参数进行签名
 
     const cardId = rechargeDto.cardId
-    const bankcard = await this.bankcardRepository.findOneBy({userId: userId, id: cardId})
+    const bankcard = await this.bankcardRepository.findOne({where: {userId: userId, id: cardId}, relations:{cardinfo: true}})
     if(!bankcard)
       throw new ApiException("不拥有此银行卡")
 
