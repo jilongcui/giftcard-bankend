@@ -13,7 +13,7 @@ import { PaginatedDto } from '@app/common/dto/paginated.dto';
 
 @ApiTags('提现管理')
 @ApiBearerAuth()
-@Controller('withdraw')
+@Controller('wallet/withdraw')
 export class WithdrawController {
     constructor(
         private readonly withdrawService: WithdrawService
