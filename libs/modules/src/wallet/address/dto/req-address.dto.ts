@@ -1,7 +1,7 @@
 import { OmitType } from "@nestjs/swagger";
 import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { PaginationDto } from "@app/common/dto/pagination.dto";
-import { Address, AddressTypeEnum } from "../entities/address.entity";
+import { Address, AddressTypeEnum, AddressTypeNumber } from "../entities/address.entity";
 
 export class ReqAddressCreateDto {
     // @IsString()
@@ -26,6 +26,21 @@ export class ReqAddressRequestDto {
 
     @IsEnum(AddressTypeEnum)
     addressType: AddressTypeEnum;
+}
+
+export class ReqAddressWithdrawDto {
+
+    @IsString()
+    address: string
+
+    @IsNumber()
+    amount: number
+
+    @IsEnum(AddressTypeEnum)
+    addressType: AddressTypeEnum
+
+    @IsString()
+    order: string
 }
 
 export class ReqMyAddressDto {

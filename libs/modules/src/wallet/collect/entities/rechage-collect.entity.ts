@@ -47,8 +47,8 @@ export class RechargeCollect {
     @Column({
         name: 'amount',
         comment: '汇款金额',
+        type: "decimal", precision: 10, scale: 4, default: 0,
         nullable: true,
-        default: 0
     })
     @IsNumber()
     amount: number;

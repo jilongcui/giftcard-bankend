@@ -1,10 +1,10 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ResAddressDto, ResRequestAddressDto, ResWalletAddressDto } from './dto/res-address.dto';
-import { ReqAddressAddDto, ReqAddressCreateDto, ReqAddressList, ReqAddressRequestDto, ReqMyAddressDto } from './dto/req-address.dto';
+import { ReqAddressAddDto, ReqAddressCreateDto, ReqAddressList, ReqAddressRequestDto, ReqAddressWithdrawDto, ReqMyAddressDto } from './dto/req-address.dto';
 import * as jaysonPromise from 'jayson/promise';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { Address, AddressBSC, AddressBTC, AddressCRI, AddressETH, AddressTRC, AddressTypeEnum, AddressTypeNumber } from './entities/address.entity';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
@@ -13,6 +13,8 @@ import { Identity } from '@app/modules/identity/entities/identity.entity';
 import { RealAuthDto } from '@app/chain/dto/request-chain.dto';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import strRandom from 'string-random';
+import { Account } from '@app/modules/account/entities/account.entity';
 
 @Injectable()
 export class AddressService implements OnModuleInit {
@@ -193,6 +195,127 @@ export class AddressService implements OnModuleInit {
         return responseData
     }
 
+
+    // http://34.81.44.6:9092/wallet/withdraw/add/withdraw?user=k8us&address=THdAQfcTQ56ncifzMpWXb2X432aK78PtPW&amount=1199&chain=195&contract=TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t&order=k8uu
+
+    async addressWithdraw(data: ReqAddressWithdrawDto, userId): Promise<any> {
+        // Check if exist 
+        this.logger.debug('addressRequest ' + data.addressType)
+        let validate = false;
+        let chain = 1;
+        if (data.addressType === AddressTypeEnum.CRI) {
+            // if (await this.addressCriRepository.findOneBy({ userId: userId, address: data.address }))
+            validate = true;
+            chain = AddressTypeNumber.CRI
+        }
+        else if (data.addressType === AddressTypeEnum.TRC) {
+            // if (await this.addressTrcRepository.findOneBy({ userId: userId, address: data.address }))
+            validate = true;
+            chain = AddressTypeNumber.TRC
+        }
+        else if (data.addressType === AddressTypeEnum.BSC) {
+            // if (await this.addressBscRepository.findOneBy({ userId: userId, address: data.address }))
+                validate = true;
+            chain = AddressTypeNumber.BSC
+        }
+        else if (data.addressType === AddressTypeEnum.BTC) {
+            // if (await this.addressBtcRepository.findOneBy({ userId: userId, address: data.address }))
+                validate = true;
+            chain = AddressTypeNumber.BTC
+        }
+        else if (data.addressType === AddressTypeEnum.ETH) {
+            // if (await this.addressEthRepository.findOneBy({ userId: userId, address: data.address }))
+                validate = true;
+            chain = AddressTypeNumber.ETH
+        }
+        if (!validate) {
+            throw new ApiException('地址无效')
+        }
+
+        const amount = data.amount
+        const withdrawFee =  amount * 0.01
+        const withdrawAmount = amount - withdrawFee
+
+        await this.addressEthRepository.manager.transaction(async manager => {
+            const currencyId = 1
+            const account = await manager.findOne(Account, { where: { currencyId, userId, usable: MoreThanOrEqual(amount)} })
+            if(!account) {
+              throw new ApiException('资金不足')
+            }
+      
+            await manager.decrement(Account, { userId: userId, currencyId }, "usable", withdrawAmount)
+            await manager.increment(Account, { userId: 1 }, "usable", withdrawFee)
+                  
+            // await manager.update(Bankcard, { id: bankcard.id }, { cardinfoId: nextCardinfo.id })
+            // return await manager.findOne(Bankcard, {where: {id: bankcard.id}, relations: {cardinfo: true}})
+          })
+
+        const addressesRes = []
+        const response = await this.withdrawAddress(userId, data.address, chain, data.order, data.amount);
+        
+        return response
+    }
+
+    async withdrawAddress(userId: number, address: string, chain: AddressTypeNumber, order: string, amount: number): Promise<ResWalletAddressDto[]> {
+        const requestUri = '/wallet/withdraw/add/withdraw'
+        const body = {
+            user: userId.toString(),
+            address: address,
+            amount: amount.toString(),
+            chain: chain,
+            contract: 'USDT',
+            order: order
+        }
+
+        let options = {
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: body
+        }
+        const remoteUrl = this.baseUrl + requestUri
+        let res = await this.httpService.axiosRef.post<any>(remoteUrl, options);
+        const responseData = res.data
+        return responseData
+    }
+
+    // // 钱包充值通知
+    // async withdrawNotify(rechargeNotifyDto: ReqCollectRechargeNotifyDto) {
+    //     this.logger.debug("Recharge Notice: " + JSON.stringify(rechargeNotifyDto))
+    //     // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+    //     return await this.addressEthRepository.manager.transaction(async manager => {
+    //         let marketRatio = Number(0)
+    //         const currency = await this.currencyService.findOne(rechargeNotifyDto.currencyId)
+    //         if (currency) {
+    //             const address = await this.addressService.findAddress(rechargeNotifyDto.to, rechargeNotifyDto.addressType)
+    //             if(!address)
+    //                 throw new ApiException("Address is not exist.")
+    //             const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
+    //             if (configString) {
+    //                 const configValue = JSON.parse(configString)
+    //                 this.logger.debug('collection config ratio ' + configValue.ratio)
+    //                 marketRatio = rechargeNotifyDto.amount * Number(configValue.ratio)
+    //             }
+
+    //             if (marketRatio > 1.0 || marketRatio < 0.0) {
+    //                 marketRatio = 0.0
+    //             }
+    //             let marketFee = rechargeNotifyDto.amount * marketRatio
+    //             let currencyId = rechargeNotifyDto.currencyId
+    //             await manager.increment(Account, { userId: address.userId, currencyId }, "usable", rechargeNotifyDto.amount - marketFee)
+    //             await manager.increment(Account, { userId: 1, currencyId}, "usable", marketFee)
+
+    //             const reqAddRechargeCollectDto:ReqAddRechargeCollectDto = {
+    //                 ...rechargeNotifyDto,
+    //                 feeState: 1,
+    //                 state: 1,
+    //                 confirmState: 1,
+    //             }
+    //             await manager.save(RechargeCollect, reqAddRechargeCollectDto) // 支付完成
+    //         }
+    //     })
+    // }
+
     async findOneByUser(userId: number) {
         let response = { cri: { address: '', status: '' },
             bsc: { address: '', status: '' },
@@ -216,6 +339,23 @@ export class AddressService implements OnModuleInit {
         response.btc.address = address ? address.address : undefined
         response.btc.status = address ? address.status : undefined
         return response
+    }
+
+    async findOne(addressValue: string, addressType: AddressTypeEnum) {
+        // let response = { cri: { address: '', status: '' }, eth: { address: '', status: '' }, trc: { address: '', status: '' }, btc: { address: '', status: '' } }
+        let address: Address
+        this.logger.debug(`AddressValue ${addressValue}, ${addressType} `)
+        if (addressType === AddressTypeEnum.CRI)
+            address = await this.addressCriRepository.findOne({ where: { address: addressValue} })
+        else if (addressType === AddressTypeEnum.ETH)
+            address = await this.addressEthRepository.findOne({ where: { address: addressValue} })
+        else if (addressType === AddressTypeEnum.BSC)
+            address = await this.addressBscRepository.findOne({ where: { address: addressValue} })
+        else if (addressType === AddressTypeEnum.TRC)
+            address = await this.addressTrcRepository.findOne({ where: { address: addressValue} })
+        else if (addressType === AddressTypeEnum.BTC)
+            address = await this.addressBtcRepository.findOne({ where: { address: addressValue} })
+        return address
     }
 
     async findAddress(addressValue: string, addressType: AddressTypeEnum) {

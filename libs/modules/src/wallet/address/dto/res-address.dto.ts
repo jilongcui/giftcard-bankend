@@ -30,3 +30,18 @@ export class ResWalletAddressDto {
     @IsNumber()
     balance: number
 }
+
+export class ResAddressWithdrawDto {
+
+    @IsString()
+    user: string
+
+    @IsString()
+    address: string;
+
+    @IsNumber()
+    chain: number
+
+    @IsNumber()
+    balance: number
+}
