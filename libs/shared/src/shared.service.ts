@@ -240,6 +240,10 @@ export class SharedService {
         return strRandom(length, {letters: false})
     }
 
+    generateOrderNo(length: number) {
+        return strRandom(length, {letters: false})
+    }
+
     async checkImageCaptcha(uuid: string, code: string) {
         const cacheCode = await this.redis.get(`${CAPTCHA_IMG_KEY}:${uuid}`)
         if (isEmpty(cacheCode) || code.toLowerCase() !== cacheCode.toLowerCase())

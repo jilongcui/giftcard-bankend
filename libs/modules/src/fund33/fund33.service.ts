@@ -7,10 +7,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import * as querystring from 'querystring';
 import strRandom from 'string-random';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { LoginCardDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
 import { Fund33QueryBalance, Fund33QueryTransaction, Fund33QueryUNTransaction, Fund33RechargeDto, Fund33Response } from './dto/response-fund33.dto';
+import { Account } from '../account/entities/account.entity';
+import { Withdraw } from '../fund/entities/withdraw.entity';
 
 @Injectable()
 export class Fund33Service {
@@ -207,12 +209,12 @@ export class Fund33Service {
   /**
    * 给银行卡充值
    */
-  async recharge(queryRechargeDto: QueryRechargeDto, userId: number) {
+  async recharge(rechargeDto: QueryRechargeDto, userId: number) {
 
     const requestUri = '/api/card/top/up'
     // 对所有的原始参数进行签名
 
-    const cardId = queryRechargeDto.cardId
+    const cardId = rechargeDto.cardId
     const bankcard = await this.bankcardRepository.findOneBy({userId: userId, id: cardId})
     if(!bankcard)
       throw new ApiException("不拥有此银行卡")
@@ -221,16 +223,56 @@ export class Fund33Service {
       cardNumber: bankcard.cardNo,
     }
 
+  
+    const rechargeRatio = bankcard.cardinfo.info.rechargeRatio
+    const rechageFee = rechargeDto.amount * rechargeRatio
+    const realAmount = rechargeDto.amount - rechageFee
+    await this.bankcardRepository.manager.transaction(async manager => {
+      const result = await manager.decrement(Account, { userId: userId, currencyId:2, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
+      if (!result.affected) {
+          throw new ApiException('创建充值请求失败')
+      }
+
+      const result2 = await manager.increment(Account, { userId: userId, currencyId:2, }, "freeze", realAmount);
+      if (!result2.affected) {
+          throw new ApiException('创建充值请求失败')
+      }
+
+      // const withdraw = new Withdraw()
+      // withdraw.type = '1' // 银行卡提现
+      // withdraw.status = '0' // 待审核
+      // withdraw.fromAddressId = createWithdrawDto.addressId
+      // withdraw.toAddress = createWithdrawDto.toAddress
+      // withdraw.userId = userId
+      // withdraw.totalPrice = createWithdrawDto.amount
+      // withdraw.totalFee = fee
+      // withdraw.realPrice = withdraw.totalPrice - withdraw.totalFee
+      // withdraw.billNo = this.randomBillNo()
+      // const withdraw2 = await manager.save(withdraw)
+
+      // const withdrawFlow = new WithdrawFlow()
+      // withdrawFlow.step = '0'
+      // withdrawFlow.status = '1'
+      // withdrawFlow.remark = '发起提现'
+      // withdrawFlow.withdrawId = withdraw2.id
+      // await manager.save(withdrawFlow)
+      // withdraw2.bankcard = bankcard
+      // withdraw2.bankcard.user = undefined
+      // withdraw2.bankcard.identity = undefined
+      // withdraw2.bankcard.signTradeNo = undefined
+      // return withdraw2
+  })
+
     const timestamp = moment().unix()*1000 + moment().milliseconds()
     const nonce = this.sharedService.generateNonce(16)
     let body = {
-      amount: '',
+      amount: rechargeDto.amount.toString(),
       appKey: this.appKey,
       appSecret: this.appSecret,
       cardNumber: bankcard.cardNo,
-      merOrderNo: '',
+      merOrderNo: this.sharedService.generateNonce(8),
       nonce: nonce,
-      notifyUrl: '',
+      // notifyUrl: '',
       sign: undefined,
       timestamp: timestamp,
     }
@@ -250,16 +292,17 @@ export class Fund33Service {
     // this.logger.debug(querystring.stringify(body))
     let res = await this.httpService.axiosRef.post<Fund33Response<Fund33RechargeDto>>(remoteUrl, body, options);
     const responseData = res.data
-    // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
 
     this.logger.debug(responseData)
     if (responseData.success == true) {
-        // const decryptedData = key2.decrypt(responseData.encrypt_data, 'utf8');
-        // decode cardnumber
         const backNumber = responseData.data.cardNumber
         const settleAmount = responseData.data.settleAmount
         bankcard.balance = bankcard.balance + parseFloat(settleAmount)
-        this.bankcardRepository.save(bankcard)
+
+        await this.bankcardRepository.manager.transaction(async manager => {
+          const result2 = await manager.decrement(Account, { userId: userId, currencyId:2}, "freeze", parseFloat(settleAmount));
+        })
+        return await this.bankcardRepository.save(bankcard)
         // var encrypted = this.sharedService.aesEncryptNoSalt("14", "sBOvCZZurSbbdJiA")
         // this.logger.debug(encrypted)
 
