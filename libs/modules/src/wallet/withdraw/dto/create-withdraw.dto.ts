@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator"
 import { Withdraw } from "../entities/withdraw.entity"
 import { OmitType, PartialType } from "@nestjs/swagger"
 
-export class ListWithdrawDto extends PartialType(OmitType(Withdraw, ['user'] as const)) { }
+export class ListWithdrawDto extends PartialType(OmitType(Withdraw, ['user', ] as const)) { }
 
 export class CreateWithdrawDto {
     @Type()

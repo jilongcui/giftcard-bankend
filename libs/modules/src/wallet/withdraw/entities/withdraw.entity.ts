@@ -2,7 +2,6 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Type } from "class-transformer";
-import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 import { WithdrawFlow } from "./withdraw-flow.entity";
 import { User } from "@app/modules/system/user/entities/user.entity";
 import { Address, AddressTypeEnum } from "../../address/entities/address.entity";
@@ -71,28 +70,26 @@ export class Withdraw {
     billNo?: string
 
     @Column({
-        name: 'from_address_id',
-        comment: '来源的地址'
-    })
-    @IsOptional()
-    @Type()
-    @IsNumber()
-    fromAddressId?: number
-
-    @Column({
         name: 'address_type',
         comment: '地址类型'
     })
     @IsEnum(AddressTypeEnum)
     addressType: AddressTypeEnum
 
-    /* 关联的银行卡 */
-    @ApiHideProperty()
-    @ManyToOne(() => Address)
-    @JoinColumn({
-        name: 'from_address_id',
+    @Column({
+        name: 'address_id',
+        default: null,
+        comment: '银行卡详情'
     })
-    fromAddress?: Address
+    @Type()
+    fromAddressId: number
+
+    @ApiHideProperty()
+    @IsOptional()
+    @Column({
+        name: 'from_address',
+    })
+    fromAddress?: string
 
     @Column({
         name: 'to_address',

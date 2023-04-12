@@ -216,7 +216,7 @@ async fail(id: number, userId: number) {
 }
 
   async findOne(id: number) {
-    return await this.withdrawRepository.findOne({ where: { id }, relations: { fromAddressId: true } })
+    return await this.withdrawRepository.findOne({ where: { id }, relations: {} })
   }
 
   /* 分页查询 */
@@ -256,7 +256,7 @@ async fail(id: number, userId: number) {
       result = await this.withdrawRepository.findAndCount({
           // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
           where,
-          relations: { fromAddress: true },
+          // relations: { fromAddress: true },
           skip: paginationDto.skip,
           take: paginationDto.take,
           order: {
