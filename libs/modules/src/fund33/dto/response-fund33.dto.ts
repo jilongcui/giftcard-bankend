@@ -22,6 +22,37 @@ export class Fund33QueryBalance {
     closeDate: string
 }
 
+export class Fund33RechargeDto {
+
+    // "amount":"20",
+    amount: string
+
+    // "cardNumber":"6244810070000117",
+    cardNumber: string
+
+    // "completeTime":"",
+    completeTime: string
+
+    // "createTime":"2023-04-02 17:07:09",
+    createTime: string
+
+    // "ext":"",
+    ext?: string
+
+    // "merOrderNo":"345342352343",
+    merOrderNo: string
+
+    // "orderNo":"4534234363464342",
+    orderNo: string
+
+    // "settleAmount":"20.00",
+
+    settleAmount: string
+
+    // "status":0
+    status: number
+}
+
 export class Fund33QueryTransaction {
     /* 卡号 */
     acctNumber: string

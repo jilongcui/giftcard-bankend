@@ -142,10 +142,10 @@ export default defineConfig({
   },
 
   fund33: {
-    baseUrl: 'https://test.asiatop.net/card',
-    appId: 'lj5uct0jt19zh1by3p3sdzlyz2yo4vmg',
-    appKey: 'lj5uct0jt19zh1by3p3sdzlyz2yo4vmg',
-    appSecret: 'zdvvtvzdxp79ihtcplfuzay7tzt6rx8x',
+    baseUrl: process.env.FUND33_BASEURL,
+    appId: process.env.FUND33_APPID,
+    appKey: process.env.FUND33_APPKEY,
+    appSecret: process.env.FUND33_APPSECRET,
   },
 
   platform: {

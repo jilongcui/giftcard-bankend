@@ -9,8 +9,8 @@ import * as querystring from 'querystring';
 import strRandom from 'string-random';
 import { Repository } from 'typeorm';
 import { Bankcard } from '../bankcard/entities/bankcard.entity';
-import { LoginCardDto, QueryBalanceDto } from './dto/create-fund33.dto';
-import { Fund33QueryBalance, Fund33QueryTransaction, Fund33QueryUNTransaction, Fund33Response } from './dto/response-fund33.dto';
+import { LoginCardDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
+import { Fund33QueryBalance, Fund33QueryTransaction, Fund33QueryUNTransaction, Fund33RechargeDto, Fund33Response } from './dto/response-fund33.dto';
 
 @Injectable()
 export class Fund33Service {
@@ -112,7 +112,6 @@ export class Fund33Service {
     this.logger.debug(body1)
     let res = await this.httpService.axiosRef.post<Fund33Response<boolean>>(remoteUrl, body, options);
     const responseData = res.data
-    // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
 
     this.logger.debug(responseData)
     if (responseData.success == true) {
@@ -135,7 +134,7 @@ export class Fund33Service {
    */
   async queryBalance(queryBalanceDto: QueryBalanceDto, userId: number) {
 
-    const requestUri = '/api/query/balance'
+    const requestUri = '/api/card/query/balance'
     // 对所有的原始参数进行签名
 
     const cardId = queryBalanceDto.cardId
@@ -170,7 +169,8 @@ export class Fund33Service {
 
     // this.logger.debug(JSON.stringify(body))
     const remoteUrl = this.baseUrl + requestUri
-    // this.logger.debug(querystring.stringify(body))
+    this.logger.debug(remoteUrl)
+    this.logger.debug(JSON.stringify(body))
     let res = await this.httpService.axiosRef.post<Fund33Response<Fund33QueryBalance>>(remoteUrl, body, options);
     const responseData = res.data
     // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
@@ -204,6 +204,82 @@ export class Fund33Service {
     throw new ApiException('发送请求失败: ' + responseData.msg)
   }
   
+  /**
+   * 给银行卡充值
+   */
+  async recharge(queryRechargeDto: QueryRechargeDto, userId: number) {
+
+    const requestUri = '/api/card/top/up'
+    // 对所有的原始参数进行签名
+
+    const cardId = queryRechargeDto.cardId
+    const bankcard = await this.bankcardRepository.findOneBy({userId: userId, id: cardId})
+    if(!bankcard)
+      throw new ApiException("不拥有此银行卡")
+
+    let queryParams = {
+      cardNumber: bankcard.cardNo,
+    }
+
+    const timestamp = moment().unix()*1000 + moment().milliseconds()
+    const nonce = this.sharedService.generateNonce(16)
+    let body = {
+      amount: '',
+      appKey: this.appKey,
+      appSecret: this.appSecret,
+      cardNumber: bankcard.cardNo,
+      merOrderNo: '',
+      nonce: nonce,
+      notifyUrl: '',
+      sign: undefined,
+      timestamp: timestamp,
+    }
+
+    const signContent = this.sign(body)
+    body.sign = signContent
+    body.appSecret = undefined
+
+    let options = {
+      headers: {
+          "Content-Type": "application/json"
+      },
+    }
+
+    // this.logger.debug(JSON.stringify(body))
+    const remoteUrl = this.baseUrl + requestUri
+    // this.logger.debug(querystring.stringify(body))
+    let res = await this.httpService.axiosRef.post<Fund33Response<Fund33RechargeDto>>(remoteUrl, body, options);
+    const responseData = res.data
+    // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
+
+    this.logger.debug(responseData)
+    if (responseData.success == true) {
+        // const decryptedData = key2.decrypt(responseData.encrypt_data, 'utf8');
+        // decode cardnumber
+        const backNumber = responseData.data.cardNumber
+        const settleAmount = responseData.data.settleAmount
+        bankcard.balance = bankcard.balance + parseFloat(settleAmount)
+        this.bankcardRepository.save(bankcard)
+        // var encrypted = this.sharedService.aesEncryptNoSalt("14", "sBOvCZZurSbbdJiA")
+        // this.logger.debug(encrypted)
+
+        // const backNumber = 'U88v0HHTLxUp9LUkj95AJA=='
+        // this.appSecret = 'sBOvCZZurSbbdJiA'
+        // this.logger.debug(backNumber)
+        // const cardNumber = this.sharedService.aesDecryptNoSalt(backNumber, this.appSecret)
+        // this.logger.debug("CardNumber: " + cardNumber)
+
+        // 验证签名
+        // const verify = createVerify('RSA-SHA1');
+        // verify.write(decryptedData);
+        // verify.end();
+        // const verifyOk = verify.verify(this.platformPublicKey, responseData.sign, 'base64');
+        // this.logger.debug(verifyOk)
+        // return querystring.parse(decryptedData)
+        return responseData
+    }
+    throw new ApiException('发送请求失败: ' + responseData.msg)
+  }
 
   /**
    * 查询交易记录

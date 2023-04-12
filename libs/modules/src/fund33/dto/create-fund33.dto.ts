@@ -11,3 +11,11 @@ export class QueryBalanceDto {
     @IsNumber()
     cardId: number
 }
+
+export class QueryRechargeDto {
+    @IsNumber()
+    cardId: number
+
+    @IsNumber()
+    amount: number
+}

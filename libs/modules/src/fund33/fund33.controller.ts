@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { Fund33Service } from './fund33.service';
-import { CreateFund33Dto, LoginCardDto, QueryBalanceDto } from './dto/create-fund33.dto';
+import { CreateFund33Dto, LoginCardDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
 import { UpdateFund33Dto } from './dto/update-fund33.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
@@ -23,5 +23,10 @@ export class Fund33Controller {
   @Post('queryBalance')
   queryBalance(@Body() queryBalanceDto: QueryBalanceDto, @UserDec(UserEnum.userId) userId: number) {
     return this.fund33Service.queryBalance(queryBalanceDto, userId)
+  }
+
+  @Post('recharge')
+  recharge(@Body() queryRechargeDto: QueryRechargeDto, @UserDec(UserEnum.userId) userId: number) {
+    return this.fund33Service.recharge(queryRechargeDto, userId)
   }
 }
