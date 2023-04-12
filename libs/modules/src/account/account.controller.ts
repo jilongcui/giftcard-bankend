@@ -6,7 +6,7 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { AccountService } from './account.service';
-import { CreateAccountDto, ExhangeAccountDto, ListAccountDto, ListMyAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
+import { CreateAccountDto, ExhangeAccountDto, ListAccountDto, ListMyAccountDto, TransferAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
 import { Account } from './entities/account.entity';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
@@ -80,7 +80,12 @@ export class AccountController {
   }
 
   @Post('exchange')
-  async exchange(@Body() createAccountDto: ExhangeAccountDto, @UserDec(UserEnum.userId) userId: number) {
-    return await this.accountService.exchange(createAccountDto, userId);
+  async exchange(@Body() exchangeAccountDto: ExhangeAccountDto, @UserDec(UserEnum.userId) userId: number) {
+    return await this.accountService.exchange(exchangeAccountDto, userId);
+  }
+
+  @Post('transfer')
+  async transfer(@Body() transferAccountDto: TransferAccountDto, @UserDec(UserEnum.userId) userId: number) {
+    return await this.accountService.transfer(transferAccountDto, userId);
   }
 }

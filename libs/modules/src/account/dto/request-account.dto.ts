@@ -1,6 +1,6 @@
 import { OmitType, PartialType } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsNumber } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 import { Account } from "../entities/account.entity";
 
 export class CreateAccountDto extends OmitType(Account, ['id', 'createTime'] as const) {
@@ -25,6 +25,20 @@ export class ExhangeAccountDto {
     @Type()
     @IsNumber()
     currIdTo: number
+
+    @Type()
+    @IsNumber()
+    amount: number
+}
+
+export class TransferAccountDto {
+    @Type()
+    @IsString()
+    userTo: string // userName, phonenumber, email
+
+    @Type()
+    @IsNumber()
+    currencyId: number
 
     @Type()
     @IsNumber()

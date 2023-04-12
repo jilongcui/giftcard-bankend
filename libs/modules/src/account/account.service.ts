@@ -3,10 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Repository, FindOptionsWhere, MoreThanOrEqual } from 'typeorm';
-import { CreateAccountDto, ExhangeAccountDto, ListAccountDto, ListMyAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
+import { CreateAccountDto, ExhangeAccountDto, ListAccountDto, ListMyAccountDto, TransferAccountDto, UpdateAccountDto, UpdateAllAccountDto } from './dto/request-account.dto';
 import { Account } from './entities/account.entity';
 import { Currency } from '../currency/entities/currency.entity';
 import { ApiException } from '@app/common/exceptions/api.exception';
+import { UserService } from '../system/user/user.service';
 
 @Injectable()
 export class AccountService {
@@ -14,6 +15,7 @@ export class AccountService {
   constructor(
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRepository(Currency) private readonly currencyRepository: Repository<Currency>,
+    private readonly userService: UserService,
   ) { }
 
   create(createAccountDto: CreateAccountDto) {
@@ -131,4 +133,33 @@ export class AccountService {
     })
     //
   }
+
+  async transfer(tranferAccountDto: TransferAccountDto, userId: number) {
+
+    // this.logger.debug('exchange')
+    const currency = await this.currencyRepository.findOneBy({id: tranferAccountDto.currencyId})
+
+    const user = await this.userService.findOneByMixName(tranferAccountDto.userTo)
+    const fromAmount = tranferAccountDto.amount
+    const transferFee = fromAmount * 0.01 // toFixed
+    const toAmount = fromAmount - transferFee
+
+    // Transfer
+    return this.accountRepository.manager.transaction(async manager => {
+
+      const account = await manager.findOneBy(Account,{
+        currencyId:tranferAccountDto.currencyId,
+        userId:userId,
+        usable: MoreThanOrEqual(fromAmount)
+      })
+      if(!account) {
+        throw new ApiException('资金不足')
+      }
+      await manager.decrement(Account, { userId: userId, currencyId: currency.id }, "usable", fromAmount)
+      await manager.increment(Account, { userId: user.userId, currencyId: currency.id }, "usable", toAmount)
+      await manager.increment(Account, { userId: 1 }, "usable", transferFee)
+    })
+    //
+  }
+
 }
