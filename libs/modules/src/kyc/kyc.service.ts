@@ -16,8 +16,8 @@ export class KycService {
     @InjectRepository(Kyc) private readonly kycRepository: Repository<Kyc>,
   ) {}
 
-  create(createKycDto: CreateKycDto, userId: number) {
-    const kyc = this.findOneByUser(userId)
+  async create(createKycDto: CreateKycDto, userId: number) {
+    const kyc = await this.findOneByUser(userId)
     if(kyc) {
       throw new ApiException("已存在KYC")
     }
@@ -29,11 +29,11 @@ export class KycService {
     this.kycRepository.save(kycDto)
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return this.kycRepository.findOneBy({ id })
   }
 
-  findOneByUser(userId: number) {
+  async findOneByUser(userId: number) {
     return this.kycRepository.findOneBy({userId})
   }
 
