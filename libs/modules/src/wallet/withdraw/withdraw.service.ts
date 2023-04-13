@@ -140,7 +140,7 @@ export class WithdrawService {
     //     throw new ApiException('此银行卡未绑定')
     // }
 
-    const withdraw = await this.withdrawRepository.findOne({where: { id: withdrawId }})
+    const withdraw = await this.withdrawRepository.findOne({where: { id: withdrawId }, relations: {currency: true}})
     if (withdraw === null) {
         throw new ApiException('提币记录不存在')
     }
