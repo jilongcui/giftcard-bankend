@@ -86,6 +86,7 @@ export class Withdraw {
     currencyId: number
 
     @ApiHideProperty()
+    @ManyToOne(() => Currency)
     @JoinColumn({
         name: 'currency_id',
     })
