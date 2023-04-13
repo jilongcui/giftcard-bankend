@@ -14,6 +14,7 @@ import { RealAuthDto } from '@app/chain/dto/request-chain.dto';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as querystring from 'querystring';
+const FormData = require('form-data');
 
 @Injectable()
 export class AddressService implements OnModuleInit {
