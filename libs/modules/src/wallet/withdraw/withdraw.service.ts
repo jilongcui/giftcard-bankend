@@ -154,7 +154,7 @@ export class WithdrawService {
         throw new ApiException('提币状态不正确')
     }
 
-    if(withdrawNotifyDto.status !== '0') {
+    if(withdrawNotifyDto.status !== '1') {
         return await this.withdrawRepository.manager.transaction(async manager => {
             // 把Withdraw的状态改成4: 失败
             await manager.update(Withdraw, { id: withdraw.id, status: '1' }, { status: '4' }) // 提现失败
