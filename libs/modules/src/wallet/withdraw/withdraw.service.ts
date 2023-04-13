@@ -17,15 +17,16 @@ import { WithdrawFlow } from './entities/withdraw-flow.entity';
 import { Account } from '@app/modules/account/entities/account.entity';
 import { AddressService } from '../address/address.service';
 import { ReqAddressWithdrawDto } from '../address/dto/req-address.dto';
+import { CurrencyService } from '@app/modules/currency/currency.service';
 
 @Injectable()
 export class WithdrawService {
   logger = new Logger(WithdrawService.name)
   constructor(
-    private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly addressService: AddressService,
-    private readonly sharedService: SharedService,
+
+    private readonly currencyService: CurrencyService,
     @InjectRepository(Withdraw) private readonly withdrawRepository: Repository<Withdraw>,
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRedis() private readonly redis: Redis,
@@ -37,14 +38,16 @@ export class WithdrawService {
 
   // 创建提现请求
   async createWithdrawRequest(createWithdrawDto: CreateWithdrawDto, userId: number) {
-    // const address = await this.addressService.findOneByUser(createWithdrawDto.fromAddressId)
-    // this.logger.debug(address)
-    // // if (bankcard.signNo === undefined || bankcard.signNo === '') {
-    // //     throw new ApiException('此银行卡没有实名')
-    // // }
-    // if (address.status === '0' || address.status === '2') {
-    //     throw new ApiException('此银行卡未绑定')
-    // }
+    const currency = await this.currencyService.findOneByName(createWithdrawDto.currency)
+    this.logger.debug(currency)
+
+    if (currency.status === '0') {
+        throw new ApiException('此代币禁止已下架')
+    }
+
+    if (currency.withdrawEnable == false) {
+        throw new ApiException('此代币禁止提币')
+    }
     
     let amount = createWithdrawDto.amount
 
@@ -70,11 +73,12 @@ export class WithdrawService {
         const withdraw = new Withdraw()
         withdraw.type = '1' // 银行卡提现
         withdraw.status = '0' // 待审核
-        withdraw.fromAddressId = createWithdrawDto.addressId
+        withdraw.currencyId = currency.id
         withdraw.toAddress = createWithdrawDto.toAddress
         withdraw.userId = userId
         withdraw.totalPrice = createWithdrawDto.amount
         withdraw.totalFee = fee
+        withdraw.addressType = createWithdrawDto.addressType
         withdraw.realPrice = withdraw.totalPrice - withdraw.totalFee
         withdraw.billNo = this.randomBillNo()
         const withdraw2 = await manager.save(withdraw)
@@ -133,7 +137,6 @@ export class WithdrawService {
     // if (address.status === '0' || address.status === '2') {
     //     throw new ApiException('此银行卡未绑定')
     // }
-    
 
     const withdraw = await this.withdrawRepository.findOne({where: { id: withdrawId }})
     if (withdraw === null) {
@@ -142,6 +145,7 @@ export class WithdrawService {
 
     const reqAddessWithdraw: ReqAddressWithdrawDto = {
       address: withdraw.toAddress,
+      currency: withdraw.currency.symbol,
       amount: withdraw.totalPrice,
       addressType: withdraw.addressType,
       order: withdraw.billNo

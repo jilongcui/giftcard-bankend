@@ -251,19 +251,19 @@ export class AddressService implements OnModuleInit {
           })
 
         const addressesRes = []
-        const response = await this.withdrawAddress(userId, data.address, chain, data.order, data.amount);
+        const response = await this.withdrawAddress(userId, data.address, data.currency, chain, data.order, data.amount);
         
         return response
     }
 
-    async withdrawAddress(userId: number, address: string, chain: AddressTypeNumber, order: string, amount: number): Promise<ResWalletAddressDto[]> {
+    async withdrawAddress(userId: number, address: string, currency: string, chain: AddressTypeNumber, order: string, amount: number): Promise<ResWalletAddressDto[]> {
         const requestUri = '/wallet/withdraw/add/withdraw'
         const body = {
             user: userId.toString(),
             address: address,
             amount: amount.toString(),
             chain: chain,
-            contract: 'USDT',
+            contract: currency,
             order: order
         }
 

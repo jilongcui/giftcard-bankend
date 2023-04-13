@@ -5,6 +5,7 @@ import { Type } from "class-transformer";
 import { WithdrawFlow } from "./withdraw-flow.entity";
 import { User } from "@app/modules/system/user/entities/user.entity";
 import { Address, AddressTypeEnum } from "../../address/entities/address.entity";
+import { Currency } from "@app/modules/currency/entities/currency.entity";
 
 @Entity()
 export class Withdraw {
@@ -26,7 +27,7 @@ export class Withdraw {
     @Column({
         name: 'status',
         default: '0',
-        comment: '提现状态 0: 等待审核 1: 提现中，等待确认 2: 提现完成 3:取消提现 4: 提现失败 5: 审核未通过',
+        comment: '提现状态 0: 等待审核 1: 等待网络确认 2: 提现完成 3:取消提现 4: 提现失败 5: 审核未通过',
         type: 'char',
         length: 1
     })
@@ -77,19 +78,22 @@ export class Withdraw {
     addressType: AddressTypeEnum
 
     @Column({
-        name: 'address_id',
+        name: 'currency_id',
         default: null,
-        comment: '银行卡详情'
+        comment: '代币Id'
     })
     @Type()
-    fromAddressId: number
+    currencyId: number
 
     @ApiHideProperty()
-    @IsOptional()
     @Column({
-        name: 'from_address',
+        name: 'currency',
+        default: null,
+        comment: '币种'
     })
-    fromAddress?: string
+    @IsOptional()
+    @IsString()
+    currency?: Currency
 
     @Column({
         name: 'to_address',
@@ -98,6 +102,15 @@ export class Withdraw {
     @IsOptional()
     @IsString()
     toAddress?: string
+
+    @Column({
+        name: 'txid',
+        comment: '交易ID',
+        nullable: true,
+        default: null,
+    })
+    @IsString()
+    txid: string;
 
     @Column({
         name: 'user_id',

@@ -1,18 +1,25 @@
 import { Type } from "class-transformer"
-import { IsNumber, IsOptional, IsString } from "class-validator"
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator"
 import { Withdraw } from "../entities/withdraw.entity"
 import { OmitType, PartialType } from "@nestjs/swagger"
+import { AddressTypeEnum } from "../../address/entities/address.entity"
 
-export class ListWithdrawDto extends PartialType(OmitType(Withdraw, ['user', ] as const)) { }
+export class ListWithdrawDto extends PartialType(OmitType(Withdraw, ['user', 'currency'] as const)) { }
 
 export class CreateWithdrawDto {
-    @Type()
-    @IsNumber()
-    addressId: number
+    /* 代币名称：USDT */
+    @IsString()
+    currency: string
 
+    /* 地址类型：ETH/BSC/TRC */
+    @IsEnum(AddressTypeEnum)
+    addressType: AddressTypeEnum
+
+    /* 提币目标地址 */
     @IsString()
     toAddress: string
 
+    /* 提币数量 */
     @Type()
     @IsNumber()
     amount: number

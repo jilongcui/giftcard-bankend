@@ -33,6 +33,9 @@ export class ReqAddressWithdrawDto {
     @IsString()
     address: string
 
+    @IsString()
+    currency: string  // 'USDT', '0x123455566',
+    
     @IsNumber()
     amount: number
 
