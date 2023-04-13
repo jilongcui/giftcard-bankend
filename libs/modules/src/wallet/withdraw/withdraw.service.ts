@@ -150,7 +150,7 @@ export class WithdrawService {
     if (withdraw === null) {
         throw new ApiException('提币记录不存在')
     }
-    if (withdraw.status !== '2') {
+    if (withdraw.status !== '1') {
         throw new ApiException('提币状态不正确')
     }
 
@@ -166,9 +166,12 @@ export class WithdrawService {
 
     return await this.withdrawRepository.manager.transaction(async manager => {
         // 把Withdraw的状态改成2: 已支付
-        await manager.update(Withdraw, { id: withdraw.id, status: '1' }, { status: '2' })
+        // await manager.update(Withdraw, { id: withdraw.id, status: '1' }, { status: '2' })
+        
         await manager.increment(Account, { userId: 1 }, "usable", withdraw.totalFee)
         const result2 = await manager.decrement(Account, { userId: withdraw.userId }, "freeze", withdraw.totalPrice);
+        withdraw.status = '2'
+        withdraw.txid = withdrawNotifyDto.txid
         return await this.withdrawRepository.save(withdraw)
     })
 

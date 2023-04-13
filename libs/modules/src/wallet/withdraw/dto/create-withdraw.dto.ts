@@ -67,5 +67,8 @@ export class ReqWithdrawNotifyDto {
     amount: string
 
     @IsString()
+    txid: string
+
+    @IsString()
     status: string // 0: fail 1: success
 }
