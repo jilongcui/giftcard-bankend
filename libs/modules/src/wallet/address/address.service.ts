@@ -13,7 +13,7 @@ import { Identity } from '@app/modules/identity/entities/identity.entity';
 import { RealAuthDto } from '@app/chain/dto/request-chain.dto';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import * as querystring from 'querystring';
+import * as qs from 'qs'; 
 const FormData = require('form-data');
 
 @Injectable()
@@ -240,33 +240,27 @@ export class AddressService implements OnModuleInit {
 
     async withdrawAddress(userId: number, address: string, currency: string, chain: AddressTypeNumber, order: string, amount: number): Promise<ResWalletAddressDto[]> {
         const requestUri = '/wallet/withdraw/add/withdraw'
-        // const body = {
-        //     user: userId.toString(),
-        //     address: address,
-        //     amount: amount.toString(),
-        //     chain: chain,
-        //     contract: currency,
-        //     order: order
-        // }
+        const body = {
+            user: userId.toString(),
+            address: address,
+            amount: amount.toString(),
+            chain: chain,
+            contract: currency,
+            order: order
+        }
 
         let options = {
             headers: {
-                "Content-Type": "multipart/form-data;"
+                "Content-Type": "application/x-www-form-urlencoded;"
             },
         }
         const remoteUrl = this.withdrawUrl + requestUri
         this.logger.debug(remoteUrl)
-        const data = new FormData()
-        data.append('user', userId.toString())
-        data.append('address', address)
-        data.append('amount', amount.toString())
-        data.append('chain', chain.toString())
-        data.append('contract', currency)
-        data.append('order', order)
-        let res1 = await this.httpService.axiosRef.postForm<any>(remoteUrl, data, options);
-        this.logger.debug(JSON.stringify(res1))
+        const data = qs.stringify(body)
+        let res = await this.httpService.axiosRef.postForm<any>(remoteUrl, data, options);
+        this.logger.debug(JSON.stringify(res))
 
-        const responseData = res1.data
+        const responseData = res.data
         return responseData
     }
 
