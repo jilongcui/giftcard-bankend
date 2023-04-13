@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Inject, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
-import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto } from './dto/create-withdraw.dto';
+import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, ReqWithdrawNotifyDto } from './dto/create-withdraw.dto';
 import { WithdrawService } from './withdraw.service';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
@@ -28,6 +28,12 @@ export class WithdrawController {
     @RequiresRoles(['admin', 'system'])
     async confirmWithdraw(@Body() confirmWithdrawDto: ConfirmWithdrawDto, @UserDec(UserEnum.userId) userId: number) {
         return await this.withdrawService.confirmWithdrawRequest(confirmWithdrawDto, userId);
+    }
+
+    @Post('notify')
+    @RequiresRoles(['admin', 'system'])
+    async notifyWithdraw(@Body() notifyWithdrawDto: ReqWithdrawNotifyDto) {
+        return await this.withdrawService.notifyWithdraw(notifyWithdrawDto);
     }
 
     /* 订单列表 */

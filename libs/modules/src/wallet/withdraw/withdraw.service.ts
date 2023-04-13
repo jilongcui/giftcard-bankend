@@ -8,7 +8,7 @@ import { FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
 
-import { ConfirmWithdrawDto, CreateWithdrawDto, WithdrawWithCardDto, ListMyWithdrawDto, ListWithdrawDto } from './dto/create-withdraw.dto';
+import { ConfirmWithdrawDto, CreateWithdrawDto, WithdrawWithCardDto, ListMyWithdrawDto, ListWithdrawDto, ReqWithdrawNotifyDto } from './dto/create-withdraw.dto';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -125,44 +125,54 @@ export class WithdrawService {
         await manager.save(withdrawFlow)
     })
     // toFix
-    await this.doWithdrawWithCard(withdraw.id, userId)
+    await this.doWithdrawWithCard(withdraw.id)
   }
 
   // 小额支付 API/PayTransit/PayTransferWithSmallAll.aspx
-  async doWithdrawWithCard(withdrawId:number, userId: number) {
-    // const requestUri = 'API/PayTransit/PayTransferWithSmallAll.aspx'
-    // const address = await this.addressService.findAddress(payWithCard.fromAddressId)
-    // this.logger.debug(address)
-    // if (address === null) {
-    //     throw new ApiException('此银行卡没有实名')
-    // }
-    // if (address.status === '0' || address.status === '2') {
-    //     throw new ApiException('此银行卡未绑定')
-    // }
+  async doWithdrawWithCard(withdrawId:number) {
 
     const withdraw = await this.withdrawRepository.findOne({where: { id: withdrawId }, relations: {currency: true}})
     if (withdraw === null) {
         throw new ApiException('提币记录不存在')
     }
-
     const reqAddessWithdraw: ReqAddressWithdrawDto = {
       address: withdraw.toAddress,
       currency: withdraw.currency.symbol,
-      amount: withdraw.totalPrice,
+      amount: withdraw.realPrice,
       addressType: withdraw.addressType,
       order: withdraw.billNo
     }
-    const address = await this.addressService.addressWithdraw(reqAddessWithdraw, userId)
+    return await this.addressService.addressWithdraw(reqAddessWithdraw, withdraw.userId)
+  }
 
-    await this.withdrawRepository.manager.transaction(async manager => {
+  async notifyWithdraw(withdrawNotifyDto: ReqWithdrawNotifyDto) {
+    const withdraw = await this.withdrawRepository.findOne({where: { billNo: withdrawNotifyDto.orderNo }, relations: {}})
+    if (withdraw === null) {
+        throw new ApiException('提币记录不存在')
+    }
+    if (withdraw.status !== '2') {
+        throw new ApiException('提币状态不正确')
+    }
+
+    if(withdrawNotifyDto.status !== '0') {
+        return await this.withdrawRepository.manager.transaction(async manager => {
+            // 把Withdraw的状态改成4: 失败
+            await manager.update(Withdraw, { id: withdraw.id, status: '1' }, { status: '4' }) // 提现失败
+            await manager.increment(Account, { userId: withdraw.userId }, "usable", withdraw.totalPrice)
+            await manager.decrement(Account, { userId: withdraw.userId }, "freeze", withdraw.totalPrice);
+            return await this.withdrawRepository.save(withdraw)
+        })
+    }
+
+    return await this.withdrawRepository.manager.transaction(async manager => {
         // 把Withdraw的状态改成2: 已支付
-        await manager.update(Withdraw, { id: withdraw.id }, { status: '2' })
+        await manager.update(Withdraw, { id: withdraw.id, status: '1' }, { status: '2' })
         await manager.increment(Account, { userId: 1 }, "usable", withdraw.totalFee)
-        const result2 = await manager.decrement(Account, { user: { userId: userId } }, "freeze", withdraw.totalPrice);
-        
-
+        const result2 = await manager.decrement(Account, { userId: withdraw.userId }, "freeze", withdraw.totalPrice);
         return await this.withdrawRepository.save(withdraw)
     })
+
+    
   }
 
   async cancel(id: number, userId: number) {

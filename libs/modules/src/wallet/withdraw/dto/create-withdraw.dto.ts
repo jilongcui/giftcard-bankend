@@ -59,3 +59,13 @@ export class ListMyWithdrawDto {
     status?: string
 }
 
+export class ReqWithdrawNotifyDto {
+    @IsString()
+    orderNo: string
+
+    @IsString()
+    amount: string
+
+    @IsString()
+    status: string // 0: fail 1: success
+}
