@@ -232,24 +232,6 @@ export class AddressService implements OnModuleInit {
             throw new ApiException('地址无效')
         }
 
-        const amount = data.amount
-        const withdrawFee =  amount * 0.01
-        const withdrawAmount = amount - withdrawFee
-
-        await this.addressEthRepository.manager.transaction(async manager => {
-            const currencyId = 1
-            const account = await manager.findOne(Account, { where: { currencyId, userId, usable: MoreThanOrEqual(amount)} })
-            if(!account) {
-              throw new ApiException('资金不足')
-            }
-      
-            await manager.decrement(Account, { userId: userId, currencyId }, "usable", withdrawAmount)
-            await manager.increment(Account, { userId: 1 }, "usable", withdrawFee)
-                  
-            // await manager.update(Bankcard, { id: bankcard.id }, { cardinfoId: nextCardinfo.id })
-            // return await manager.findOne(Bankcard, {where: {id: bankcard.id}, relations: {cardinfo: true}})
-          })
-
         const addressesRes = []
         const response = await this.withdrawAddress(userId, data.address, data.currency, chain, data.order, data.amount);
         
@@ -273,7 +255,7 @@ export class AddressService implements OnModuleInit {
             },
             body: body
         }
-        const remoteUrl = this.baseUrl + requestUri
+        const remoteUrl = this.withdrawUrl + requestUri
         let res = await this.httpService.axiosRef.post<any>(remoteUrl, options);
         const responseData = res.data
         return responseData
