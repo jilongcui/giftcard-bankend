@@ -252,11 +252,10 @@ export class AddressService implements OnModuleInit {
             headers: {
                 "Content-Type": "multipart/form-data"
             },
-            params: body
         }
         const remoteUrl = this.withdrawUrl + requestUri
         this.logger.debug(remoteUrl)
-        let res1 = await this.httpService.axiosRef.post<any>(remoteUrl, querystring.stringify(body), options);
+        let res1 = await this.httpService.axiosRef.postForm<any>(remoteUrl, body, options);
         this.logger.debug(JSON.stringify(res1))
 
         const responseData = res1.data
