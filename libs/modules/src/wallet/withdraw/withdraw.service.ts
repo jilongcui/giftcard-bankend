@@ -18,6 +18,8 @@ import { Account } from '@app/modules/account/entities/account.entity';
 import { AddressService } from '../address/address.service';
 import { ReqAddressWithdrawDto } from '../address/dto/req-address.dto';
 import { CurrencyService } from '@app/modules/currency/currency.service';
+import { SYSCONF_WITHDRAW_FEE_KEY } from '@app/common/contants/sysconfig.contants';
+import { SysConfigService } from '@app/modules/system/sys-config/sys-config.service';
 
 @Injectable()
 export class WithdrawService {
@@ -25,7 +27,7 @@ export class WithdrawService {
   constructor(
     private readonly configService: ConfigService,
     private readonly addressService: AddressService,
-
+    private readonly sysconfigService: SysConfigService,
     private readonly currencyService: CurrencyService,
     @InjectRepository(Withdraw) private readonly withdrawRepository: Repository<Withdraw>,
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
@@ -51,9 +53,9 @@ export class WithdrawService {
     
     let amount = createWithdrawDto.amount
 
-    let fee = amount * 1 / 1000
-    if (fee < 1.0) fee = 1.0
-    amount = amount - fee
+    const withdrawFeeString = await this.sysconfigService.getValue(SYSCONF_WITHDRAW_FEE_KEY)
+    let withdrawFee = Number(withdrawFeeString)
+    let fee = withdrawFee || 1.0 // usdt
 
     if (createWithdrawDto.amount <= fee) {
         throw new ApiException('提现金额低于手续费')

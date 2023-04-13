@@ -86,13 +86,10 @@ export class Withdraw {
     currencyId: number
 
     @ApiHideProperty()
-    @Column({
-        name: 'currency',
-        default: null,
-        comment: '币种'
+    @JoinColumn({
+        name: 'currency_id',
     })
     @IsOptional()
-    @IsString()
     currency?: Currency
 
     @Column({
