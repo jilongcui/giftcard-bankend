@@ -250,7 +250,7 @@ export class AddressService implements OnModuleInit {
 
         let options = {
             headers: {
-                "Content-Type": "multipart/form-data"
+                "Content-Type": "multipart/form-data;"
             },
         }
         const remoteUrl = this.withdrawUrl + requestUri
