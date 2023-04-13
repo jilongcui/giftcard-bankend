@@ -239,14 +239,14 @@ export class AddressService implements OnModuleInit {
 
     async withdrawAddress(userId: number, address: string, currency: string, chain: AddressTypeNumber, order: string, amount: number): Promise<ResWalletAddressDto[]> {
         const requestUri = '/wallet/withdraw/add/withdraw'
-        const body = {
-            user: userId.toString(),
-            address: address,
-            amount: amount.toString(),
-            chain: chain,
-            contract: currency,
-            order: order
-        }
+        // const body = {
+        //     user: userId.toString(),
+        //     address: address,
+        //     amount: amount.toString(),
+        //     chain: chain,
+        //     contract: currency,
+        //     order: order
+        // }
 
         let options = {
             headers: {
@@ -255,7 +255,14 @@ export class AddressService implements OnModuleInit {
         }
         const remoteUrl = this.withdrawUrl + requestUri
         this.logger.debug(remoteUrl)
-        let res1 = await this.httpService.axiosRef.postForm<any>(remoteUrl, body, options);
+        const data = new FormData()
+        data.append('user', userId.toString())
+        data.append('address', address)
+        data.append('amount', amount.toString())
+        data.append('chain', chain.toString())
+        data.append('contract', currency)
+        data.append('order', order)
+        let res1 = await this.httpService.axiosRef.postForm<any>(remoteUrl, data, options);
         this.logger.debug(JSON.stringify(res1))
 
         const responseData = res1.data
