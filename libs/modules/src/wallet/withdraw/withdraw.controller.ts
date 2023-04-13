@@ -10,6 +10,7 @@ import { Withdraw } from './entities/withdraw.entity';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
+import { Public } from '@app/common/decorators/public.decorator';
 
 @ApiTags('提现管理')
 @ApiBearerAuth()
@@ -31,7 +32,7 @@ export class WithdrawController {
     }
 
     @Post('notify')
-    @RequiresRoles(['admin', 'system'])
+    @Public()
     async notifyWithdraw(@Body() notifyWithdrawDto: ReqWithdrawNotifyDto) {
         return await this.withdrawService.notifyWithdraw(notifyWithdrawDto);
     }
