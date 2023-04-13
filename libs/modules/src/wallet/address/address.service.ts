@@ -257,7 +257,7 @@ export class AddressService implements OnModuleInit {
         const remoteUrl = this.withdrawUrl + requestUri
         this.logger.debug(remoteUrl)
         const data = qs.stringify(body)
-        let res = await this.httpService.axiosRef.postForm<any>(remoteUrl, data, options);
+        let res = await this.httpService.axiosRef.post<any>(remoteUrl, data, options);
         this.logger.debug(JSON.stringify(res))
 
         const responseData = res.data
