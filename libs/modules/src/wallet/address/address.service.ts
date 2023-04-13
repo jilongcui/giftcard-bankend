@@ -14,7 +14,6 @@ import { RealAuthDto } from '@app/chain/dto/request-chain.dto';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as qs from 'qs'; 
-const FormData = require('form-data');
 
 @Injectable()
 export class AddressService implements OnModuleInit {
@@ -258,9 +257,8 @@ export class AddressService implements OnModuleInit {
         this.logger.debug(remoteUrl)
         const data = qs.stringify(body)
         let res = await this.httpService.axiosRef.post<any>(remoteUrl, data, options);
-        this.logger.debug(JSON.stringify(res))
-
         const responseData = res.data
+        this.logger.debug(responseData)
         return responseData
     }
 
