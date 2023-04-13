@@ -13,8 +13,7 @@ import { Identity } from '@app/modules/identity/entities/identity.entity';
 import { RealAuthDto } from '@app/chain/dto/request-chain.dto';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import strRandom from 'string-random';
-import { Account } from '@app/modules/account/entities/account.entity';
+import * as querystring from 'querystring';
 
 @Injectable()
 export class AddressService implements OnModuleInit {
@@ -252,11 +251,12 @@ export class AddressService implements OnModuleInit {
         let options = {
             headers: {
                 "Content-Type": "application/json"
-            },
-            body: body
+            }
         }
         const remoteUrl = this.withdrawUrl + requestUri
-        let res = await this.httpService.axiosRef.post<any>(remoteUrl, options);
+        this.logger.debug(remoteUrl)
+        let res = await this.httpService.axiosRef.post<any>(remoteUrl, querystring.stringify(body), options);
+        this.logger.debug(JSON.stringify(res))
         const responseData = res.data
         return responseData
     }
