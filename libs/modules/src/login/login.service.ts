@@ -30,6 +30,7 @@ import { isPhoneNumber } from 'class-validator';
 import * as moment from 'moment'
 import { InviteUserService } from '@app/modules/inviteuser/invite-user.service';
 import { AuthService } from '../system/auth/auth.service';
+const strRandom = require('string-random');
 
 @Injectable()
 export class LoginService {
@@ -75,12 +76,12 @@ export class LoginService {
             user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
             if (user) throw new ApiException('该手机号已存在')
             reqAddUserDto.phonenumber = reqMobileRegDto.phone;
-            reqAddUserDto.userName = reqMobileRegDto.phone;
+            reqAddUserDto.userName = "gf_" + strRandom(8).toLowerCase() // reqMobileRegDto.phone;
         } else if (reqMobileRegDto instanceof ReqEmailRegDto) {
             user = await this.userService.findOneByPhone(reqMobileRegDto.email)
             if (user) throw new ApiException('该邮箱已存在')
             reqAddUserDto.email = reqMobileRegDto.email;
-            reqAddUserDto.userName = reqMobileRegDto.email;
+            reqAddUserDto.userName = "gf_" + strRandom(8).toLowerCase() // reqMobileRegDto.email;
         }
         
         reqAddUserDto.nickName = '';
