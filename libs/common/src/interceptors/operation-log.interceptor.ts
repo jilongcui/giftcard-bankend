@@ -96,6 +96,7 @@ export class OperationLogInterceptor implements NestInterceptor {
       } else { //失败的请求
         operLog.status = 1
         operLog.errorMsg = data && data.msg
+        operLog.errorMsg = JSON.stringify(operLog.errorMsg)
       }
       /* 记录返回值 */
       if (logOption.isSaveResponseData) {
