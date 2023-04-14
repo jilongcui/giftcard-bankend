@@ -145,6 +145,16 @@ export class ReqUpdatePhone {
     code: string
 }
 
+/* 更改自己的邮箱 */
+export class ReqUpdateEmail {
+    /* 邮箱 */
+    @IsString()
+    email: string
+
+    @IsString()
+    code: string
+}
+
 /* 更改自己的用户信息 */
 export class ReqSetSelfPwd {
     /* 新密码 */
