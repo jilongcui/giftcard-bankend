@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { EmailService } from './email.service';
-import { CreateEmailDto, ListEmailDto, ReqEmailCodeSendDto, SendEmailDto } from './dto/create-email.dto';
+import { CreateEmailDto, ListEmailDto, ReqEmailCodeCheckDto, ReqEmailCodeSendDto, SendEmailDto } from './dto/create-email.dto';
 import { UpdateEmailDto } from './dto/update-email.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
@@ -73,7 +73,7 @@ export class EmailController {
 
   @Post("checkcode")
   @Public()
-  async checkSmsCode(@Body() reqSmscodCheckDto: ReqEmailCodeSendDto): Promise<any> {
+  async checkSmsCode(@Body() reqSmscodCheckDto: ReqEmailCodeCheckDto): Promise<any> {
       return this.emailService.checkEmailCode(reqSmscodCheckDto);
   }
 }
