@@ -115,17 +115,25 @@ export class SharedService {
     /* 通过ip获取地理位置 */
     async getLocation(ip: string) {
         if (this.IsLAN(ip)) return '内网IP'
-        let { data } = await axios.get(`http://whois.pconline.com.cn/ipJson.jsp?ip=${ip}&json=true`, { responseType: "arraybuffer" })
-        data = JSON.parse(iconv.decode(data, 'gbk'))
-        return data.pro + ' ' + data.city;
+        try {
+            let { data } = await axios.get(`http://whois.pconline.com.cn/ipJson.jsp?ip=${ip}&json=true`, { responseType: "arraybuffer" })
+            data = JSON.parse(iconv.decode(data, 'gbk'))
+            return data.pro + ' ' + data.city;
+        } catch(error) {
+            return 'Unknown'
+        }
     }
 
     /* 通过ip获取地理位置 */
     async getGlobalLocation(ip: string) {
         if (this.IsLAN(ip)) return '内网IP'
-        let { data } = await axios.get(`http://ip-api.com/json/${ip}?lang=zh-CN`, { responseType: "arraybuffer" })
-        data = JSON.parse(data) // iconv.decode(data, 'utf-8')
-        return data.country + ' ' + data.city;
+        try {
+            let data: any = await axios.get(`http://ip-api.com/json/${ip}?lang=zh-CN`, { responseType: "json" })
+            return data.country + ' ' + data.city;
+        } catch (error) {
+            return 'Unknown'
+        }
+        
     }
 
     /**
