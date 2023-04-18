@@ -128,8 +128,8 @@ export class SharedService {
     async getGlobalLocation(ip: string) {
         if (this.IsLAN(ip)) return '内网IP'
         try {
-            let data: any = await axios.get(`http://ip-api.com/json/${ip}?lang=zh-CN`, { responseType: "json" })
-            return data.country + ' ' + data.city;
+            let data: any = await axios.get(`http://ip-api.com/json/${ip}?lang=zh-CN`)
+            return data.data.country + ' ' + data.data.city;
         } catch (error) {
             return 'Unknown'
         }
