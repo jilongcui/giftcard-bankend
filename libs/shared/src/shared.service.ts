@@ -127,9 +127,11 @@ export class SharedService {
 
     /* 通过ip获取地理位置 */
     async getGlobalLocation(ip: string) {
+        this.logger.debug(ip)
         if (this.IsLAN(ip)) return '内网IP'
         try {
-            let {data} = await axios.get(`http://ip-api.com/json/${ip}?lang=zh-CN`)
+            const ips = ip.split(',')
+            let {data} = await axios.get(`http://ip-api.com/json/${ips[0]}?lang=zh-CN`)
             // this.logger.debug(data)
             return data.country + ' ' + data.city;
         } catch (error) {
