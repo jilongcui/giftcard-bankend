@@ -116,6 +116,8 @@ export class AccountService {
     const exchangeFee = fromAmount * 0.01 // toFixed
     const toAmount = (fromAmount - exchangeFee) * ratio
 
+    this.logger.debug(`fromAmount: ${fromAmount} fee: ${exchangeFee} toAmount: ${toAmount}`)
+    
     // Exchange
     return this.accountRepository.manager.transaction(async manager => {
 
