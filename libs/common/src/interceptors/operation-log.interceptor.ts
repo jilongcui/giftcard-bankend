@@ -80,7 +80,7 @@ export class OperationLogInterceptor implements NestInterceptor {
       /* 请求ip */
       operLog.operIp = this.sharedService.getReqIP(request)
       /* 请求地址 */
-      operLog.operLocation = await this.sharedService.getLocation(operLog.operIp)
+      operLog.operLocation = await this.sharedService.getGlobalLocation(operLog.operIp)
       /* 请求参数 */
       if (logOption.isSaveRequestData) {
         const data = {

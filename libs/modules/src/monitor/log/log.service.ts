@@ -81,7 +81,7 @@ export class LogService {
         const { browser, os } = uaParser(request.headers['user-agent']) //获取用户电脑信息
         logininfor.userName = username
         logininfor.ipaddr = this.sharedService.getReqIP(request)
-        logininfor.loginLocation = await this.sharedService.getLocation(logininfor.ipaddr)
+        logininfor.loginLocation = await this.sharedService.getGlobalLocation(logininfor.ipaddr)
         logininfor.status = token ? "0" : "1"
         logininfor.msg = msg
         logininfor.loginTime = moment().toDate()

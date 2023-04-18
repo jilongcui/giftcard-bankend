@@ -120,6 +120,14 @@ export class SharedService {
         return data.pro + ' ' + data.city;
     }
 
+    /* 通过ip获取地理位置 */
+    async getGlobalLocation(ip: string) {
+        if (this.IsLAN(ip)) return '内网IP'
+        let { data } = await axios.get(`http://ip-api.com/json/${ip}?lang=zh-CN`, { responseType: "arraybuffer" })
+        data = JSON.parse(data) // iconv.decode(data, 'utf-8')
+        return data.country + ' ' + data.city;
+    }
+
     /**
      * @description: AES加密
      * @param {string} msg
