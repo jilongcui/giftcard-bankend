@@ -47,6 +47,8 @@ import { MagicboxModule } from '@app/modules/magicbox/magicbox.module';
 import { SubmitterModule } from '@app/modules/submitter/submitter.module';
 import { ApplyCardModule } from '@app/modules/apply-card/apply-card.module';
 import { WithdrawModule } from '@app/modules/wallet/withdraw/withdraw.module';
+import { ExchangeModule } from '@app/modules/exchange/exchange.module';
+import { TransferModule } from '@app/modules/transfer/transfer.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
@@ -123,8 +125,9 @@ import { WithdrawModule } from '@app/modules/wallet/withdraw/withdraw.module';
     KycModule,
     CardinfoModule,
     Fund33Module,
-    ApplyCardModule
-    
+    ApplyCardModule,
+    ExchangeModule,
+    TransferModule,
   ],
   // controllers: [NotifyController],
   // providers: [...aliasProviders],
