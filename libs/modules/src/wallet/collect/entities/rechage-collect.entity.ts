@@ -88,6 +88,14 @@ export class RechargeCollect {
     @IsNumber()
     confirmState: number;
 
+    /* 所属用户 */
+    @Column({
+        name: 'user_id',
+        comment: '所属用户'
+    })
+    @IsNumber()
+    userId: number
+
     @Column({
         name: 'dealtime',
         comment: '汇总时间'

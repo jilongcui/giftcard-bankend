@@ -20,6 +20,7 @@ export class CollectService {
         private readonly addressService: AddressService,
         private readonly currencyService: CurrencyService,
         ) { }
+
     /* 分页查询 */
     async list(reqRechargecollectList: ReqRechargeCollectListDto): Promise<PaginatedDto<RechargeCollect>> {
         let where: FindOptionsWhere<RechargeCollect> = {}
@@ -36,6 +37,36 @@ export class CollectService {
         if (reqRechargecollectList.confirmState) {
             where.confirmState = reqRechargecollectList.confirmState
         }
+        const result = await this.collectRepository.findAndCount({
+            // select: ['id', 'txid', 'type', 'userId', 'confirmState', 'status'],
+            where,
+            skip: reqRechargecollectList.skip,
+            take: reqRechargecollectList.take
+        })
+        return {
+            rows: result[0],
+            total: result[1]
+        }
+    }
+
+    /* 分页查询 */
+    async mylist(reqRechargecollectList: ReqRechargeCollectListDto, userId: number): Promise<PaginatedDto<RechargeCollect>> {
+        let where: FindOptionsWhere<RechargeCollect> = {}
+        if (reqRechargecollectList.address) {
+            where.from = Like(`%${reqRechargecollectList.address}%`)
+        }
+        if (reqRechargecollectList.txid) {
+
+            where.txid = Like(`%${reqRechargecollectList.txid}%`)
+        }
+        if (reqRechargecollectList.addressType) {
+            where.addressType = reqRechargecollectList.addressType
+        }
+        if (reqRechargecollectList.confirmState) {
+            where.confirmState = reqRechargecollectList.confirmState
+        }
+        where.userId = userId
+
         const result = await this.collectRepository.findAndCount({
             // select: ['id', 'txid', 'type', 'userId', 'confirmState', 'status'],
             where,
@@ -79,6 +110,7 @@ export class CollectService {
                     feeState: 1,
                     state: 1,
                     confirmState: 1,
+                    userId: address.userId
                 }
                 await manager.save(RechargeCollect, reqAddRechargeCollectDto) // 支付完成
             }
