@@ -11,6 +11,8 @@ export class TransferService {
   constructor(
     @InjectRepository(Transfer) private readonly transferRepository: Repository<Transfer>,
   ) {}
+
+  
   
   /* 分页查询 */
   async list(reqTransferList: ReqTransferListDto): Promise<PaginatedDto<Transfer>> {
