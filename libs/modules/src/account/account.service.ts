@@ -8,6 +8,7 @@ import { Account } from './entities/account.entity';
 import { Currency } from '../currency/entities/currency.entity';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { UserService } from '../system/user/user.service';
+import { Exchange } from '../exchange/entities/exchange.entity';
 
 @Injectable()
 export class AccountService {
@@ -129,9 +130,20 @@ export class AccountService {
       if(!account) {
         throw new ApiException('资金不足')
       }
+
       await manager.decrement(Account, { userId: userId, currencyId: currencyFrom.id }, "usable", fromAmount)
       await manager.increment(Account, { userId: userId, currencyId: currencyTo.id }, "usable", toAmount)
       await manager.increment(Account, { userId: 1 }, "usable", exchangeFee)
+      const exchange = new Exchange()
+      exchange.fromAmount = fromAmount
+      exchange.fee = exchangeFee
+      exchange.toAmount = toAmount
+      exchange.fromCurrencyId = currencyFrom.id
+      exchange.toCurrencyId = currencyTo.id
+      exchange.status = '1' // 
+      exchange.userId = userId
+      const exchange2 = await manager.save(exchange)
+      return exchange2
     })
     //
   }

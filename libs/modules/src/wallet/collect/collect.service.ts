@@ -40,6 +40,7 @@ export class CollectService {
         const result = await this.collectRepository.findAndCount({
             // select: ['id', 'txid', 'type', 'userId', 'confirmState', 'status'],
             where,
+            relations: {currency: true},
             skip: reqRechargecollectList.skip,
             take: reqRechargecollectList.take
         })
@@ -70,6 +71,7 @@ export class CollectService {
         const result = await this.collectRepository.findAndCount({
             // select: ['id', 'txid', 'type', 'userId', 'confirmState', 'status'],
             where,
+            relations: {currency: true},
             skip: reqRechargecollectList.skip,
             take: reqRechargecollectList.take
         })

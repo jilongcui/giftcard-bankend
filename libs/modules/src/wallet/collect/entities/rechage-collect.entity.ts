@@ -1,7 +1,8 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsEnum, IsNumber, IsString } from "class-validator";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { AddressTypeEnum } from "../../address/entities/address.entity";
+import { Currency } from "@app/modules/currency/entities/currency.entity";
 
 @Entity()
 export class RechargeCollect {
@@ -33,6 +34,13 @@ export class RechargeCollect {
     })
     @IsNumber()
     currencyId: number;
+
+    @ApiHideProperty()
+    @ManyToOne(() => Currency)
+    @JoinColumn({
+        name: 'currency_id',
+    })
+    currency?: Currency
 
     @Column({
         name: 'to',
