@@ -127,7 +127,6 @@ export class SharedService {
 
     /* 通过ip获取地理位置 */
     async getGlobalLocation(ip: string) {
-        ip = '24.48.0.1'
         if (this.IsLAN(ip)) return '内网IP'
         try {
             let {data} = await axios.get(`http://ip-api.com/json/${ip}?lang=zh-CN`)
