@@ -9,6 +9,7 @@ import { Currency } from '../currency/entities/currency.entity';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { UserService } from '../system/user/user.service';
 import { Exchange } from '../exchange/entities/exchange.entity';
+import { Transfer } from '../transfer/entities/transfer.entity';
 
 @Injectable()
 export class AccountService {
@@ -172,6 +173,17 @@ export class AccountService {
       await manager.decrement(Account, { userId: userId, currencyId: currency.id }, "usable", fromAmount)
       await manager.increment(Account, { userId: user.userId, currencyId: currency.id }, "usable", toAmount)
       await manager.increment(Account, { userId: 1 }, "usable", transferFee)
+      const transfer = new Transfer()
+      transfer.fromAmount = fromAmount
+      transfer.fee = transferFee
+      transfer.toAmount = toAmount
+      transfer.fromUserId = userId
+      transfer.toUserId = user.userId
+      transfer.currencyId = currency.id
+      transfer.status = '1' // 
+      transfer.userId = userId
+      const transfer2 = await manager.save(transfer)
+      return transfer2
     })
     //
   }

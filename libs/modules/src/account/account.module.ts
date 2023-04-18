@@ -6,9 +6,10 @@ import { Account } from './entities/account.entity';
 import { Currency } from '../currency/entities/currency.entity';
 import { UserModule } from '../system/user/user.module';
 import { Exchange } from '../exchange/entities/exchange.entity';
+import { Transfer } from '../transfer/entities/transfer.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Account, Currency, Exchange]), UserModule],
+  imports: [TypeOrmModule.forFeature([Account, Currency, Exchange, Transfer]), UserModule],
   controllers: [AccountController],
   providers: [AccountService]
 })
