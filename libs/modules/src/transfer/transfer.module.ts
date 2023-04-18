@@ -8,7 +8,7 @@ import { Exchange } from '../exchange/entities/exchange.entity';
 import { UserModule } from '../system/user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Account, Currency, Exchange]), UserModule],
+  imports: [TypeOrmModule.forFeature([Account, Currency, TransferService]), UserModule],
   controllers: [TransferController],
   providers: [TransferService],
   exports: [TransferService]
