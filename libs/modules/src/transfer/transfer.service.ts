@@ -29,7 +29,33 @@ export class TransferService {
         where.status = reqTransferList.status
     }
     const result = await this.transferRepository.findAndCount({
-        // select: ['id', 'txid', 'type', 'userId', 'confirmState', 'status'],
+        select: {
+          id: true,
+          fromUserId: true,
+          toUserId: true,
+          currencyId: true,
+          fromAmount: true,
+          fee: true,
+          toAmount: true,
+          status: true,
+          userId: true,
+          createTime: true,
+          updateTime: true,
+          fromUser: {
+            userName: true,
+            nickName: true,
+            email: true,
+            phonenumber: true,
+            avatar: true
+          },
+          toUser: {
+            userName: true,
+            nickName: true,
+            email: true,
+            phonenumber: true,
+            avatar: true
+          }
+        },
         relations: {fromUser: true, toUser: true},
         where,
         skip: reqTransferList.skip,
@@ -59,7 +85,33 @@ export class TransferService {
     where.userId = userId
 
     const result = await this.transferRepository.findAndCount({
-        // select: ['id', 'txid', 'type', 'userId', 'confirmState', 'status'],
+        select: {
+          id: true,
+          fromUserId: true,
+          toUserId: true,
+          currencyId: true,
+          fromAmount: true,
+          fee: true,
+          toAmount: true,
+          status: true,
+          userId: true,
+          createTime: true,
+          updateTime: true,
+          fromUser: {
+            userName: true,
+            nickName: true,
+            email: true,
+            phonenumber: true,
+            avatar: true
+          },
+          toUser: {
+            userName: true,
+            nickName: true,
+            email: true,
+            phonenumber: true,
+            avatar: true
+          }
+        },
         relations: {fromUser: true, toUser: true},
         where,
         skip: reqTransferList.skip,
