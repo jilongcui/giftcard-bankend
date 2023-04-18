@@ -9,7 +9,7 @@
  * You can you up，no can no bb！！
  */
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import * as CryptoJS from 'crypto-js';
 import { createCipheriv, createDecipheriv, createHash } from 'crypto'
@@ -32,6 +32,7 @@ const parser = new xml2js.Parser({
 
 @Injectable()
 export class SharedService {
+    logger = new Logger(SharedService.name)
     constructor(
         @InjectRedis() private readonly redis: Redis,
     ) { }
@@ -126,11 +127,14 @@ export class SharedService {
 
     /* 通过ip获取地理位置 */
     async getGlobalLocation(ip: string) {
+        ip = '24.48.0.1'
         if (this.IsLAN(ip)) return '内网IP'
         try {
-            let data: any = await axios.get(`http://ip-api.com/json/${ip}?lang=zh-CN`)
-            return data.data.country + ' ' + data.data.city;
+            let {data} = await axios.get(`http://ip-api.com/json/${ip}?lang=zh-CN`)
+            // this.logger.debug(data)
+            return data.country + ' ' + data.city;
         } catch (error) {
+            this.logger.debug(error)
             return 'Unknown'
         }
         
