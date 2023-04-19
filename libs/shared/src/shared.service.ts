@@ -127,7 +127,7 @@ export class SharedService {
 
     /* 通过ip获取地理位置 */
     async getGlobalLocation(ip: string) {
-        this.logger.debug(ip)
+        // this.logger.debug(ip)
         if (this.IsLAN(ip)) return '内网IP'
         try {
             const ips = ip.split(',')
