@@ -6,7 +6,7 @@ import { ReqAddRechargeCollectDto, ReqCollectRechargeNotifyDto, ReqRechargeColle
 import { RechargeCollect } from './entities/rechage-collect.entity';
 import { Account } from '@app/modules/account/entities/account.entity';
 import { SysConfigService } from '@app/modules/system/sys-config/sys-config.service';
-import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
+import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY, SYSCONF_WALLET_COLLECT_FEE_KEY } from '@app/common/contants/sysconfig.contants';
 import { AddressService } from '../address/address.service';
 import { CurrencyService } from '@app/modules/currency/currency.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
@@ -92,24 +92,25 @@ export class CollectService {
                 const address = await this.addressService.findAddress(rechargeNotifyDto.to, rechargeNotifyDto.addressType)
                 if(!address)
                     throw new ApiException("Address is not exist.")
-                const configString = await this.sysconfigService.getValue(SYSCONF_COLLECTION_FEE_KEY)
+                const configString = await this.sysconfigService.getValue(SYSCONF_WALLET_COLLECT_FEE_KEY)
                 if (configString) {
                     const configValue = JSON.parse(configString)
                     this.logger.debug('collection config ratio ' + configValue.ratio)
-                    marketRatio = rechargeNotifyDto.amount * Number(configValue.ratio)
+                    marketRatio = Number(configValue.ratio)
                 }
 
-                if (marketRatio > 1.0 || marketRatio < 0.0) {
-                    marketRatio = 0.0
+                if (marketRatio > 1.0 || marketRatio <= 0.0) {
+                    marketRatio = 0.01
                 }
-                let marketFee = rechargeNotifyDto.amount * marketRatio
+                let rechargeFee = rechargeNotifyDto.amount * marketRatio
                 let currencyId = rechargeNotifyDto.currencyId
                 await manager.increment(Account, { userId: address.userId, currencyId }, "usable", rechargeNotifyDto.amount - marketFee)
-                await manager.increment(Account, { userId: 1, currencyId}, "usable", marketFee)
+                await manager.increment(Account, { userId: 1, currencyId}, "usable", rechargeFee)
 
                 const reqAddRechargeCollectDto:ReqAddRechargeCollectDto = {
                     ...rechargeNotifyDto,
                     feeState: 1,
+                    fee: rechargeFee,
                     state: 1,
                     confirmState: 1,
                     userId: address.userId

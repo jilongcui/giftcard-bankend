@@ -62,6 +62,15 @@ export class RechargeCollect {
     amount: number;
 
     @Column({
+        name: 'fee',
+        comment: '汇款手续费',
+        type: "decimal", precision: 10, scale: 4, default: 0,
+        nullable: true,
+    })
+    @IsNumber()
+    fee: number;
+
+    @Column({
         name: 'txid',
         comment: '交易ID',
         nullable: true,
