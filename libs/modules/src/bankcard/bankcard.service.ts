@@ -126,13 +126,13 @@ export class BankcardService {
       }
     })
 
-    for(let bankcard of result[0]) {
-      try {
-        bankcard.balance = await this.fund33Service.queryBalance({cardId: bankcard.id }, userId);
-      } catch (error) {
+    // for(let bankcard of result[0]) {
+    //   try {
+    //     bankcard.balance = await this.fund33Service.queryBalance({cardId: bankcard.id }, userId);
+    //   } catch (error) {
         
-      }
-    }
+    //   }
+    // }
 
     return {
       rows: result[0],
