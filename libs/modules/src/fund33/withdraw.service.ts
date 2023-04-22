@@ -22,7 +22,6 @@ import { WithdrawFlow } from '../fund/entities/withdraw-flow.entity';
 import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { Fund33RechargeDto, Fund33Response } from './dto/response-fund33.dto';
 import { QueryRechargeDto } from './dto/create-fund33.dto';
-var iconv = require("iconv-lite");
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
