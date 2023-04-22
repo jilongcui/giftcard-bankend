@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { WithdrawController } from './withdraw.controller';
 import { WithdrawService } from './withdraw.service';
+import { BankcardModule } from '../bankcard/bankcard.module';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { WithdrawService } from './withdraw.service';
       timeout: 5000,
       maxRedirects: 5,
     }),
-    SharedModule,
+    SharedModule, BankcardModule
   ],
   controllers: [Fund33Controller, WithdrawController],
   providers: [Fund33Service, WithdrawService],

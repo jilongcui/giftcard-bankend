@@ -9,11 +9,10 @@ import { Kyc } from '../kyc/entities/kyc.entity';
 import { Cardinfo } from '../cardinfo/entities/cardinfo.entity';
 import { User } from '../system/user/entities/user.entity';
 import { CardinfoModule } from '../cardinfo/cardinfo.module';
-import { Fund33Module } from '../fund33/fund33.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Bankcard, Kyc, Cardinfo, User]),
-  IdentityModule, KycModule, CardinfoModule, Fund33Module, BankcardModule],
+  IdentityModule, KycModule, CardinfoModule],
   controllers: [BankcardController],
   providers: [BankcardService],
   exports: [BankcardService]
