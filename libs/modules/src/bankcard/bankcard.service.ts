@@ -13,6 +13,7 @@ import { KycService } from '../kyc/kyc.service';
 import { Account } from '../account/entities/account.entity';
 import { CardinfoService } from '../cardinfo/cardinfo.service';
 import { User } from '../system/user/entities/user.entity';
+import { Fund33Service } from '../fund33/fund33.service';
 
 @Injectable()
 export class BankcardService {
@@ -26,6 +27,7 @@ export class BankcardService {
     private readonly cardinfoService: CardinfoService,
     private readonly configService: ConfigService,
     private readonly sharedService: SharedService,
+    private readonly fund33Service: Fund33Service,
 
   ) {
     this.secret = this.configService.get<string>('platform.secret')
@@ -124,6 +126,10 @@ export class BankcardService {
       }
     })
 
+    for(let bankcard of result[1]) {
+      bankcard.balance = await this.fund33Service.queryBalance({cardId:bankcard.cardId }, userId);
+    }
+    
     return {
       rows: result[0],
       total: result[1]
