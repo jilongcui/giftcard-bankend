@@ -7,7 +7,7 @@ import { Order } from "@app/modules/order/entities/order.entity";
 import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 import { WithdrawFlow } from "./withdraw-flow.entity";
 
-@Entity('BankWithdraw')
+@Entity('bank-withdraw')
 export class Withdraw {
     @PrimaryGeneratedColumn()
     @IsNumber()
