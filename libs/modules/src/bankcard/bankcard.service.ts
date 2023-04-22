@@ -127,7 +127,11 @@ export class BankcardService {
     })
 
     for(let bankcard of result[0]) {
-      bankcard.balance = await this.fund33Service.queryBalance({cardId:bankcard.cardId }, userId);
+      try {
+        bankcard.balance = await this.fund33Service.queryBalance({cardId:bankcard.cardId }, userId);
+      } catch (error) {
+        
+      }
     }
 
     return {
