@@ -10,10 +10,11 @@ import { WithdrawService } from './withdraw.service';
 import { BankcardModule } from '../bankcard/bankcard.module';
 import { Withdraw } from '../fund/entities/withdraw.entity';
 import { Account } from '../account/entities/account.entity';
+import { WithdrawFlow } from '../fund/entities/withdraw-flow.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Bankcard, Account,Withdraw]),
+    TypeOrmModule.forFeature([Bankcard, Account,Withdraw, WithdrawFlow]),
     HttpModule.register({
       timeout: 5000,
       maxRedirects: 5,
