@@ -244,11 +244,11 @@ export class WithdrawService {
             await manager.save(withdrawFlow)
         })
         // toFix
-        await this.doWithdrawWithCard({ bankcardId: withdraw.bankcardId, withdrawId: withdraw.id }, userId)
+        await this.doWithdrawWithCard({ bankcardId: withdraw.bankcardId, withdrawId: withdraw.id })
     }
 
     // 小额支付 API/PayTransit/PayTransferWithSmallAll.aspx
-    async doWithdrawWithCard(payWithCard: WithdrawWithCardDto, userId: number) {
+    async doWithdrawWithCard(payWithCard: WithdrawWithCardDto) {
         const requestUri = 'API/PayTransit/PayTransferWithSmallAll.aspx'
         const bankcard = await this.bankcardService.findOne(payWithCard.bankcardId)
         this.logger.debug(bankcard)
@@ -263,19 +263,19 @@ export class WithdrawService {
         if (withdraw === null) {
             throw new ApiException('提币记录不存在')
         }
-        await this.recharge({cardId: payWithCard.bankcardId,amount: withdraw.realPrice}, userId)
+        await this.recharge({cardId: payWithCard.bankcardId,amount: withdraw.realPrice})
     }
 
     /**
      * 给银行卡充值
      */
-    async recharge(rechargeDto: QueryRechargeDto, userId: number) {
+    async recharge(rechargeDto: QueryRechargeDto) {
 
         const requestUri = '/api/card/top/up'
         // 对所有的原始参数进行签名
 
         const cardId = rechargeDto.cardId
-        const bankcard = await this.bankcardRepository.findOne({where: {userId: userId, id: cardId}, relations:{cardinfo: true}})
+        const bankcard = await this.bankcardRepository.findOne({where: {id: cardId}, relations:{cardinfo: true}})
         if(!bankcard)
         throw new ApiException("不拥有此银行卡")
 
@@ -288,12 +288,12 @@ export class WithdrawService {
         const rechageFee = rechargeDto.amount * rechargeRatio
         const realAmount = rechargeDto.amount - rechageFee
         await this.bankcardRepository.manager.transaction(async manager => {
-        const result = await manager.decrement(Account, { userId: userId, currencyId:2, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
+        const result = await manager.decrement(Account, { userId: bankcard.userId, currencyId:2, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
         if (!result.affected) {
             throw new ApiException('创建充值请求失败')
         }
 
-        const result2 = await manager.increment(Account, { userId: userId, currencyId:2, }, "freeze", realAmount);
+        const result2 = await manager.increment(Account, { userId: bankcard.userId, currencyId:2, }, "freeze", realAmount);
         if (!result2.affected) {
             throw new ApiException('创建充值请求失败')
         }
@@ -360,7 +360,7 @@ export class WithdrawService {
             bankcard.balance = bankcard.balance + parseFloat(settleAmount)
 
             await this.bankcardRepository.manager.transaction(async manager => {
-            const result2 = await manager.decrement(Account, { userId: userId, currencyId:2}, "freeze", parseFloat(settleAmount));
+            const result2 = await manager.decrement(Account, { userId: bankcard.userId, currencyId:2}, "freeze", parseFloat(settleAmount));
             })
             return await this.bankcardRepository.save(bankcard)
             // var encrypted = this.sharedService.aesEncryptNoSalt("14", "sBOvCZZurSbbdJiA")
