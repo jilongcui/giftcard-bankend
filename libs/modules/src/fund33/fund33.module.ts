@@ -5,6 +5,7 @@ import { HttpModule } from '@nestjs/axios';
 import { SharedModule } from '@app/shared';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Bankcard } from '../bankcard/entities/bankcard.entity';
+import { WithdrawController } from './withdraw.controller';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { Bankcard } from '../bankcard/entities/bankcard.entity';
     }),
     SharedModule,
   ],
-  controllers: [Fund33Controller],
+  controllers: [Fund33Controller, WithdrawController],
   providers: [Fund33Service],
   exports: [Fund33Service]
 })

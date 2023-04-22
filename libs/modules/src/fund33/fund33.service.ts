@@ -12,7 +12,6 @@ import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { LoginCardDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
 import { Fund33QueryBalance, Fund33QueryTransaction, Fund33QueryUNTransaction, Fund33RechargeDto, Fund33Response } from './dto/response-fund33.dto';
 import { Account } from '../account/entities/account.entity';
-import { Withdraw } from '../fund/entities/withdraw.entity';
 
 @Injectable()
 export class Fund33Service {
@@ -29,7 +28,7 @@ export class Fund33Service {
     private readonly httpService: HttpService,
     private readonly sharedService: SharedService,
     private readonly configService: ConfigService,
-    ) {
+  ) {
     this.secret = this.configService.get<string>('platform.secret')
     this.baseUrl = this.configService.get<string>('fund33.baseUrl')
     this.appKey = this.configService.get<string>('fund33.appKey')

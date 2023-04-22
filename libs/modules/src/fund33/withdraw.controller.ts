@@ -1,23 +1,23 @@
 import { Body, Controller, Get, Inject, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
-import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqBankCertifyDto, ReqWithdrawDto, WithdrawWithCardDto } from './dto/request-fund.dto';
-import { FundService } from './fund.service';
+import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqBankCertifyDto, ReqWithdrawDto, WithdrawWithCardDto } from '../fund/dto/request-fund.dto';
+import { WithdrawService } from './withdraw.service';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
-import { Withdraw } from './entities/withdraw.entity';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
+import { Withdraw } from '../fund/entities/withdraw.entity';
 
-@ApiTags('资金提现管理')
+@ApiTags('Fund33资金提现管理')
 @ApiBearerAuth()
-@Controller('fund/withdraw')
+@Controller('fund33/withdraw')
 export class WithdrawController {
     constructor(
-        private readonly fundService: FundService
+        private readonly fundService: WithdrawService
     ) { }
 
     @Post()
