@@ -13,7 +13,7 @@ import { Fund33Module } from '../fund33/fund33.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Bankcard, Kyc, Cardinfo, User]),
-  IdentityModule, KycModule, CardinfoModule, Fund33Module],
+  IdentityModule, KycModule, CardinfoModule, Fund33Module, BankcardModule],
   controllers: [BankcardController],
   providers: [BankcardService],
   exports: [BankcardService]
