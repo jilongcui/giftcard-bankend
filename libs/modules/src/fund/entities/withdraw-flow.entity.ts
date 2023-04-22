@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Withdraw } from "./withdraw.entity";
 
-@Entity('bank-withdraw-flow')
+@Entity('bank_withdraw_flow')
 export class WithdrawFlow {
     @PrimaryGeneratedColumn()
     @IsNumber()
