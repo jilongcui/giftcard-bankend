@@ -12,7 +12,7 @@ import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { Withdraw } from '../fund/entities/withdraw.entity';
 
-@ApiTags('Fund33资金提现管理')
+@ApiTags('33资金提现管理')
 @ApiBearerAuth()
 @Controller('fund33/withdraw')
 export class WithdrawController {
