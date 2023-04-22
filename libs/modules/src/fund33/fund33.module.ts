@@ -16,6 +16,7 @@ import { Bankcard } from '../bankcard/entities/bankcard.entity';
     SharedModule,
   ],
   controllers: [Fund33Controller],
-  providers: [Fund33Service]
+  providers: [Fund33Service],
+  exports: [Fund33Service]
 })
 export class Fund33Module {}

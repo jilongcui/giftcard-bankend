@@ -126,10 +126,10 @@ export class BankcardService {
       }
     })
 
-    for(let bankcard of result[1]) {
+    for(let bankcard of result[0]) {
       bankcard.balance = await this.fund33Service.queryBalance({cardId:bankcard.cardId }, userId);
     }
-    
+
     return {
       rows: result[0],
       total: result[1]

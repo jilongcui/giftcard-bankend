@@ -201,7 +201,7 @@ export class Fund33Service {
         // const verifyOk = verify.verify(this.platformPublicKey, responseData.sign, 'base64');
         // this.logger.debug(verifyOk)
         // return querystring.parse(decryptedData)
-        return responseData
+        return bankcard.balance
     }
     throw new ApiException('发送请求失败: ' + responseData.msg)
   }
