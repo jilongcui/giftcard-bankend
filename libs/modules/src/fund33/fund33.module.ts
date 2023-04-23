@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { Fund33Service } from './fund33.service';
 import { Fund33Controller } from './fund33.controller';
 import { HttpModule } from '@nestjs/axios';
@@ -15,6 +15,9 @@ import { WithdrawFlow } from '../fund/entities/withdraw-flow.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Bankcard, Account,Withdraw, WithdrawFlow]),
+    CacheModule.register({
+      ttl: 60, // seconds
+    }),
     HttpModule.register({
       timeout: 5000,
       maxRedirects: 5,

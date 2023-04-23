@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, CacheInterceptor, CacheTTL, Controller, Get, Inject, Param, Post, Put, Query, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqBankCertifyDto, ReqWithdrawDto, WithdrawWithCardDto } from '../fund/dto/request-fund.dto';
@@ -14,6 +14,7 @@ import { Withdraw } from '../fund/entities/withdraw.entity';
 
 @ApiTags('33资金提现管理')
 @ApiBearerAuth()
+@UseInterceptors(CacheInterceptor)
 @Controller('fund33/withdraw')
 export class WithdrawController {
     constructor(
@@ -33,12 +34,14 @@ export class WithdrawController {
 
     /* 资金提现列表 */
     @Get('list')
+    @CacheTTL(60)
     @ApiPaginatedResponse(PaginatedDto<Withdraw>)
     async list(@Query() listWithdrawDto: ListWithdrawDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
         return await this.fundService.list(listWithdrawDto, paginationDto);
     }
 
     /* 我的资金提现列表 */
+    @CacheTTL(60)
     @Get('mylist')
     @ApiPaginatedResponse(PaginatedDto<Withdraw>)
     async mylist(@Query() listMyWithdrawDto: ListMyWithdrawDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {

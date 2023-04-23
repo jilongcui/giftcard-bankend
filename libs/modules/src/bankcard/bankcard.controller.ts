@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put, UseInterceptors, CacheInterceptor } from '@nestjs/common';
 import { BankcardService } from './bankcard.service';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { CreateBankcardDto, CreateBankcardKycDto, UpdateBankcardDto } from './dto/request-bankcard.dto';
@@ -15,6 +15,7 @@ import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 
 @ApiTags('银行卡')
 @ApiBearerAuth()
+@UseInterceptors(CacheInterceptor)
 @Controller('bankcard')
 export class BankcardController {
   constructor(private readonly bankcardService: BankcardService) { }

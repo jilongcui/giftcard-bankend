@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { BankcardService } from './bankcard.service';
 import { BankcardController } from './bankcard.controller';
 import { Bankcard } from './entities/bankcard.entity';
@@ -12,6 +12,9 @@ import { CardinfoModule } from '../cardinfo/cardinfo.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Bankcard, Kyc, Cardinfo, User]),
+  CacheModule.register({
+    ttl: 60, // seconds
+  }),
   IdentityModule, KycModule, CardinfoModule],
   controllers: [BankcardController],
   providers: [BankcardService],

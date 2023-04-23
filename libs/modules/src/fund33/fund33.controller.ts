@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, CacheInterceptor, UseInterceptors, CacheTTL } from '@nestjs/common';
 import { Fund33Service } from './fund33.service';
 import { CreateFund33Dto, LoginCardDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
 import { UpdateFund33Dto } from './dto/update-fund33.dto';
@@ -7,6 +7,7 @@ import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 
 @ApiTags('33金融银行卡接口')
 @ApiBearerAuth()
+@UseInterceptors(CacheInterceptor)
 @Controller('fund33')
 export class Fund33Controller {
   constructor(private readonly fund33Service: Fund33Service) {}
@@ -21,6 +22,7 @@ export class Fund33Controller {
   }
 
   @Post('queryBalance')
+  @CacheTTL(60)
   queryBalance(@Body() queryBalanceDto: QueryBalanceDto, @UserDec(UserEnum.userId) userId: number) {
     return this.fund33Service.queryBalance(queryBalanceDto, userId)
   }
