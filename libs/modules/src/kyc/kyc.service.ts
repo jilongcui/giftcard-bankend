@@ -6,14 +6,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { Repository, FindOptionsWhere, MoreThanOrEqual } from 'typeorm';
 import { CreateKycDto, ListKycDto, ListMyKycDto } from './dto/create-kyc.dto';
-import { UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
-import { Kyc } from './entities/kyc.entity';
+import { NotifyKycStatusDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
+import { Kyc, KycCertifyInfo } from './entities/kyc.entity';
+import { Fund33Service } from '../fund33/fund33.service';
+import { SharedService } from '@app/shared';
 
 @Injectable()
 export class KycService {
   logger = new Logger(KycService.name)
   constructor(
     @InjectRepository(Kyc) private readonly kycRepository: Repository<Kyc>,
+    private readonly sharedService: SharedService,
+    private readonly fund33Service: Fund33Service,
   ) {}
 
   async create(createKycDto: CreateKycDto, userId: number) {
@@ -23,11 +27,16 @@ export class KycService {
     }
     const kycDto = {
       ...createKycDto,
-      cardType: createKycDto.info.idCardType,
+      cardType: createKycDto.info.certType,
+      orderNo: this.sharedService.generateOrderNo(8),
       userId: userId
     }
     // this.logger.debug(kycDto)
-    this.kycRepository.save(kycDto)
+    const kyc2 = await this.kycRepository.save(kycDto)
+
+    createKycDto.info.merOrderNo = kyc2.id.toString()
+
+    await this.fund33Service.uploadKycInfo(createKycDto.info)
   }
 
   async findOne(id: number) {
@@ -36,6 +45,17 @@ export class KycService {
 
   async findOneByUser(userId: number) {
     return this.kycRepository.findOneBy({userId})
+  }
+
+  async findOneByOrderNo(orderNo: string) {
+    return this.kycRepository.findOneBy({orderNo})
+  }
+
+  async notify(notifyKycDto: NotifyKycStatusDto) {
+    const kyc = await this.findOneByOrderNo(notifyKycDto.orderNo)
+    kyc.status = notifyKycDto.status
+    await this.kycRepository.save(kyc)
+    return 
   }
 
   update(id: number, updateKycDto: UpdateKycDto, userId: number) {

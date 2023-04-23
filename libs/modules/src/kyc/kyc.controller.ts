@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
 import { KycService } from './kyc.service';
 import { CreateKycDto, ListKycDto, ListMyKycDto } from './dto/create-kyc.dto';
-import { UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
+import { NotifyKycStatusDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -50,6 +50,11 @@ export class KycController {
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body() updateKycDto: UpdateKycStatusDto, @UserDec(UserEnum.userId) userId: number,) {
     return this.kycService.updateStatus(+id, updateKycDto, userId);
+  }
+
+  @Put('notify')
+  notify(@Body() noitfyKycDto: NotifyKycStatusDto, @UserDec(UserEnum.userId) userId: number,) {
+    return this.kycService.notify(noitfyKycDto);
   }
 
   @Delete(':id')

@@ -12,6 +12,7 @@ import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { LoginCardDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
 import { Fund33QueryBalance, Fund33QueryTransaction, Fund33QueryUNTransaction, Fund33RechargeDto, Fund33Response } from './dto/response-fund33.dto';
 import { Account } from '../account/entities/account.entity';
+import { KycCertifyInfo } from '../kyc/entities/kyc.entity';
 
 @Injectable()
 export class Fund33Service {
@@ -203,6 +204,50 @@ export class Fund33Service {
         return bankcard.balance
     }
     throw new ApiException('发送请求失败: ' + responseData.msg)
+  }
+
+  async uploadKycInfo(kycInfo:KycCertifyInfo) {
+    const requestUri = '/api/card/query/balance'
+    // 对所有的原始参数进行签名
+
+    const timestamp = moment().unix()*1000 + moment().milliseconds()
+    const nonce = this.sharedService.generateNonce(16)
+    let bodyRaw = {
+      appKey: this.appKey,
+      appSecret: this.appSecret,
+      ...kycInfo,
+      nonce: nonce,
+      sign: undefined,
+      timestamp: timestamp,
+    }
+
+    const body = this.sharedService.sortObject(bodyRaw)
+
+    const signContent = this.sign(body)
+    body.sign = signContent
+    body.appSecret = undefined
+
+    let options = {
+      headers: {
+          "Content-Type": "application/json"
+      },
+    }
+
+    // this.logger.debug(JSON.stringify(body))
+    const remoteUrl = this.baseUrl + requestUri
+    this.logger.debug(remoteUrl)
+    this.logger.debug(JSON.stringify(body))
+    let res = await this.httpService.axiosRef.post<Fund33Response<any>>(remoteUrl, body, options);
+    const responseData = res.data
+    // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
+
+    this.logger.debug(responseData)
+    if (responseData.success == true) {
+        // const decryptedData = key2.decrypt(responseData.encrypt_data, 'utf8');
+        // decode cardnumber
+        return 
+    }
+    throw new ApiException('UploadKycInfo error: ' + responseData.msg)
   }
   
   /**
