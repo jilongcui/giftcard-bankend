@@ -75,6 +75,11 @@ export class OrderController {
     return await this.orderService.cancel(+id, userId);
   }
 
+  @Put(':id/sys/cancel')
+  async syscancel(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+    return await this.orderService.cancel(+id, 0);
+  }
+
   @Patch(':id')
   @RequiresRoles(['admin', 'system'])
   async update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {

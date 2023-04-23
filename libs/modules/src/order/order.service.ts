@@ -363,7 +363,7 @@ export class OrderService {
     let result: any;
     let order = await this.orderRepository.findOneBy({ id: id })
     let unpayOrderKey: string;
-    if (order.userId !== userId) {
+    if (userId != 0 || order.userId !== userId) {
       throw new ApiException("非本人订单")
     }
     // where =
