@@ -57,7 +57,7 @@ export class Kyc {
     @IsObject()
     info: KycCertifyInfo
 
-    /* 状态 0: 未认证 1: 认证成功 2: 认证完成*/
+    /* 状态 0: 未认证 1: 认证成功 2: 认证失败 */
     @Column({
         name: 'status',
         comment: '状态 0: 未认证 1: 认证成功 2: 认证失败',
