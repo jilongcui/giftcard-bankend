@@ -16,7 +16,7 @@ import { WithdrawFlow } from '../fund/entities/withdraw-flow.entity';
   imports: [
     TypeOrmModule.forFeature([Bankcard, Account,Withdraw, WithdrawFlow]),
     CacheModule.register({
-      ttl: 60, // seconds
+      ttl: 30, // seconds
     }),
     HttpModule.register({
       timeout: 5000,
