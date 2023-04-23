@@ -40,78 +40,78 @@ export class KycCertifyInfoOld {
 }
 
 export class KycCertifyInfo {
-    // merOrderNo	是	string	商家订单号
+    /* merOrderNo	是	string	商家订单号 */
     @IsString()
     merOrderNo: string
-    // certType	是	string	证件类型 0-身份证 1-护照
+    /* certType	是	string	证件类型 0-身份证 1-护照 */
     @IsString()
     certType: string
-    // idNumber	是	string	身份证号/护照号 （格式 dd/MM/yyyy）
+    /* idNumber	是	string	身份证号/护照号  */
     @IsString()
     idNumber: string
-    // idExpiryDate	是	string	证件有效期
+    /* idExpiryDate	是	string	证件有效期 （格式 dd/MM/yyyy）*/
     @IsString()
     idExpiryDate: string
-    // zhName	否	string	中文姓名
+    /* zhName	否	string	中文姓名 */
     @IsString()
     zhName?: string
-    // enName	否	string	英文名
+    /* enName	否	string	英文名 */
     @IsString()
     enName?: string
-    // sex	是	string	性别 0-女 1-男
+    /* sex	是	string	性别 0-女 1-男 */
     @IsString()
     sex: string
-    // email	否	string	电子邮件
+    /* email	否	string	电子邮件 */
     @IsString()
     email?: string
-    // phone	否	string	手机号
+    /* phone	否	string	手机号 */
     @IsString()
     phone?: string
-    // homeAddress	是	string	住宅地址
+    /* homeAddress	是	string	住宅地址 */
     @IsString()
     homeAddress: string
-    // connectAddress	否	string	通讯地址（如果与住宅地址不同需要）
+    /* connectAddress	否	string	通讯地址（如果与住宅地址不同需要） */
     @IsString()
     connectAddress?: string
 
-    // birthday	是	string	出生年月（格式 dd/MM/yyyy）
+    /* birthday	是	string	出生年月（格式 dd/MM/yyyy） */
     @IsString()
     birthday: string
 
-    // holdCardNumber	否	string	曾经或者现在持有卡片
+    /* holdCardNumber	否	string	曾经或者现在持有卡片 */
     @IsString()
     holdCardNumber?: string
 
-    // sourceOfFunds	是	string	收入来源
+    /* sourceOfFunds	是	string	收入来源 */
     @IsString()
     sourceOfFunds: string
 
-    // industry	是	string	行业
+    /* industry	是	string	行业 */
     @IsString()
     industry: string
 
-    // jobPosition	是	string	职业
+    /* jobPosition	是	string	职业 */
     @IsString()
     jobPosition: string
 
-    // intended	是	string	购卡用途
+    /* intended	是	string	购卡用途 */
     @IsString()
     intended: string
 
-    // purposeOfUse	是	string	卡用途
+    /* purposeOfUse	是	string	卡用途 */
     @IsString()
     purposeOfUse: string
 
-    // faceImage	否	string	身份证正面（证件类型为身份证必须）
+    /* faceImage	否	string	身份证正面（证件类型为身份证必须） */
     @IsString()
     faceImage?: string
-    // backImage	否	string	身份证反面 （证件类型为身份证必须）
+    /* backImage	否	string	身份证反面 （证件类型为身份证必须） */
     @IsString()
     backImage?: string
-    // passImage	否	string	护照页照片（证件类型为护照必须）
+    /* passImage	否	string	护照页照片（证件类型为护照必须） */
     @IsString()
     passImage?: string
-    // signImage	是	string	手写签名
+    /* signImage	是	string	手写签名 */
     @IsString()
     signImage: string
 }

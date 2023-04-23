@@ -32,11 +32,10 @@ export class KycService {
       userId: userId
     }
     // this.logger.debug(kycDto)
-    const kyc2 = await this.kycRepository.save(kycDto)
-
-    createKycDto.info.merOrderNo = kyc2.id.toString()
+    createKycDto.info.merOrderNo = kycDto.orderNo
 
     await this.fund33Service.uploadKycInfo(createKycDto.info)
+    return await this.kycRepository.save(kycDto)
   }
 
   async findOne(id: number) {
@@ -52,7 +51,7 @@ export class KycService {
   }
 
   async notify(notifyKycDto: NotifyKycStatusDto) {
-    const kyc = await this.findOneByOrderNo(notifyKycDto.orderNo)
+    const kyc = await this.findOneByOrderNo(notifyKycDto.merOrderNo)
     kyc.status = notifyKycDto.status
     await this.kycRepository.save(kyc)
     return 

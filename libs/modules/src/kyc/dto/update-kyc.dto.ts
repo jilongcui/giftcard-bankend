@@ -13,7 +13,7 @@ export class UpdateKycStatusDto {
 export class NotifyKycStatusDto {
 
     @IsString()
-    orderNo: string
+    merOrderNo: string
 
     /* KYC 状态 0: "未认证", 1: "认证成功", 2: "认证失败" */
     @IsString()

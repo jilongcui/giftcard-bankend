@@ -18,11 +18,12 @@ import { WithdrawFlow } from '../fund/entities/withdraw-flow.entity';
     CacheModule.register({
       ttl: 30, // seconds
     }),
+    
+    SharedModule, BankcardModule,
     HttpModule.register({
-      timeout: 5000,
+      timeout: 10000,
       maxRedirects: 5,
     }),
-    SharedModule, BankcardModule
   ],
   controllers: [Fund33Controller, WithdrawController],
   providers: [Fund33Service, WithdrawService],

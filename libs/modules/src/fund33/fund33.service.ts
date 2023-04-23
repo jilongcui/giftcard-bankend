@@ -207,7 +207,7 @@ export class Fund33Service {
   }
 
   async uploadKycInfo(kycInfo:KycCertifyInfo) {
-    const requestUri = '/api/card/query/balance'
+    const requestUri = '/api/kyc/apply'
     // 对所有的原始参数进行签名
 
     const timestamp = moment().unix()*1000 + moment().milliseconds()
@@ -221,11 +221,24 @@ export class Fund33Service {
       timestamp: timestamp,
     }
 
+    bodyRaw.faceImage = undefined
+    bodyRaw.backImage = undefined
+    bodyRaw.passImage = undefined
+    bodyRaw.signImage = undefined
+
     const body = this.sharedService.sortObject(bodyRaw)
 
     const signContent = this.sign(body)
     body.sign = signContent
     body.appSecret = undefined
+    if(kycInfo.faceImage)
+      body.faceImage = await this.sharedService.imageToBase64(kycInfo.faceImage)
+    if(kycInfo.backImage)
+      body.backImage = await this.sharedService.imageToBase64(kycInfo.backImage)
+    if(kycInfo.passImage)
+      body.passImage = await this.sharedService.imageToBase64(kycInfo.passImage)
+    if(kycInfo.signImage)
+      body.signImage = await this.sharedService.imageToBase64(kycInfo.signImage)
 
     let options = {
       headers: {
@@ -245,6 +258,7 @@ export class Fund33Service {
     if (responseData.success == true) {
         // const decryptedData = key2.decrypt(responseData.encrypt_data, 'utf8');
         // decode cardnumber
+        
         return 
     }
     throw new ApiException('UploadKycInfo error: ' + responseData.msg)

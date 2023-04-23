@@ -9,10 +9,10 @@ import { ConfigService } from '@nestjs/config';
 import { IdentityService } from '../identity/identity.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { SharedService } from '@app/shared/shared.service';
-import { KycService } from '../kyc/kyc.service';
 import { Account } from '../account/entities/account.entity';
 import { CardinfoService } from '../cardinfo/cardinfo.service';
 import { User } from '../system/user/entities/user.entity';
+import { Kyc } from '../kyc/entities/kyc.entity';
 
 @Injectable()
 export class BankcardService {
@@ -21,8 +21,8 @@ export class BankcardService {
   secret: string
   constructor(
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
+    @InjectRepository(Bankcard) private readonly kycRepository: Repository<Kyc>,
     private readonly identityService: IdentityService,
-    private readonly kycService: KycService,
     private readonly cardinfoService: CardinfoService,
     private readonly configService: ConfigService,
     private readonly sharedService: SharedService,
@@ -59,7 +59,7 @@ export class BankcardService {
   }
 
   async createWithKyc(createBankcardDto: CreateBankcardKycDto, userId: number) {
-    const kyc = await this.kycService.findOneByUser(userId)
+    const kyc = await this.kycRepository.findOneBy({userId})
     if (kyc === null) {
       throw new ApiException('没有KYC认证')
     }

@@ -28,7 +28,8 @@ const xml2js = require('xml2js');
 const parser = new xml2js.Parser({
     explicitArray: false
 });
-
+// const imageToBase64 = require('image-to-base64');
+import imageToBase64 from 'image-to-base64/browser';
 
 @Injectable()
 export class SharedService {
@@ -417,5 +418,11 @@ export class SharedService {
             //向新创建的对象中按照排好的顺序依次增加键值对
         }
         return newObj; //返回排好序的新对象
+    }
+
+    async imageToBase64(url: string) {
+        this.logger.debug(url)
+        let { data } = await axios.get(url, { responseType: "arraybuffer" })
+        return "data:image/png;base64," + Buffer.from(data, 'binary').toString('base64')
     }
 }
