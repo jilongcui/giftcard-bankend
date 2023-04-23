@@ -22,7 +22,7 @@ export class KycController {
     return this.kycService.create(createKycDto, userId);
   }
 
-  @Get()
+  @Get('list')
   @RequiresRoles(['admin', 'system'])
   @ApiPaginatedResponse(Kyc)
   async list(@Query() listKycDto: ListKycDto, @Query(PaginationPipe) paginationDto: PaginationDto) {

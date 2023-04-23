@@ -243,7 +243,7 @@ export class OrderService {
       where,
       relations: { activity: true, collections: true },
       skip: paginationDto.skip,
-      take: paginationDto.take,
+      take: paginationDto.take || 15,
       order: {
         createTime: 'DESC',
       }

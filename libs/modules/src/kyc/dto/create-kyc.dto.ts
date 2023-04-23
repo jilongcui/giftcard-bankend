@@ -10,10 +10,12 @@ export class CreateKycDto extends OmitType(Kyc, ['id', 'status', 'userId'] as co
 export class ListKycDto {
     @Type()
     @IsNumber()
-    userId: number
+    @IsOptional()
+    userId?: number
 
     @IsString()
-    status: string
+    @IsOptional()
+    status?: string
 }
 
 export class ListMyKycDto {

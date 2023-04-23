@@ -102,7 +102,7 @@ export class CurrencyService {
     const priceArray = responseData.price
 
     if(actionArray.length > 0)
-      await this.redis.set(CURRENCY_UPDATE_KEY, '1', 'EX', 60 * 60 * 24)
+      await this.redis.set(CURRENCY_UPDATE_KEY, '1', 'EX', 60 * 60 * 1)
 
     for(let i=0; i< actionArray.length; i++) {
       if(actionArray[i] !== 'sell') continue
