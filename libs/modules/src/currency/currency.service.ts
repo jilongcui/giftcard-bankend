@@ -107,7 +107,6 @@ export class CurrencyService {
     for(let i=0; i< actionArray.length; i++) {
       if(actionArray[i] !== 'sell') continue
 
-      const key = actionArray[i] + '_' + cryptoTypeArray[i]
       const names = cryptoTypeArray[i].toUpperCase().split('_')
       if(names.length != 2) {
         // this.logger.error("汇率获取失败: ", cryptoTypeArray[i])
@@ -123,7 +122,6 @@ export class CurrencyService {
       }
       currency.exratio = newRatio
       await this.currencyRepository.save(currency)
-      await this.redis.set(key, priceArray[i])
     }
   }
 }
