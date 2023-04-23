@@ -36,3 +36,5 @@ export const MAGICBOX_ORDER_COUNT = "MAGICBOX:ORDER:COUNT"  // 盲盒订单统�
 export const MAGICBOX_ORDER_SUPPLY = "MAGICBOX:ORDER:SUPPLY"  // 盲盒订单统计
 export const MAGICBOX_ORDER_KEY = "MAGICBOX:ORDER:KEY"  // 订单统计
 export const MAGICBOX_LIST_KEY = "MAGICBOX:LIST:KEY"
+
+export const CURRENCY_UPDATE_KEY = "CURRENCY:UPDATE:KEY"
