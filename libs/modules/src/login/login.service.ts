@@ -132,7 +132,7 @@ export class LoginService {
         //存储密码版本号，防止登录期间 密码被管理员更改后 还能继续登录
         await this.redis.set(`${USER_VERSION_KEY}:${user.userId}`, 1)
         //存储token, 防止重复登录问题，设置token过期时间(1天后 token 自动过期)，以及主动注销token。
-        await this.redis.set(`${USER_TOKEN_KEY}:${user.userId}`, jwtSign, 'EX', 60 * 60 * 24)
+        await this.redis.set(`${USER_TOKEN_KEY}:${user.userId}`, jwtSign, 'EX', 60 * 60 * 24 * 12)
         //调用存储在线用户接口
         // await this.logService.addLogininfor(request, '注册成功', `${USER_TOKEN_KEY}:${user.userId}`)
         return { token: jwtSign }
@@ -209,7 +209,7 @@ export class LoginService {
         //存储密码版本号，防止登录期间 密码被管理员更改后 还能继续登录
         await this.redis.set(`${USER_VERSION_KEY}:${user.userId}`, 1)
         //存储token, 防止重复登录问题，设置token过期时间(1天后 token 自动过期)，以及主动注销token。
-        await this.redis.set(`${USER_TOKEN_KEY}:${user.userId}`, jwtSign, 'EX', 60 * 60 * 24)
+        await this.redis.set(`${USER_TOKEN_KEY}:${user.userId}`, jwtSign, 'EX', 60 * 60 * 24 * 12)
         //调用存储在线用户接口
         // await this.logService.addLogininfor(request, '注册成功', `${USER_TOKEN_KEY}:${user.userId}`)
         return { token: jwtSign }
@@ -233,7 +233,7 @@ export class LoginService {
         //存储密码版本号，防止登录期间 密码被管理员更改后 还能继续登录
         await this.redis.set(`${USER_VERSION_KEY}:${user.userId}`, 1)
         //存储token, 防止重复登录问题，设置token过期时间(1天后 token 自动过期)，以及主动注销token。
-        await this.redis.set(`${USER_TOKEN_KEY}:${user.userId}`, jwtSign, 'EX', 60 * 60 * 24)
+        await this.redis.set(`${USER_TOKEN_KEY}:${user.userId}`, jwtSign, 'EX', 60 * 60 * 24 * 12)
         //调用存储在线用户接口
         await this.logService.addLogininfor(request, '登录成功', `${USER_TOKEN_KEY}:${user.userId}`)
         return { token: jwtSign, openId: user.openId }
