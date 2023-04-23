@@ -24,7 +24,7 @@ export class KycCertifyInfo {
     country: string // 国籍
 
     @IsString()
-    idCardType: string // ‘0’ 身份证，护照
+    idCardType: string // ‘0’ 身份证，1: 护照
 
     @IsString()
     idCardFrontImage: string
@@ -73,6 +73,23 @@ export class Kyc {
         }
     })
     status: string
+
+    /* 证件类型 0: 身份证 1: 护照*/
+    @Column({
+        name: 'card_type',
+        comment: '证件类型 0: 身份证 1: 护照',
+        default: '0',
+        type: 'char',
+        length: 1
+    })
+    @IsString()
+    @Excel({
+        name: '状态',
+        readConverterExp: {
+            0: "身份证", 1: "护照",
+        }
+    })
+    cardType: string
 
     /* 订单所属用户 */
     @Column({

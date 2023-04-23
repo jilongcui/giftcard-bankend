@@ -23,6 +23,7 @@ export class KycService {
     }
     const kycDto = {
       ...createKycDto,
+      cardType: createKycDto.info.idCardType,
       userId: userId
     }
     // this.logger.debug(kycDto)
