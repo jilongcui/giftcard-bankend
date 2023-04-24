@@ -54,6 +54,7 @@ export class KycController {
   }
 
   @Post('notify')
+  @Public()
   @Keep()
   notify(@Body() noitfyKycDto: NotifyKycStatusDto) {
     return this.kycService.notify(noitfyKycDto);
