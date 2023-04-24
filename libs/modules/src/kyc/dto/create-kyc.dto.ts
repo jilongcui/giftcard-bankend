@@ -5,7 +5,7 @@ import { Kyc, KycCertifyInfo } from "../entities/kyc.entity"
 
 export class CreateKycDto1 extends OmitType(Kyc, ['id','user'] as const) { }
 
-export class CreateKycDto extends OmitType(Kyc, ['id', 'status', 'userId','orderNo'] as const) {}
+export class CreateKycDto extends OmitType(Kyc, ['id', 'status', 'userId','orderNo',] as const) {}
 
 export class ListKycDto {
     @Type()

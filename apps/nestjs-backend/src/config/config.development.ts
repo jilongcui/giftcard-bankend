@@ -147,6 +147,10 @@ export default defineConfig({
     appSecret: process.env.FUND33_APPSECRET,
   },
 
+  kyc: {
+    notifyUrl: process.env.FUND33_NOTIFY_URL
+  },
+
   platform: {
     secret: process.env.PlatformSecret || '123456'
   },

@@ -185,6 +185,10 @@ export interface IConfig {
         appSecret: string,
     }
 
+    kyc?: {
+        notifyUrl: string
+    }
+
     platform?: {
         secret: string
     }

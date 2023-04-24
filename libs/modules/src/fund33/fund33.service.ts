@@ -210,6 +210,12 @@ export class Fund33Service {
     const requestUri = '/api/kyc/apply'
     // 对所有的原始参数进行签名
 
+    kycInfo.sourceOfFunds =JSON.stringify(kycInfo.sourceOfFunds)
+    kycInfo.industry =JSON.stringify(kycInfo.industry)
+    kycInfo.jobPosition =JSON.stringify(kycInfo.jobPosition)
+    kycInfo.intended =JSON.stringify(kycInfo.intended)
+    kycInfo.purposeOfUse =JSON.stringify(kycInfo.purposeOfUse)
+
     const timestamp = moment().unix()*1000 + moment().milliseconds()
     const nonce = this.sharedService.generateNonce(16)
     let bodyRaw = {
@@ -235,11 +241,12 @@ export class Fund33Service {
       body.faceImage = await this.sharedService.imageToBase64(kycInfo.faceImage)
     if(kycInfo.backImage)
       body.backImage = await this.sharedService.imageToBase64(kycInfo.backImage)
-    if(kycInfo.passImage)
-      body.passImage = await this.sharedService.imageToBase64(kycInfo.passImage)
+    // if(kycInfo.passImage)
+    //   body.passImage = await this.sharedService.imageToBase64(kycInfo.passImage)
     if(kycInfo.signImage)
       body.signImage = await this.sharedService.imageToBase64(kycInfo.signImage)
 
+    body.notifyUrl
     let options = {
       headers: {
           "Content-Type": "application/json"

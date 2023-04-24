@@ -10,15 +10,20 @@ import { NotifyKycStatusDto, UpdateKycDto, UpdateKycStatusDto } from './dto/upda
 import { Kyc, KycCertifyInfo } from './entities/kyc.entity';
 import { Fund33Service } from '../fund33/fund33.service';
 import { SharedService } from '@app/shared';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class KycService {
   logger = new Logger(KycService.name)
+  notifyUrl: string
   constructor(
     @InjectRepository(Kyc) private readonly kycRepository: Repository<Kyc>,
     private readonly sharedService: SharedService,
+    private readonly configService: ConfigService,
     private readonly fund33Service: Fund33Service,
-  ) {}
+  ) {
+    this.notifyUrl = this.configService.get<string>('kyc.notifyUrl')
+  }
 
   async create(createKycDto: CreateKycDto, userId: number) {
     const kyc = await this.findOneByUser(userId)
@@ -31,8 +36,10 @@ export class KycService {
       orderNo: this.sharedService.generateOrderNo(8),
       userId: userId
     }
+    
     // this.logger.debug(kycDto)
     createKycDto.info.merOrderNo = kycDto.orderNo
+    createKycDto.info.notifyUrl = ''
 
     await this.fund33Service.uploadKycInfo(createKycDto.info)
     return await this.kycRepository.save(kycDto)
@@ -51,7 +58,11 @@ export class KycService {
   }
 
   async notify(notifyKycDto: NotifyKycStatusDto) {
+    this.logger.debug(`notify: ` + JSON.stringify(notifyKycDto))
     const kyc = await this.findOneByOrderNo(notifyKycDto.merOrderNo)
+    if(notifyKycDto.status === '1') notifyKycDto.status = '0'
+    if(notifyKycDto.status === '2') notifyKycDto.status = '1'
+    if(notifyKycDto.status === '3') notifyKycDto.status = '2'
     kyc.status = notifyKycDto.status
     await this.kycRepository.save(kyc)
     return 

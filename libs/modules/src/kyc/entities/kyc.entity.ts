@@ -43,13 +43,16 @@ export class KycCertifyInfo {
     /* merOrderNo	是	string	商家订单号 */
     @IsString()
     merOrderNo: string
+    /* notifyUrl	是	string	通知回调 */
+    @IsString()
+    notifyUrl: string
     /* certType	是	string	证件类型 0-身份证 1-护照 */
     @IsString()
     certType: string
     /* idNumber	是	string	身份证号/护照号  */
     @IsString()
     idNumber: string
-    /* idExpiryDate	是	string	证件有效期 （格式 dd/MM/yyyy）*/
+    /* idExpiryDate	是	string	证件有效期 */
     @IsString()
     idExpiryDate: string
     /* zhName	否	string	中文姓名 */

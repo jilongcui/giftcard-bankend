@@ -52,8 +52,8 @@ export class KycController {
     return this.kycService.updateStatus(+id, updateKycDto, userId);
   }
 
-  @Put('notify')
-  notify(@Body() noitfyKycDto: NotifyKycStatusDto, @UserDec(UserEnum.userId) userId: number,) {
+  @Post('notify')
+  notify(@Body() noitfyKycDto: NotifyKycStatusDto) {
     return this.kycService.notify(noitfyKycDto);
   }
 
