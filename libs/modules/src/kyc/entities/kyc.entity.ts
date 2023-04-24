@@ -51,6 +51,9 @@ export class KycCertifyInfo {
     /* certType	是	string	证件类型 0-身份证 1-护照 */
     @IsString()
     certType: string
+    /* country	是	string	国籍  */
+    @IsString()
+    country: string
     /* idNumber	是	string	身份证号/护照号  */
     @IsString()
     idNumber: string
