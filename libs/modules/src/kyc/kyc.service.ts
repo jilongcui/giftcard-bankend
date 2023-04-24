@@ -65,7 +65,7 @@ export class KycService {
     if(notifyKycDto.status === '3') notifyKycDto.status = '2'
     kyc.status = notifyKycDto.status
     await this.kycRepository.save(kyc)
-    return 
+    return 'ok'
   }
 
   update(id: number, updateKycDto: UpdateKycDto, userId: number) {

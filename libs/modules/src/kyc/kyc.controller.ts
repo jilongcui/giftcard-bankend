@@ -10,6 +10,7 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Kyc } from './entities/kyc.entity';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
+import { Keep } from '@app/common/decorators/keep.decorator';
 
 @ApiTags('Kyc认证')
 @ApiBearerAuth()
@@ -53,6 +54,7 @@ export class KycController {
   }
 
   @Post('notify')
+  @Keep()
   notify(@Body() noitfyKycDto: NotifyKycStatusDto) {
     return this.kycService.notify(noitfyKycDto);
   }
