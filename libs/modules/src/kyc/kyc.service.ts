@@ -5,7 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { Repository, FindOptionsWhere, MoreThanOrEqual } from 'typeorm';
-import { CreateKycDto, ListKycDto, ListMyKycDto } from './dto/create-kyc.dto';
+import { CreateKycDto, CreateKycInfoDto, ListKycDto, ListMyKycDto } from './dto/create-kyc.dto';
 import { NotifyKycStatusDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
 import { Kyc, KycCertifyInfo } from './entities/kyc.entity';
 import { Fund33Service } from '../fund33/fund33.service';
@@ -25,23 +25,23 @@ export class KycService {
     this.notifyUrl = this.configService.get<string>('kyc.notifyUrl')
   }
 
-  async create(createKycDto: CreateKycDto, userId: number) {
+  async create(createKycInfoDto: CreateKycInfoDto, userId: number) {
     const kyc = await this.findOneByUser(userId)
     if(kyc) {
       throw new ApiException("已存在KYC")
     }
-    const kycDto = {
-      ...createKycDto,
-      cardType: createKycDto.info.certType,
+    const kycDto: CreateKycDto = {
+      info: {...createKycInfoDto},
+      cardType: createKycInfoDto.certType,
       orderNo: this.sharedService.generateOrderNo(8),
       userId: userId
     }
     
     // this.logger.debug(kycDto)
-    createKycDto.info.merOrderNo = kycDto.orderNo
-    createKycDto.info.notifyUrl = this.notifyUrl
+    kycDto.info.merOrderNo = kycDto.orderNo
+    kycDto.info.notifyUrl = this.notifyUrl
 
-    await this.fund33Service.uploadKycInfo(createKycDto.info)
+    await this.fund33Service.uploadKycInfo(kycDto.info)
     return await this.kycRepository.save(kycDto)
   }
 

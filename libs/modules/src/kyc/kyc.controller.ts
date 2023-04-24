@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
 import { KycService } from './kyc.service';
-import { CreateKycDto, ListKycDto, ListMyKycDto } from './dto/create-kyc.dto';
+import { CreateKycDto, CreateKycInfoDto, ListKycDto, ListMyKycDto } from './dto/create-kyc.dto';
 import { NotifyKycStatusDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
@@ -19,8 +19,8 @@ export class KycController {
   constructor(private readonly kycService: KycService) {}
 
   @Post()
-  create(@Body() createKycDto: CreateKycDto, @UserDec(UserEnum.userId) userId: number) {
-    return this.kycService.create(createKycDto, userId);
+  create(@Body() createKycInfoDto: CreateKycInfoDto, @UserDec(UserEnum.userId) userId: number) {
+    return this.kycService.create(createKycInfoDto, userId);
   }
 
   @Get('list')

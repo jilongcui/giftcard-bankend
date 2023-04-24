@@ -3,9 +3,10 @@ import { Type } from "class-transformer"
 import { IsNumber, IsObject, IsOptional, IsString } from "class-validator"
 import { Kyc, KycCertifyInfo } from "../entities/kyc.entity"
 
-export class CreateKycDto1 extends OmitType(Kyc, ['id','user'] as const) { }
+export class CreateKycDto extends OmitType(Kyc, ['id', 'user', 'status', 'createTime'] as const) {}
 
-export class CreateKycDto extends OmitType(Kyc, ['id', 'status', 'userId','orderNo',] as const) {}
+
+export class CreateKycInfoDto extends OmitType(KycCertifyInfo, ['merOrderNo', 'notifyUrl'] as const) {}
 
 export class ListKycDto {
     @Type()

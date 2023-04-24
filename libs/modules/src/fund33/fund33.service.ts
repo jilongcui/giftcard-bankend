@@ -246,7 +246,6 @@ export class Fund33Service {
     if(kycInfo.signImage)
       body.signImage = await this.sharedService.imageToBase64(kycInfo.signImage)
 
-    body.notifyUrl
     let options = {
       headers: {
           "Content-Type": "application/json"
