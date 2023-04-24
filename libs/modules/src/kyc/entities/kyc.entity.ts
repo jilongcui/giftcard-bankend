@@ -1,7 +1,7 @@
 import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { User } from "@app/modules/system/user/entities/user.entity";
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsNumber, IsObject, IsString } from "class-validator";
+import { IsNumber, IsObject, IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 export class KycCertifyInfoOld {
@@ -42,9 +42,11 @@ export class KycCertifyInfoOld {
 export class KycCertifyInfo {
     /* merOrderNo	是	string	商家订单号 */
     @IsString()
+    @IsOptional()
     merOrderNo?: string
     /* notifyUrl	是	string	通知回调 */
     @IsString()
+    @IsOptional()
     notifyUrl?: string
     /* certType	是	string	证件类型 0-身份证 1-护照 */
     @IsString()
@@ -57,15 +59,18 @@ export class KycCertifyInfo {
     idExpiryDate: string
     /* zhName	否	string	中文姓名 */
     @IsString()
+    @IsOptional()
     zhName?: string
     /* enName	否	string	英文名 */
     @IsString()
+    @IsOptional()
     enName?: string
     /* sex	是	string	性别 0-女 1-男 */
     @IsString()
     sex: string
     /* email	否	string	电子邮件 */
     @IsString()
+    @IsOptional()
     email?: string
     /* phone	否	string	手机号 */
     @IsString()
@@ -73,7 +78,9 @@ export class KycCertifyInfo {
     /* homeAddress	是	string	住宅地址 */
     @IsString()
     homeAddress: string
+
     /* connectAddress	否	string	通讯地址（如果与住宅地址不同需要） */
+    @IsOptional()
     @IsString()
     connectAddress?: string
 
@@ -82,6 +89,7 @@ export class KycCertifyInfo {
     birthday: string
 
     /* holdCardNumber	否	string	曾经或者现在持有卡片 */
+    @IsOptional()
     @IsString()
     holdCardNumber?: string
 
@@ -107,15 +115,18 @@ export class KycCertifyInfo {
 
     /* faceImage	否	string	身份证正面（证件类型为身份证必须） */
     @IsString()
+    @IsOptional()
     faceImage?: string
     /* backImage	否	string	身份证反面 （证件类型为身份证必须） */
     @IsString()
     backImage?: string
     /* passImage	否	string	护照页照片（证件类型为护照必须） */
     @IsString()
+    @IsOptional()
     passImage?: string
     /* signImage	是	string	手写签名 */
     @IsString()
+    @IsOptional()
     signImage: string
 }
 
