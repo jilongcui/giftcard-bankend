@@ -28,8 +28,6 @@ const xml2js = require('xml2js');
 const parser = new xml2js.Parser({
     explicitArray: false
 });
-// const imageToBase64 = require('image-to-base64');
-import imageToBase64 from 'image-to-base64/browser';
 
 @Injectable()
 export class SharedService {

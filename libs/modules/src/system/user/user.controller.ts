@@ -52,7 +52,7 @@ export class UserController {
     @DataScope({
         userAlias: 'user2'
     })
-    @RequiresPermissions('system:user:query')
+    // @RequiresPermissions('system:user:query')
     @ApiPaginatedResponse(User)
     async list(@Query() reqUserListDto: ReqUserListDto, @Query(PaginationPipe) paginationDto: PaginationDto, @DataScopeSql() sataScopeSql: string) {
         return this.userService.list(reqUserListDto, paginationDto, null, null, sataScopeSql)

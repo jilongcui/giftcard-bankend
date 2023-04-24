@@ -207,6 +207,10 @@ export class UserService {
         } else {
             queryBuilde.leftJoinAndSelect("user.dept", "dept")
         }
+        queryBuilde.leftJoin("user.accounts", "account_usdt",)
+        queryBuilde.addSelect(['account_usdt.usable'])
+        queryBuilde.addSelect(['account_usdt.currencyId'])
+        queryBuilde.leftJoinAndSelect("user.kyc", "kyc", 'kyc.status = 1')
         queryBuilde.skip(paginationDto.skip)
         queryBuilde.take(paginationDto.take)
         if (roleId && !reverse) {
@@ -259,6 +263,7 @@ export class UserService {
             // .leftJoinAndSelect('member.memberInfo', 'memberInfo', 'memberInfo.id=1')
             .leftJoinAndSelect('user.posts', 'post', "dept.status = 0")
             .leftJoinAndSelect('user.roles', 'role', "role.delFlag = 0 and role.status = 0")
+            .leftJoinAndSelect('user.accounts', 'account',)
             .where({
                 userId,
                 delFlag: '0',
@@ -291,7 +296,7 @@ export class UserService {
         // Add invite code.
         const userDto = {
             ...reqAddUserDto,
-            inviteCode: strRandom(2, {numbers: false, letters:letters}) + strRandom(6, {letters:false})
+            inviteCode: strRandom(2, {numbers: false, letters:letters}).toUpperCase() + strRandom(6, {letters:false})
         }
         const user = await this.userRepository.save(userDto)
 

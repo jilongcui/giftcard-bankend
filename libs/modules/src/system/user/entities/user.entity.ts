@@ -248,7 +248,7 @@ export class User extends BaseEntity {
 
     @ApiHideProperty()
     @OneToOne(() => Kyc, kyc => kyc.user)
-    kyc?: Identity
+    kyc?: Kyc
 
     @ApiHideProperty()
     @OneToOne(() => Member, member => member.user)
