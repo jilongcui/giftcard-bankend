@@ -210,12 +210,6 @@ export class Fund33Service {
     const requestUri = '/api/kyc/apply'
     // 对所有的原始参数进行签名
 
-    kycInfo.sourceOfFunds =JSON.stringify(kycInfo.sourceOfFunds)
-    kycInfo.industry =JSON.stringify(kycInfo.industry)
-    kycInfo.jobPosition =JSON.stringify(kycInfo.jobPosition)
-    kycInfo.intended =JSON.stringify(kycInfo.intended)
-    kycInfo.purposeOfUse =JSON.stringify(kycInfo.purposeOfUse)
-
     const timestamp = moment().unix()*1000 + moment().milliseconds()
     const nonce = this.sharedService.generateNonce(16)
     let bodyRaw = {

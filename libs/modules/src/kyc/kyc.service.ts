@@ -30,6 +30,11 @@ export class KycService {
     if(kyc) {
       throw new ApiException("已存在KYC")
     }
+    createKycInfoDto.sourceOfFunds =JSON.stringify(createKycInfoDto.sourceOfFunds)
+    createKycInfoDto.industry =JSON.stringify(createKycInfoDto.industry)
+    createKycInfoDto.jobPosition =JSON.stringify(createKycInfoDto.jobPosition)
+    createKycInfoDto.intended =JSON.stringify(createKycInfoDto.intended)
+    createKycInfoDto.purposeOfUse =JSON.stringify(createKycInfoDto.purposeOfUse)
     const kycDto: CreateKycDto = {
       info: {...createKycInfoDto},
       cardType: createKycInfoDto.certType,
