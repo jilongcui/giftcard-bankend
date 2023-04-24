@@ -39,7 +39,7 @@ export class KycService {
     
     // this.logger.debug(kycDto)
     createKycDto.info.merOrderNo = kycDto.orderNo
-    createKycDto.info.notifyUrl = ''
+    createKycDto.info.notifyUrl = this.notifyUrl
 
     await this.fund33Service.uploadKycInfo(createKycDto.info)
     return await this.kycRepository.save(kycDto)
