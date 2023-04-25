@@ -7,25 +7,32 @@ import { DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
+import { User } from '../system/user/entities/user.entity';
 
 @Injectable()
 export class HomeAddressService {
   constructor(
-    @InjectRepository(HomeAddress) private readonly homeAddressRepository: Repository<HomeAddress>
+    @InjectRepository(HomeAddress) private readonly homeAddressRepository: Repository<HomeAddress>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>
   ) {}
   async create(createHomeaddressDto: CreateHomeAddressDto, userId: number) {
-    const address = await this.homeAddressRepository.findOneBy({userId, isDefault: true})
-    let isDefault = false
-    if(address) {
-      isDefault = true
-    }
+    // const address = await this.homeAddressRepository.findOneBy({userId, isDefault: true})
+    // let isDefault = false
+    // if(!address) {
+    //   isDefault = true
+    // }
     
     const addressDto: DeepPartial<HomeAddress> = {
       ...createHomeaddressDto,
       userId: userId
     }
-    
-    return await this.homeAddressRepository.save(addressDto)
+
+    addressDto.isDefault = true
+
+    await this.homeAddressRepository.update({userId}, {isDefault: false})
+    const homeAddress = await this.homeAddressRepository.save(addressDto)
+    await this.userRepository.update(userId, {defaultAddress: homeAddress })
+    return homeAddress
   }
 
   /* 分页查询 */
@@ -77,17 +84,20 @@ export class HomeAddressService {
     }
   }
 
-  setDefault(id: number, isDefault: boolean) {
-    const address = this.homeAddressRepository.findOneBy({id: id})
+  async setDefault(id: number, isDefault: boolean) {
+    const address = await this.homeAddressRepository.findOneBy({id: id})
     if (!address)
       throw new ApiException("未找到此地址")
-    return this.homeAddressRepository.update(id, {isDefault})
+    await this.userRepository.update({userId: address.userId}, {defaultAddress: address})
+    await this.homeAddressRepository.update({userId: address.userId}, {isDefault: false})
+    return await this.homeAddressRepository.update(id, {isDefault})
   }
 
   update(id: number, updateHomeaddressDto: UpdateHomeAddressDto, userId: number) {
     const address = this.homeAddressRepository.findOneBy({id: id, userId: userId})
     if (!address)
       throw new ApiException("非此用户的地址")
+    this.homeAddressRepository.update({userId}, {isDefault: false})
     return this.homeAddressRepository.update(id, updateHomeaddressDto)
   }
 

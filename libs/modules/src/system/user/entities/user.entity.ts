@@ -14,6 +14,7 @@ import { Account } from "@app/modules/account/entities/account.entity";
 import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 import { Member } from "@app/modules/member/entities/member.entity";
 import { Kyc } from "@app/modules/kyc/entities/kyc.entity";
+import { HomeAddress } from "@app/modules/homeaddress/entities/homeaddress.entity";
 
 @Entity()
 // @Tree("closure-table", {
@@ -249,6 +250,13 @@ export class User extends BaseEntity {
     @ApiHideProperty()
     @OneToOne(() => Kyc, kyc => kyc.user)
     kyc?: Kyc
+
+    @ApiHideProperty()
+    @JoinColumn({
+        name: 'default_adddress_id',
+    })
+    @OneToOne(() => HomeAddress, homeAddress => homeAddress.user)
+    defaultAddress?: HomeAddress
 
     @ApiHideProperty()
     @OneToOne(() => Member, member => member.user)

@@ -71,7 +71,6 @@ export class HomeAddress {
     /* 是否默认地址 */
     @Column({
         comment: '是否默认地址',
-        length: 11
     })
     @IsBoolean()
     isDefault: boolean

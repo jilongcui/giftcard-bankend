@@ -210,6 +210,9 @@ export class UserService {
         queryBuilde.leftJoin("user.accounts", "account_usdt",)
         queryBuilde.addSelect(['account_usdt.usable'])
         queryBuilde.addSelect(['account_usdt.currencyId'])
+        queryBuilde.leftJoinAndSelect("user.defaultAddress", "defaultAddress",)
+
+
         queryBuilde.leftJoinAndSelect("user.kyc", "kyc", 'kyc.status = 1')
         queryBuilde.skip(paginationDto.skip)
         queryBuilde.take(paginationDto.take)
