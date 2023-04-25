@@ -70,7 +70,7 @@ export class ApplyCard {
     })
     bankcard?: Bankcard
 
-    /* 签约状态 0: 未签约 1: 已经签约 2:签约失败 3: 已经鉴权 4: 鉴权失败 */
+    /* 申请状态 0: 开始申请 1: 申请成功 2: 申请失败 */
     @Column({
         name: 'status',
         default: 0,

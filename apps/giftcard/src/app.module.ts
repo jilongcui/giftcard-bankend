@@ -49,6 +49,7 @@ import { ApplyCardModule } from '@app/modules/apply-card/apply-card.module';
 import { WithdrawModule } from '@app/modules/wallet/withdraw/withdraw.module';
 import { ExchangeModule } from '@app/modules/exchange/exchange.module';
 import { TransferModule } from '@app/modules/transfer/transfer.module';
+import { HomeAddressModule } from '@app/modules/homeaddress/homeaddress.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
@@ -128,6 +129,7 @@ import { TransferModule } from '@app/modules/transfer/transfer.module';
     ApplyCardModule,
     ExchangeModule,
     TransferModule,
+    HomeAddressModule
   ],
   // controllers: [NotifyController],
   // providers: [...aliasProviders],
