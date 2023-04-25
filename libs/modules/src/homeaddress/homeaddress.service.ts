@@ -44,7 +44,7 @@ export class HomeAddressService {
     result = await this.homeAddressRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
-      relations: { user: true },
+      // relations: { user: true },
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -70,7 +70,7 @@ export class HomeAddressService {
     result = await this.homeAddressRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
-      relations: ["user"],
+      // relations: ["user"],
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
