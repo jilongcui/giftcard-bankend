@@ -104,6 +104,28 @@ export class BankcardService {
     }
   }
 
+  /* 分页查询 */
+  async listWithUser(listBankcardList: ListBankcardDto, paginationDto: PaginationDto): Promise<PaginatedDto<Bankcard>> {
+    let where: FindOptionsWhere<Bankcard> = {}
+    let result: any;
+    where = listBankcardList
+
+    result = await this.bankcardRepository.findAndCount({
+      where,
+      relations: { user: true },
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
   /* 我的订单查询 */
   async mylist(userId: number, listMyBankcardDto: ListMyBankcardDto, paginationDto: PaginationDto): Promise<PaginatedDto<Bankcard>> {
     let where: FindOptionsWhere<ListBankcardDto> = {}

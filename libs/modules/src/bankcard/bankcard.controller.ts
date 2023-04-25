@@ -48,6 +48,13 @@ export class BankcardController {
     return await this.bankcardService.list(listBankcardDto, paginationDto);
   }
 
+  @Get('userlist')
+  @RequiresPermissions('system:bankcard:userlist')
+  @ApiPaginatedResponse(Bankcard)
+  async userlist(@Query() listBankcardDto: ListBankcardDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.bankcardService.listWithUser(listBankcardDto, paginationDto);
+  }
+
   /* 我的银行卡列表 */
   @Get('myList')
   @ApiPaginatedResponse(Bankcard)

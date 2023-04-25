@@ -27,7 +27,7 @@ export class Bankcard {
         name: 'pin_code',
         default: '',
         length: 50,
-        comment: '持卡人Pin密码，以加密'
+        comment: '持卡人Pin密码，需加密'
     })
     @IsOptional()
     @IsString()
@@ -73,6 +73,26 @@ export class Bankcard {
     @IsString()
     bankType?: string
 
+    /* 银行CVV Code */
+    @Column({
+        name: 'bank_cvvcode',
+        comment: '银行卡CVV',
+        length: '10'
+    })
+    @IsOptional()
+    @IsString()
+    bankCVVCode?: string
+
+    /* 银行类型: 只用于展示图标用途 */
+    @Column({
+        name: 'valid_through',
+        comment: '银行卡有效期',
+        length: '12'
+    })
+    @IsOptional()
+    @IsString()
+    validThrough?: string
+
     /* 签约事务编号 */
     @Column({
         name: 'sign_trade_no',
@@ -104,7 +124,7 @@ export class Bankcard {
     signNo?: string
 
     /* 签约状态 0: 未签约 1: 已经签约 2:签约失败 3: 已经鉴权 4: 鉴权失败 */
-    /* 签约状态 0: 未注册 1: 已经注册 2:已注销 */
+    /* 签约状态 0: 未激活 1: 已经激活 2: 已冻结 3: 已注销 */
     @Column({
         name: 'status',
         default: '0',
