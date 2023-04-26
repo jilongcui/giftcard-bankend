@@ -26,7 +26,7 @@ export class KycService {
   }
 
   async create(createKycInfoDto: CreateKycInfoDto, userId: number) {
-    const kyc = await this.findOneByUser(userId)
+    const kyc = await this.kycRepository.findOneBy({userId, status: '1'})
     if(kyc) {
       throw new ApiException("已存在KYC")
     }
