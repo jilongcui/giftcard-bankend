@@ -27,9 +27,8 @@ export class HomeAddressService {
       userId: userId
     }
 
-    addressDto.isDefault = true
-
-    await this.homeAddressRepository.update({userId}, {isDefault: false})
+    if(createHomeaddressDto.isDefault == true)
+      await this.homeAddressRepository.update({userId}, {isDefault: false})
     const homeAddress = await this.homeAddressRepository.save(addressDto)
     await this.userRepository.update(userId, {defaultAddress: homeAddress })
     return homeAddress

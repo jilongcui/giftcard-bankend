@@ -53,7 +53,7 @@ export class HomeAddress {
     /* 城市 */
     @Column({
         comment: '城市',
-        length: 50,
+        length: 150,
         default: null
     })
     @IsString()
@@ -62,11 +62,20 @@ export class HomeAddress {
     /* 街道地址 */
     @Column({
         comment: '街道地址',
-        length: 100,
+        length: 150,
         default: null
     })
     @IsString()
     street: string
+
+    /* 邮政编码 */
+    @Column({
+        comment: '邮政编码',
+        length: 50,
+        default: null
+    })
+    @IsString()
+    postcode: string
 
     /* 是否默认地址 */
     @Column({

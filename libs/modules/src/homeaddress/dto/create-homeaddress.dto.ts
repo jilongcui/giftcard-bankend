@@ -3,7 +3,7 @@ import { HomeAddress } from "../entities/homeaddress.entity";
 import { Type } from "class-transformer";
 import { IsString, IsOptional, IsNumber } from "class-validator";
 
-export class CreateHomeAddressDto extends OmitType(HomeAddress, ['id', 'userId', 'user', 'isDefault'] as const) {}
+export class CreateHomeAddressDto extends OmitType(HomeAddress, ['id', 'userId', 'user'] as const) {}
 
 
 export class ListMyHomeAddressDto {
