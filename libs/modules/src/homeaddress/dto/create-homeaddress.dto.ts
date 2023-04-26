@@ -1,9 +1,9 @@
 import { OmitType } from "@nestjs/swagger";
 import { HomeAddress } from "../entities/homeaddress.entity";
 import { Type } from "class-transformer";
-import { IsString, IsOptional, IsNumber } from "class-validator";
+import { IsString, IsOptional, IsNumber, IsBoolean } from "class-validator";
 
-export class CreateHomeAddressDto extends OmitType(HomeAddress, ['id', 'userId', 'user'] as const) {}
+export class CreateHomeAddressDto extends OmitType(HomeAddress, ['id', 'userId',] as const) {}
 
 
 export class ListMyHomeAddressDto {
@@ -15,6 +15,13 @@ export class ListMyHomeAddressDto {
     @IsOptional()
     street?: string
 
+    @IsOptional()
+    @IsString()
+    postcode?: string
+
+    @IsBoolean()
+    isDefault: boolean
+    
     @IsString()
     @IsOptional()
     userName?: string
@@ -33,6 +40,13 @@ export class ListHomeAddressDto {
     @IsOptional()
     street?: string
 
+    @IsOptional()
+    @IsString()
+    postcode?: string
+
+    @IsBoolean()
+    isDefault: boolean
+    
     @Type()
     @IsNumber()
     @IsOptional()

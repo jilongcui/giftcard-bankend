@@ -251,12 +251,17 @@ export class User extends BaseEntity {
     @OneToOne(() => Kyc, kyc => kyc.user)
     kyc?: Kyc
 
+    // @ApiHideProperty()
+    // @JoinColumn({
+    //     name: 'default_adddress_id',
+    // })
+    // @OneToOne(() => HomeAddress, homeaddress => homeaddress.userId)
+    // defaultAddress?: HomeAddress
+
     @ApiHideProperty()
-    @JoinColumn({
-        name: 'default_adddress_id',
-    })
-    @OneToOne(() => HomeAddress, homeAddress => homeAddress.user)
-    defaultAddress?: HomeAddress
+    @IsOptional()
+    @OneToMany(() => HomeAddress, address => address.user)
+    addresses?: HomeAddress[]
 
     @ApiHideProperty()
     @OneToOne(() => Member, member => member.user)

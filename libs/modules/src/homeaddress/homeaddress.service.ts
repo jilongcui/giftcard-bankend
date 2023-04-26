@@ -30,7 +30,7 @@ export class HomeAddressService {
     if(createHomeaddressDto.isDefault == true)
       await this.homeAddressRepository.update({userId}, {isDefault: false})
     const homeAddress = await this.homeAddressRepository.save(addressDto)
-    await this.userRepository.update(userId, {defaultAddress: homeAddress })
+    // await this.userRepository.update(userId, {defaultAddress: homeAddress })
     return homeAddress
   }
 
@@ -87,7 +87,7 @@ export class HomeAddressService {
     const address = await this.homeAddressRepository.findOneBy({id: id})
     if (!address)
       throw new ApiException("未找到此地址")
-    await this.userRepository.update({userId: address.userId}, {defaultAddress: address})
+    // await this.userRepository.update({userId: address.userId}, {defaultAddress: address})
     await this.homeAddressRepository.update({userId: address.userId}, {isDefault: false})
     return await this.homeAddressRepository.update(id, {isDefault})
   }
