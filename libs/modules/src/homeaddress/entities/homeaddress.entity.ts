@@ -2,7 +2,7 @@ import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { User } from "@app/modules/system/user/entities/user.entity";
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator";
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class HomeAddress {
@@ -97,7 +97,7 @@ export class HomeAddress {
     userId: number
     
     @ApiHideProperty()
-    @OneToOne(() => User)
+    @ManyToOne(() => User)
     @JoinColumn({
         name: 'user_id',
     })
