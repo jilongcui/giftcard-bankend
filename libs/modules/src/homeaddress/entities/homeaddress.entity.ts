@@ -1,7 +1,7 @@
 import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { User } from "@app/modules/system/user/entities/user.entity";
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsBoolean, IsNumber, IsString } from "class-validator";
+import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -74,8 +74,9 @@ export class HomeAddress {
         length: 50,
         default: null
     })
+    @IsOptional()
     @IsString()
-    postcode: string
+    postcode?: string
 
     /* 是否默认地址 */
     @Column({
