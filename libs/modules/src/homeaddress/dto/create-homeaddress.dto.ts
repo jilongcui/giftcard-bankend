@@ -19,8 +19,9 @@ export class ListMyHomeAddressDto {
     @IsString()
     postcode?: string
 
+    @IsOptional()
     @IsBoolean()
-    isDefault: boolean
+    isDefault?: boolean
     
     @IsString()
     @IsOptional()
@@ -44,9 +45,10 @@ export class ListHomeAddressDto {
     @IsString()
     postcode?: string
 
+    @IsOptional()
     @IsBoolean()
-    isDefault: boolean
-    
+    isDefault?: boolean
+
     @Type()
     @IsNumber()
     @IsOptional()
