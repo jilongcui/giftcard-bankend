@@ -113,6 +113,6 @@ export class HomeAddress {
     })
     createTime: number
 
-    @DeleteDateColumn()
-    public deletedAt: Date;
+    // @DeleteDateColumn()
+    // public deletedAt: Date;
 }

@@ -36,7 +36,7 @@ export class KycService {
     // createKycInfoDto.intended =JSON.stringify(createKycInfoDto.intended)
     // createKycInfoDto.purposeOfUse =JSON.stringify(createKycInfoDto.purposeOfUse)
     const kycDto: CreateKycDto = {
-      id: kyc.id,
+      id: kyc?kyc.id: undefined,
       status: '0',
       info: {...createKycInfoDto},
       cardType: createKycInfoDto.certType,
@@ -90,7 +90,7 @@ export class KycService {
   }
 
   remove(id: number) {
-    return this.kycRepository.softDelete(id)
+    return this.kycRepository.delete(id)
   }
 
   /* 分页查询 */

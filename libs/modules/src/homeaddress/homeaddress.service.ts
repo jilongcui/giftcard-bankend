@@ -103,6 +103,6 @@ export class HomeAddressService {
   }
 
   remove(id: number) {
-    return this.homeAddressRepository.softDelete(id)
+    return this.homeAddressRepository.delete(id)
   }
 }

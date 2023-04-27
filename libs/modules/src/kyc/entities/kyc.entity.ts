@@ -225,6 +225,6 @@ export class Kyc {
     })
     createTime: number
 
-    @DeleteDateColumn()
-    public deletedAt: Date;
+    // @DeleteDateColumn()
+    // public deletedAt: Date;
 }
