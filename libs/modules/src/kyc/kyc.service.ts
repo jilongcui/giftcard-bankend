@@ -36,7 +36,7 @@ export class KycService {
     // createKycInfoDto.intended =JSON.stringify(createKycInfoDto.intended)
     // createKycInfoDto.purposeOfUse =JSON.stringify(createKycInfoDto.purposeOfUse)
     const kycDto: CreateKycDto = {
-      id: kyc?kyc.id: undefined,
+      id: kyc?.id,
       status: '0',
       info: {...createKycInfoDto},
       cardType: createKycInfoDto.certType,
