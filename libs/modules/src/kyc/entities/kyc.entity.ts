@@ -2,7 +2,7 @@ import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { User } from "@app/modules/system/user/entities/user.entity";
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsObject, IsOptional, IsString } from "class-validator";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 export class KycCertifyInfoOld {
     @IsString()
@@ -225,6 +225,6 @@ export class Kyc {
     })
     createTime: number
 
-
-
+    @DeleteDateColumn()
+    public deletedAt: Date;
 }
