@@ -51,7 +51,7 @@ export class GiftcardService {
 
     result = await this.giftcardRepository.findAndCount({
       where,
-      relations: { cardinfo: true },
+      relations: {},
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -99,7 +99,7 @@ export class GiftcardService {
     result = await this.giftcardRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
-      relations: { cardinfo: true },
+      relations: { },
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -119,37 +119,6 @@ export class GiftcardService {
       rows: result[0],
       total: result[1]
     }
-  }
-
-  async upgrade(id: number, userId: number) {
-    const giftcard = await this.giftcardRepository.findOne({where: {id: id}, relations: {cardinfo: true} })
-    const updateFee = giftcard.cardinfo.info.upgradeFee
-    if(updateFee == 0) {
-      throw new ApiException("此卡无需升级")
-    }
-
-    const nextCardinfo = await this.cardinfoService.findOneByIndex(giftcard.cardinfo.index + 1)
-    if(!nextCardinfo) {
-      throw new ApiException("此卡无需升级")
-    }
-    let updateGiftcardDto: UpdateGiftcardDto = {
-      cardinfoId: nextCardinfo.id
-    }
-    return await this.giftcardRepository.manager.transaction(async manager => {
-      const currencyId = 1
-      const account = await manager.findOne(Account, { where: { currencyId, userId, usable: MoreThanOrEqual(updateFee)} })
-      if(!account) {
-        throw new ApiException('资金不足')
-      }
-
-      await manager.decrement(Account, { userId: userId, currencyId }, "usable", updateFee)
-      await manager.increment(Account, { userId: 1 }, "usable", updateFee)
-            
-      await manager.update(Giftcard, { id: giftcard.id }, { cardinfoId: nextCardinfo.id })
-      await manager.update(User, {userId: userId}, {vip: nextCardinfo.index})
-      return await manager.findOne(Giftcard, {where: {id: giftcard.id}, relations: {cardinfo: true}})
-    })
-
   }
 
   findFreeOne() {

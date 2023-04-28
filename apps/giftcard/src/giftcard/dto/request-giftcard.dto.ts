@@ -2,12 +2,12 @@ import { OmitType, PartialType, PickType } from "@nestjs/swagger";
 import { IsOptional, IsString } from "class-validator";
 import { Giftcard } from "../entities/giftcard.entity";
 
-export class CreateGiftcardDto extends OmitType(Giftcard, ['id', 'status', 'userId','cardinfo'] as const) { }
-export class CreateGiftcardKycDto extends OmitType(Giftcard, ['id', 'status', 'userId', 'cardinfo'] as const) { }
+export class CreateGiftcardDto extends OmitType(Giftcard, ['id', 'status', 'userId'] as const) { }
+export class CreateGiftcardKycDto extends OmitType(Giftcard, ['id', 'status', 'userId'] as const) { }
 export class UpdateAllGiftcardDto extends Giftcard { }
 export class UpdateGiftcardDto extends PartialType(Giftcard) { }
 export class UpdateGiftcardStatusDto extends PickType(Giftcard, ['status']) { }
-export class ListGiftcardDto extends PartialType(OmitType(Giftcard, ['user', 'cardinfo'] as const)) { }
+export class ListGiftcardDto extends PartialType(OmitType(Giftcard, ['user'] as const)) { }
 
 export class ListMyGiftcardDto {
     @IsOptional()

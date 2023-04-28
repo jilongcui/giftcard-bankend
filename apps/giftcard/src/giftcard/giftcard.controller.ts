@@ -24,11 +24,6 @@ export class GiftcardController {
     return this.giftcardService.create(createGiftcardDto, userId);
   }
 
-  @Post(':id/upgrade')
-  upgrade(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
-    return this.giftcardService.upgrade(+id, userId);
-  }
-
   /* 银行卡列表 */
   @Get('list')
   @RequiresPermissions('system:giftcard:list')
