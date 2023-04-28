@@ -1,6 +1,6 @@
 import { ApiAcceptedResponse, ApiHideProperty } from "@nestjs/swagger"
 import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator"
-import { Contract } from "../../contract/entities/contract.entity"
+// import { Contract } from "../../contract/entities/contract.entity"
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity()
@@ -112,10 +112,10 @@ export class Currency {
     // @ManyToOne(() => Chain)
     // chain: Chain
 
-    @ApiHideProperty()
-    @OneToOne(() => Contract)
-    @JoinColumn({
-        name: 'contract_id',
-    })
-    contract?: Contract
+    // @ApiHideProperty()
+    // @OneToOne(() => Contract)
+    // @JoinColumn({
+    //     name: 'contract_id',
+    // })
+    // contract?: Contract
 }

@@ -4,13 +4,13 @@ import { Fund33Controller } from './fund33.controller';
 import { HttpModule } from '@nestjs/axios';
 import { SharedModule } from '@app/shared';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { WithdrawController } from './withdraw.controller';
 import { WithdrawService } from './withdraw.service';
 import { Withdraw } from '../fund/entities/withdraw.entity';
 import { Account } from '../account/entities/account.entity';
 import { WithdrawFlow } from '../fund/entities/withdraw-flow.entity';
 import { BankcardModule } from 'apps/giftcard/src/bankcard/bankcard.module';
+import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 
 @Module({
   imports: [

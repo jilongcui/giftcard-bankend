@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import moment from 'moment';
 import { FindOptionsWhere, Between, In, Like, Repository, IsNull, Not } from 'typeorm';
-import { Asset } from '../collection/entities/asset.entity';
+// import { Asset } from '../collection/entities/asset.entity';
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { User } from '../system/user/entities/user.entity';
 import { UserInviteStatsDto } from './dto/request-stats.dto';
@@ -14,7 +14,7 @@ export class StatsService {
 
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
-        @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
+        // @InjectRepository(Asset) private readonly assetRepository: Repository<Asset>,
         @InjectRepository(InviteUser) private readonly inviteUserRepository: Repository<InviteUser>,
     ) { }
 
@@ -61,14 +61,14 @@ export class StatsService {
         return resultArr.filter(l => l != undefined)
     }
 
-    /* 导出拥有多个藏品的用户id */
-    async listUserByCollections(collections: string) {
-        const queryString = `select * from (select user_id userId,GROUP_CONCAT(DISTINCT collection_id ORDER BY collection_id ASC SEPARATOR ',') collections from asset group by user_id) as sb where sb.collections like '%${collections}%'`;
-        // this.logger.debug(queryString)
-        const rows = await this.assetRepository.query(queryString)
-        return {
-            rows: rows,
-            total: rows.length
-        }
-    }
+    // /* 导出拥有多个藏品的用户id */
+    // async listUserByCollections(collections: string) {
+    //     const queryString = `select * from (select user_id userId,GROUP_CONCAT(DISTINCT collection_id ORDER BY collection_id ASC SEPARATOR ',') collections from asset group by user_id) as sb where sb.collections like '%${collections}%'`;
+    //     // this.logger.debug(queryString)
+    //     const rows = await this.assetRepository.query(queryString)
+    //     return {
+    //         rows: rows,
+    //         total: rows.length
+    //     }
+    // }
 }

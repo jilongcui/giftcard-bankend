@@ -9,10 +9,8 @@ import { Payment } from './entities/payment.entity';
 import { EntityManager, In, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
-import { OrderService } from '@app/modules/order/order.service';
 
 import { ReqWeixinPaymentNotifyDto, WeixinPayForMemberDto, WeixinPaymentNotify, WeixinPayType } from './dto/request-payment.dto';
-import { Order } from '../order/entities/order.entity';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
@@ -22,8 +20,10 @@ import { Ijsapi, Inative } from 'wechatpay-node-v3/dist/lib/interface';
 import { BankcardService } from '../bankcard/bankcard.service';
 import { SysConfigService } from '@app/modules/system/sys-config/sys-config.service';
 import { Account } from '@app/modules/account/entities/account.entity';
+import { Order } from '../order/entities/order.entity';
 import { Bankcard } from '../bankcard/entities/bankcard.entity';
-import { Magicbox } from '@app/modules/magicbox/entities/magicbox.entity';
+import { Giftcard } from '../giftcard/entities/giftcard.entity';
+import { OrderService } from '../order/order.service';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -61,7 +61,6 @@ export class PaymentService {
     @InjectRepository(Payment) private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
-    @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRedis() private readonly redis: Redis,
     @Inject('XCXPayment') private xcxWxPay: WxPay,
     @Inject('NTVPayment') private ntvWxPay: WxPay,
@@ -117,7 +116,7 @@ export class PaymentService {
     if (order == null) {
       throw new ApiException('订单状态错误')
     }
-    let asset: Bankcard | Magicbox
+    let asset: Bankcard | Giftcard
 
     if (order.assetType === '0') { // 藏品
       asset = await this.bankcardRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
@@ -175,11 +174,11 @@ export class PaymentService {
       await this.buyAssetRecord(asset, userId, nickName)
     }
     // else if (order.assetType === '1') { // 盲盒
-    //   let magicbox: Magicbox
+    //   let magicbox: Giftcard
     //   magicbox = await this.magicboxRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
     //   if (magicbox.userId === userId)
     //     throw new ApiException("不能购买自己的盲盒")
-    //   await this.buyMagicboxRecord(magicbox, userId, nickName)
+    //   await this.buyGiftcardRecord(magicbox, userId, nickName)
     // }
   }
 
@@ -310,7 +309,7 @@ export class PaymentService {
   // 微信支付通知
   async weixinPaymentNotify(cryptoNotifyDto: ReqWeixinPaymentNotifyDto, type: string) {
     const resource = cryptoNotifyDto.resource
-    let asset: Bankcard | Magicbox
+    let asset: Bankcard | Giftcard
     try {
       let paymentNotify
       if (type==undefined || type === WeixinPayType.XCX) {

@@ -1,10 +1,10 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString } from "class-validator";
-import { User } from "../../system/user/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Type } from "class-transformer";
-import { Order } from "@app/modules/order/entities/order.entity";
-import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
+import { User } from "@app/modules/system/user/entities/user.entity";
+import { Bankcard } from "../../bankcard/entities/bankcard.entity";
+import { Order } from "../../order/entities/order.entity";
 
 @Entity()
 export class Payment {

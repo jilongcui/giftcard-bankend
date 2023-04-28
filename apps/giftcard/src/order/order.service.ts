@@ -33,11 +33,12 @@ export class OrderService {
     this.platformAddress = this.configService.get<string>('crichain.platformAddress')
   }
 
-  async createBankcardOrder(createOrderDto: RequestBankcardOrderDto, user: User) {
+  async createBankcardOrder(createOrderDto: RequestBankcardOrderDto,
+      userId: number, nickName: string) {
     let unpayOrderKey: string;
     const orderType = '1'
 
-    unpayOrderKey = ASSET_ORDER_KEY + ":" + user.userId
+    unpayOrderKey = ASSET_ORDER_KEY + ":" + userId
 
     // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
     const unpayOrder = await this.redis.get(unpayOrderKey)
@@ -48,8 +49,8 @@ export class OrderService {
     const order = new Order()
     order.id = parseInt('1' + strRandom(10, {letters: false}))
     order.status = '1'
-    order.userId = user.userId
-    order.userName = user.nickName
+    order.userId = userId
+    order.userName = nickName
     order.assetId = createOrderDto.assetId
     order.assetType = createOrderDto.assetType
     order.count = 1

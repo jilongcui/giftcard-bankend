@@ -11,6 +11,8 @@ import { WeChatPayModule } from 'nest-wechatpay-node-v3';
 import { readFileSync } from 'fs';
 import { Account } from '@app/modules/account/entities/account.entity';
 import { SysConfigModule } from '@app/modules/system/sys-config/sys-config.module';
+import { Bankcard } from '../bankcard/entities/bankcard.entity';
+import { Giftcard } from '../giftcard/entities/giftcard.entity';
 
 @Module({
   imports: [
@@ -18,7 +20,7 @@ import { SysConfigModule } from '@app/modules/system/sys-config/sys-config.modul
       timeout: 5000,
       maxRedirects: 5,
     }),
-    TypeOrmModule.forFeature([Payment, Order, Account]),
+    TypeOrmModule.forFeature([Payment, Order, Account, Bankcard, Giftcard]),
     WeChatPayModule.registerAsync({
       name: 'XCXPayment',
       useFactory: async () => {

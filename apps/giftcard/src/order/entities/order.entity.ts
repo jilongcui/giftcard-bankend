@@ -2,10 +2,9 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Type } from "class-transformer";
-import { Asset } from "@app/modules/collection/entities/asset.entity";
-import { Payment } from "@app/modules/payment/entities/payment.entity";
 import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { User } from "@app/modules/system/user/entities/user.entity";
+import { Payment } from "../../payment/entities/payment.entity";
 
 @Entity()
 export class Order {

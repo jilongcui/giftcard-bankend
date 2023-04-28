@@ -51,13 +51,13 @@ export class StatsController {
         return new StreamableFile(file)
     }
 
-    /* 通过拥有的collection来导出用户列表，用于导出白名单 */
-    @Post('exportUserByCollections/:ids')
-    @RequiresPermissions('stats:userbycollections:export')
-    @Keep()
-    async exportOrder(@Param('ids') ids: string) {
-        const { rows } = await this.statsService.listUserByCollections(ids);
-        const file = await this.excelService.export(UserCollectionDto, rows)
-        return new StreamableFile(file)
-    }
+    // /* 通过拥有的collection来导出用户列表，用于导出白名单 */
+    // @Post('exportUserByCollections/:ids')
+    // @RequiresPermissions('stats:userbycollections:export')
+    // @Keep()
+    // async exportOrder(@Param('ids') ids: string) {
+    //     const { rows } = await this.statsService.listUserByCollections(ids);
+    //     const file = await this.excelService.export(UserCollectionDto, rows)
+    //     return new StreamableFile(file)
+    // }
 }

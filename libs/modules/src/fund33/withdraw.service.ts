@@ -8,7 +8,6 @@ import * as querystring from 'querystring';
 import { EntityManager, FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
-import { BankcardService } from '@app/modules/bankcard/bankcard.service';
 
 import { BankCertifyBizDetail, ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqBankCertifyDto, ReqWithdrawDto, WithdrawWithCardDto } from '../fund/dto/request-fund.dto';
 import Redis from 'ioredis';
@@ -17,11 +16,12 @@ import { Account } from '../account/entities/account.entity';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { RES_CODE_SUCCESS } from '../fund/fund.const';
-import { Withdraw } from '../fund/entities/withdraw.entity';
-import { WithdrawFlow } from '../fund/entities/withdraw-flow.entity';
-import { Bankcard } from '../bankcard/entities/bankcard.entity';
+import { Withdraw } from './entities/withdraw.entity';
+import { WithdrawFlow } from './entities/withdraw-flow.entity';
 import { Fund33RechargeDto, Fund33Response } from './dto/response-fund33.dto';
 import { QueryRechargeDto } from './dto/create-fund33.dto';
+import { BankcardService } from 'apps/giftcard/src/bankcard/bankcard.service';
+import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -216,7 +216,6 @@ export class WithdrawService {
             await manager.save(withdrawFlow)
             withdraw2.bankcard = bankcard
             withdraw2.bankcard.user = undefined
-            withdraw2.bankcard.identity = undefined
             withdraw2.bankcard.signTradeNo = undefined
             return withdraw2
         })

@@ -4,7 +4,6 @@ import { BankcardService } from './bankcard.service';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { CreateBankcardDto, CreateBankcardKycDto, UpdateBankcardDto } from './dto/request-bankcard.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
-import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
@@ -23,11 +22,6 @@ export class BankcardController {
   @Post()
   create(@Body() createBankcardDto: CreateBankcardDto, @UserDec(UserEnum.userId) userId: number) {
     return this.bankcardService.create(createBankcardDto, userId);
-  }
-
-  @Post('createWithIdentity')
-  createWithIdentity(@Body() createBankcardDto: CreateBankcardKycDto, @UserDec(UserEnum.userId) userId: number) {
-    return this.bankcardService.createWithIdentity(createBankcardDto, userId);
   }
 
   @Post('createWithKyc')

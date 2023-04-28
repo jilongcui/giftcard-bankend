@@ -9,12 +9,12 @@ import { Dept } from "../../dept/entities/dept.entity";
 import { Post } from "../../post/entities/post.entity";
 import { Role } from "../../role/entities/role.entity";
 import { Identity } from "@app/modules/identity/entities/identity.entity";
-import { Order } from "@app/modules/order/entities/order.entity";
 import { Account } from "@app/modules/account/entities/account.entity";
-import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 import { Member } from "@app/modules/member/entities/member.entity";
 import { Kyc } from "@app/modules/kyc/entities/kyc.entity";
 import { HomeAddress } from "@app/modules/homeaddress/entities/homeaddress.entity";
+import { Order } from "apps/giftcard/src/order/entities/order.entity";
+import { Bankcard } from "apps/giftcard/src/bankcard/entities/bankcard.entity";
 
 @Entity()
 // @Tree("closure-table", {
