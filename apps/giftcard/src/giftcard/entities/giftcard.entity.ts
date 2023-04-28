@@ -17,8 +17,9 @@ export class Giftcard {
         length: 50,
         comment: '持卡人银行卡号'
     })
+    @IsOptional()
     @IsString()
-    cardNo: string
+    cardNo?: string
 
     // /* 持卡人预留手机号 */
     // @Column({
@@ -49,6 +50,16 @@ export class Giftcard {
     @IsString()
     cardType?: string
 
+    /* 银行卡价格 */
+    @Column({
+        name: 'price',
+        default: 0.00,
+        type: "decimal", precision: 10, scale: 2,
+        comment: '银行卡价格'
+    })
+    @IsNumber()
+    price: number
+
     /* 运费HKD */
     @Column({
         name: 'shipfee',
@@ -78,16 +89,6 @@ export class Giftcard {
     @IsString()
     status: string
 
-    /* 银行卡余额 */
-    @Column({
-        name: 'balance',
-        default: 0.00,
-        type: "decimal", precision: 10, scale: 2,
-        comment: '银行卡余额'
-    })
-    @IsNumber()
-    balance: number
-
     @Column({
         name: 'user_id',
         default: null,
@@ -104,22 +105,22 @@ export class Giftcard {
     })
     user: User
 
-    @Column({
-        name: 'cardinfo_id',
-        default: null,
-        comment: '银行卡详情'
-    })
-    @Type()
-    @IsNumber()
-    cardinfoId: number
+    // @Column({
+    //     name: 'cardinfo_id',
+    //     default: null,
+    //     comment: '银行卡详情'
+    // })
+    // @Type()
+    // @IsNumber()
+    // cardinfoId: number
 
-    @ApiHideProperty()
-    @IsOptional()
-    @ManyToOne(() => Cardinfo)
-    @JoinColumn({
-        name: 'cardinfo_id',
-    })
-    cardinfo?: Cardinfo
+    // @ApiHideProperty()
+    // @IsOptional()
+    // @ManyToOne(() => Cardinfo)
+    // @JoinColumn({
+    //     name: 'cardinfo_id',
+    // })
+    // cardinfo?: Cardinfo
 
     @ApiHideProperty()
     @CreateDateColumn({
