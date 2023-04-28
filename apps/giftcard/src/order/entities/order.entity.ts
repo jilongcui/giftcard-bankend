@@ -5,6 +5,7 @@ import { Type } from "class-transformer";
 import { Asset } from "@app/modules/collection/entities/asset.entity";
 import { Payment } from "@app/modules/payment/entities/payment.entity";
 import { Excel } from "@app/modules/common/excel/excel.decorator";
+import { User } from "@app/modules/system/user/entities/user.entity";
 
 @Entity()
 export class Order {
@@ -214,6 +215,13 @@ export class Order {
     //     type: 'simple-array',
     // })
     // images: string[]
+
+    @ApiHideProperty()
+    @ManyToOne(() => User, user => user.orders)
+    @JoinColumn({
+        name: 'user_id',
+    })
+    user: User
 
     @ApiHideProperty()
     @OneToOne(() => Payment, payment => payment.order)
