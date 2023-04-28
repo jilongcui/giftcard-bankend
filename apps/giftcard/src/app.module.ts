@@ -2,7 +2,6 @@ import { ExistingProvider, forwardRef, Module } from '@nestjs/common';
 import { NotifyController } from './notify/notify.controller';
 import { PaymentModule } from '@app/modules/payment/payment.module';
 import { BankcardModule } from '@app/modules/bankcard/bankcard.module';
-import { OrderModule } from '@app/modules/order/order.module';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from 'apps/nestjs-backend/src/config/configuration'
@@ -50,6 +49,7 @@ import { WithdrawModule } from '@app/modules/wallet/withdraw/withdraw.module';
 import { ExchangeModule } from '@app/modules/exchange/exchange.module';
 import { TransferModule } from '@app/modules/transfer/transfer.module';
 import { HomeAddressModule } from '@app/modules/homeaddress/homeaddress.module';
+import { OrderModule } from './order/order.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
