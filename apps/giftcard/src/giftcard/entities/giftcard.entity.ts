@@ -136,6 +136,7 @@ export class Giftcard {
     @Column({
         name: 'desc',
         default: '',
+        type: 'longtext',
         comment: '卡片详情',
     })
     @IsOptional()
