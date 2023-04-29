@@ -7,3 +7,11 @@ export class UpdateOrderStatusDto {
     @IsString()
     status: string
 }
+
+export class UpdateOrderShipDto {
+    @IsString()
+    shipName: string
+
+    @IsString()
+    shipNo: string
+}

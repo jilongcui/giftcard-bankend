@@ -196,6 +196,30 @@ export class Order {
     })
     homeAddress: string
 
+    /* 物流名称 */
+    @Column({
+        name: 'ship_name',
+        default: '',
+        comment: '物流名称'
+    })
+    @IsString()
+    @Excel({
+        name: '物流名称',
+    })
+    shipName: string
+
+    /* 物流单号 */
+    @Column({
+        name: 'ship_no',
+        default: '',
+        comment: '物流单号'
+    })
+    @IsString()
+    @Excel({
+        name: '物流单号',
+    })
+    shipNo: string
+
     @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',

@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, Put, Query, StreamableFile, forwardRef } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { ListMyOrderDto, ListOrderDto, ListUnpayOrderDto, RequestBankcardOrderDto, SyncInvalidOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { UpdateOrderDto, UpdateOrderShipDto } from './dto/update-order.dto';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
@@ -85,6 +85,12 @@ export class OrderController {
   @Public()
   async findOne(@Param('id') id: string) {
     return await this.orderService.findOne(+id);
+  }
+
+  @Put(':id/updateShip')
+  // @RequiresRoles(['admin', 'system'])
+  updateShipInfo(@Param('id') id: string, @Body() updateeOrderShipDto: UpdateOrderShipDto) {
+    return this.orderService.updateShipInfo(+id, updateeOrderShipDto);
   }
 
   @Delete(':id')
