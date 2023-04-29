@@ -60,7 +60,7 @@ export class OrderService {
     order.userPhone = createOrderDto.phone
     order.remark = createOrderDto.remark
     order.homeAddress = createOrderDto.homeAddress
-    order.count = 1
+    order.count = createOrderDto.count
 
     const currency= await this.currencyService.findOneByName('HKD')
     if (currency === null) {
@@ -74,6 +74,7 @@ export class OrderService {
     return await this.orderRepository.manager.transaction(async manager => {
       if (createOrderDto.assetType === '0') { // 实名卡
         let asset: Bankcard
+        order.count = 1
         asset = await manager.findOne(Bankcard, { where: { id: order.assetId, status: '1' }, relations: {cardinfo: true} })
         if (!asset)
           throw new ApiException('未发现此商品')
@@ -90,13 +91,13 @@ export class OrderService {
         asset = await manager.findOne(Giftcard, { where: { id: order.assetId, status: '1' }, relations: {} })
         if (!asset)
           throw new ApiException('未发现此商品')
-        order.realPrice = Number(asset.price) + Number(asset.tradefee) + Number(asset.shipfee)
-        order.totalPrice = order.realPrice
+        order.totalPrice = Number(asset.price) * order.count + Number(asset.tradefee) + Number(asset.shipfee)
+        order.realPrice = order.totalPrice
 
         order.desc = "[" + asset.cardType + "]" + asset.cardName
         order.image = asset.images[0] || undefined
         await manager.save(order);
-        await manager.update(Giftcard, { id: order.assetId }, { status: '2' }) // Asset is locked.
+        // await manager.update(Giftcard, { id: order.assetId }, { status: '2' }) // Asset is locked.
       }
       // 5 分钟
       await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 5)
@@ -229,7 +230,7 @@ export class OrderService {
       order.status = '0'
       // totalCount += order.count
       manager.save(order)
-      await manager.update(Bankcard, { id: order.assetId }, { status: '1' }) // Unlocked.
+      // await manager.update(Bankcard, { id: order.assetId }, { status: '1' }) // Unlocked.
     })
     await this.redis.del(unpayOrderKey)
   }
@@ -252,7 +253,7 @@ export class OrderService {
       // Set invalid status
       order.status = '0' // 取消订单
       await manager.save(order)
-      await manager.update(Bankcard, { id: order.assetId }, { status: '0' }) // 设置为未激活.
+      // await manager.update(Bankcard, { id: order.assetId }, { status: '0' }) // 设置为未激活.
     })
 
     return totalCount;

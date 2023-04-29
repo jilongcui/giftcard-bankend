@@ -123,8 +123,8 @@ export class PaymentService {
         throw new ApiException("商品状态不对")
     } else if (order.assetType === '1') { // 非实名商品
       asset = await this.giftcardRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-      if (asset.status !== '2')
-        throw new ApiException("商品状态不对")
+      // if (asset.status !== '2')
+        // throw new ApiException("商品状态不对")
     }
     const currencyId = order.currencyId
     await this.orderRepository.manager.transaction(async manager => {
@@ -153,7 +153,7 @@ export class PaymentService {
       if (order.assetType === '0') { // Bankcard
         await manager.update(Bankcard, { id: asset.id }, { status: '1' })
       } else if (order.assetType === '1') { // Giftcard
-        await manager.update(Giftcard, { id: asset.id }, { status: '1' })
+        // await manager.update(Giftcard, { id: asset.id }, { status: '1' })
       }
 
     })
