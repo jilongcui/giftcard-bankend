@@ -11,6 +11,7 @@ import { ListGiftcardDto, ListMyGiftcardDto } from './dto/request-giftcard.dto';
 import { Giftcard } from './entities/giftcard.entity';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
+import { Public } from '@app/common/decorators/public.decorator';
 
 @ApiTags('礼品卡')
 @ApiBearerAuth()
@@ -40,6 +41,7 @@ export class GiftcardController {
   }
 
   @Get('online')
+  @Public()
   @ApiPaginatedResponse(Giftcard)
   async online(@Query() listGiftcardDto: ListOnlineGiftcardDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.giftcardService.onlineList(listGiftcardDto, paginationDto);
