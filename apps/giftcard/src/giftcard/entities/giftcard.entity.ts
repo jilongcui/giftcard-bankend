@@ -132,6 +132,16 @@ export class Giftcard {
     })
     detailImages: string[]
 
+    /* 卡片详情 */
+    @Column({
+        name: 'desc',
+        default: '',
+        comment: '卡片详情',
+    })
+    @IsOptional()
+    @IsString()
+    desc?: string
+
     @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',
