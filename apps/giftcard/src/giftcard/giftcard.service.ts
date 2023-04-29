@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Repository, FindOptionsWhere, MoreThanOrEqual } from 'typeorm';
-import { CreateGiftcardDto, ListMyGiftcardDto, ListGiftcardDto, UpdateGiftcardDto, UpdateGiftcardStatusDto, CreateGiftcardKycDto } from './dto/request-giftcard.dto';
+import { CreateGiftcardDto, ListMyGiftcardDto, ListGiftcardDto, UpdateGiftcardDto, UpdateGiftcardStatusDto, CreateGiftcardKycDto, ListOnlineGiftcardDto } from './dto/request-giftcard.dto';
 import { Giftcard } from './entities/giftcard.entity';
 import { ConfigService } from '@nestjs/config';
 import { ApiException } from '@app/common/exceptions/api.exception';
@@ -48,6 +48,32 @@ export class GiftcardService {
     let where: FindOptionsWhere<Giftcard> = {}
     let result: any;
     where = listGiftcardList
+
+    result = await this.giftcardRepository.findAndCount({
+      select: ['id', 'cardName', 'cardType', 'price', 'createTime', 'status', 'images'],
+      where,
+      relations: {},
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  /* 分页查询 */
+  async onlineList(listGiftcardList: ListOnlineGiftcardDto, paginationDto: PaginationDto): Promise<PaginatedDto<Giftcard>> {
+    let where: FindOptionsWhere<Giftcard> = {}
+    let result: any;
+    where = {
+      ...listGiftcardList,
+      status: '1'
+    }
 
     result = await this.giftcardRepository.findAndCount({
       select: ['id', 'cardName', 'cardType', 'price', 'createTime', 'status', 'images'],

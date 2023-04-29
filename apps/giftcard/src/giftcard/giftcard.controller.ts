@@ -2,7 +2,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put, UseInterceptors, CacheInterceptor } from '@nestjs/common';
 import { GiftcardService } from './giftcard.service';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
-import { CreateGiftcardDto, CreateGiftcardKycDto, UpdateGiftcardDto } from './dto/request-giftcard.dto';
+import { CreateGiftcardDto, CreateGiftcardKycDto, ListOnlineGiftcardDto, UpdateGiftcardDto } from './dto/request-giftcard.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
@@ -37,6 +37,12 @@ export class GiftcardController {
   @ApiPaginatedResponse(Giftcard)
   async userlist(@Query() listGiftcardDto: ListGiftcardDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.giftcardService.listWithUser(listGiftcardDto, paginationDto);
+  }
+
+  @Get('online')
+  @ApiPaginatedResponse(Giftcard)
+  async online(@Query() listGiftcardDto: ListOnlineGiftcardDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    return await this.giftcardService.onlineList(listGiftcardDto, paginationDto);
   }
 
   /* 我的银行卡列表 */
