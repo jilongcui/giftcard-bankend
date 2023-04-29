@@ -50,7 +50,7 @@ export class GiftcardService {
     where = listGiftcardList
 
     result = await this.giftcardRepository.findAndCount({
-      select: ['id', 'cardName', 'cardType', 'price', 'createTime', 'status', 'images'],
+      select: ['id', 'cardName', 'cardType', 'price', 'shipfee', 'tradefee', 'createTime', 'status', 'images'],
       where,
       relations: {},
       skip: paginationDto.skip,
@@ -76,7 +76,7 @@ export class GiftcardService {
     }
 
     result = await this.giftcardRepository.findAndCount({
-      select: ['id', 'cardName', 'cardType', 'price', 'createTime', 'status', 'images'],
+      select: ['id', 'cardName', 'cardType', 'price', 'shipfee', 'tradefee', 'createTime', 'status', 'images'],
       where,
       relations: {},
       skip: paginationDto.skip,
@@ -99,7 +99,7 @@ export class GiftcardService {
     where = listGiftcardList
 
     result = await this.giftcardRepository.findAndCount({
-      select: ['id', 'cardName', 'cardType', 'price', 'createTime', 'status', 'images'],
+      select: ['id', 'cardName', 'cardType', 'price', 'shipfee', 'tradefee', 'createTime', 'status', 'images'],
       where,
       relations: { user: true },
       skip: paginationDto.skip,
@@ -125,7 +125,7 @@ export class GiftcardService {
     }
 
     result = await this.giftcardRepository.findAndCount({
-      select: ['id', 'cardName', 'cardType', 'price', 'createTime', 'status', 'images'],
+      select: ['id', 'cardName', 'cardType', 'price', 'shipfee', 'tradefee', 'createTime', 'status', 'images'],
       where,
       relations: { },
       skip: paginationDto.skip,
