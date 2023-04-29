@@ -47,7 +47,7 @@ export class GiftcardController {
   }
 
   @Get(':id')
-  @RequiresRoles(['admin', 'system'])
+  // @RequiresRoles(['admin', 'system'])
   findOne(@Param('id') id: string) {
     return this.giftcardService.findOne(+id);
   }
