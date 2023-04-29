@@ -52,10 +52,22 @@ export class GiftcardController {
     return this.giftcardService.findOne(+id);
   }
 
-  @Put(':id/invalidate')
+  // @Put(':id/invalidate')
+  // // @RequiresRoles(['admin', 'system'])
+  // invalidate(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+  //   return this.giftcardService.invalidate(+id, userId);
+  // }
+
+  @Put(':id/upmarket')
   // @RequiresRoles(['admin', 'system'])
-  invalidate(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
-    return this.giftcardService.invalidate(+id, userId);
+  upmarket(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+    return this.giftcardService.upmarket(+id, userId);
+  }
+
+  @Put(':id/downmarket')
+  // @RequiresRoles(['admin', 'system'])
+  downmarket(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+    return this.giftcardService.downmarket(+id, userId);
   }
 
   @Patch(':id')

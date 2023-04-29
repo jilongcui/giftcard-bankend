@@ -8,11 +8,11 @@ import * as moment from 'moment';
 import * as querystring from 'querystring';
 import strRandom from 'string-random';
 import { MoreThanOrEqual, Repository } from 'typeorm';
-import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { LoginCardDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
 import { Fund33QueryBalance, Fund33QueryTransaction, Fund33QueryUNTransaction, Fund33RechargeDto, Fund33Response } from './dto/response-fund33.dto';
 import { Account } from '../account/entities/account.entity';
 import { KycCertifyInfo } from '../kyc/entities/kyc.entity';
+import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 
 @Injectable()
 export class Fund33Service {

@@ -16,8 +16,11 @@ import { ListMyOrderDto, ListOrderDto, ListUnpayOrderDto } from './dto/create-or
 import { Order } from './entities/order.entity';
 import { ConfigService } from '@nestjs/config';
 import strRandom from 'string-random';
-import { Bankcard } from '@app/modules/bankcard/entities/bankcard.entity';
 import { User } from '@app/modules/system/user/entities/user.entity';
+import { Bankcard } from '../bankcard/entities/bankcard.entity';
+import { Giftcard } from '../giftcard/entities/giftcard.entity';
+import { create } from 'lodash';
+import { CurrencyService } from '@app/modules/currency/currency.service';
 
 @Injectable()
 export class OrderService {
@@ -26,9 +29,11 @@ export class OrderService {
   constructor(
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
+    @InjectRepository(Giftcard) private readonly giftcardRepository: Repository<Giftcard>,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRedis() private readonly redis: Redis,
     private readonly configService: ConfigService,
+    private readonly currencyService: CurrencyService,
   ) {
     this.platformAddress = this.configService.get<string>('crichain.platformAddress')
   }
@@ -36,7 +41,6 @@ export class OrderService {
   async createBankcardOrder(createOrderDto: RequestBankcardOrderDto,
       userId: number, nickName: string) {
     let unpayOrderKey: string;
-    const orderType = '1'
 
     unpayOrderKey = ASSET_ORDER_KEY + ":" + userId
 
@@ -47,34 +51,57 @@ export class OrderService {
     }
     // 创建订单
     const order = new Order()
-    order.id = parseInt('1' + strRandom(10, {letters: false}))
+    order.id = parseInt('1' + strRandom(8, {letters: false}))
     order.status = '1'
     order.userId = userId
     order.userName = nickName
     order.assetId = createOrderDto.assetId
     order.assetType = createOrderDto.assetType
+    order.userPhone = createOrderDto.phone
+    order.remark = createOrderDto.remark
+    order.homeAddress = createOrderDto.homeAddress
     order.count = 1
+
+    const currency= await this.currencyService.findOneByName('HKD')
+    if (currency === null) {
+      order.currencyId = 1
+    } else {
+      order.currencyId = currency.id
+    }
+
     order.invalidTime = moment().add(5, 'minute').toDate()
 
     return await this.orderRepository.manager.transaction(async manager => {
-      if (createOrderDto.assetType === '0') { // 非实名卡
+      if (createOrderDto.assetType === '0') { // 实名卡
         let asset: Bankcard
         asset = await manager.findOne(Bankcard, { where: { id: order.assetId, status: '1' }, relations: {cardinfo: true} })
         if (!asset)
-          throw new ApiException('市场上未发现此藏品')
-        order.realPrice = asset.cardinfo.info.openFee
-        order.totalPrice = order.realPrice
+          throw new ApiException('未发现此商品')
+        order.realPrice = 0.0
+        order.totalPrice = 0.0
 
         order.desc = "[" + asset.cardinfo.name + "]" + asset.cardinfo.info.typeName
         order.image = asset.cardinfo.info.image
         await manager.save(order);
         await manager.update(Bankcard, { id: order.assetId }, { status: '2' }) // Asset is locked.
 
+      } else if (createOrderDto.assetType === '1') { // 非实名卡 礼品卡
+        let asset: Giftcard
+        asset = await manager.findOne(Giftcard, { where: { id: order.assetId, status: '1' }, relations: {} })
+        if (!asset)
+          throw new ApiException('未发现此商品')
+        order.realPrice = Number(asset.price) + Number(asset.tradefee) + Number(asset.shipfee)
+        order.totalPrice = order.realPrice
+
+        order.desc = "[" + asset.cardType + "]" + asset.cardName
+        order.image = asset.images[0] || undefined
+        await manager.save(order);
+        await manager.update(Giftcard, { id: order.assetId }, { status: '2' }) // Asset is locked.
       }
       // 5 分钟
       await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 5)
       return order;
-    });
+    })
   }
 
   /* 新增或编辑 */
@@ -186,12 +213,12 @@ export class OrderService {
     let result: any;
     let order = await this.orderRepository.findOneBy({ id: id, status: '1' })
     let unpayOrderKey: string;
-    if (userId != 0 || order.userId !== userId) {
+    if (userId == 0 || order.userId !== userId) {
       throw new ApiException("非本人订单")
     }
       
     // this.logger.debug(`assetId: ${order.assetId}`)
-    unpayOrderKey = ASSET_ORDER_KEY + ":" + order.assetId
+    unpayOrderKey = ASSET_ORDER_KEY + ":" + order.userId
     await this.orderRepository.manager.transaction(async manager => {
       // Set invalid status
       // where.assetId = order.assetId

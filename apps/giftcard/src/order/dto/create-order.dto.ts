@@ -18,7 +18,9 @@ export class RequestBankcardOrderDto {
     remark?: string
     
     @IsString()
-    @IsOptional()
+    phone: string
+
+    @IsString()
     homeAddress: string
 }
 

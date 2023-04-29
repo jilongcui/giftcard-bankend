@@ -150,6 +150,17 @@ export class Order {
     })
     userId: number
 
+    /* 代币ID */
+    @Column({
+        name: 'currency_id',
+        comment: '代币ID'
+    })
+    @IsNumber()
+    @Excel({
+        name: '代币ID',
+    })
+    currencyId: number
+
     @Column({
         name: 'user_name',
         default: '',

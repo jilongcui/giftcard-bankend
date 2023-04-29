@@ -145,11 +145,28 @@ export class GiftcardService {
     return this.giftcardRepository.delete(noticeIdArr)
   }
 
-  async invalidate(id: number, userId: number) {
+  // async invalidate(id: number, userId: number) {
+  //   let updateGiftcardDto: UpdateGiftcardDto = {
+  //     status: '2'
+  //   }
+  //   const result = await this.giftcardRepository.update(id, updateGiftcardDto)
+  //   return { affected: result.affected }
+  // }
+
+  async upmarket(id: number, userId: number) {
     let updateGiftcardDto: UpdateGiftcardDto = {
-      status: '2'
+      status: '1'
     }
-    return this.giftcardRepository.update(id, updateGiftcardDto)
+    const result = await this.giftcardRepository.update({id, status: '0'}, updateGiftcardDto)
+    return { affected: result.affected }
+  }
+
+  async downmarket(id: number, userId: number) {
+    let updateGiftcardDto: UpdateGiftcardDto = {
+      status: '0'
+    }
+    const result = await this.giftcardRepository.update({id, status: '1'}, updateGiftcardDto)
+    return { affected: result.affected }
   }
 
   private randomTokenId(): number {

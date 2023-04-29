@@ -8,7 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CurrencyModule } from '../currency/currency.module';
 import { Currency } from '../currency/entities/currency.entity';
 import { Account } from '../account/entities/account.entity';
-import { Bankcard } from '../bankcard/entities/bankcard.entity';
+import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 
 @Module({
   imports: [

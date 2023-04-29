@@ -1,10 +1,11 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString } from "class-validator";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Type } from "class-transformer";
 import { Kyc } from "@app/modules/kyc/entities/kyc.entity";
 import { Cardinfo } from "@app/modules/cardinfo/entities/cardinfo.entity";
 import { User } from "@app/modules/system/user/entities/user.entity";
+import { Order } from "../../order/entities/order.entity";
 
 @Entity()
 export class Bankcard {
@@ -112,11 +113,11 @@ export class Bankcard {
     @IsString()
     signTradeTime?: string
 
-    /* 银行卡状态 0: 未激活 1: 已经激活 2: 已冻结 3: 已注销 */
+    /* 银行卡状态 0: 未激活 1: 已经激活 2: 已锁定 3: 已注销 */
     @Column({
         name: 'status',
         default: '0',
-        comment: '银行卡状态 0: 未激活 1: 已经激活 2: 已冻结 3: 已注销'
+        comment: '银行卡状态 0: 未激活 1: 已经激活 2: 已锁定 3: 已注销'
     })
     @IsString()
     status: string
@@ -181,6 +182,14 @@ export class Bankcard {
     })
     cardinfo?: Cardinfo
 
+    @ApiHideProperty()
+    @OneToOne(() => Order)
+    @IsOptional()
+    @JoinColumn({
+        name: 'order_id',
+    })
+    order?: Order
+    
     @ApiHideProperty()
     @CreateDateColumn({
         name: 'create_time',

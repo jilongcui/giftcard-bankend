@@ -3,8 +3,6 @@ import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as moment from 'moment';
-import * as querystring from 'querystring';
-import { createSign, createVerify } from 'crypto';
 import { Payment } from './entities/payment.entity';
 import { EntityManager, In, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -60,6 +58,7 @@ export class PaymentService {
 
     @InjectRepository(Payment) private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
+    @InjectRepository(Giftcard) private readonly giftcardRepository: Repository<Giftcard>,
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     @InjectRedis() private readonly redis: Redis,
     @Inject('XCXPayment') private xcxWxPay: WxPay,
@@ -118,18 +117,18 @@ export class PaymentService {
     }
     let asset: Bankcard | Giftcard
 
-    if (order.assetType === '0') { // 藏品
+    if (order.assetType === '0') { // 实名商品
       asset = await this.bankcardRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-      if (asset.userId === userId)
-        throw new ApiException("不能购买自己的藏品")
-    } else if (order.assetType === '1') { // 盲盒
-      // asset = await this.magicboxRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-      // if (asset.userId === userId)
-      //   throw new ApiException("不能购买自己的盲盒")
+      if (asset.status !== '2')
+        throw new ApiException("商品状态不对")
+    } else if (order.assetType === '1') { // 非实名商品
+      asset = await this.giftcardRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
+      if (asset.status !== '2')
+        throw new ApiException("商品状态不对")
     }
-
+    const currencyId = order.currencyId
     await this.orderRepository.manager.transaction(async manager => {
-      const result = await manager.decrement(Account, { userId: userId, usable: MoreThanOrEqual(order.totalPrice) }, "usable", order.totalPrice);
+      const result = await manager.decrement(Account, { userId: userId, currencyId: currencyId, usable: MoreThanOrEqual(order.totalPrice) }, "usable", order.totalPrice);
       // this.logger.log(JSON.stringify(result));
       if (!result.affected) {
         throw new ApiException('支付失败')
@@ -148,13 +147,15 @@ export class PaymentService {
       }
       marketFee = order.totalPrice * marketFee
 
-      await manager.increment(Account, { userId: asset.userId }, "usable", order.totalPrice - marketFee)
-      await manager.increment(Account, { userId: 1 }, "usable", marketFee)
+      await manager.increment(Account, { userId: asset.userId, currencyId: currencyId }, "usable", order.totalPrice - marketFee)
+      await manager.increment(Account, { userId: 1, currencyId: currencyId }, "usable", marketFee)
 
-    })
+      if (order.assetType === '0') { // Bankcard
+        await manager.update(Bankcard, { id: asset.id }, { status: '1' })
+      } else if (order.assetType === '1') { // Giftcard
+        await manager.update(Giftcard, { id: asset.id }, { status: '1' })
+      }
 
-    await this.orderRepository.manager.transaction(async manager => {
-      await this.doPaymentComfirmedLv2(order, order.userId)
     })
 
     return order;
@@ -164,41 +165,21 @@ export class PaymentService {
     return Math.floor((Math.random() * 999999999) + 1000000000);
   }
 
-  async doPaymentComfirmedLv2(order: Order, userId: number) {
-    let nickName = order.user.nickName
+  // private async buyAssetRecord(asset: Bankcard, userId: number, nickName: string) {
 
-    if (order.assetType === '0') { // 藏品
-      let asset = await this.bankcardRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-      if (asset.userId === userId)
-        throw new ApiException("不能购买自己的藏品")
-      await this.buyAssetRecord(asset, userId, nickName)
-    }
-    // else if (order.assetType === '1') { // 盲盒
-    //   let magicbox: Giftcard
-    //   magicbox = await this.magicboxRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-    //   if (magicbox.userId === userId)
-    //     throw new ApiException("不能购买自己的盲盒")
-    //   await this.buyGiftcardRecord(magicbox, userId, nickName)
-    // }
-  }
+  //   const fromId = asset.user.userId
+  //   const fromName = asset.user.nickName
 
-  private async buyAssetRecord(asset: Bankcard, userId: number, nickName: string) {
-
-    const fromId = asset.user.userId
-    const fromName = asset.user.nickName
-
-    await this.bankcardRepository.update({ id: asset.id }, { status: '0', userId: userId })
-
-    // await this.assetRecordRepository.save({
-    //   type: '2', // Buy
-    //   assetId: asset.id,
-    //   price: asset.price,
-    //   fromId: fromId,
-    //   fromName: fromName,
-    //   toId: userId,
-    //   toName: nickName
-    // })
-  }
+  //   await this.assetRecordRepository.save({
+  //     type: '2', // Buy
+  //     assetId: asset.id,
+  //     price: asset.price,
+  //     fromId: fromId,
+  //     fromName: fromName,
+  //     toId: userId,
+  //     toName: nickName
+  //   })
+  // }
 
   private randomTokenId(): number {
     return Math.floor((Math.random() * 999999999) + 1000000000);
@@ -344,12 +325,16 @@ export class PaymentService {
           }
           marketFee = order.totalPrice * marketFee
 
-          await manager.increment(Account, { userId: asset.userId }, "usable", order.totalPrice - marketFee)
-          await manager.increment(Account, { userId: 1 }, "usable", marketFee)
+          await manager.increment(Account, { userId: asset.userId, currencyId: 1 }, "usable", order.totalPrice - marketFee)
+          await manager.increment(Account, { userId: 1, currencyId: 1 }, "usable", marketFee)
           await manager.update(Payment, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
           await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
           
-          await this.doPaymentComfirmedLv2(order, order.userId)
+          if (order.assetType === '0') { // Bankcard
+            await manager.update(Bankcard, { id: asset.id }, { status: '1' })
+          } else if (order.assetType === '1') { // Giftcard
+            await manager.update(Giftcard, { id: asset.id }, { status: '1' })
+          }
         })
       } else {
         this.logger.error("Payment Notice not success.")
