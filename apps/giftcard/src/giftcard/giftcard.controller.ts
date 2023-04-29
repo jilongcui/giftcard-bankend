@@ -26,7 +26,7 @@ export class GiftcardController {
 
   /* 银行卡列表 */
   @Get('list')
-  @RequiresPermissions('system:giftcard:list')
+  // @RequiresPermissions('system:giftcard:list')
   @ApiPaginatedResponse(Giftcard)
   async list(@Query() listGiftcardDto: ListGiftcardDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.giftcardService.list(listGiftcardDto, paginationDto);
@@ -40,7 +40,7 @@ export class GiftcardController {
   }
 
   /* 我的银行卡列表 */
-  @Get('myList')
+  @Get(['mylist','myList'])
   @ApiPaginatedResponse(Giftcard)
   async mylist(@Query() listMyGiftcardDto: ListMyGiftcardDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.giftcardService.mylist(userId, listMyGiftcardDto, paginationDto);
