@@ -78,9 +78,10 @@ export class OrderService {
         asset = await manager.findOne(Bankcard, { where: { id: order.assetId, status: '1' }, relations: {cardinfo: true} })
         if (!asset)
           throw new ApiException('未发现此商品')
-        order.realPrice = 0.0
+        order.price = 0.0
         order.totalPrice = 0.0
-
+        order.tradeFee = 0.0
+        order.shipFee = 0.0
         order.desc = "[" + asset.cardinfo.name + "]" + asset.cardinfo.info.typeName
         order.image = asset.cardinfo.info.image
         await manager.save(order);
@@ -92,8 +93,9 @@ export class OrderService {
         if (!asset)
           throw new ApiException('未发现此商品')
         order.totalPrice = Number(asset.price) * order.count + Number(asset.tradefee) + Number(asset.shipfee)
-        order.realPrice = order.totalPrice
-
+        order.price = asset.price
+        order.tradeFee = asset.tradefee
+        order.shipFee = asset.shipfee
         order.desc = "[" + asset.cardType + "]" + asset.cardName
         order.image = asset.images[0] || undefined
         await manager.save(order);
@@ -153,6 +155,14 @@ export class OrderService {
       order: {
         createTime: 'DESC',
       }
+    })
+    const rows = result[0]
+    rows.map(item => {
+      const order = (item as Order)
+      if(order.status == '1' && order.invalidTime <= moment(moment.now()).toDate()) {
+        order.status = '0' // 状态改为取消
+      }
+      return order as any
     })
 
     return {

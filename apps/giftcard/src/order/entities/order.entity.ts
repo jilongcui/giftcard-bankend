@@ -70,18 +70,18 @@ export class Order {
     })
     totalPrice: number
 
-    /* 订单金额 */
-    @Column({
-        name: 'real_price',
-        type: "decimal", precision: 10, scale: 2, default: 0,
-        comment: '订单真实金额'
-    })
-    @IsOptional()
-    @IsNumber()
-    @Excel({
-        name: '真实金额',
-    })
-    realPrice?: number
+    // /* 订单金额 */
+    // @Column({
+    //     name: 'real_price',
+    //     type: "decimal", precision: 10, scale: 2, default: 0,
+    //     comment: '订单真实金额'
+    // })
+    // @IsOptional()
+    // @IsNumber()
+    // @Excel({
+    //     name: '真实金额',
+    // })
+    // realPrice?: number
 
     /* 订单数量 */
     @Column({
@@ -96,6 +96,45 @@ export class Order {
         name: '订单数量',
     })
     count?: number
+
+    /* 商品单价 */
+    @Column({
+        name: 'price',
+        type: "decimal", precision: 10, scale: 2, default: 0,
+        comment: '商品金额'
+    })
+    @IsOptional()
+    @IsNumber()
+    @Excel({
+        name: '单价',
+    })
+    price: number
+
+    /* 交易手续费 */
+    @Column({
+        name: 'tradeFee',
+        type: "decimal", precision: 10, scale: 2, default: 0,
+        comment: '交易手续费'
+    })
+    @IsOptional()
+    @IsNumber()
+    @Excel({
+        name: '交易手续费',
+    })
+    tradeFee: number
+
+    /* 运输手续费 */
+    @Column({
+        name: 'shipFee',
+        type: "decimal", precision: 10, scale: 2, default: 0,
+        comment: '运输手续费'
+    })
+    @IsOptional()
+    @IsNumber()
+    @Excel({
+        name: '运输手续费',
+    })
+    shipFee: number
 
     /* 订单状态 0: 订单取消 1: 待付款 2: 待发货 3: 待收货 4: 交易成功*/
     @Column({
