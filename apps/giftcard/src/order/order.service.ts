@@ -129,6 +129,15 @@ export class OrderService {
       }
     })
 
+    const rows = result[0]
+    rows.map(item => {
+      const order = (item as Order)
+      if(order.status == '1' && order.invalidTime <= moment(moment.now()).toDate()) {
+        order.status = '0' // 状态改为取消
+      }
+      return order as any
+    })
+    
     return {
       rows: result[0],
       total: result[1]
