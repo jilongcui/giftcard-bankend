@@ -154,7 +154,7 @@ export class GiftcardService {
   }
 
   findOne(id: number) {
-    return this.giftcardRepository.findOne({ where: { id: id }, relations: { user: true} })
+    return this.giftcardRepository.findOne({ where: { id: id }, relations: { user: true, order: true} })
   }
 
   async update(id: number, updateGiftcardDto: UpdateGiftcardDto) {

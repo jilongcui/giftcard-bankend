@@ -216,7 +216,7 @@ export class OrderService {
     return this.orderRepository.update(id, updateOrderDto)
   }
 
-  updatePaymentStatus(id: number, updateOrderDto: UpdateOrderStatusDto) {
+  updateStatus(id: number, updateOrderDto: UpdateOrderStatusDto) {
     return this.orderRepository.update(id, updateOrderDto)
   }
 
