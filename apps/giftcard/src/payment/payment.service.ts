@@ -11,7 +11,7 @@ import { SharedService } from '@app/shared';
 import { ReqWeixinPaymentNotifyDto, WeixinPayForMemberDto, WeixinPaymentNotify, WeixinPayType } from './dto/request-payment.dto';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
+import { SYSCONF_OPENCARD_PROFIT_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
 import WxPay from 'wechatpay-node-v3';
 import { WECHAT_PAY_MANAGER } from 'nest-wechatpay-node-v3';
 import { Ijsapi, Inative } from 'wechatpay-node-v3/dist/lib/interface';
@@ -22,6 +22,7 @@ import { Order } from '../order/entities/order.entity';
 import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { Giftcard } from '../giftcard/entities/giftcard.entity';
 import { OrderService } from '../order/order.service';
+import { InviteUser } from '@app/modules/inviteuser/entities/invite-user.entity';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -60,6 +61,7 @@ export class PaymentService {
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
     @InjectRepository(Giftcard) private readonly giftcardRepository: Repository<Giftcard>,
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
+    @InjectRepository(InviteUser) private readonly inviteUesrRepository: Repository<InviteUser>,
     @InjectRedis() private readonly redis: Redis,
     @Inject('XCXPayment') private xcxWxPay: WxPay,
     @Inject('NTVPayment') private ntvWxPay: WxPay,
@@ -137,18 +139,23 @@ export class PaymentService {
       // 把Order的状态改成2: 已支付
       await manager.update(Order, { id: order.id }, { status: '2' })
       const ownerId = asset.userId
-      const marketFeeString = await this.sysconfigService.getValue(SYSCONF_MARKET_FEE_KEY)
-      this.logger.debug(marketFeeString)
-      let marketFee = Number(marketFeeString)
+      const opencardProfitString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_PROFIT_KEY)
+      this.logger.debug(opencardProfitString || "0.2")
+      let openCardProfit = Number(opencardProfitString)
 
-      this.logger.debug('marketFee ' + marketFee)
-      if (marketFee > 1.0 || marketFee < 0.0) {
-        marketFee = 0.0
+      this.logger.debug('marketFee ' + openCardProfit)
+      if (openCardProfit > 1.0 || openCardProfit <= 0.0) {
+        openCardProfit = 0.2
       }
-      marketFee = order.totalPrice * marketFee
-
-      await manager.increment(Account, { userId: asset.userId, currencyId: currencyId }, "usable", order.totalPrice - marketFee)
-      await manager.increment(Account, { userId: 1, currencyId: currencyId }, "usable", marketFee)
+      openCardProfit = order.totalPrice * openCardProfit
+      
+      const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
+      const parentId = inviteUser?.parent?.id
+      await manager.increment(Account, { userId: asset.userId, currencyId: currencyId }, "usable", order.totalPrice - openCardProfit)
+      if(parentId) {
+        await manager.increment(Account, { userId: parentId, currencyId: currencyId }, "usable", openCardProfit)
+        await manager.increment(InviteUser, { id: userId }, "cardNumber", 1)
+      }
 
       if (order.assetType === '0') { // Bankcard
         await manager.update(Bankcard, { id: asset.id }, { status: '1' })

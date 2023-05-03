@@ -26,6 +26,11 @@ export class InviteUser {
     nickName: string
 
     @Column({
+        name: 'card_number',
+    })
+    cardNumber: number
+
+    @Column({
         name: 'avatar',
     })
     avatar: string

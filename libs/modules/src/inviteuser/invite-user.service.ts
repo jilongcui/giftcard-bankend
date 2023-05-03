@@ -65,7 +65,7 @@ export class InviteUserService {
     }
 
     async allTree() {
-        let trees = await this.inviteUserTreeRepository.findTrees({ depth: 3 })
+        let trees = await this.inviteUserTreeRepository.findTrees({ depth: 1 })
 
         return trees
     }
@@ -74,7 +74,7 @@ export class InviteUserService {
         let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: userId })
         if (inviteUser) {
             this.logger.debug(inviteUser.id)
-            const children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: 3 })
+            const children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: 1 })
             return children
         }
         return null
@@ -83,7 +83,7 @@ export class InviteUserService {
     async flatChildren(userId: number) {
         let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: userId })
         if (inviteUser) {
-            const children = await this.inviteUserTreeRepository.findDescendants(inviteUser, { depth: 3 })
+            const children = await this.inviteUserTreeRepository.findDescendants(inviteUser, { relations: ['user'], depth: 1 })
             return children
         }
         return null
@@ -102,7 +102,7 @@ export class InviteUserService {
         let inviteUser = await this.inviteUserTreeRepository.findOneBy({ id: userId })
         let parents = await this.inviteUserTreeRepository.findAncestors(inviteUser)
         if (inviteUser) {
-            let children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: 3 })
+            let children = await this.inviteUserTreeRepository.findDescendantsTree(inviteUser, { depth: 1 })
             return {
                 parent: parents[0],
                 children: children,
