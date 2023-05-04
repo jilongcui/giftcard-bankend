@@ -10,9 +10,9 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { UserService } from '../system/user/user.service';
 import { Exchange } from '../exchange/entities/exchange.entity';
 import { Transfer } from '../transfer/entities/transfer.entity';
-import { ProfitRecordService } from '../profit_record/profit_record.service';
 import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
 import { ProfitType } from '../profit_record/entities/profit_record.entity';
+import { ProfitRecordService } from '../profit_record/profit_record.service';
 
 @Injectable()
 export class AccountService {

@@ -2,17 +2,13 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-export enum ProfitType {
-    'OpenCardFee' = 'OpenCardFee',
-    'WithdrawToCardFee' = 'WithdrawToCardFee',
-    'ExchangeFee' = 'ExchangeFee',
-    'InnerTransferFee' = 'InnerTransferFee',
-    'PromoteVipFee' = 'PromoteVipFee',
-    'CardMonthFee' = 'CardMonthFee',
+export enum BrokerageType {
+    'OpenCardBrokerage' = 'OpenCardBrokerage',
+    'ExchangeBrokerage' = 'ExchangeBrokerage',
 }
 
 @Entity()
-export class ProfitRecord {
+export class BrokerageRecord {
     @PrimaryGeneratedColumn()
     @IsNumber()
     id: number
@@ -23,8 +19,8 @@ export class ProfitRecord {
         // type: 'enum',
         comment: '收益类型'
     })
-    @IsEnum(ProfitType)
-    type: ProfitType
+    @IsEnum(BrokerageType)
+    type: BrokerageType
 
     @Column({
         name: 'user_id',
@@ -55,13 +51,13 @@ export class ProfitRecord {
     amount: number
 
     @Column({
-        name: 'fee',
+        name: 'value',
         type: "decimal", precision: 10, scale: 2, default: 0,
-        comment: '费用'
+        comment: '佣金'
     })
     @IsOptional()
     @IsNumber()
-    fee?: number
+    value?: number
 
     @Column({
         name: 'txid',
