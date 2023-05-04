@@ -103,7 +103,8 @@ export class Bankcard {
         length: '12'
     })
     @Excel({
-        name: '有效期'
+        name: '有效期',
+        dateFormat: 'YYYY-MM-DD'
     })
     @IsOptional()
     @IsString()
