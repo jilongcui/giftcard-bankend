@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ProfitRecordService } from './profit_record.service';
-import { CreateProfitRecordDto, ListMyProfitRecordDto, ListProfitRecordDto } from './dto/create-profit_record.dto';
+import { CreateProfitRecordDto, GetTotalProfitDto, ListMyProfitRecordDto, ListProfitRecordDto } from './dto/create-profit_record.dto';
 import { UpdateProfitRecordDto } from './dto/update-profit_record.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
@@ -11,6 +11,7 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { Order } from '../order/entities/order.entity';
 
 @ApiTags("收益报表")
+@ApiBearerAuth()
 @Controller('profit-record')
 export class ProfitRecordController {
   constructor(private readonly profitRecordService: ProfitRecordService) {}
@@ -19,6 +20,14 @@ export class ProfitRecordController {
   // create(@Body() createProfitRecordDto: CreateProfitRecordDto) {
   //   return this.profitRecordService.create(createProfitRecordDto);
   // }
+
+  /* 获取总订单 */
+  @Get('total')
+  @Public()
+  @ApiPaginatedResponse(Order)
+  async total(@Query() getTotalProfitDto: GetTotalProfitDto) {
+    return await this.profitRecordService.total(getTotalProfitDto);
+  }
 
   /* 订单列表 */
   @Get('list')

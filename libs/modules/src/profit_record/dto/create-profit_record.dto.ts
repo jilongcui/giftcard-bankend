@@ -10,3 +10,9 @@ export class ListMyProfitRecordDto {
     type?: ProfitType
 }
 
+export class GetTotalProfitDto {
+    @IsOptional()
+    @IsString()
+    type?: ProfitType
+}
+

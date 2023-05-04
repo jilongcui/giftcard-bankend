@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProfitRecordDto, ListMyProfitRecordDto, ListProfitRecordDto } from './dto/create-profit_record.dto';
+import { CreateProfitRecordDto, ListMyProfitRecordDto, ListProfitRecordDto, GetTotalProfitDto } from './dto/create-profit_record.dto';
 import { UpdateProfitRecordDto } from './dto/update-profit_record.dto';
-import { ProfitRecord } from './entities/profit_record.entity';
+import { ProfitRecord, ProfitType } from './entities/profit_record.entity';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import moment from 'moment';
@@ -20,6 +20,30 @@ export class ProfitRecordService {
       ...createProfitDto
     }
     return this.profitRepository.save(profitRecord)
+  }
+
+  /* 获取总值 */
+  async total(getTotalList: GetTotalProfitDto): Promise<any> {
+    let where: FindOptionsWhere<ProfitRecord> = {}
+    let result: any;
+
+    const { totalFee } = await this.profitRepository
+    .createQueryBuilder("profitRecord")
+    .select("SUM(profitRecord.fee)", "totalFee")
+    .where("profitRecord.type = :type", { id:  getTotalList.type})
+    .getRawOne()
+
+    const { todayFee } = await this.profitRepository
+    .createQueryBuilder("profitRecord")
+    .select("SUM(profitRecord.fee)", "todayFee")
+    .where("profitRecord.type = :type", { type:  getTotalList.type})
+    .andWhere("DATE(profitRecord.createTime) = CURDATE()")
+    .getRawOne()
+
+    return {
+      totalFee: totalFee,
+      todayFee: todayFee
+    }
   }
 
   /* 分页查询 */
