@@ -6,6 +6,7 @@ import { Kyc } from "@app/modules/kyc/entities/kyc.entity";
 import { Cardinfo } from "@app/modules/cardinfo/entities/cardinfo.entity";
 import { User } from "@app/modules/system/user/entities/user.entity";
 import { Order } from "../../order/entities/order.entity";
+import { Excel } from "@app/modules/common/excel/excel.decorator";
 
 @Entity()
 export class Bankcard {
@@ -19,6 +20,9 @@ export class Bankcard {
         length: 50,
         comment: '持卡人银行卡号'
     })
+    @Excel({
+        name: '银行卡号'
+    })
     @IsString()
     cardNo: string
 
@@ -28,6 +32,9 @@ export class Bankcard {
         default: '',
         length: 50,
         comment: '持卡人Pin密码，需加密'
+    })
+    @Excel({
+        name: 'Pin密码'
     })
     @IsOptional()
     @IsString()
@@ -49,6 +56,9 @@ export class Bankcard {
         name: 'bank_name',
         length: 50,
         comment: '银行名称'
+    })
+    @Excel({
+        name: '银行名称'
     })
     @IsString()
     bankName: string
@@ -79,6 +89,9 @@ export class Bankcard {
         comment: '银行卡CVV',
         length: '10'
     })
+    @Excel({
+        name: '银行卡CVV'
+    })
     @IsOptional()
     @IsString()
     bankCVVCode?: string
@@ -88,6 +101,9 @@ export class Bankcard {
         name: 'valid_through',
         comment: '银行卡有效期',
         length: '12'
+    })
+    @Excel({
+        name: '有效期'
     })
     @IsOptional()
     @IsString()
