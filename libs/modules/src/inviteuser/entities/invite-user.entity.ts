@@ -26,9 +26,18 @@ export class InviteUser {
     nickName: string
 
     @Column({
-        name: 'card_number',
+        name: 'card_count',
+        default: 0
     })
-    cardNumber: number
+    @IsNumber()
+    cardCount: number
+
+    @Column({
+        name: 'user_count',
+        default: 0
+    })
+    @IsNumber()
+    userCount: number
 
     @Column({
         name: 'avatar',
