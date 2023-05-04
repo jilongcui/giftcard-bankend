@@ -44,7 +44,7 @@ export class BrokerageRecordController {
   }
 
   /* 我的佣金列表 */
-  @Get('myList')
+  @Get('mylist')
   @ApiPaginatedResponse(BrokerageRecord)
   async mylist(@Query() listMyOrderDto: ListBrokerageRecordDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.profitRecordService.mylist(userId, listMyOrderDto, paginationDto);
