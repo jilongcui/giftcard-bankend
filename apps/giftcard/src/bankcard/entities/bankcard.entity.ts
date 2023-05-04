@@ -187,7 +187,7 @@ export class Bankcard {
         comment: '银行卡详情'
     })
     @Excel({
-        name: '银行卡详情'
+        name: '银行卡详情ID'
     })
     @Type()
     @IsNumber()
