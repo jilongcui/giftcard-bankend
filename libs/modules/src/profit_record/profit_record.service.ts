@@ -1,15 +1,75 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProfitRecordDto } from './dto/create-profit_record.dto';
+import { CreateProfitRecordDto, ListMyProfitRecordDto, ListProfitRecordDto } from './dto/create-profit_record.dto';
 import { UpdateProfitRecordDto } from './dto/update-profit_record.dto';
+import { ProfitRecord } from './entities/profit_record.entity';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
+import moment from 'moment';
+import { FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
+import { ListMyOrderDto, ListOrderDto } from '../order/dto/request-order.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ProfitRecordService {
-  create(createProfitRecordDto: CreateProfitRecordDto) {
-    return 'This action adds a new profitRecord';
+  constructor(
+    @InjectRepository(ProfitRecord) private readonly profitRepository: Repository<ProfitRecord>,
+  ) {}
+  create(createProfitDto: CreateProfitRecordDto) {
+    // 创建收益记录
+    const profitRecord = {
+      ...createProfitDto
+    }
+    return this.profitRepository.save(profitRecord)
   }
 
-  findAll() {
-    return `This action returns all profitRecord`;
+  /* 分页查询 */
+  async list(listOrderList: ListProfitRecordDto, paginationDto: PaginationDto): Promise<PaginatedDto<ProfitRecord>> {
+    let where: FindOptionsWhere<ProfitRecord> = {}
+    let result: any;
+    where = listOrderList
+
+    result = await this.profitRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      where,
+      relations: { },
+      skip: paginationDto.skip,
+      take: paginationDto.take || 15,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    const rows = result[0]
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  /* 我的订单查询 */
+  async mylist(userId: number, listMyOrderDto: ListMyProfitRecordDto, paginationDto: PaginationDto): Promise<PaginatedDto<ProfitRecord>> {
+    let where: FindOptionsWhere<ListProfitRecordDto> = {}
+    let result: any;
+    where = {
+      ...listMyOrderDto,
+      userId,
+    }
+
+    result = await this.profitRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      where,
+      relations: {},
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
   }
 
   findOne(id: number) {
