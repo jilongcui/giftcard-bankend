@@ -3,7 +3,7 @@ https://docs.nestjs.com/controllers#controllers
 */
 
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, StreamableFile } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataObj } from '@app/common/class/data-obj.class';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
@@ -21,6 +21,7 @@ import { SysConfigService } from './sys-config.service';
 import { Public } from '@app/common/decorators/public.decorator';
 
 @ApiTags('通用参数设置')
+@ApiBearerAuth()
 @Controller('config')
 export class ConfigController {
     constructor(
