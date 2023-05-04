@@ -165,7 +165,7 @@ export class PaymentService {
       
       if(parentId) {
         await manager.increment(Account, { userId: parentId, currencyId: currencyId }, "usable", openCardProfit)
-        await manager.increment(InviteUser, { id: userId }, "cardNumber", 1)
+        await manager.increment(InviteUser, { id: userId }, "cardCount", 1)
       }
 
       if (order.assetType === '0') { // Bankcard
