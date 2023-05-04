@@ -45,11 +45,37 @@ export class BrokerageRecordService {
     }
   }
 
-  /* 分页查询 */
-  async list(listOrderList: ListBrokerageRecordDto, paginationDto: PaginationDto): Promise<PaginatedDto<BrokerageRecord>> {
+  /* 获取总值 */
+  async mytotal(getTotalList: GetTotalBrokerageDto, userId: number): Promise<any> {
     let where: FindOptionsWhere<BrokerageRecord> = {}
     let result: any;
-    where = listOrderList
+
+    const { totalFee } = await this.brokerageRepository
+    .createQueryBuilder("profitRecord")
+    .select("SUM(profitRecord.fee)", "totalFee")
+    .where("profitRecord.type = :type", { id:  getTotalList.type})
+    .andWhere("profitRecord.userId = :userId", { userId:  userId})
+    .getRawOne()
+
+    const { todayFee } = await this.brokerageRepository
+    .createQueryBuilder("profitRecord")
+    .select("SUM(profitRecord.fee)", "todayFee")
+    .where("profitRecord.type = :type", { type:  getTotalList.type})
+    .andWhere("profitRecord.userId = :userId", { userId:  userId})
+    .andWhere("DATE(profitRecord.createTime) = CURDATE()")
+    .getRawOne()
+
+    return {
+      totalFee: totalFee,
+      todayFee: todayFee
+    }
+  }
+
+  /* 分页查询 */
+  async list(listBrokerageList: ListBrokerageRecordDto, paginationDto: PaginationDto): Promise<PaginatedDto<BrokerageRecord>> {
+    let where: FindOptionsWhere<BrokerageRecord> = {}
+    let result: any;
+    where = listBrokerageList
 
     result = await this.brokerageRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
@@ -70,11 +96,11 @@ export class BrokerageRecordService {
   }
 
   /* 我的订单查询 */
-  async mylist(userId: number, listMyOrderDto: ListMyBrokerageRecordDto, paginationDto: PaginationDto): Promise<PaginatedDto<BrokerageRecord>> {
+  async mylist(userId: number, listMyBrokerageDto: ListMyBrokerageRecordDto, paginationDto: PaginationDto): Promise<PaginatedDto<BrokerageRecord>> {
     let where: FindOptionsWhere<ListBrokerageRecordDto> = {}
     let result: any;
     where = {
-      ...listMyOrderDto,
+      ...listMyBrokerageDto,
       userId,
     }
 

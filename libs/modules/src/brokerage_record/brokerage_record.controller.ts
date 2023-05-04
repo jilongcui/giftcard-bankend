@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { BrokerageRecordService } from './brokerage_record.service';
-import { GetTotalBrokerageDto, ListMyBrokerageRecordDto, ListBrokerageRecordDto } from './dto/create-brokerage_record.dto';
+import { GetTotalBrokerageDto, GetMyTotalBrokerageDto, ListMyBrokerageRecordDto, ListBrokerageRecordDto } from './dto/create-brokerage_record.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
@@ -29,6 +29,13 @@ export class BrokerageRecordController {
     return await this.profitRecordService.total(getTotalProfitDto);
   }
 
+  @Get('mytotal')
+  @Public()
+  @ApiPaginatedResponse(BrokerageRecord)
+  async mytotal(@Query() getTotalProfitDto: GetMyTotalBrokerageDto) {
+    return await this.profitRecordService.total(getTotalProfitDto);
+  }
+
   /* 订单列表 */
   @Get('list')
   @Public()
@@ -40,7 +47,7 @@ export class BrokerageRecordController {
   /* 我的订单列表 */
   @Get('myList')
   @ApiPaginatedResponse(BrokerageRecord)
-  async mylist(@Query() listMyOrderDto: ListMyBrokerageRecordDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+  async mylist(@Query() listMyOrderDto: ListBrokerageRecordDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.profitRecordService.mylist(userId, listMyOrderDto, paginationDto);
   }
 
