@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>88wallet</title>
+  </head>
+  <body>
+    <div class="header">
+      <img src="https://88wallet-1303550410.cos.ap-hongkong.myqcloud.com/img/title.png" alt="88wallet" class="header_img" />
+    </div>
+    <div class="section">
+      <div class="container">
+        <div class="container_top">安全驗證碼/Security verification code</div>
+        <div class="blank"></div>
+        <div class="container_one">
+          安全驗證碼：
+          <span id="sercurity">{code}</span>
+          ，为保障賬戶安全，請您妥善保管，切勿泄漏。
+        </div>
+        <div class="blank"></div>
+        <div class="container_two">
+          Security verification code:
+          <span id="sercurity">{code}</span>
+          . In order to ensure the security of your account, please keep it
+          properly and do not leak.
+        </div>
+        <div class="blank"></div>
+        <div class="container_three">
+          <div>
+            88錢包提供豐富的禮品卡產品供應。通過88Wallet
+            App，即可滿足線上開戶、收付款及虛擬產品購買等需求。
+          </div>
+          <div>
+            88 Wallet provides a rich supply of gift card products. Through the
+            88Wallet App, you can meet the needs of online account opening,
+            receiving and paying, and purchasing virtual products.
+          </div>
+        </div>
+      </div>
+      <div class="download">
+        <div class="download_title">下载最新版本</div>
+        <div class="download_title_en">Download</div>
+        <div class="download_type_container">
+          <div class="download_type">
+            <img src="https://88wallet-1303550410.cos.ap-hongkong.myqcloud.com/img/apple.png" alt="apple" class="download_type_img" />
+            <div class="download_type_right">
+              <div class="download_type_right_title">Download on the</div>
+              <div class="download_type_right_subTitle">APP Store</div>
+            </div>
+          </div>
+          <div class="download_type" style="margin-left: 28px">
+            <img src="https://88wallet-1303550410.cos.ap-hongkong.myqcloud.com/img/google.png" alt="apple" class="download_type_img" />
+            <div class="download_type_right">
+              <div class="download_type_right_title">GET IT ON</div>
+              <div class="download_type_right_subTitle">Google Play</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="contact">
+        <div class="contact_title">保持联系</div>
+        <div class="contact_title_en">Contact Us</div>
+        <div>
+          <img
+            src="https://88wallet-1303550410.cos.ap-hongkong.myqcloud.com/img/twitter.png"
+            alt="twitter"
+            class="contact_img"
+            style="margin-left: 0px"
+          />
+          <img src="https://88wallet-1303550410.cos.ap-hongkong.myqcloud.com/img/telegram.png" alt="telegram" class="contact_img" />
+          <img src="https://88wallet-1303550410.cos.ap-hongkong.myqcloud.com/img/mail.png" alt="mail" class="contact_img" />
+        </div>
+      </div>
+      <div class="bottom">service@88wallet.com</div>
+    </div>
+  </body>
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0px;
+      margin: 0px;
+    }
+    body {
+      background: #f9f9f9;
+      /* min-width: 1920px; */
+      width: 100vw;
+    }
+    .header {
+      height: 412px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(131deg, #f1c57a 0%, #e5b462 100%);
+      opacity: 0.68;
+    }
+    .header_img {
+      width: 730px;
+      height: 159px;
+    }
+    .section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 1664px;
+      padding-left: 128px;
+      padding-right: 128px;
+      display: flex;
+      flex-direction: column;
+    }
+    .container_top {
+      height: 282px;
+      display: flex;
+      align-items: center;
+      padding-left: 16px;
+
+      font-size: 60px;
+      font-weight: 800;
+      color: #171717;
+      line-height: 84px;
+      letter-spacing: 4px;
+    }
+    .blank {
+      max-width: 1664px;
+      height: 4px;
+      border: 4px solid #eeeeee;
+    }
+    .container_one {
+      padding-top: 100px;
+      padding-bottom: 100px;
+
+      font-size: 60px;
+      font-weight: 400;
+      color: #171717;
+      line-height: 84px;
+      letter-spacing: 4px;
+    }
+    .container_two {
+      padding-top: 100px;
+      padding-bottom: 100px;
+
+      font-size: 48px;
+      font-weight: 400;
+      color: #171717;
+      line-height: 67px;
+      letter-spacing: 3px;
+    }
+    .container_three {
+      padding-top: 70px;
+      padding-bottom: 92px;
+
+      font-size: 40px;
+      font-weight: 500;
+      color: #333333;
+      line-height: 96px;
+    }
+
+    .download {
+      width: 100%;
+      height: 476px;
+      padding-top: 76px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(
+        90deg,
+        rgba(244, 244, 244, 0.97) 0%,
+        #ededed 100%,
+        #c5c5c5 100%
+      );
+      border-radius: 2px;
+    }
+    .download_title {
+      font-size: 44px;
+      font-weight: bold;
+      color: #333333;
+      line-height: 80px;
+      letter-spacing: 2px;
+    }
+    .download_title_en {
+      font-size: 44px;
+      font-weight: bold;
+      color: #c0c0c0;
+      line-height: 80px;
+      letter-spacing: 2px;
+    }
+    .download_type_container {
+      margin-top: 34px;
+      display: flex;
+    }
+    .download_type {
+      width: 416px;
+      height: 134px;
+      padding-left: 55px;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(153deg, #f1c57a 0%, #e3b15e 100%);
+      border-radius: 26px;
+    }
+    .download_type_img {
+      margin-right: 32px;
+      width: 60px;
+      height: 72px;
+    }
+    .download_type_right_title {
+      font-size: 24px;
+      font-weight: 300;
+      color: #ffffff;
+      line-height: 33px;
+    }
+    .download_type_right_subTitle {
+      font-size: 36px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 50px;
+    }
+
+    .contact {
+      width: 100%;
+      height: 424px;
+      padding-top: 102px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .contact_title {
+      font-size: 44px;
+      font-weight: bold;
+      color: #333333;
+      line-height: 80px;
+      letter-spacing: 2px;
+    }
+    .contact_title_en {
+      font-size: 44px;
+      font-weight: bold;
+      color: #c0c0c0;
+      line-height: 80px;
+      letter-spacing: 2px;
+    }
+    .contact_img {
+      margin-top: 14px;
+      margin-left: 56px;
+      width: 66px;
+      height: 66px;
+    }
+
+    .bottom {
+      width: 100%;
+      height: 190px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(
+        273deg,
+        rgba(244, 244, 244, 0.41) 0%,
+        #f1e2c8 100%
+      );
+      border-radius: 4px;
+
+      font-size: 40px;
+      font-weight: 500;
+      color: #3985cc;
+      line-height: 96px;
+    }
+
+    #sercurity {
+      color: #e6b563;
+    }
+  </style>
+  <script></script>
+</html>

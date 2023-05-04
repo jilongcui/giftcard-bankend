@@ -104,7 +104,7 @@ export class Bankcard {
     })
     @Excel({
         name: '有效期',
-        dateFormat: 'YYYY-MM-DD'
+        // dateFormat: 'YYYY-MM-DD'
     })
     @IsOptional()
     @IsString()

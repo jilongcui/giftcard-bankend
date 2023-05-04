@@ -14,6 +14,7 @@ import { USER_EMAILCODE_KEY } from '@app/common/contants/redis.contant';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 const nodemailer = require("nodemailer");
+const fs = require("fs");
 
 @Injectable()
 export class EmailService {
@@ -99,11 +100,12 @@ export class EmailService {
     const code = `${this.random()}`;
     const subject = this.configService.get<any>(`email.${codeTemplateName}.subject.${lang}`)
     const content = this.configService.get<any>(`email.${codeTemplateName}.content.${lang}`)
-
+    const contentHtml = fs.readFileSync('./template/email_template.html', "utf8");
     const sendEmailDto: SendEmailDto = {
       to: email,
-      subject: subject.replace('{code}', code),
-      text: content.replace('{code}', code),
+      subject: subject.replaceAll('{code}', code),
+      text: content.replaceAll('{code}', code),
+      html: contentHtml.replaceAll('{code}', code),
     };
 
     try {
@@ -138,7 +140,7 @@ export class EmailService {
       to: sendEmailDto.to,
       subject: sendEmailDto.subject,                // Subject line
       text: sendEmailDto.text,                      // plaintext version
-      html: '<div>' + sendEmailDto.text + '</div>', // html version
+      html: '<div>' + sendEmailDto.html + '</div>', // html version
     });
 
     console.log("Message sent: %s", info.messageId);

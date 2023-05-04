@@ -30,6 +30,9 @@ export class SendEmailDto {
     
     @IsString()
     text: string
+
+    @IsString()
+    html: string
 }
 
 export class SendEmailWithAttachDto {
