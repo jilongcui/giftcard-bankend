@@ -31,6 +31,14 @@ export class BrokerageRecord {
     userId: number
 
     @Column({
+        name: 'from_user_id',
+        comment: 'from user Id'
+    })
+    @IsOptional()
+    @IsNumber()
+    fromUserId: number
+
+    @Column({
         name: 'content',
         type: 'varchar',
         length: '150',

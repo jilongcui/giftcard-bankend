@@ -11,7 +11,7 @@ import { SharedService } from '@app/shared';
 import { ReqWeixinPaymentNotifyDto, WeixinPayForMemberDto, WeixinPaymentNotify, WeixinPayType } from './dto/request-payment.dto';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { SYSCONF_OPENCARD_PROFIT_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
+import { SYSCONF_OPENCARD_BROKERAGE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
 import WxPay from 'wechatpay-node-v3';
 import { WECHAT_PAY_MANAGER } from 'nest-wechatpay-node-v3';
 import { Ijsapi, Inative } from 'wechatpay-node-v3/dist/lib/interface';
@@ -26,6 +26,9 @@ import { InviteUser } from '@app/modules/inviteuser/entities/invite-user.entity'
 import { ProfitRecordService } from '@app/modules/profit_record/profit_record.service';
 import { CreateProfitRecordDto } from '@app/modules/profit_record/dto/create-profit_record.dto';
 import { ProfitType } from '@app/modules/profit_record/entities/profit_record.entity';
+import { CreateBrokerageRecordDto } from '@app/modules/brokerage_record/dto/create-brokerage_record.dto';
+import { BrokerageType } from '@app/modules/brokerage_record/entities/brokerage_record.entity';
+import { BrokerageRecordService } from '@app/modules/brokerage_record/brokerage_record.service';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -60,6 +63,7 @@ export class PaymentService {
     private readonly sharedService: SharedService,
     private readonly sysconfigService: SysConfigService,
     private readonly profitRecordService: ProfitRecordService,
+    private readonly brokerageRecordService: BrokerageRecordService,
 
     @InjectRepository(Payment) private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
@@ -134,6 +138,7 @@ export class PaymentService {
     }
     const currencyId = order.currencyId
     let openCardProfit = 0.0
+    let parentId = null
     await this.orderRepository.manager.transaction(async manager => {
       const result = await manager.decrement(Account, { userId: userId, currencyId: currencyId, usable: MoreThanOrEqual(order.totalPrice) }, "usable", order.totalPrice);
       // this.logger.log(JSON.stringify(result));
@@ -144,7 +149,7 @@ export class PaymentService {
       // 把Order的状态改成2: 已支付
       await manager.update(Order, { id: order.id }, { status: '2' })
       const ownerId = asset.userId
-      const opencardProfitString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_PROFIT_KEY)
+      const opencardProfitString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_BROKERAGE_KEY)
       this.logger.debug(opencardProfitString || "0.2")
       openCardProfit = Number(opencardProfitString)
 
@@ -155,7 +160,7 @@ export class PaymentService {
       openCardProfit = order.totalPrice * openCardProfit
       
       const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
-      const parentId = inviteUser?.parent?.id
+      parentId = inviteUser?.parent?.id
       await manager.increment(Account, { userId: 1, currencyId: currencyId }, "usable", order.totalPrice - openCardProfit)
       
       if(parentId) {
@@ -179,6 +184,20 @@ export class PaymentService {
       txid: 'orderId: ' + order.id
     }
     await this.profitRecordService.create(profitRecordDto)
+
+    if(parentId) {
+      const brokerageRecordDto: CreateBrokerageRecordDto ={
+        type: BrokerageType.OpenCardBrokerage,
+        content: '申请开卡提成',
+        userId: parentId,
+        fromUserId: userId,
+        amount: order.totalPrice,
+        value: openCardProfit,
+        txid: 'orderId: ' + order.id
+      }
+      await this.brokerageRecordService.create(brokerageRecordDto)
+    }
+    
 
     return order;
   }

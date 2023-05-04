@@ -13,6 +13,12 @@ import { Transfer } from '../transfer/entities/transfer.entity';
 import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
 import { ProfitType } from '../profit_record/entities/profit_record.entity';
 import { ProfitRecordService } from '../profit_record/profit_record.service';
+import { CreateBrokerageRecordDto } from '../brokerage_record/dto/create-brokerage_record.dto';
+import { BrokerageType } from '../brokerage_record/entities/brokerage_record.entity';
+import { InviteUser } from '../inviteuser/entities/invite-user.entity';
+import { SYSCONF_EXCHANGE_BROKERAGE_KEY } from '@app/common/contants/sysconfig.contants';
+import { SysConfigService } from '../system/sys-config/sys-config.service';
+import { BrokerageRecordService } from '../brokerage_record/brokerage_record.service';
 
 @Injectable()
 export class AccountService {
@@ -21,7 +27,9 @@ export class AccountService {
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRepository(Currency) private readonly currencyRepository: Repository<Currency>,
     private readonly profitRecordService: ProfitRecordService,
+    private readonly brokerageRecordService: BrokerageRecordService,
     private readonly userService: UserService,
+    private readonly sysconfigService: SysConfigService,
   ) { }
 
   create(createAccountDto: CreateAccountDto) {
@@ -148,6 +156,8 @@ export class AccountService {
       exchange.status = '1' // 
       exchange.userId = userId
       const exchange2 = await manager.save(exchange)
+      const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
+      let parentId = inviteUser?.parent?.id
 
       const profitRecordDto: CreateProfitRecordDto ={
         type: ProfitType.ExchangeFee,
@@ -158,6 +168,23 @@ export class AccountService {
         txid: 'exchangeId: ' + exchange2.id
       }
       await this.profitRecordService.create(profitRecordDto)
+
+      const brokerageRatioString = await this.sysconfigService.getValue(SYSCONF_EXCHANGE_BROKERAGE_KEY)
+      this.logger.debug(brokerageRatioString || "0.2")
+      const brokerageRatio = Number(brokerageRatioString)
+
+      if(parentId) {
+        const brokerageRecordDto: CreateBrokerageRecordDto ={
+          type: BrokerageType.OpenCardBrokerage,
+          content: 'USDTtoHKD转账提成',
+          userId: parentId,
+          fromUserId: userId,
+          amount: fromAmount,
+          value: exchangeFee * brokerageRatio,
+          txid: 'exchangeId: ' + exchange2.id
+        }
+        await this.brokerageRecordService.create(brokerageRecordDto)
+      }
 
       return exchange2
     })
