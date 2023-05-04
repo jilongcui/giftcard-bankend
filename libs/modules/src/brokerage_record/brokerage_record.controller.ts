@@ -21,22 +21,21 @@ export class BrokerageRecordController {
   //   return this.profitRecordService.create(createProfitRecordDto);
   // }
 
-  /* 获取总订单 */
+  /* 获取总佣金 */
   @Get('total')
-  @Public()
   @ApiPaginatedResponse(BrokerageRecord)
   async total(@Query() getTotalProfitDto: GetTotalBrokerageDto) {
     return await this.profitRecordService.total(getTotalProfitDto);
   }
 
+  /* 获取我的总佣金 */
   @Get('mytotal')
-  @Public()
   @ApiPaginatedResponse(BrokerageRecord)
-  async mytotal(@Query() getTotalProfitDto: GetMyTotalBrokerageDto) {
-    return await this.profitRecordService.total(getTotalProfitDto);
+  async mytotal(@Query() getTotalProfitDto: GetMyTotalBrokerageDto, @UserDec(UserEnum.userId) userId: number) {
+    return await this.profitRecordService.mytotal(getTotalProfitDto, userId);
   }
 
-  /* 订单列表 */
+  /* 佣金列表 */
   @Get('list')
   @Public()
   @ApiPaginatedResponse(BrokerageRecord)
@@ -44,7 +43,7 @@ export class BrokerageRecordController {
     return await this.profitRecordService.list(listOrderDto, paginationDto);
   }
 
-  /* 我的订单列表 */
+  /* 我的佣金列表 */
   @Get('myList')
   @ApiPaginatedResponse(BrokerageRecord)
   async mylist(@Query() listMyOrderDto: ListBrokerageRecordDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
