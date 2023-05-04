@@ -44,6 +44,7 @@ import { OrderModule } from './order/order.module';
 import { BankcardModule } from './bankcard/bankcard.module';
 import { PaymentModule } from './payment/payment.module';
 import { GiftcardModule } from './giftcard/giftcard.module';
+import { ProfitRecordModule } from '@app/modules/profit_record/profit_record.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
@@ -115,7 +116,8 @@ import { GiftcardModule } from './giftcard/giftcard.module';
     ExchangeModule,
     TransferModule,
     HomeAddressModule,
-    GiftcardModule
+    GiftcardModule,
+    ProfitRecordModule
   ],
   // controllers: [NotifyController],
   // providers: [...aliasProviders],
