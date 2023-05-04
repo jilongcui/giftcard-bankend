@@ -7,7 +7,7 @@ import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-respo
 import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { ListBankcardDto, ListMyBankcardDto } from './dto/request-bankcard.dto';
 import { Bankcard } from './entities/bankcard.entity';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
@@ -16,6 +16,7 @@ import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelService } from '../common/excel/excel.service';
 import { Keep } from '@app/common/decorators/keep.decorator';
+import { ApiFile } from '../common/upload/upload.controller';
 
 @ApiTags('银行卡')
 @ApiBearerAuth()
@@ -103,6 +104,8 @@ export class BankcardController {
   /* 用户导入 */
   @RepeatSubmit()
   @Post('importData')
+  @ApiConsumes('multipart/form-data')
+  @ApiFile()
   @RequiresPermissions('system:user:import')
   @UseInterceptors(FileInterceptor('file'))
   async importData(@UploadedFile() file: Express.Multer.File) {
