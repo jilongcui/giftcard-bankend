@@ -9,11 +9,17 @@ import { Cardinfo } from '../cardinfo/entities/cardinfo.entity';
 import { User } from '../system/user/entities/user.entity';
 import { CardinfoModule } from '../cardinfo/cardinfo.module';
 import { ExcelModule } from '../common/excel/excel.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { storage } from '../common/upload/upload.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Bankcard, Kyc, Cardinfo, User]),
   CacheModule.register({
     ttl: 30, // seconds
+  }),
+  MulterModule.register({
+    storage: storage,
+    preservePath: false,
   }),
   IdentityModule, CardinfoModule, ExcelModule],
   controllers: [BankcardController],
