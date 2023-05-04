@@ -10,6 +10,9 @@ import { ApiException } from '@app/common/exceptions/api.exception';
 import { UserService } from '../system/user/user.service';
 import { Exchange } from '../exchange/entities/exchange.entity';
 import { Transfer } from '../transfer/entities/transfer.entity';
+import { ProfitRecordService } from '../profit_record/profit_record.service';
+import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
+import { ProfitType } from '../profit_record/entities/profit_record.entity';
 
 @Injectable()
 export class AccountService {
@@ -17,6 +20,7 @@ export class AccountService {
   constructor(
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRepository(Currency) private readonly currencyRepository: Repository<Currency>,
+    private readonly profitRecordService: ProfitRecordService,
     private readonly userService: UserService,
   ) { }
 
@@ -144,6 +148,17 @@ export class AccountService {
       exchange.status = '1' // 
       exchange.userId = userId
       const exchange2 = await manager.save(exchange)
+
+      const profitRecordDto: CreateProfitRecordDto ={
+        type: ProfitType.ExchangeFee,
+        content: 'USDT转HKD',
+        userId: userId,
+        amount: fromAmount,
+        fee: exchangeFee,
+        txid: 'exchangeId: ' + exchange2.id
+      }
+      await this.profitRecordService.create(profitRecordDto)
+
       return exchange2
     })
     //
@@ -183,6 +198,15 @@ export class AccountService {
       transfer.status = '1' // 
       transfer.userId = userId
       const transfer2 = await manager.save(transfer)
+      const profitRecordDto: CreateProfitRecordDto ={
+        type: ProfitType.InnerTransferFee,
+        content: user.userId.toString(),
+        userId: userId,
+        amount: fromAmount,
+        fee: transferFee,
+        txid: 'transferId: ' + transfer2.id
+      }
+      await this.profitRecordService.create(profitRecordDto)
       return transfer2
     })
     //

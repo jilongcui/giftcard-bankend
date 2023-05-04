@@ -22,6 +22,9 @@ import { Fund33RechargeDto, Fund33Response } from './dto/response-fund33.dto';
 import { QueryRechargeDto } from './dto/create-fund33.dto';
 import { BankcardService } from 'apps/giftcard/src/bankcard/bankcard.service';
 import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
+import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
+import { ProfitType } from '../profit_record/entities/profit_record.entity';
+import { ProfitRecordService } from '../profit_record/profit_record.service';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -56,6 +59,7 @@ export class WithdrawService {
         private readonly configService: ConfigService,
         private readonly bankcardService: BankcardService,
         private readonly sharedService: SharedService,
+        private readonly profitRecordService: ProfitRecordService,
         @InjectRepository(Withdraw) private readonly withdrawRepository: Repository<Withdraw>,
         @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
         @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
@@ -263,6 +267,16 @@ export class WithdrawService {
             throw new ApiException('提币记录不存在')
         }
         await this.recharge({cardId: payWithCard.bankcardId,amount: withdraw.realPrice})
+
+        const profitRecordDto: CreateProfitRecordDto ={
+            type: ProfitType.WithdrawToCardFee,
+            content: bankcard.cardNo,
+            userId: bankcard.userId,
+            amount: withdraw.realPrice,
+            fee: withdraw.totalPrice - withdraw.totalFee,
+            txid: 'withdrawId: ' + withdraw.id
+        }
+        await this.profitRecordService.create(profitRecordDto)
     }
 
     /**

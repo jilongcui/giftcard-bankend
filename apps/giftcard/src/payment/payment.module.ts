@@ -13,6 +13,7 @@ import { Account } from '@app/modules/account/entities/account.entity';
 import { SysConfigModule } from '@app/modules/system/sys-config/sys-config.module';
 import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { Giftcard } from '../giftcard/entities/giftcard.entity';
+import { ProfitRecordModule } from '@app/modules/profit_record/profit_record.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { Giftcard } from '../giftcard/entities/giftcard.entity';
     }),
     BankcardModule,
     SysConfigModule,
+    ProfitRecordModule,
     forwardRef(() => OrderModule)
   ],
   controllers: [PaymentController],

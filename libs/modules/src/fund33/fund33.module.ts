@@ -11,6 +11,7 @@ import { Account } from '../account/entities/account.entity';
 import { WithdrawFlow } from './entities/withdraw-flow.entity';
 import { BankcardModule } from 'apps/giftcard/src/bankcard/bankcard.module';
 import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
+import { ProfitRecordModule } from '../profit_record/profit_record.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
       timeout: 10000,
       maxRedirects: 5,
     }),
+    ProfitRecordModule
   ],
   controllers: [Fund33Controller, WithdrawController],
   providers: [Fund33Service, WithdrawService],

@@ -23,6 +23,9 @@ import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { Giftcard } from '../giftcard/entities/giftcard.entity';
 import { OrderService } from '../order/order.service';
 import { InviteUser } from '@app/modules/inviteuser/entities/invite-user.entity';
+import { ProfitRecordService } from '@app/modules/profit_record/profit_record.service';
+import { CreateProfitRecordDto } from '@app/modules/profit_record/dto/create-profit_record.dto';
+import { ProfitType } from '@app/modules/profit_record/entities/profit_record.entity';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -56,6 +59,7 @@ export class PaymentService {
     private readonly orderService: OrderService,
     private readonly sharedService: SharedService,
     private readonly sysconfigService: SysConfigService,
+    private readonly profitRecordService: ProfitRecordService,
 
     @InjectRepository(Payment) private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
@@ -129,6 +133,7 @@ export class PaymentService {
         // throw new ApiException("商品状态不对")
     }
     const currencyId = order.currencyId
+    let openCardProfit = 0.0
     await this.orderRepository.manager.transaction(async manager => {
       const result = await manager.decrement(Account, { userId: userId, currencyId: currencyId, usable: MoreThanOrEqual(order.totalPrice) }, "usable", order.totalPrice);
       // this.logger.log(JSON.stringify(result));
@@ -141,7 +146,7 @@ export class PaymentService {
       const ownerId = asset.userId
       const opencardProfitString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_PROFIT_KEY)
       this.logger.debug(opencardProfitString || "0.2")
-      let openCardProfit = Number(opencardProfitString)
+      openCardProfit = Number(opencardProfitString)
 
       this.logger.debug('marketFee ' + openCardProfit)
       if (openCardProfit > 1.0 || openCardProfit <= 0.0) {
@@ -151,7 +156,8 @@ export class PaymentService {
       
       const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
       const parentId = inviteUser?.parent?.id
-      await manager.increment(Account, { userId: asset.userId, currencyId: currencyId }, "usable", order.totalPrice - openCardProfit)
+      await manager.increment(Account, { userId: 1, currencyId: currencyId }, "usable", order.totalPrice - openCardProfit)
+      
       if(parentId) {
         await manager.increment(Account, { userId: parentId, currencyId: currencyId }, "usable", openCardProfit)
         await manager.increment(InviteUser, { id: userId }, "cardNumber", 1)
@@ -162,8 +168,17 @@ export class PaymentService {
       } else if (order.assetType === '1') { // Giftcard
         // await manager.update(Giftcard, { id: asset.id }, { status: '1' })
       }
-
     })
+
+    const profitRecordDto: CreateProfitRecordDto ={
+      type: ProfitType.OpenCardFee,
+      content: '申请开卡',
+      userId: userId,
+      amount: order.totalPrice,
+      fee: order.totalPrice - openCardProfit,
+      txid: 'orderId: ' + order.id
+    }
+    await this.profitRecordService.create(profitRecordDto)
 
     return order;
   }

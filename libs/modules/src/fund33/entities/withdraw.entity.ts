@@ -46,7 +46,7 @@ export class Withdraw {
     @Column({
         name: 'total_fee',
         type: "decimal", precision: 10, scale: 2, default: 0.00,
-        comment: '订单总金额'
+        comment: '提现手续费'
     })
     @IsNumber()
     totalFee: number

@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     TypeOrmModule.forFeature([ProfitRecord]),
   ],
   controllers: [ProfitRecordController],
-  providers: [ProfitRecordService]
+  providers: [ProfitRecordService],
+  exports: [ProfitRecordService]
 })
 export class ProfitRecordModule {}
