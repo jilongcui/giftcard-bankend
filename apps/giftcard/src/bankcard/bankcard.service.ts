@@ -212,7 +212,7 @@ export class BankcardService {
     for await (const iterator of data) {
         let bankcard = new Bankcard()
         if (!iterator.cardNo || !iterator.pinCode || !iterator.bankName || !iterator.cardinfoId
-            || !iterator.bankCVVCode || !iterator.validThrough || !iterator.validThrough) throw new ApiException('用户账号、用户昵称、用户密码不能为空')
+            || !iterator.bankCVVCode || !iterator.validThrough) throw new ApiException('用户账号、用户昵称、用户密码不能为空')
         const one = await this.bankcardRepository.findOneBy({cardNo: iterator.cardNo})
         if (one) throw new ApiException('该银行卡已存在')
         bankcard = Object.assign(bankcard, iterator)

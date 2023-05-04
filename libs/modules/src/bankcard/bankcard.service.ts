@@ -226,4 +226,23 @@ export class BankcardService {
     return Math.floor((Math.random() * 999999999) + 1000000000);
   }
 
+  /* 导入批量插入用户 */
+  async insert(data: any) {
+    let bankcardArr: Bankcard[] = []
+    for await (const iterator of data) {
+        let bankcard = new Bankcard()
+        if (!iterator.cardNo || !iterator.pinCode || !iterator.bankName || !iterator.cardinfoId
+            || !iterator.bankCVVCode || !iterator.validThrough || !iterator.validThrough) throw new ApiException('用户账号、用户昵称、用户密码不能为空')
+        const one = await this.bankcardRepository.findOneBy({cardNo: iterator.cardNo})
+        if (one) throw new ApiException('该银行卡已存在')
+        bankcard = Object.assign(bankcard, iterator)
+        bankcardArr.push(bankcard)
+    }
+    await this.bankcardRepository.createQueryBuilder()
+        .insert()
+        .into(Bankcard)
+        .values(bankcardArr)
+        .execute()
+  }
+
 }

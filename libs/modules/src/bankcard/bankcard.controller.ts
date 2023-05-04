@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put, UseInterceptors, CacheInterceptor } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put, UseInterceptors, CacheInterceptor, UploadedFile, StreamableFile } from '@nestjs/common';
 import { BankcardService } from './bankcard.service';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { CreateBankcardDto, CreateBankcardKycDto, UpdateBankcardDto } from './dto/request-bankcard.dto';
@@ -12,13 +12,19 @@ import { ListBankcardDto, ListMyBankcardDto } from './dto/request-bankcard.dto';
 import { Bankcard } from './entities/bankcard.entity';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
+import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ExcelService } from '../common/excel/excel.service';
+import { Keep } from '@app/common/decorators/keep.decorator';
 
 @ApiTags('银行卡')
 @ApiBearerAuth()
 @UseInterceptors(CacheInterceptor)
 @Controller('bankcard')
 export class BankcardController {
-  constructor(private readonly bankcardService: BankcardService) { }
+  constructor(private readonly bankcardService: BankcardService,
+    private readonly excelService: ExcelService
+  ) { }
 
   @Post()
   create(@Body() createBankcardDto: CreateBankcardDto, @UserDec(UserEnum.userId) userId: number) {
@@ -84,6 +90,24 @@ export class BankcardController {
   @RequiresRoles(['admin', 'system'])
   remove(@Param('id') id: string) {
     return this.bankcardService.deleteOne(+id);
+  }
+
+  /* 下载模板 */
+  @Post('importTemplate')
+  @Keep()
+  async importTemplate() {
+    const file = await this.excelService.importTemplate(Bankcard)
+    return new StreamableFile(file)
+  }
+  
+  /* 用户导入 */
+  @RepeatSubmit()
+  @Post('importData')
+  @RequiresPermissions('system:user:import')
+  @UseInterceptors(FileInterceptor('file'))
+  async importData(@UploadedFile() file: Express.Multer.File) {
+      const data = await this.excelService.import(Bankcard, file)
+      await this.bankcardService.insert(data)
   }
 }
 

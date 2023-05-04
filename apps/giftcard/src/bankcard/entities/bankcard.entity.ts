@@ -186,6 +186,9 @@ export class Bankcard {
         default: null,
         comment: '银行卡详情'
     })
+    @Excel({
+        name: '银行卡详情'
+    })
     @Type()
     @IsNumber()
     cardinfoId: number

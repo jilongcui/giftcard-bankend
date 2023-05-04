@@ -8,13 +8,14 @@ import { Kyc } from '../kyc/entities/kyc.entity';
 import { Cardinfo } from '../cardinfo/entities/cardinfo.entity';
 import { User } from '../system/user/entities/user.entity';
 import { CardinfoModule } from '../cardinfo/cardinfo.module';
+import { ExcelModule } from '../common/excel/excel.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Bankcard, Kyc, Cardinfo, User]),
   CacheModule.register({
     ttl: 30, // seconds
   }),
-  IdentityModule, CardinfoModule],
+  IdentityModule, CardinfoModule, ExcelModule],
   controllers: [BankcardController],
   providers: [BankcardService],
   exports: [BankcardService]
