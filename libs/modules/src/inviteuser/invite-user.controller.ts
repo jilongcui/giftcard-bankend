@@ -7,7 +7,7 @@ import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { Body, Controller, Get, Param, Post, Query, StreamableFile } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { ListMyInviteUserDto, ReqInviteUserListDto } from './dto/request-inviteuser.dto';
 import { InviteUser } from './entities/invite-user.entity';
 import { InviteUserService } from './invite-user.service';
@@ -39,8 +39,9 @@ export class InviteUserController {
         return await this.inviteUserService.mylist(listMyOrderDto, userId, paginationDto);
     }
 
-    /* 列出我的统计 */
+    /* 我的统计 */
     @Get('mytotal')
+    // @ApiDataResponse(typeEnum.object, {openCardCount: number, exchangeUsdtCount: number})
     async mytotal(@UserDec(UserEnum.userId) userId: number) {
         return await this.inviteUserService.mytotal(userId);
     }
