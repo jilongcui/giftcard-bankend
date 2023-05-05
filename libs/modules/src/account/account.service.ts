@@ -160,24 +160,34 @@ export class AccountService {
       const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
       let parentId = inviteUser?.parentId
 
-      const profitRecordDto: CreateProfitRecordDto ={
-        type: ProfitType.ExchangeFee,
-        content: 'USDT转HKD',
-        userId: userId,
-        amount: fromAmount,
-        fee: exchangeFee,
-        txid: 'exchangeId: ' + exchange2.id
+      let subType
+      let content
+      if(currencyFrom.symbol === 'USDT') {
+        subType = ProfitSubType.USDT
+        content = 'USDT转HKD收益'
+        const profitRecordDto: CreateProfitRecordDto ={
+          type: ProfitType.ExchangeFee,
+          subtype: subType,
+          content: content,
+          userId: userId,
+          amount: fromAmount,
+          fee: exchangeFee,
+          txid: 'exchangeId: ' + exchange2.id
+        }
+        await this.profitRecordService.create(profitRecordDto)
       }
-      await this.profitRecordService.create(profitRecordDto)
+      // else if(currencyFrom.symbol === 'HDK') {
+      //   subType = ProfitSubType.HKD
+      //   content = 'HKD转USDT收益'
+      // }
 
-      const brokerageRatioString = await this.sysconfigService.getValue(SYSCONF_EXCHANGE_BROKERAGE_KEY)
-      this.logger.debug(brokerageRatioString || "0.2")
-      const brokerageRatio = Number(brokerageRatioString)
-
-      if(parentId) {
+      if(parentId && currencyFrom.symbol === 'USDT') {
+        const brokerageRatioString = await this.sysconfigService.getValue(SYSCONF_EXCHANGE_BROKERAGE_KEY)
+        this.logger.debug(brokerageRatioString || "0.2")
+        const brokerageRatio = Number(brokerageRatioString)
         const brokerageRecordDto: CreateBrokerageRecordDto ={
           type: BrokerageType.ExchangeBrokerage,
-          content: 'USDTtoHKD转账提成',
+          content: 'USDT转HKD提成',
           userId: parentId,
           fromUserId: userId,
           amount: fromAmount,
