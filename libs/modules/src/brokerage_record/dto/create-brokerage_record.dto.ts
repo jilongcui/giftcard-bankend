@@ -17,9 +17,6 @@ export class GetTotalBrokerageDto {
 }
 
 export class GetMyTotalBrokerageDto {
-    @IsNumber()
-    userId: number
-    
     @IsOptional()
     @IsString()
     type?: BrokerageType
