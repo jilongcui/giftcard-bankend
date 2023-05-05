@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
-import { Repository, FindOptionsWhere, MoreThanOrEqual } from 'typeorm';
+import { Repository, FindOptionsWhere, MoreThanOrEqual, Not, IsNull } from 'typeorm';
 import { CreateBankcardDto, ListMyBankcardDto, ListBankcardDto, UpdateBankcardDto, UpdateBankcardStatusDto, CreateBankcardKycDto } from './dto/request-bankcard.dto';
 import { Bankcard } from './entities/bankcard.entity';
 import { ConfigService } from '@nestjs/config';
@@ -89,6 +89,8 @@ export class BankcardService {
     let where: FindOptionsWhere<Bankcard> = {}
     let result: any;
     where = listBankcardList
+    where.status = Not('0')
+    where.userId = Not(null)
 
     result = await this.bankcardRepository.findAndCount({
       where,
