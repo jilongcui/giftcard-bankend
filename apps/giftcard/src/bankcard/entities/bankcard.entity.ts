@@ -29,7 +29,7 @@ export class Bankcard {
     /* 持卡人银行卡Pin */
     @Column({
         name: 'pin_code',
-        default: '',
+        default: null,
         length: 50,
         comment: '持卡人Pin密码，需加密'
     })
@@ -89,9 +89,9 @@ export class Bankcard {
         comment: '银行卡CVV',
         length: '10'
     })
-    @Excel({
-        name: '银行卡CVV'
-    })
+    // @Excel({
+    //     name: '银行卡CVV'
+    // })
     @IsOptional()
     @IsString()
     bankCVVCode?: string
@@ -102,10 +102,10 @@ export class Bankcard {
         comment: '银行卡有效期',
         length: '12'
     })
-    @Excel({
-        name: '有效期',
-        // dateFormat: 'YYYY-MM-DD'
-    })
+    // @Excel({
+    //     name: '有效期',
+    //     // dateFormat: 'YYYY-MM-DD'
+    // })
     @IsOptional()
     @IsString()
     validThrough?: string
@@ -187,9 +187,9 @@ export class Bankcard {
         default: null,
         comment: '银行卡详情'
     })
-    @Excel({
-        name: '银行卡详情ID'
-    })
+    // @Excel({
+    //     name: '银行卡详情ID'
+    // })
     @Type()
     @IsNumber()
     cardinfoId: number

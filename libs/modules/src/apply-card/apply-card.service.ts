@@ -10,9 +10,10 @@ import { CreateApplyCardDto, ListMyApplyCardDto } from './dto/create-apply-card.
 import { ListApplyCardDto, UpdateApplyCardDto, UpdateApplyCardStatusDto } from './dto/update-apply-card.dto';
 import { ApplyCard, ApplyCardStatus } from './entities/apply-card.entity';
 import { Account } from '../account/entities/account.entity';
-import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { CurrencyService } from '../currency/currency.service';
 import { User } from '../system/user/entities/user.entity';
+import { Cardinfo } from '../cardinfo/entities/cardinfo.entity';
+import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 
 @Injectable()
 export class ApplyCardService {
@@ -121,11 +122,14 @@ export class ApplyCardService {
   async requestBankcard(userId: number, currencyId: number, cardinfoId:number, openfee: number) {
     // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
     return await this.applycardRepository.manager.transaction(async manager => {
-      const bankcard = await manager.findOne(Bankcard, { where: { status:'0', cardinfoId }, relations: {cardinfo: true} })
+      const bankcard = await manager.findOne(Bankcard, { where: { status:'0'}, relations: {} })
+      const cardInfo = await manager.findOne(Cardinfo, { where: { id: cardinfoId} })
       if(!bankcard) {
         throw new ApiException('银行卡已经申领完')
       }
-
+      if(!cardInfo) {
+        throw new ApiException('银行卡类型不正确')
+      }
       const account = await manager.findOne(Account, { where: { currencyId, userId, usable: MoreThanOrEqual(openfee)} })
       if(!account) {
         throw new ApiException('资金不足')
@@ -134,8 +138,8 @@ export class ApplyCardService {
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", openfee)
       await manager.increment(Account, { userId: 1 }, "usable", openfee)
             
-      await manager.update(Bankcard, { id: bankcard.id }, { userId: userId, status: '1' }) // 完成认领
-      await manager.update(User, {userId: userId}, {vip: bankcard.cardinfo.index})
+      await manager.update(Bankcard, { id: bankcard.id }, { userId: userId, status: '1', cardinfoId: cardinfoId }) // 完成认领
+      await manager.update(User, {userId: userId}, {vip: cardInfo.index})
       return await manager.findOneBy(Bankcard, {id: bankcard.id})
     })
   }

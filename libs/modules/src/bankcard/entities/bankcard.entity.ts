@@ -6,7 +6,6 @@ import { Identity } from "@app/modules/identity/entities/identity.entity";
 import { Type } from "class-transformer";
 import { Kyc } from "@app/modules/kyc/entities/kyc.entity";
 import { Cardinfo } from "@app/modules/cardinfo/entities/cardinfo.entity";
-import { Excel } from "@app/modules/common/excel/excel.decorator";
 
 @Entity()
 export class Bankcard {
@@ -207,9 +206,6 @@ export class Bankcard {
         name: 'cardinfo_id',
         default: null,
         comment: '银行卡详情'
-    })
-    @Excel({
-        name: '银行卡详情'
     })
     @Type()
     @IsNumber()
