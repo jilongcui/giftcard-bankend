@@ -59,7 +59,7 @@ export class BrokerageRecordService {
 
     const { todayValue } = await this.brokerageRepository
     .createQueryBuilder("brokerageRecord")
-    .select("SUM(brokerageRecord.value)", "totalValue")
+    .select("SUM(brokerageRecord.value)", "todayValue")
     .where("brokerageRecord.type = :type", { type:  getTotalList.type})
     .andWhere("brokerageRecord.userId = :userId", { userId:  userId})
     .andWhere("DATE(brokerageRecord.createTime) = CURDATE()")
