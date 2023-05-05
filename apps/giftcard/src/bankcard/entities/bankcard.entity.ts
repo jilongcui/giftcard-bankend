@@ -33,9 +33,9 @@ export class Bankcard {
         length: 50,
         comment: '持卡人Pin密码，需加密'
     })
-    @Excel({
-        name: 'Pin密码'
-    })
+    // @Excel({
+    //     name: 'Pin密码'
+    // })
     @IsOptional()
     @IsString()
     pinCode?: string
