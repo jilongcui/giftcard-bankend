@@ -50,24 +50,24 @@ export class BrokerageRecordService {
     let where: FindOptionsWhere<BrokerageRecord> = {}
     let result: any;
 
-    const { totalFee } = await this.brokerageRepository
+    const { totalValue } = await this.brokerageRepository
     .createQueryBuilder("brokerageRecord")
-    .select("SUM(brokerageRecord.fee)", "totalFee")
+    .select("SUM(brokerageRecord.value)", "totalValue")
     .where("brokerageRecord.type = :type", { type:  getTotalList.type})
     .andWhere("brokerageRecord.userId = :userId", { userId:  userId})
     .getRawOne()
 
-    const { todayFee } = await this.brokerageRepository
+    const { todayValue } = await this.brokerageRepository
     .createQueryBuilder("brokerageRecord")
-    .select("SUM(brokerageRecord.fee)", "todayFee")
+    .select("SUM(brokerageRecord.value)", "totalValue")
     .where("brokerageRecord.type = :type", { type:  getTotalList.type})
     .andWhere("brokerageRecord.userId = :userId", { userId:  userId})
     .andWhere("DATE(brokerageRecord.createTime) = CURDATE()")
     .getRawOne()
 
     return {
-      totalFee: totalFee,
-      todayFee: todayFee
+      totalValue: totalValue,
+      todayValue: todayValue
     }
   }
 
