@@ -95,10 +95,12 @@ export class InviteUserService {
 
     /* 我的子用户 */
     async mytotal(userId: number): Promise<any> {
+        const userCount = await this.inviteRepository.countBy({parentId: userId})
         const openCardCount = await this.inviteRepository.countBy({parentId: userId, isOpenCard: true})
         const exchangeUsdtCount = await this.inviteRepository.countBy({parentId: userId, isExchangeUsdt: true})
 
         return {
+            userCount: userCount,
             openCardCount: openCardCount,
             exchangeUsdtCount: exchangeUsdtCount
         }
