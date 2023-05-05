@@ -11,6 +11,11 @@ export enum ProfitType {
     'CardMonthFee' = 'CardMonthFee',
 }
 
+export enum ProfitSubType {
+    'USDT' = 'USDT',
+    'HKD' = 'HKD',
+}
+
 @Entity()
 export class ProfitRecord {
     @PrimaryGeneratedColumn()
@@ -26,6 +31,17 @@ export class ProfitRecord {
     })
     @IsEnum(ProfitType)
     type: ProfitType
+
+    /* 交易渠道 */
+    @Column({
+        name: 'subtype',
+        type: 'enum',
+        enum: ProfitSubType,
+        default: ProfitSubType.USDT,
+        comment: '交易渠道'
+    })
+    @IsEnum(ProfitSubType)
+    subtype?: ProfitSubType
 
     @Column({
         name: 'user_id',

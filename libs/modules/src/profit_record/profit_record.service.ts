@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProfitRecordDto, ListMyProfitRecordDto, ListProfitRecordDto, GetTotalProfitDto } from './dto/create-profit_record.dto';
 import { UpdateProfitRecordDto } from './dto/update-profit_record.dto';
-import { ProfitRecord, ProfitType } from './entities/profit_record.entity';
+import { ProfitRecord, ProfitSubType, ProfitType } from './entities/profit_record.entity';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import moment from 'moment';
@@ -26,22 +26,41 @@ export class ProfitRecordService {
   async total(getTotalList: GetTotalProfitDto): Promise<any> {
     let where: FindOptionsWhere<ProfitRecord> = {}
     let result: any;
-    if(!getTotalList.type) {
-      const { totalFee } = await this.profitRepository
+    if(getTotalList.type === ProfitType.InnerTransferFee) {
+      const { totalUsdtFee } = await this.profitRepository
       .createQueryBuilder("profitRecord")
       .select("SUM(profitRecord.fee)", "totalFee")
-      // .where("profitRecord.type = :type", { type:  getTotalList.type})
+      .where("profitRecord.type = :type", { type:  getTotalList.type})
+      .andWhere("profitRecord.subtype = :subtype", { subtype:  ProfitSubType.USDT})
       .getRawOne()
 
-      const { todayFee } = await this.profitRepository
+      const { totalHkdFee } = await this.profitRepository
+      .createQueryBuilder("profitRecord")
+      .select("SUM(profitRecord.fee)", "totalFee")
+      .where("profitRecord.type = :type", { type:  getTotalList.type})
+      .andWhere("profitRecord.subtype = :subtype", { subtype:  ProfitSubType.HKD})
+      .getRawOne()
+
+      const { todayUsdtFee } = await this.profitRepository
       .createQueryBuilder("profitRecord")
       .select("SUM(profitRecord.fee)", "todayFee")
-      // .where("profitRecord.type = :type", { type:  getTotalList.type})
-      .where("DATE(profitRecord.createTime) = CURDATE()")
+      .where("profitRecord.type = :type", { type:  getTotalList.type})
+      .andWhere("profitRecord.subtype = :subtype", { subtype:  ProfitSubType.USDT})
+      .andWhere("DATE(profitRecord.createTime) = CURDATE()")
+      .getRawOne()
+
+      const { todayHkdFee } = await this.profitRepository
+      .createQueryBuilder("profitRecord")
+      .select("SUM(profitRecord.fee)", "todayFee")
+      .where("profitRecord.type = :type", { type:  getTotalList.type})
+      .andWhere("profitRecord.subtype = :subtype", { subtype:  ProfitSubType.HKD})
+      .andWhere("DATE(profitRecord.createTime) = CURDATE()")
       .getRawOne()
       return {
-        totalFee: totalFee,
-        todayFee: todayFee
+        totalUsdtFee,
+        totalHkdFee,
+        todayUsdtFee,
+        todayHkdFee
       }
     }
     const { totalFee } = await this.profitRepository

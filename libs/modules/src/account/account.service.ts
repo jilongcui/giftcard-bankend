@@ -11,7 +11,7 @@ import { UserService } from '../system/user/user.service';
 import { Exchange } from '../exchange/entities/exchange.entity';
 import { Transfer } from '../transfer/entities/transfer.entity';
 import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
-import { ProfitType } from '../profit_record/entities/profit_record.entity';
+import { ProfitSubType, ProfitType } from '../profit_record/entities/profit_record.entity';
 import { ProfitRecordService } from '../profit_record/profit_record.service';
 import { CreateBrokerageRecordDto } from '../brokerage_record/dto/create-brokerage_record.dto';
 import { BrokerageType } from '../brokerage_record/entities/brokerage_record.entity';
@@ -226,8 +226,15 @@ export class AccountService {
       transfer.status = '1' // 
       transfer.userId = userId
       const transfer2 = await manager.save(transfer)
+      let subType
+      if(currency.symbol === 'USDT')
+        subType = ProfitSubType.USDT
+      else if(currency.symbol === 'HDK')
+        subType = ProfitSubType.HKD
+
       const profitRecordDto: CreateProfitRecordDto ={
         type: ProfitType.InnerTransferFee,
+        subtype: subType,
         content: user.userId.toString(),
         userId: userId,
         amount: fromAmount,

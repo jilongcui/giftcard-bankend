@@ -1,5 +1,5 @@
 import { OmitType, PartialType } from "@nestjs/swagger";
-import { ProfitRecord, ProfitType } from "../entities/profit_record.entity";
+import { ProfitRecord, ProfitSubType, ProfitType } from "../entities/profit_record.entity";
 import { IsEnum, IsOptional, IsString } from "class-validator";
 
 export class CreateProfitRecordDto extends OmitType(ProfitRecord, ['id', 'createTime'] as const) { }
@@ -12,7 +12,6 @@ export class ListMyProfitRecordDto {
 
 export class GetTotalProfitDto {
     @IsOptional()
-    @IsString()
     @IsEnum(ProfitType)
     type?: ProfitType
 }
