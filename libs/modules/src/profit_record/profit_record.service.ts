@@ -26,7 +26,24 @@ export class ProfitRecordService {
   async total(getTotalList: GetTotalProfitDto): Promise<any> {
     let where: FindOptionsWhere<ProfitRecord> = {}
     let result: any;
+    if(!getTotalList.type) {
+      const { totalFee } = await this.profitRepository
+      .createQueryBuilder("profitRecord")
+      .select("SUM(profitRecord.fee)", "totalFee")
+      // .where("profitRecord.type = :type", { type:  getTotalList.type})
+      .getRawOne()
 
+      const { todayFee } = await this.profitRepository
+      .createQueryBuilder("profitRecord")
+      .select("SUM(profitRecord.fee)", "todayFee")
+      // .where("profitRecord.type = :type", { type:  getTotalList.type})
+      .andWhere("DATE(profitRecord.createTime) = CURDATE()")
+      .getRawOne()
+      return {
+        totalFee: totalFee,
+        todayFee: todayFee
+      }
+    }
     const { totalFee } = await this.profitRepository
     .createQueryBuilder("profitRecord")
     .select("SUM(profitRecord.fee)", "totalFee")

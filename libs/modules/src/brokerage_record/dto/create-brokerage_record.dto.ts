@@ -1,5 +1,5 @@
 import { OmitType, PartialType } from "@nestjs/swagger";
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { BrokerageRecord, BrokerageType } from "../entities/brokerage_record.entity";
 
 export class CreateBrokerageRecordDto extends OmitType(BrokerageRecord, ['id', 'createTime'] as const) { }
@@ -12,13 +12,13 @@ export class ListMyBrokerageRecordDto {
 
 export class GetTotalBrokerageDto {
     @IsOptional()
-    @IsString()
+    @IsEnum(BrokerageType)
     type?: BrokerageType
 }
 
 export class GetMyTotalBrokerageDto {
     @IsOptional()
-    @IsString()
+    @IsEnum(BrokerageType)
     type?: BrokerageType
 }
 
