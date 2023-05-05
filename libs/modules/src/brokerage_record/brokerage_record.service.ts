@@ -26,22 +26,24 @@ export class BrokerageRecordService {
     let where: FindOptionsWhere<BrokerageRecord> = {}
     let result: any;
 
-    const { totalFee } = await this.brokerageRepository
-    .createQueryBuilder("profitRecord")
-    .select("SUM(profitRecord.fee)", "totalFee")
-    .where("profitRecord.type = :type", { id:  getTotalList.type})
+    const { totalValue } = await this.brokerageRepository
+    .createQueryBuilder("brokerageRecord")
+    .select("SUM(brokerageRecord.value)", "totalValue")
+    .where("brokerageRecord.type = :type", { type:  getTotalList.type})
+    // .where("brokerageRecord.userId = :userId", { userId:  userId})
     .getRawOne()
 
-    const { todayFee } = await this.brokerageRepository
-    .createQueryBuilder("profitRecord")
-    .select("SUM(profitRecord.fee)", "todayFee")
-    .where("profitRecord.type = :type", { type:  getTotalList.type})
-    .andWhere("DATE(profitRecord.createTime) = CURDATE()")
+    const { todayValue } = await this.brokerageRepository
+    .createQueryBuilder("brokerageRecord")
+    .select("SUM(brokerageRecord.value)", "todayValue")
+    .where("brokerageRecord.type = :type", { type:  getTotalList.type})
+    // .where("brokerageRecord.userId = :userId", { userId:  userId})
+    .andWhere("DATE(brokerageRecord.createTime) = CURDATE()")
     .getRawOne()
 
     return {
-      totalFee: totalFee,
-      todayFee: todayFee
+      totalValue: totalValue,
+      todayValue: todayValue
     }
   }
 
@@ -50,25 +52,48 @@ export class BrokerageRecordService {
     let where: FindOptionsWhere<BrokerageRecord> = {}
     let result: any;
 
-    const { totalValue } = await this.brokerageRepository
-    .createQueryBuilder("brokerageRecord")
-    .select("SUM(brokerageRecord.value)", "totalValue")
-    .where("brokerageRecord.type = :type", { type:  getTotalList.type})
-    .andWhere("brokerageRecord.userId = :userId", { userId:  userId})
-    .getRawOne()
-
-    const { todayValue } = await this.brokerageRepository
-    .createQueryBuilder("brokerageRecord")
-    .select("SUM(brokerageRecord.value)", "todayValue")
-    .where("brokerageRecord.type = :type", { type:  getTotalList.type})
-    .andWhere("brokerageRecord.userId = :userId", { userId:  userId})
-    .andWhere("DATE(brokerageRecord.createTime) = CURDATE()")
-    .getRawOne()
-
-    return {
-      totalValue: totalValue,
-      todayValue: todayValue
+    if(!getTotalList.type) {
+      const { totalValue } = await this.brokerageRepository
+      .createQueryBuilder("brokerageRecord")
+      .select("SUM(brokerageRecord.value)", "totalValue")
+      // .where("brokerageRecord.type = :type", { type:  getTotalList.type})
+      .where("brokerageRecord.userId = :userId", { userId:  userId})
+      .getRawOne()
+  
+      const { todayValue } = await this.brokerageRepository
+      .createQueryBuilder("brokerageRecord")
+      .select("SUM(brokerageRecord.value)", "todayValue")
+      // .where("brokerageRecord.type = :type", { type:  getTotalList.type})
+      .where("brokerageRecord.userId = :userId", { userId:  userId})
+      .andWhere("DATE(brokerageRecord.createTime) = CURDATE()")
+      .getRawOne()
+  
+      return {
+        totalValue: totalValue,
+        todayValue: todayValue
+      }
+    } else {
+      const { totalValue } = await this.brokerageRepository
+      .createQueryBuilder("brokerageRecord")
+      .select("SUM(brokerageRecord.value)", "totalValue")
+      .where("brokerageRecord.type = :type", { type:  getTotalList.type})
+      .where("brokerageRecord.userId = :userId", { userId:  userId})
+      .getRawOne()
+  
+      const { todayValue } = await this.brokerageRepository
+      .createQueryBuilder("brokerageRecord")
+      .select("SUM(brokerageRecord.value)", "todayValue")
+      .where("brokerageRecord.type = :type", { type:  getTotalList.type})
+      .where("brokerageRecord.userId = :userId", { userId:  userId})
+      .andWhere("DATE(brokerageRecord.createTime) = CURDATE()")
+      .getRawOne()
+  
+      return {
+        totalValue: totalValue,
+        todayValue: todayValue
+      }
     }
+    
   }
 
   /* 分页查询 */
