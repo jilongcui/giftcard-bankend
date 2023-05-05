@@ -9,6 +9,7 @@ import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { Order } from '../order/entities/order.entity';
+import { ProfitRecord } from './entities/profit_record.entity';
 
 @ApiTags("系统收益报表")
 @ApiBearerAuth()
@@ -24,7 +25,6 @@ export class ProfitRecordController {
   /* 获取总收益 */
   @Get('total')
   @Public()
-  @ApiPaginatedResponse(Order)
   async total(@Query() getTotalProfitDto: GetTotalProfitDto) {
     return await this.profitRecordService.total(getTotalProfitDto);
   }
@@ -32,14 +32,14 @@ export class ProfitRecordController {
   /* 收益列表 */
   @Get('list')
   @Public()
-  @ApiPaginatedResponse(Order)
+  @ApiPaginatedResponse(ProfitRecord)
   async list(@Query() listOrderDto: ListProfitRecordDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.profitRecordService.list(listOrderDto, paginationDto);
   }
 
   /* 我的收益列表 */
   @Get('mylist')
-  @ApiPaginatedResponse(Order)
+  @ApiPaginatedResponse(ProfitRecord)
   async mylist(@Query() listMyOrderDto: ListMyProfitRecordDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.profitRecordService.mylist(userId, listMyOrderDto, paginationDto);
   }

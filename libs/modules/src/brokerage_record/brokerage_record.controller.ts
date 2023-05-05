@@ -23,14 +23,14 @@ export class BrokerageRecordController {
 
   /* 获取总佣金 */
   @Get('total')
-  @ApiPaginatedResponse(BrokerageRecord)
+  // @ApiPaginatedResponse(BrokerageRecord)
   async total(@Query() getTotalProfitDto: GetTotalBrokerageDto) {
     return await this.profitRecordService.total(getTotalProfitDto);
   }
 
   /* 获取我的总佣金 */
   @Get('mytotal')
-  @ApiPaginatedResponse(BrokerageRecord)
+  // @ApiPaginatedResponse(BrokerageRecord)
   async mytotal(@Query() getTotalProfitDto: GetMyTotalBrokerageDto, @UserDec(UserEnum.userId) userId: number) {
     return await this.profitRecordService.mytotal(getTotalProfitDto, userId);
   }
