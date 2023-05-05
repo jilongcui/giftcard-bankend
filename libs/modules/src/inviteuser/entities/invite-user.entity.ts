@@ -20,6 +20,10 @@ export class InviteUser {
     @PrimaryColumn()
     id: number
 
+    @IsOptional()
+    @Column()
+    parentId?: number
+
     @Column({
         name: 'user_name',
     })
@@ -37,21 +41,7 @@ export class InviteUser {
         default: false
     })
     @IsBoolean()
-    is_exchangeUsdt: boolean
-
-    @Column({
-        name: 'card_count',
-        default: 0
-    })
-    @IsNumber()
-    cardCount: number
-
-    @Column({
-        name: 'user_count',
-        default: 0
-    })
-    @IsNumber()
-    userCount: number
+    isExchangeUsdt: boolean
 
     @Column({
         name: 'avatar',

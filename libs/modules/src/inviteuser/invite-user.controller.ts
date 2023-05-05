@@ -8,7 +8,7 @@ import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { Body, Controller, Get, Param, Post, Query, StreamableFile } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { ReqInviteUserListDto } from './dto/request-inviteuser.dto';
+import { ListMyInviteUserDto, ReqInviteUserListDto } from './dto/request-inviteuser.dto';
 import { InviteUser } from './entities/invite-user.entity';
 import { InviteUserService } from './invite-user.service';
 
@@ -30,6 +30,19 @@ export class InviteUserController {
     @Post('inviteParent/:id')
     async bindParent(@Param('id') parentId: number, @UserDec(UserEnum.userId) userId: number) {
         return await this.inviteUserService.bindParent(userId, parentId);
+    }
+
+    /* 列出我的子用户 */
+    @Get('mylist')
+    @ApiPaginatedResponse(InviteUser)
+    async mylist(@Query() listMyOrderDto: ListMyInviteUserDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
+        return await this.inviteUserService.mylist(listMyOrderDto, userId, paginationDto);
+    }
+
+    /* 列出我的统计 */
+    @Get('mytotal')
+    async mytotal(@UserDec(UserEnum.userId) userId: number) {
+        return await this.inviteUserService.mytotal(userId);
     }
 
     /* 列出子用户 */

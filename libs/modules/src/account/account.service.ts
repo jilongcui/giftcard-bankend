@@ -147,6 +147,7 @@ export class AccountService {
       await manager.decrement(Account, { userId: userId, currencyId: currencyFrom.id }, "usable", fromAmount)
       await manager.increment(Account, { userId: userId, currencyId: currencyTo.id }, "usable", toAmount)
       await manager.increment(Account, { userId: 1 }, "usable", exchangeFee)
+      await manager.update(InviteUser, {id: userId}, {isExchangeUsdt: true})
       const exchange = new Exchange()
       exchange.fromAmount = fromAmount
       exchange.fee = exchangeFee
@@ -157,7 +158,7 @@ export class AccountService {
       exchange.userId = userId
       const exchange2 = await manager.save(exchange)
       const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
-      let parentId = inviteUser?.parent?.id
+      let parentId = inviteUser?.parentId
 
       const profitRecordDto: CreateProfitRecordDto ={
         type: ProfitType.ExchangeFee,
@@ -175,7 +176,7 @@ export class AccountService {
 
       if(parentId) {
         const brokerageRecordDto: CreateBrokerageRecordDto ={
-          type: BrokerageType.OpenCardBrokerage,
+          type: BrokerageType.ExchangeBrokerage,
           content: 'USDTtoHKD转账提成',
           userId: parentId,
           fromUserId: userId,

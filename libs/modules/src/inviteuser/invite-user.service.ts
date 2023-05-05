@@ -6,9 +6,11 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../system/user/user.service';
 import { InviteUser } from './entities/invite-user.entity';
 import { User } from '../system/user/entities/user.entity';
-import { ReqInviteUserListDto, ReqUpdateInviteUserDto } from './dto/request-inviteuser.dto';
+import { ListMyInviteUserDto, ReqInviteUserListDto, ReqUpdateInviteUserDto } from './dto/request-inviteuser.dto';
 import * as moment from 'moment';
 import { ApiDataResponse } from '@app/common/decorators/api-data-response.decorator';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
 
 @Injectable()
 export class InviteUserService {
@@ -59,9 +61,47 @@ export class InviteUserService {
             inviteUser.avatar = user.avatar
             await this.inviteUserTreeRepository.save(inviteUser)
         }
+        inviteUser.parentId = parent.id
         inviteUser.parent = parent
 
         return await this.inviteUserTreeRepository.save(inviteUser)
+    }
+
+    /* 我的子用户 */
+    async mylist(listMyOrderDto: ListMyInviteUserDto, userId: number, paginationDto: PaginationDto): Promise<PaginatedDto<InviteUser>> {
+        let where: FindOptionsWhere<InviteUser> = {}
+        let result: any;
+        where = {
+            ...listMyOrderDto,
+            parentId: userId,
+        }
+
+        result = await this.inviteRepository.findAndCount({
+            // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+            where,
+            relations: {},
+            skip: paginationDto.skip,
+            take: paginationDto.take,
+            order: {
+                createTime: 'DESC',
+            }
+        })
+
+        return {
+            rows: result[0],
+            total: result[1]
+        }
+    }
+
+    /* 我的子用户 */
+    async mytotal(userId: number) {
+        const openCardCount = await this.inviteRepository.countBy({parentId: userId, isOpenCard: true})
+        const exchangeUsdtCount = await this.inviteRepository.countBy({parentId: userId, isExchangeUsdt: true})
+
+        return {
+            openCardCount: openCardCount,
+            exchangeUsdtCount: exchangeUsdtCount,
+        }
     }
 
     async allTree() {

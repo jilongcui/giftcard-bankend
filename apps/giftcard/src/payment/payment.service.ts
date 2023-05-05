@@ -160,12 +160,12 @@ export class PaymentService {
       openCardProfit = order.totalPrice * openCardProfit
       
       const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
-      parentId = inviteUser?.parent?.id
+      parentId = inviteUser?.parentId
       await manager.increment(Account, { userId: 1, currencyId: currencyId }, "usable", order.totalPrice - openCardProfit)
       
       if(parentId) {
         await manager.increment(Account, { userId: parentId, currencyId: currencyId }, "usable", openCardProfit)
-        await manager.increment(InviteUser, { id: userId }, "cardCount", 1)
+        await manager.update(InviteUser, {id: userId}, {isOpenCard: true})
       }
 
       if (order.assetType === '0') { // Bankcard
