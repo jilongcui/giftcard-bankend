@@ -21,6 +21,7 @@ export class ProfitRecord {
     @Column({
         name: 'type',
         type: 'enum',
+        enum: ProfitType,
         comment: '收益类型'
     })
     @IsEnum(ProfitType)
