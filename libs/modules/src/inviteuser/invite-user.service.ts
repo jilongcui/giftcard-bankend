@@ -79,7 +79,7 @@ export class InviteUserService {
         result = await this.inviteRepository.findAndCount({
             // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
             where,
-            relations: {},
+            relations: {user: true},
             skip: paginationDto.skip,
             take: paginationDto.take,
             order: {
