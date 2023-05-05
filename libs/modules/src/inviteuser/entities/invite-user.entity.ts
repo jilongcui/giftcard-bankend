@@ -21,7 +21,9 @@ export class InviteUser {
     id: number
 
     @IsOptional()
-    @Column()
+    @Column({
+        default: null
+    })
     parentId?: number
 
     @Column({
