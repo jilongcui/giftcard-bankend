@@ -57,10 +57,10 @@ export class ProfitRecordService {
       .andWhere("DATE(profitRecord.createTime) = CURDATE()")
       .getRawOne()
       return {
-        totalUsdtFee,
-        totalHkdFee,
-        todayUsdtFee,
-        todayHkdFee
+        totalUsdtFee: totalUsdtFee,
+        totalHkdFee: totalHkdFee,
+        todayUsdtFee: todayUsdtFee,
+        todayHkdFee: todayHkdFee
       }
     }
     const { totalFee } = await this.profitRepository
