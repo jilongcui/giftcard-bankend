@@ -26,18 +26,35 @@ export class BrokerageRecordService {
     let where: FindOptionsWhere<BrokerageRecord> = {}
     let result: any;
 
+    if(!getTotalList.type) {
+      const { totalValue } = await this.brokerageRepository
+      .createQueryBuilder("brokerageRecord")
+      .select("SUM(brokerageRecord.value)", "totalValue")
+      // .where("brokerageRecord.type = :type", { type:  getTotalList.type})
+      .getRawOne()
+
+      const { todayValue } = await this.brokerageRepository
+      .createQueryBuilder("brokerageRecord")
+      .select("SUM(brokerageRecord.value)", "todayValue")
+      // .where("brokerageRecord.type = :type", { type:  getTotalList.type})
+      .where("DATE(brokerageRecord.createTime) = CURDATE()")
+      .getRawOne()
+
+      return {
+        totalValue: totalValue,
+        todayValue: todayValue
+      }
+    }
     const { totalValue } = await this.brokerageRepository
     .createQueryBuilder("brokerageRecord")
     .select("SUM(brokerageRecord.value)", "totalValue")
     .where("brokerageRecord.type = :type", { type:  getTotalList.type})
-    // .where("brokerageRecord.userId = :userId", { userId:  userId})
     .getRawOne()
 
     const { todayValue } = await this.brokerageRepository
     .createQueryBuilder("brokerageRecord")
     .select("SUM(brokerageRecord.value)", "todayValue")
     .where("brokerageRecord.type = :type", { type:  getTotalList.type})
-    // .where("brokerageRecord.userId = :userId", { userId:  userId})
     .andWhere("DATE(brokerageRecord.createTime) = CURDATE()")
     .getRawOne()
 
@@ -77,14 +94,14 @@ export class BrokerageRecordService {
       .createQueryBuilder("brokerageRecord")
       .select("SUM(brokerageRecord.value)", "totalValue")
       .where("brokerageRecord.type = :type", { type:  getTotalList.type})
-      .where("brokerageRecord.userId = :userId", { userId:  userId})
+      .andWhere("brokerageRecord.userId = :userId", { userId:  userId})
       .getRawOne()
   
       const { todayValue } = await this.brokerageRepository
       .createQueryBuilder("brokerageRecord")
       .select("SUM(brokerageRecord.value)", "todayValue")
       .where("brokerageRecord.type = :type", { type:  getTotalList.type})
-      .where("brokerageRecord.userId = :userId", { userId:  userId})
+      .andWhere("brokerageRecord.userId = :userId", { userId:  userId})
       .andWhere("DATE(brokerageRecord.createTime) = CURDATE()")
       .getRawOne()
   

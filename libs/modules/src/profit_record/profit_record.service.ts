@@ -37,7 +37,7 @@ export class ProfitRecordService {
       .createQueryBuilder("profitRecord")
       .select("SUM(profitRecord.fee)", "todayFee")
       // .where("profitRecord.type = :type", { type:  getTotalList.type})
-      .andWhere("DATE(profitRecord.createTime) = CURDATE()")
+      .where("DATE(profitRecord.createTime) = CURDATE()")
       .getRawOne()
       return {
         totalFee: totalFee,
