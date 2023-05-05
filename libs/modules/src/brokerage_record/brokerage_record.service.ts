@@ -51,18 +51,18 @@ export class BrokerageRecordService {
     let result: any;
 
     const { totalFee } = await this.brokerageRepository
-    .createQueryBuilder("profitRecord")
-    .select("SUM(profitRecord.fee)", "totalFee")
-    .where("profitRecord.type = :type", { id:  getTotalList.type})
-    .andWhere("profitRecord.userId = :userId", { userId:  userId})
+    .createQueryBuilder("brokerageRecord")
+    .select("SUM(brokerageRecord.fee)", "totalFee")
+    .where("brokerageRecord.type = :type", { type:  getTotalList.type})
+    .andWhere("brokerageRecord.userId = :userId", { userId:  userId})
     .getRawOne()
 
     const { todayFee } = await this.brokerageRepository
-    .createQueryBuilder("profitRecord")
-    .select("SUM(profitRecord.fee)", "todayFee")
-    .where("profitRecord.type = :type", { type:  getTotalList.type})
-    .andWhere("profitRecord.userId = :userId", { userId:  userId})
-    .andWhere("DATE(profitRecord.createTime) = CURDATE()")
+    .createQueryBuilder("brokerageRecord")
+    .select("SUM(brokerageRecord.fee)", "todayFee")
+    .where("brokerageRecord.type = :type", { type:  getTotalList.type})
+    .andWhere("brokerageRecord.userId = :userId", { userId:  userId})
+    .andWhere("DATE(brokerageRecord.createTime) = CURDATE()")
     .getRawOne()
 
     return {

@@ -30,7 +30,7 @@ export class ProfitRecordService {
     const { totalFee } = await this.profitRepository
     .createQueryBuilder("profitRecord")
     .select("SUM(profitRecord.fee)", "totalFee")
-    .where("profitRecord.type = :type", { id:  getTotalList.type})
+    .where("profitRecord.type = :type", { type:  getTotalList.type})
     .getRawOne()
 
     const { todayFee } = await this.profitRepository
