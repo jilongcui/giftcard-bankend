@@ -29,21 +29,21 @@ export class ProfitRecordService {
     if(getTotalList.type === ProfitType.InnerTransferFee) {
       const { totalUsdtFee } = await this.profitRepository
       .createQueryBuilder("profitRecord")
-      .select("SUM(profitRecord.fee)", "totalFee")
+      .select("SUM(profitRecord.fee)", "totalUsdtFee")
       .where("profitRecord.type = :type", { type:  getTotalList.type})
       .andWhere("profitRecord.subtype = :subtype", { subtype:  ProfitSubType.USDT})
       .getRawOne()
 
       const { totalHkdFee } = await this.profitRepository
       .createQueryBuilder("profitRecord")
-      .select("SUM(profitRecord.fee)", "totalFee")
+      .select("SUM(profitRecord.fee)", "totalHkdFee")
       .where("profitRecord.type = :type", { type:  getTotalList.type})
       .andWhere("profitRecord.subtype = :subtype", { subtype:  ProfitSubType.HKD})
       .getRawOne()
 
       const { todayUsdtFee } = await this.profitRepository
       .createQueryBuilder("profitRecord")
-      .select("SUM(profitRecord.fee)", "todayFee")
+      .select("SUM(profitRecord.fee)", "todayUsdtFee")
       .where("profitRecord.type = :type", { type:  getTotalList.type})
       .andWhere("profitRecord.subtype = :subtype", { subtype:  ProfitSubType.USDT})
       .andWhere("DATE(profitRecord.createTime) = CURDATE()")
@@ -51,7 +51,7 @@ export class ProfitRecordService {
 
       const { todayHkdFee } = await this.profitRepository
       .createQueryBuilder("profitRecord")
-      .select("SUM(profitRecord.fee)", "todayFee")
+      .select("SUM(profitRecord.fee)", "todayHkdFee")
       .where("profitRecord.type = :type", { type:  getTotalList.type})
       .andWhere("profitRecord.subtype = :subtype", { subtype:  ProfitSubType.HKD})
       .andWhere("DATE(profitRecord.createTime) = CURDATE()")
