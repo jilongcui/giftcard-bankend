@@ -16,7 +16,7 @@ export class BrokerageRecord {
     /* 类型 */
     @Column({
         name: 'type',
-        // type: 'enum',
+        type: 'enum',
         comment: '收益类型'
     })
     @IsEnum(BrokerageType)

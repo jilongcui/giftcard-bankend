@@ -1,6 +1,6 @@
 import { User } from "@app/modules/system/user/entities/user.entity"
 import { ApiHideProperty } from "@nestjs/swagger"
-import { IsNumber, IsOptional, IsString } from "class-validator"
+import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator"
 import {
     Entity,
     Tree,
@@ -24,6 +24,20 @@ export class InviteUser {
         name: 'user_name',
     })
     nickName: string
+
+    @Column({
+        name: 'is_opencard',
+        default: false
+    })
+    @IsBoolean()
+    isOpenCard: boolean
+
+    @Column({
+        name: 'is_exchange_usdt',
+        default: false
+    })
+    @IsBoolean()
+    is_exchangeUsdt: boolean
 
     @Column({
         name: 'card_count',
