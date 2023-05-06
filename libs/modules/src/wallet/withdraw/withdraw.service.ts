@@ -117,7 +117,7 @@ export class WithdrawService {
     const { todayPrice, todayFee } = await this.withdrawRepository
     .createQueryBuilder("profitRecord")
     .select("SUM(profitRecord.totalPrice)", "todayPrice")
-    .addSelect("SUM(profitRecord.totalFee)", "totalFee")
+    .addSelect("SUM(profitRecord.totalFee)", "todayFee")
     .where("profitRecord.status = :status", { status: '2'})
     .andWhere("DATE(profitRecord.createTime) = CURDATE()")
     .getRawOne()
