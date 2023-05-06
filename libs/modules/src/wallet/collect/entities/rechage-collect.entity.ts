@@ -73,6 +73,7 @@ export class RechargeCollect {
     @Column({
         name: 'txid',
         comment: '交易ID',
+        unique: true,
         nullable: true,
         default: null,
     })

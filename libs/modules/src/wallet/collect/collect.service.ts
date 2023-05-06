@@ -88,6 +88,9 @@ export class CollectService {
         return await this.collectRepository.manager.transaction(async manager => {
             let marketRatio = Number(0)
             const currency = await this.currencyService.findOne(rechargeNotifyDto.currencyId)
+            const collect = await manager.findOneBy(RechargeCollect, {txid: rechargeNotifyDto.txid})
+            if(collect)
+                throw new ApiException(`Collect of ${rechargeNotifyDto.txid} already exist.`)
             if (currency) {
                 const address = await this.addressService.findAddress(rechargeNotifyDto.to, rechargeNotifyDto.addressType)
                 if(!address)
