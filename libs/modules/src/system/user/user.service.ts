@@ -297,6 +297,7 @@ export class UserService {
                     'U','V','W','X','Y','Z']
         // Add invite code.
         const userDto = {
+            userId: parseInt('1' + strRandom(8, {letters:false})),
             ...reqAddUserDto,
             inviteCode: strRandom(2, {numbers: false, letters:letters}).toUpperCase() + strRandom(6, {letters:false})
         }
