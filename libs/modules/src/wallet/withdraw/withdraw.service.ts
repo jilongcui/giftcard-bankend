@@ -103,6 +103,33 @@ export class WithdrawService {
     return Math.floor((Math.random() * 9000000000) + 1000000000).toString();
   }
 
+  /* 获取总值 */
+  async total(): Promise<any> {
+    let result: any;
+    
+    const { totalPrice, totalFee } = await this.withdrawRepository
+    .createQueryBuilder("profitRecord")
+    .select("SUM(profitRecord.totalPrice)", "totalPrice")
+    .addSelect("SUM(profitRecord.totalFee)", "totalFee")
+    .where("profitRecord.status = :status", { status: '2'})
+    .getRawOne()
+
+    const { todayPrice, todayFee } = await this.withdrawRepository
+    .createQueryBuilder("profitRecord")
+    .select("SUM(profitRecord.totalPrice)", "todayPrice")
+    .addSelect("SUM(profitRecord.totalFee)", "totalFee")
+    .where("profitRecord.status = :status", { status: '2'})
+    .andWhere("DATE(profitRecord.createTime) = CURDATE()")
+    .getRawOne()
+
+    return {
+        totalPrice: totalPrice,
+        totalFee: totalFee,
+        todayPrice: todayPrice,
+        todayFee: todayFee
+    }
+  }
+
   // 确认提现请求
   async confirmWithdrawRequest(confirmWithdrawDto: ConfirmWithdrawDto, userId: number) {
     const withdraw = await this.withdrawRepository.findOneBy({ id: confirmWithdrawDto.withdrawId })

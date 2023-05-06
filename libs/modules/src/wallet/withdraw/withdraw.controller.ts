@@ -25,6 +25,13 @@ export class WithdrawController {
         return await this.withdrawService.createWithdrawRequest(creatWithdrawDto, userId);
     }
 
+    /* 获取提现统计 */
+    @Get('total')
+    @Public()
+    async total() {
+        return await this.withdrawService.total();
+    }
+
     @Post('confirm')
     @RequiresRoles(['admin', 'system'])
     async confirmWithdraw(@Body() confirmWithdrawDto: ConfirmWithdrawDto, @UserDec(UserEnum.userId) userId: number) {
