@@ -41,6 +41,10 @@ export class TransferService {
           userId: true,
           createTime: true,
           updateTime: true,
+          currency: {
+            id: true,
+            symbol: true,
+          },
           fromUser: {
             userName: true,
             nickName: true,
@@ -56,7 +60,7 @@ export class TransferService {
             avatar: true
           }
         },
-        relations: {fromUser: true, toUser: true},
+        relations: {fromUser: true, toUser: true, currency: true},
         where,
         skip: reqTransferList.skip,
         take: reqTransferList.take
