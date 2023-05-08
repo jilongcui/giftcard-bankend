@@ -235,8 +235,8 @@ export class Fund33Service {
       body.faceImage = await this.sharedService.imageToBase64(kycInfo.faceImage)
     if(kycInfo.backImage)
       body.backImage = await this.sharedService.imageToBase64(kycInfo.backImage)
-    // if(kycInfo.passImage)
-    //   body.passImage = await this.sharedService.imageToBase64(kycInfo.passImage)
+    if(kycInfo.passImage)
+      body.passImage = await this.sharedService.imageToBase64(kycInfo.passImage)
     if(kycInfo.signImage)
       body.signImage = await this.sharedService.imageToBase64(kycInfo.signImage)
 

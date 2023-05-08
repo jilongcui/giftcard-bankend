@@ -120,7 +120,7 @@ export class TransferService {
             avatar: true
           }
         },
-        relations: {fromUser: true, toUser: true},
+        relations: {fromUser: true, toUser: true, currency: true},
         where,
         skip: reqTransferList.skip,
         take: reqTransferList.take
