@@ -101,6 +101,10 @@ export class TransferService {
           userId: true,
           createTime: true,
           updateTime: true,
+          currency: {
+            id: true,
+            symbol: true,
+          },
           fromUser: {
             userName: true,
             nickName: true,
