@@ -122,6 +122,7 @@ export class KycCertifyInfo {
     faceImage?: string
     /* backImage	否	string	身份证反面 （证件类型为身份证必须） */
     @IsString()
+    @IsOptional()
     backImage?: string
     /* passImage	否	string	护照页照片（证件类型为护照必须） */
     @IsString()
