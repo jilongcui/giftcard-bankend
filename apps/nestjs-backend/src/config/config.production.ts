@@ -108,12 +108,12 @@ export default defineConfig({
       subject: {
         'CN': '注册验证码 {code}',
         'EN': 'Register Code {code}',
-        'HK': '注册验证码 {code}',
+        'HK': '註冊驗證碼 {code}',
       },
       content: {
         'CN': '注册验证码 {code}',
         'EN': 'Register Code {code}',
-        'HK': '注册验证码 {code}',
+        'HK': '註冊驗證碼 {code}',
       }
     },
 
@@ -121,12 +121,12 @@ export default defineConfig({
       subject: {
         'CN': '登录验证码 {code}',
         'EN': 'Login Code {code}',
-        'HK': '登录验证码 {code}',
+        'HK': '登錄驗證碼 {code}',
       },
       content: {
         'CN': '登录验证码 {code}',
         'EN': 'Login Code {code}',
-        'HK': '登录验证码 {code}',
+        'HK': '登錄驗證碼 {code}',
       }
     },
   },

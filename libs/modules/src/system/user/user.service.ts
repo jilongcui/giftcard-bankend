@@ -100,6 +100,9 @@ export class UserService {
             .andWhere(
                 new Brackets((qb) => {
                     qb.where({
+                        userId: username,
+                    })
+                    .orWhere({
                         userName: username,
                     })
                     .orWhere({
