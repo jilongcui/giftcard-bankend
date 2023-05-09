@@ -149,15 +149,18 @@ export class PaymentService {
       // 把Order的状态改成2: 已支付
       await manager.update(Order, { id: order.id }, { status: '2' })
       const ownerId = asset.userId
-      const opencardProfitString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_BROKERAGE_KEY)
-      this.logger.debug(opencardProfitString || "0.2")
-      openCardProfit = Number(opencardProfitString)
+      if (order.assetType === '0') { // 实名商品
+        const opencardProfitString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_BROKERAGE_KEY)
+        this.logger.debug(opencardProfitString || "0.2")
+        openCardProfit = Number(opencardProfitString)
 
-      this.logger.debug('marketFee ' + openCardProfit)
-      if (openCardProfit > 1.0 || openCardProfit <= 0.0) {
-        openCardProfit = 0.2
+        this.logger.debug('marketFee ' + openCardProfit)
+        if (openCardProfit > 1.0 || openCardProfit <= 0.0) {
+          openCardProfit = 0.2
+        }
+        openCardProfit = order.totalPrice * openCardProfit
       }
-      openCardProfit = order.totalPrice * openCardProfit
+
       
       const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
       parentId = inviteUser?.parentId
@@ -175,30 +178,31 @@ export class PaymentService {
       }
     })
 
-    const profitRecordDto: CreateProfitRecordDto ={
-      type: ProfitType.OpenCardFee,
-      content: '申请开卡',
-      userId: userId,
-      amount: order.totalPrice,
-      fee: order.totalPrice - openCardProfit,
-      txid: 'orderId: ' + order.id
-    }
-    await this.profitRecordService.create(profitRecordDto)
-
-    if(parentId) {
-      const brokerageRecordDto: CreateBrokerageRecordDto ={
-        type: BrokerageType.OpenCardBrokerage,
-        content: '申请开卡提成',
-        userId: parentId,
-        fromUserId: userId,
+    if (order.assetType === '0') { // 实名商品
+      const profitRecordDto: CreateProfitRecordDto ={
+        type: ProfitType.OpenCardFee,
+        content: '申请开卡',
+        userId: userId,
         amount: order.totalPrice,
-        value: openCardProfit,
+        fee: order.totalPrice - openCardProfit,
         txid: 'orderId: ' + order.id
       }
-      await this.brokerageRecordService.create(brokerageRecordDto)
+      await this.profitRecordService.create(profitRecordDto)
+
+      if(parentId) {
+        const brokerageRecordDto: CreateBrokerageRecordDto ={
+          type: BrokerageType.OpenCardBrokerage,
+          content: '申请开卡提成',
+          userId: parentId,
+          fromUserId: userId,
+          amount: order.totalPrice,
+          value: openCardProfit,
+          txid: 'orderId: ' + order.id
+        }
+        await this.brokerageRecordService.create(brokerageRecordDto)
+      }
     }
     
-
     return order;
   }
 
