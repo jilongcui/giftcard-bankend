@@ -73,20 +73,20 @@ export class TransferService {
 
   /* 个人分页查询 */
   async mylist(reqTransferList: ReqTransferListDto, userId: number): Promise<PaginatedDto<Transfer>> {
-    let where: FindOptionsWhere<Transfer> = {}
-    if (reqTransferList.fromUserId) {
-      where.fromUserId = reqTransferList.fromUserId
+    let where1: FindOptionsWhere<Transfer> = {}
+    where1.fromUserId = userId
+    if (reqTransferList.status) {
+      where1.status = reqTransferList.status
     }
 
-    if (reqTransferList.toUserId) {
-      where.toUserId = reqTransferList.toUserId
-    }
+    let where2: FindOptionsWhere<Transfer> = {}
+    where2.toUserId = userId
 
     if (reqTransferList.status) {
-        where.status = reqTransferList.status
+        where2.status = reqTransferList.status
     }
 
-    where.userId = userId
+    // where.userId = userId
 
     const result = await this.transferRepository.findAndCount({
         select: {
@@ -121,7 +121,7 @@ export class TransferService {
           }
         },
         relations: {fromUser: true, toUser: true, currency: true},
-        where,
+        where: [where1, where2],
         skip: reqTransferList.skip,
         take: reqTransferList.take
     })
