@@ -26,7 +26,7 @@ export class Order {
     })
     desc: string
 
-    /* 商品类型 0: "非实名卡", 1: "实名卡" */
+    /* 商品类型 0: "实名卡", 1: "非实名卡" */
     @Column({
         name: 'asset_type',
         comment: '商品类型 0: "实名卡", 1: "非实名卡"',
