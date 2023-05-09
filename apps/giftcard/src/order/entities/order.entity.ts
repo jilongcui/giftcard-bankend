@@ -29,7 +29,7 @@ export class Order {
     /* 商品类型 0: "非实名卡", 1: "实名卡" */
     @Column({
         name: 'asset_type',
-        comment: '商品类型 0: "非实名卡", 1: "实名卡"',
+        comment: '商品类型 0: "实名卡", 1: "非实名卡"',
         type: 'char',
         length: 1,
         default: '0'
@@ -39,7 +39,7 @@ export class Order {
     @Excel({
         name: '商品类型',
         readConverterExp: {
-            0: "非实名卡", 1: "实名卡"
+            0: "实名卡", 1: "非实名卡"
         }
     })
     assetType?: string
