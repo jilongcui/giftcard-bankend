@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 import { User } from '../system/user/entities/user.entity';
 import { Order } from 'apps/giftcard/src/order/entities/order.entity';
+import { Account } from '../account/entities/account.entity';
 
 @Injectable()
 export class KycService {
@@ -76,7 +77,7 @@ export class KycService {
   async notify(notifyKycDto: NotifyKycStatusDto) {
     this.logger.debug(`notify: ` + JSON.stringify(notifyKycDto))
     const kyc = await this.findOneByOrderNo(notifyKycDto.merOrderNo)
-
+    const order = await this.orderRepository.findOneBy({id: Number(notifyKycDto.merOrderNo)})
     if(notifyKycDto.status === '1') kyc.status = '0'
     if(notifyKycDto.status === '2') kyc.status = '1'
     if(notifyKycDto.status === '3') kyc.status = '2'
@@ -100,6 +101,11 @@ export class KycService {
           throw new ApiException("未发现KYC绑定的卡")
         }
         await manager.update(Bankcard, { id: bankcard.id }, { status: '0' }) // 释放银行卡
+        // 释放定金
+        const currencyId = order.currencyId
+        const openfee = order.price
+        await manager.increment(Account, { userId: order.userId, currencyId }, "usable", openfee)
+        await manager.decrement(Account, { userId: 1 }, "usable", openfee)
       })
       kyc.signNo = notifyKycDto.orderNo
       await this.kycRepository.save(kyc)
