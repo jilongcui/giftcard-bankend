@@ -146,7 +146,7 @@ export class ApplyCardService {
       // 创建订单
       const order = new Order()
       order.id = parseInt('1' + strRandom(8, {letters: false}))
-      order.status = '1'
+      order.status = '2'
       order.userId = userId
       order.userName = ''
       order.assetId = bankcard.id
