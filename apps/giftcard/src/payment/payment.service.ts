@@ -178,6 +178,7 @@ export class PaymentService {
       }
     })
 
+    this.logger.debug(order.assetType)
     if (order.assetType === '0') { // 实名商品
       const profitRecordDto: CreateProfitRecordDto ={
         type: ProfitType.OpenCardFee,

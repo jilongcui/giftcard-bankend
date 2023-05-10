@@ -55,7 +55,7 @@ export class WithdrawService {
 
     const withdrawFeeString = await this.sysconfigService.getValue(SYSCONF_WITHDRAW_FEE_KEY)
     let withdrawFee = Number(withdrawFeeString)
-    let fee = withdrawFee || 1.0 // usdt
+    let fee = withdrawFee || 5.0 // usdt
 
     if (createWithdrawDto.amount <= fee) {
         throw new ApiException('提现金额低于手续费')

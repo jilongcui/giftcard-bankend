@@ -92,10 +92,10 @@ export class OrderService {
         asset = await manager.findOne(Giftcard, { where: { id: order.assetId, status: '1' }, relations: {} })
         if (!asset)
           throw new ApiException('未发现此商品')
-        order.totalPrice = Number(asset.price) * order.count + Number(asset.tradefee) + Number(asset.shipfee)
+        order.totalPrice = Number(asset.price) * order.count + Number(asset.tradefee) + Number(asset.shipfee * order.count)
         order.price = asset.price
         order.tradeFee = asset.tradefee
-        order.shipFee = asset.shipfee
+        order.shipFee = asset.shipfee * order.count
         order.desc = "[" + asset.cardType + "]" + asset.cardName
         order.image = asset.images[0] || undefined
         await manager.save(order);
