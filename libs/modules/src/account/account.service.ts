@@ -176,7 +176,7 @@ export class AccountService {
         }
         await this.profitRecordService.create(profitRecordDto)
       }
-      // else if(currencyFrom.symbol === 'HDK') {
+      // else if(currencyFrom.symbol === 'HKD') {
       //   subType = ProfitSubType.HKD
       //   content = 'HKD转USDT收益'
       // }
@@ -207,6 +207,7 @@ export class AccountService {
     // this.logger.debug('exchange')
     const currency = await this.currencyRepository.findOneBy({id: tranferAccountDto.currencyId})
 
+    this.logger.debug(JSON.stringify(currency))
     const user = await this.userService.findOneByMixName(tranferAccountDto.userTo)
     const fromAmount = tranferAccountDto.amount
     const transferFee = fromAmount * 0.01 // toFixed
@@ -237,9 +238,10 @@ export class AccountService {
       transfer.userId = userId
       const transfer2 = await manager.save(transfer)
       let subType
+      this.logger.debug(currency.symbol)
       if(currency.symbol === 'USDT')
         subType = ProfitSubType.USDT
-      else if(currency.symbol === 'HDK')
+      else if(currency.symbol === 'HKD')
         subType = ProfitSubType.HKD
 
       const profitRecordDto: CreateProfitRecordDto ={
