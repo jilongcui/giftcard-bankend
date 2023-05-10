@@ -13,14 +13,14 @@ export class Giftcard {
     id: number
 
     /* 持卡人银行卡号 */
-    @Column({
-        name: 'card_no',
-        length: 50,
-        comment: '持卡人银行卡号'
-    })
-    @IsOptional()
-    @IsString()
-    cardNo?: string
+    // @Column({
+    //     name: 'card_no',
+    //     length: 50,
+    //     comment: '持卡人银行卡号'
+    // })
+    // @IsOptional()
+    // @IsString()
+    // cardNo?: string
 
     // /* 持卡人预留手机号 */
     // @Column({

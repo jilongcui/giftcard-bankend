@@ -31,7 +31,6 @@ export class GiftcardService {
   }
 
   async create(createGiftcardDto: CreateGiftcardDto, userId: number) {
-    createGiftcardDto.cardNo = createGiftcardDto.cardNo.replace(/\s*/g, "")
     const giftcard = {
       ...createGiftcardDto,
     }
