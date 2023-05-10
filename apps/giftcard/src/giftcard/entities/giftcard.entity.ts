@@ -35,7 +35,7 @@ export class Giftcard {
     /* 卡的名称 */
     @Column({
         name: 'card_name',
-        length: 50,
+        length: 150,
         comment: '卡的名称'
     })
     @IsString()
