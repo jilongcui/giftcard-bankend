@@ -150,7 +150,7 @@ export class ApplyCardService {
       order.userId = userId
       order.userName = ''
       order.assetId = bankcard.id
-      order.assetType = '0' // 开卡
+      order.assetType = '2' // 开卡
       order.userPhone = ''
       order.remark = bankcard.cardNo
       order.homeAddress = ''
