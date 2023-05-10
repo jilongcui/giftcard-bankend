@@ -29,6 +29,9 @@ export class User extends BaseEntity {
         comment: '用户ID'
     })
     @IsNumber()
+    @Excel({
+        name: '用户ID'
+    })
     userId: number
 
     /* 用户账号 */
@@ -62,6 +65,9 @@ export class User extends BaseEntity {
         comment: '用户Vip等级'
     })
     @IsNumber()
+    @Excel({
+        name: '用户Vip等级'
+    })
     vip: number
 
     /* 用户类型 */
@@ -73,6 +79,9 @@ export class User extends BaseEntity {
     })
     @IsOptional()
     @IsString()
+    @Excel({
+        name: '用户类型'
+    })
     userType?: string
 
     /* 用户邮箱 */
@@ -83,6 +92,9 @@ export class User extends BaseEntity {
     })
     @IsOptional()
     @IsString()
+    @Excel({
+        name: '用户邮箱'
+    })
     email?: string
 
     /* 手机号码 */
@@ -194,11 +206,15 @@ export class User extends BaseEntity {
     })
     status: string
 
+    /* 邀请码 */
     @Column({
         name: 'invite_code',
         comment: '邀请码',
         length: 6,
         default: ''
+    })
+    @Excel({
+        name: '邀请码'
     })
     inviteCode: string
 
