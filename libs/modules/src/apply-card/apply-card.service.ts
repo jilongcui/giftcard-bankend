@@ -14,6 +14,8 @@ import { CurrencyService } from '../currency/currency.service';
 import { User } from '../system/user/entities/user.entity';
 import { Cardinfo } from '../cardinfo/entities/cardinfo.entity';
 import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
+import { Order } from 'apps/giftcard/src/order/entities/order.entity';
+import strRandom from 'string-random';
 
 @Injectable()
 export class ApplyCardService {
@@ -95,13 +97,13 @@ export class ApplyCardService {
     }
 
     // KYC是否存在
-    const kyc = await this.kycService.findOne(createApplyCardDto.kycId)
-    if (kyc === null) {
-      throw new ApiException('KYC资料不存在')
-    }
-    if (kyc.status != '1') {
-      throw new ApiException('KYC还没通过审核')
-    }
+    // const kyc = await this.kycService.findOne(createApplyCardDto.kycId)
+    // if (kyc === null) {
+    //   throw new ApiException('KYC资料不存在')
+    // }
+    // if (kyc.status != '1') {
+    //   throw new ApiException('KYC还没通过审核')
+    // }
 
     const applycardDto = {
       ...createApplyCardDto,
@@ -110,12 +112,12 @@ export class ApplyCardService {
     const applycard = await this.applycardRepository.save(applycardDto)
 
     const currency = await this.currencyService.findOneByName('USDT')
-    const bankcard = await this.requestBankcard(userId, currency.id, cardInfo.id, cardInfo.info.openFee)
+    const order = await this.requestBankcard(userId, currency.id, cardInfo.id, cardInfo.info.openFee)
 
     // KYC是否存在
-    await this.applycardRepository.update(applycard.id, {bankcardId: bankcard.id, status: ApplyCardStatus.ApplySuccess})
+    // await this.applycardRepository.update(applycard.id, {bankcardId: bankcard.id, status: ApplyCardStatus.ApplySuccess})
 
-    return bankcard
+    return order
   }
 
   // request bankcard
@@ -140,7 +142,27 @@ export class ApplyCardService {
             
       await manager.update(Bankcard, { id: bankcard.id }, { userId: userId, status: '2', cardinfoId: cardinfoId }) // 锁定银行卡
       // await manager.update(User, {userId: userId}, {vip: cardInfo.index})
-      return await manager.findOneBy(Bankcard, {id: bankcard.id})
+
+      // 创建订单
+      const order = new Order()
+      order.id = parseInt('1' + strRandom(8, {letters: false}))
+      order.status = '1'
+      order.userId = userId
+      order.userName = ''
+      order.assetId = bankcard.id
+      order.assetType = '2' // 开卡
+      order.userPhone = ''
+      order.remark = bankcard.cardNo
+      order.homeAddress = ''
+      order.count = 1
+
+      order.price = openfee
+      order.totalPrice = openfee
+      order.tradeFee = 0.0
+      order.shipFee = 0.0
+      order.desc = "[" + cardInfo.name + "]" + cardInfo.info.typeName
+      order.image = cardInfo.info.image
+      return await manager.save(order);
     })
   }
 

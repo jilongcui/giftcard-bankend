@@ -13,6 +13,7 @@ import { SharedService } from '@app/shared';
 import { ConfigService } from '@nestjs/config';
 import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 import { User } from '../system/user/entities/user.entity';
+import { Order } from 'apps/giftcard/src/order/entities/order.entity';
 
 @Injectable()
 export class KycService {
@@ -21,6 +22,7 @@ export class KycService {
   constructor(
     @InjectRepository(Kyc) private readonly kycRepository: Repository<Kyc>,
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
+    @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     private readonly sharedService: SharedService,
     private readonly configService: ConfigService,
     private readonly fund33Service: Fund33Service,
@@ -33,6 +35,7 @@ export class KycService {
     if(kyc && kyc.status == '1') {
       throw new ApiException("已存在KYC")
     }
+    const order = await this.orderRepository.findOneBy({id: Number(createKycInfoDto.merOrderNo)})
     // createKycInfoDto.sourceOfFunds =JSON.stringify(createKycInfoDto.sourceOfFunds)
     // createKycInfoDto.industry =JSON.stringify(createKycInfoDto.industry)
     // createKycInfoDto.jobPosition =JSON.stringify(createKycInfoDto.jobPosition)
@@ -43,15 +46,15 @@ export class KycService {
       status: '0',
       info: {...createKycInfoDto},
       cardType: createKycInfoDto.certType,
-      cardNo: createKycInfoDto.cardNumber,
+      cardNo: order.remark,
       signNo: '',
       failReason: '',
-      orderNo: this.sharedService.generateOrderNo(8),
+      orderNo: createKycInfoDto.merOrderNo,
       userId: userId
     }
     
     // this.logger.debug(kycDto)
-    kycDto.info.merOrderNo = kycDto.orderNo
+    // kycDto.info.merOrderNo = kycDto.orderNo
     kycDto.info.notifyUrl = this.notifyUrl
 
     await this.fund33Service.uploadKycInfo(kycDto.info)
@@ -73,11 +76,11 @@ export class KycService {
   async notify(notifyKycDto: NotifyKycStatusDto) {
     this.logger.debug(`notify: ` + JSON.stringify(notifyKycDto))
     const kyc = await this.findOneByOrderNo(notifyKycDto.merOrderNo)
+
     if(notifyKycDto.status === '1') kyc.status = '0'
     if(notifyKycDto.status === '2') kyc.status = '1'
     if(notifyKycDto.status === '3') kyc.status = '2'
     if(notifyKycDto.status === '2') { //  Success
-      kyc.cardNo = notifyKycDto.cardNumber
       await this.bankcardRepository.manager.transaction(async manager => {
         const bankcard = await manager.findOneBy(Bankcard, {cardNo: kyc.cardNo, status: '2'})
         if(!bankcard) {
