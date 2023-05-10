@@ -252,7 +252,7 @@ export class OrderService {
       order.status = '0'
       // totalCount += order.count
       manager.save(order)
-      // await manager.update(Bankcard, { id: order.assetId }, { status: '1' }) // Unlocked.
+      await manager.update(Bankcard, { id: order.assetId }, { userId: null, status: '0' }) // Unlocked.
     })
     await this.redis.del(unpayOrderKey)
   }

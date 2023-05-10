@@ -100,7 +100,7 @@ export class KycService {
         if(!bankcard) {
           throw new ApiException("未发现KYC绑定的卡")
         }
-        await manager.update(Bankcard, { id: bankcard.id }, { status: '0' }) // 释放银行卡
+        await manager.update(Bankcard, { id: bankcard.id }, { userId: null, status: '0' }) // 释放银行卡
         // 释放定金
         const currencyId = order.currencyId
         const openfee = order.price
