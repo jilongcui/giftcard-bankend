@@ -26,8 +26,9 @@ export class ApplyCard {
         default: null,
         comment: '银行卡的KYC认证'
     })
+    @IsOptional()
     @IsNumber()
-    kycId: number
+    kycId?: number
 
     @ApiHideProperty()
     @IsOptional()
