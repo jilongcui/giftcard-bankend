@@ -220,6 +220,10 @@ export class OrderService {
   }
 
   updateShipInfo(id: number, updateOrderDto: UpdateOrderShipDto) {
+    const updateOrder2Dto = {
+      ...updateOrderDto,
+      status: '3'
+    }
     return this.orderRepository.update(id, updateOrderDto)
   }
 

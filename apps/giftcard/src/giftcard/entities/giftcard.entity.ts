@@ -41,11 +41,11 @@ export class Giftcard {
     @IsString()
     cardName: string
 
-    /* 卡类型 0: 实物商品 */
+    /* 商品类型 0: 实物商品 */
     @Column({
         name: 'card_type',
         default: '0',
-        comment: '银行卡类型 0: 实物商品',
+        comment: '商品类型 0: 实物商品',
     })
     @IsOptional()
     @IsString()
