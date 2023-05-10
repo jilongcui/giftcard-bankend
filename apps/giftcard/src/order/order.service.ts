@@ -86,7 +86,6 @@ export class OrderService {
         order.image = asset.cardinfo.info.image
         await manager.save(order);
         await manager.update(Bankcard, { id: order.assetId }, { status: '2' }) // Asset is locked.
-
       } else if (createOrderDto.assetType === '1') { // 非实名卡 礼品卡
         let asset: Giftcard
         asset = await manager.findOne(Giftcard, { where: { id: order.assetId, status: '1' }, relations: {} })

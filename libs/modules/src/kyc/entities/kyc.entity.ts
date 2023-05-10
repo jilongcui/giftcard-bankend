@@ -44,6 +44,12 @@ export class KycCertifyInfo {
     @IsString()
     @IsOptional()
     merOrderNo?: string
+
+    /* cardNumber	是	string	绑定的卡号 */
+    @IsString()
+    @IsOptional()
+    cardNumber?: string
+
     /* notifyUrl	是	string	通知回调 */
     @IsString()
     @IsOptional()
@@ -185,18 +191,57 @@ export class Kyc {
     })
     cardType: string
 
-    /* KYC编号 */
+    /* 订单编号 */
     @Column({
         name: 'order_no',
         default: null,
         length: 10,
-        comment: 'KYC编号'
+        comment: '订单编号'
     })
     @IsString()
     @Excel({
-        name: 'KYC编号',
+        name: '订单编号',
     })
     orderNo: string
+
+    /* 平台的编号 */
+    @Column({
+        name: 'sign_no',
+        default: null,
+        length: 10,
+        comment: '平台的编号'
+    })
+    @IsString()
+    @Excel({
+        name: '平台的编号',
+    })
+    signNo: string
+
+    /* 银行卡卡号 */
+    @Column({
+        name: 'card_no',
+        comment: '银行卡卡号',
+        default: '0',
+        length: 50
+    })
+    @IsString()
+    @Excel({
+        name: '银行卡卡号',
+    })
+    cardNo: string
+
+    /* 失败的原因 */
+    @Column({
+        name: 'fail_reason',
+        default: null,
+        length: 100,
+        comment: '失败的原因'
+    })
+    @IsString()
+    @Excel({
+        name: '失败的原因',
+    })
+    failReason: string
 
     /* 订单所属用户 */
     @Column({

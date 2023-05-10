@@ -20,7 +20,7 @@ export class BankcardService {
   secret: string
   constructor(
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
-    @InjectRepository(Bankcard) private readonly kycRepository: Repository<Kyc>,
+    @InjectRepository(Kyc) private readonly kycRepository: Repository<Kyc>,
     private readonly cardinfoService: CardinfoService,
     private readonly configService: ConfigService,
     private readonly sharedService: SharedService,

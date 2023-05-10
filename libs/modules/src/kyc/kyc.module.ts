@@ -5,10 +5,12 @@ import { Kyc } from './entities/kyc.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Fund33Module } from '../fund33/fund33.module';
 import { SharedModule } from '@app/shared';
+import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
+import { User } from '../system/user/entities/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Kyc]),
+    TypeOrmModule.forFeature([Kyc,Bankcard, User]),
     SharedModule, Fund33Module
   ],
   controllers: [KycController],

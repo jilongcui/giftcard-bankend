@@ -11,6 +11,8 @@ import { Kyc, KycCertifyInfo } from './entities/kyc.entity';
 import { Fund33Service } from '../fund33/fund33.service';
 import { SharedService } from '@app/shared';
 import { ConfigService } from '@nestjs/config';
+import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
+import { User } from '../system/user/entities/user.entity';
 
 @Injectable()
 export class KycService {
@@ -18,6 +20,7 @@ export class KycService {
   notifyUrl: string
   constructor(
     @InjectRepository(Kyc) private readonly kycRepository: Repository<Kyc>,
+    @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
     private readonly sharedService: SharedService,
     private readonly configService: ConfigService,
     private readonly fund33Service: Fund33Service,
@@ -40,6 +43,9 @@ export class KycService {
       status: '0',
       info: {...createKycInfoDto},
       cardType: createKycInfoDto.certType,
+      cardNo: createKycInfoDto.cardNumber,
+      signNo: '',
+      failReason: '',
       orderNo: this.sharedService.generateOrderNo(8),
       userId: userId
     }
@@ -67,11 +73,35 @@ export class KycService {
   async notify(notifyKycDto: NotifyKycStatusDto) {
     this.logger.debug(`notify: ` + JSON.stringify(notifyKycDto))
     const kyc = await this.findOneByOrderNo(notifyKycDto.merOrderNo)
-    if(notifyKycDto.status === '1') notifyKycDto.status = '0'
-    if(notifyKycDto.status === '2') notifyKycDto.status = '1'
-    if(notifyKycDto.status === '3') notifyKycDto.status = '2'
-    kyc.status = notifyKycDto.status
-    await this.kycRepository.save(kyc)
+    if(notifyKycDto.status === '1') kyc.status = '0'
+    if(notifyKycDto.status === '2') kyc.status = '1'
+    if(notifyKycDto.status === '3') kyc.status = '2'
+    if(notifyKycDto.status === '2') { //  Success
+      kyc.cardNo = notifyKycDto.cardNumber
+      await this.bankcardRepository.manager.transaction(async manager => {
+        const bankcard = await manager.findOneBy(Bankcard, {cardNo: kyc.cardNo, status: '2'})
+        if(!bankcard) {
+          throw new ApiException("未发现KYC绑定的卡")
+        }
+        await manager.update(Bankcard, { id: bankcard.id }, { status: '1' }) // 激活银行卡
+        await manager.update(User, {userId: bankcard.userId}, {vip: bankcard.cardinfo.index})
+      })
+      kyc.signNo = notifyKycDto.orderNo
+      await this.kycRepository.save(kyc)
+    }
+    else if(notifyKycDto.status === '3') { //  Fail
+      kyc.failReason = notifyKycDto.failReason
+      await this.bankcardRepository.manager.transaction(async manager => {
+        const bankcard = await manager.findOneBy(Bankcard, {cardNo: kyc.cardNo, status: '2'})
+        if(!bankcard) {
+          throw new ApiException("未发现KYC绑定的卡")
+        }
+        await manager.update(Bankcard, { id: bankcard.id }, { status: '0' }) // 释放银行卡
+      })
+      kyc.signNo = notifyKycDto.orderNo
+      await this.kycRepository.save(kyc)
+    }
+    
     return 'ok'
   }
 

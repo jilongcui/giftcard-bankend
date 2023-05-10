@@ -138,8 +138,8 @@ export class ApplyCardService {
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", openfee)
       await manager.increment(Account, { userId: 1 }, "usable", openfee)
             
-      await manager.update(Bankcard, { id: bankcard.id }, { userId: userId, status: '1', cardinfoId: cardinfoId }) // 完成认领
-      await manager.update(User, {userId: userId}, {vip: cardInfo.index})
+      await manager.update(Bankcard, { id: bankcard.id }, { userId: userId, status: '2', cardinfoId: cardinfoId }) // 锁定银行卡
+      // await manager.update(User, {userId: userId}, {vip: cardInfo.index})
       return await manager.findOneBy(Bankcard, {id: bankcard.id})
     })
   }
