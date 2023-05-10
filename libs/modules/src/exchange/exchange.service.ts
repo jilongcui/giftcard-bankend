@@ -63,7 +63,10 @@ export class ExchangeService {
         relations: {fromCurrency: true, toCurrency: true},
         where,
         skip: reqExchangeList.skip,
-        take: reqExchangeList.take
+        take: reqExchangeList.take,
+        order: {
+          createTime: 'DESC',
+        }
     })
     return {
         rows: result[0],

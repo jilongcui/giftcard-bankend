@@ -63,7 +63,10 @@ export class TransferService {
         relations: {fromUser: true, toUser: true, currency: true},
         where,
         skip: reqTransferList.skip,
-        take: reqTransferList.take
+        take: reqTransferList.take,
+        order: {
+          createTime: 'DESC',
+        }
     })
     return {
         rows: result[0],
@@ -123,7 +126,10 @@ export class TransferService {
         relations: {fromUser: true, toUser: true, currency: true},
         where: [where1, where2],
         skip: reqTransferList.skip,
-        take: reqTransferList.take
+        take: reqTransferList.take,
+        order: {
+          createTime: 'DESC',
+        }
     })
     return {
         rows: result[0],
