@@ -42,7 +42,10 @@ export class CollectService {
             where,
             relations: {currency: true},
             skip: reqRechargecollectList.skip,
-            take: reqRechargecollectList.take
+            take: reqRechargecollectList.take,
+            order: {
+                createTime: 'DESC',
+            }
         })
         return {
             rows: result[0],
@@ -73,7 +76,10 @@ export class CollectService {
             where,
             relations: {currency: true},
             skip: reqRechargecollectList.skip,
-            take: reqRechargecollectList.take
+            take: reqRechargecollectList.take,
+            order: {
+                createTime: 'DESC',
+            }
         })
         return {
             rows: result[0],
