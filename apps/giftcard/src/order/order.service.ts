@@ -54,10 +54,10 @@ export class OrderService {
     order.id = parseInt('1' + strRandom(8, {letters: false}))
     order.status = '1'
     order.userId = userId
-    order.userName = nickName
+    order.userName = createOrderDto.userName
     order.assetId = createOrderDto.assetId
     order.assetType = createOrderDto.assetType
-    order.userPhone = createOrderDto.phone
+    order.userPhone = createOrderDto.userPhone
     order.remark = createOrderDto.remark
     order.homeAddress = createOrderDto.homeAddress
     order.count = createOrderDto.count
