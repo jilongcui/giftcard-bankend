@@ -188,7 +188,7 @@ export class ApplyCardService {
       order.shipFee = 0.0
       order.desc = cardInfo.name
       order.image = cardInfo.info.image
-      await manager.save(order);
+      return await manager.save(order);
 
       // openCardBrokerage = order.totalPrice * openCardBrokerage
 
