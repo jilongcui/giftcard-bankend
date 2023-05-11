@@ -164,7 +164,6 @@ export class ApplyCardService {
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", openfee)
       await manager.increment(Account, { userId: 1 }, "usable", openfee)
             
-      await manager.update(Bankcard, { id: bankcard.id }, { userId: userId, status: '2', cardinfoId: cardinfoId }) // 锁定银行卡
       // await manager.update(User, {userId: userId}, {vip: cardInfo.index})
 
       // 创建订单
@@ -188,7 +187,12 @@ export class ApplyCardService {
       order.shipFee = 0.0
       order.desc = cardInfo.name
       order.image = cardInfo.info.image
-      return await manager.save(order);
+
+      const order2 =  await manager.save(order);
+
+      await manager.update(Bankcard, { id: bankcard.id }, { userId: userId, status: '2', cardinfoId: cardinfoId, order: order2 }) // 锁定银行卡
+
+      return order2
 
       // openCardBrokerage = order.totalPrice * openCardBrokerage
 
