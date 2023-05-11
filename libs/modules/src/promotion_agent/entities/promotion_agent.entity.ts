@@ -128,6 +128,7 @@ export class PromotionAgent {
         default: null,
         comment: '银行卡的KYC认证'
     })
+    @IsOptional()
     @IsNumber()
     kycId?: number
 
