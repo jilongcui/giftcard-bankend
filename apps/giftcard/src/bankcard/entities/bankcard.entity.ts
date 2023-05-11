@@ -202,6 +202,20 @@ export class Bankcard {
     })
     cardinfo?: Cardinfo
 
+    /* 订单ID */
+    @Column({
+        name: 'order_id',
+        default: null,
+        comment: '订单ID'
+    })
+    // @Excel({
+    //     name: '订单ID'
+    // })
+    @Type()
+    @IsOptional()
+    @IsNumber()
+    orderId?: number
+
     @ApiHideProperty()
     @OneToOne(() => Order)
     @IsOptional()
