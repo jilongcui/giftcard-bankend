@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateOrderDto, RequestBankcardOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto, UpdateOrderShipDto, UpdateOrderStatusDto } from './dto/update-order.dto';
+import { UpdateOrderDto, UpdateOrderHomeAddressDto, UpdateOrderShipDto, UpdateOrderStatusDto } from './dto/update-order.dto';
 
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
@@ -218,6 +218,10 @@ export class OrderService {
   }
 
   updateStatus(id: number, updateOrderDto: UpdateOrderStatusDto) {
+    return this.orderRepository.update(id, updateOrderDto)
+  }
+
+  updateHomeAddress(id: number, updateOrderDto: UpdateOrderHomeAddressDto) {
     return this.orderRepository.update(id, updateOrderDto)
   }
 

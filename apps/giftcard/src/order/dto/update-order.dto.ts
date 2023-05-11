@@ -8,6 +8,11 @@ export class UpdateOrderStatusDto {
     status: string
 }
 
+export class UpdateOrderHomeAddressDto {
+    @IsString()
+    homeAddress: string
+}
+
 export class UpdateOrderShipDto {
     @IsString()
     shipName: string
