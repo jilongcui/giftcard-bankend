@@ -1,6 +1,6 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsNumber, IsOptional, IsString, IsEmail, IsPhoneNumber, Allow } from "class-validator";
+import { IsNumber, IsOptional, IsString, IsEmail, IsPhoneNumber, Allow, IsBoolean } from "class-validator";
 import { BaseEntity } from "@app/common/entities/base.entity";
 import { Excel } from "@app/modules/common/excel/excel.decorator";
 import { ExcelTypeEnum } from "@app/modules/common/excel/excel.enum";
@@ -69,6 +69,17 @@ export class User extends BaseEntity {
         name: '用户Vip等级'
     })
     vip: number
+
+    /* 推广大使Id */
+    @Column({
+        comment: '推广大使ID',
+        default: null
+    })
+    @IsNumber()
+    @Excel({
+        name: '推广大使Id'
+    })
+    promotionAgentId?: number
 
     /* 用户类型 */
     @Column({

@@ -13,6 +13,7 @@ import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record
 import { ProfitType } from '../profit_record/entities/profit_record.entity';
 import { ProfitRecordService } from '../profit_record/profit_record.service';
 import { Account } from '../account/entities/account.entity';
+import { User } from '../system/user/entities/user.entity';
 
 @Injectable()
 export class PromotionAgentService {
@@ -20,8 +21,6 @@ export class PromotionAgentService {
 
   constructor(
     @InjectRepository(PromotionAgent) private readonly promoptionRepository: Repository<PromotionAgent>,
-    @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
-    private readonly profitRecordService: ProfitRecordService,
   ) {
   }
 
@@ -39,12 +38,14 @@ export class PromotionAgentService {
       if(!account) {
         throw new ApiException('资金不足')
       }
-
+      const promotionAgent = {
+        ...createPromotionAgentDto,
+        status: '1'
+      }
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", promotionAgentfee)
       await manager.increment(Account, { userId: 1 }, "usable", promotionAgentfee)
       
-      // await this.profitRecordService.create(profitRecordDto)
-      const promotion = await this.promoptionRepository.save(createPromotionAgentDto)
+      const promotion = await manager.save(PromotionAgent, promotionAgent)
 
       // 创建订单
       const order = new Order()
@@ -67,7 +68,7 @@ export class PromotionAgentService {
 
       const profitRecordDto: CreateProfitRecordDto ={
         type: ProfitType.PromoteVipFee,
-        content: '申请推广大使',
+        content: '申请推广大使收益',
         userId: userId,
         amount: order.totalPrice,
         fee: order.totalPrice,
@@ -105,6 +106,40 @@ export class PromotionAgentService {
 
   remove(id: number) {
     return this.promoptionRepository.delete(id)
+  }
+
+  async confirm(id: number) {
+    let where: FindOptionsWhere<PromotionAgent> = {}
+    let result: any;
+    let promotion = await this.promoptionRepository.findOneBy({ id: id, status: '1' })
+      
+    await this.promoptionRepository.manager.transaction(async manager => {
+      await manager.update(User, { id: promotion.userId }, { promotionAgentId: promotion.id }) //
+      await manager.update(PromotionAgent, { id: id }, { status: '2' }) // 
+    })
+  }
+
+  async fail(id: number) {
+    let where: FindOptionsWhere<PromotionAgent> = {}
+    let result: any;
+    let promotion = await this.promoptionRepository.findOneBy({ id: id, status: '1' })
+      
+    await this.promoptionRepository.manager.transaction(async manager => {
+      await manager.update(PromotionAgent, { id: id }, { status: '3' }) // failer.
+    })
+  }
+
+  async cancel(id: number, userId: number) {
+    let where: FindOptionsWhere<PromotionAgent> = {}
+    let result: any;
+    let promotion = await this.promoptionRepository.findOneBy({ id: id, status: '1' })
+    if (userId == 0 || promotion.userId !== userId) {
+      throw new ApiException("非本人订单")
+    }
+      
+    await this.promoptionRepository.manager.transaction(async manager => {
+      await manager.update(PromotionAgent, { id: promotion.id }, {status: '0' })
+    })
   }
 
   /* 分页查询 */

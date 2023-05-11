@@ -12,7 +12,7 @@ import { PromotionAgent } from './entities/promotion_agent.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PromotionAgent, Kyc,Bankcard, User, Order]),
+    TypeOrmModule.forFeature([PromotionAgent]),
     SharedModule, SysConfigModule
   ],
   controllers: [PromotionAgentController],

@@ -108,9 +108,9 @@ export class PromotionAgent {
     @IsString()
     advantage?: string
 
-    /* 状态（0待付款 1待审核 2审核成功）*/
+    /* 状态（0待付款 1待审核 2审核成功 3审核失败）*/
     @Column({
-        comment: '帐号状态（0待付款 1待审核 2审核成功）',
+        comment: '帐号状态（0待付款 1待审核 2审核成功 3审核失败）',
         type: 'char',
         length: 1,
         default: '0'

@@ -21,7 +21,7 @@ import { ProfitType } from '../profit_record/entities/profit_record.entity';
 import { BrokerageType } from '../brokerage_record/entities/brokerage_record.entity';
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { SysConfigService } from '../system/sys-config/sys-config.service';
-import { SYSCONF_OPENCARD_BROKERAGE_KEY } from '@app/common/contants/sysconfig.contants';
+import { SYSCONF_OPENCARD_BROKERAGE_KEY, SYSCONF_OPENCARD_HIGH_BROKERAGE_KEY } from '@app/common/contants/sysconfig.contants';
 
 @Injectable()
 export class KycService {
@@ -100,19 +100,32 @@ export class KycService {
           throw new ApiException("未发现KYC绑定的卡")
         }
         await manager.update(Bankcard, { id: bankcard.id }, { status: '1' }) // 激活银行卡
-        await manager.update(User, {userId: bankcard.userId}, {vip: bankcard.cardinfo.index})
-        // 增加收益
-        let openCardBrokerage = 0.0
-        const opencardBrokerageString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_BROKERAGE_KEY)
-        this.logger.debug(opencardBrokerageString || "0.2")
-        openCardBrokerage = Number(opencardBrokerageString)
-
-        this.logger.debug('marketFee ratio' + openCardBrokerage)
-        if (openCardBrokerage > 1.0 || openCardBrokerage <= 0.0) {
-          openCardBrokerage = 0.2
+        const user = await manager.findOneBy(User, {userId: bankcard.userId})
+        if(user.vip < bankcard.cardinfo.index) {
+          await manager.update(User, {userId: bankcard.userId}, {vip: bankcard.cardinfo.index})
         }
+        const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
+        
+        const parentId = inviteUser?.parentId
+        let openCardBrokerage = 0.0
 
-        openCardBrokerage = order.totalPrice * openCardBrokerage
+        if(parentId) {
+          // 增加收益
+          const parent = await manager.findOneBy(User, {userId: inviteUser.parentId})
+          if(parent.promotionAgentId) { // Promotion Agent
+            const opencardBrokerageString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_HIGH_BROKERAGE_KEY)
+            this.logger.debug(opencardBrokerageString || "0.5")
+            openCardBrokerage = Number(opencardBrokerageString)
+          } else {
+            const opencardBrokerageString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_BROKERAGE_KEY)
+            this.logger.debug(opencardBrokerageString || "0.2")
+            openCardBrokerage = Number(opencardBrokerageString)
+          }
+          
+          this.logger.debug('marketFee ratio' + openCardBrokerage)
+
+          openCardBrokerage = order.totalPrice * openCardBrokerage
+        }
 
         const profitRecordDto: CreateProfitRecordDto ={
           type: ProfitType.OpenCardFee,
@@ -125,8 +138,7 @@ export class KycService {
         await manager.save(profitRecordDto);
         // await this.profitRecordService.create(profitRecordDto)
   
-        const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
-        const parentId = inviteUser?.parentId
+        
         const currencyId = order.currencyId
         if(parentId) {
           await manager.increment(Account, { userId: parentId, currencyId: currencyId }, "usable", openCardBrokerage)
@@ -134,7 +146,7 @@ export class KycService {
   
           const brokerageRecordDto: CreateBrokerageRecordDto ={
             type: BrokerageType.OpenCardBrokerage,
-            content: '申请开卡提成',
+            content: '申请开卡反佣',
             userId: parentId,
             fromUserId: userId,
             amount: order.totalPrice,
