@@ -4,6 +4,7 @@ import { IsNumber, IsObject, IsOptional, IsString } from "class-validator"
 import { PromotionAgent } from "../entities/promotion_agent.entity"
 
 export class CreatePromotionAgentDto extends OmitType(PromotionAgent, ['id', 'userId', 'user', 'createTime', 'status'] as const) {}
+export class CreatePromotionAgent extends OmitType(PromotionAgent, ['id', 'user', 'createTime'] as const) {}
 
 
 export class ListPromotionAgentDto {

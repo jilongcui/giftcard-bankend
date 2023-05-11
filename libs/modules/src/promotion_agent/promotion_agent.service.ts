@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CreatePromotionAgentDto, ListMyPromotionAgentDto, ListPromotionAgentDto } from './dto/create-promotion_agent.dto';
+import { CreatePromotionAgent, CreatePromotionAgentDto, ListMyPromotionAgentDto, ListPromotionAgentDto } from './dto/create-promotion_agent.dto';
 import { UpdatePromotionAgentDto, UpdatePromotionAgentStatusDto } from './dto/update-promotion_agent.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
@@ -38,7 +38,7 @@ export class PromotionAgentService {
       if(!account) {
         throw new ApiException('资金不足')
       }
-      const promotionAgent = {
+      const promotionAgent: CreatePromotionAgent = {
         ...createPromotionAgentDto,
         userId: userId,
         status: '1'
