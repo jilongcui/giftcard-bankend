@@ -70,8 +70,10 @@ export class PromotionAgentService {
       const currency= await this.currencyService.findOneByName('USDT')
       if (currency === null) {
         order.currencyId = 1
+        order.currencySymbol = 'USDT'
       } else {
         order.currencyId = currency.id
+        order.currencySymbol = currency.symbol
       }
 
       order.invalidTime = moment().add(5, 'minute').toDate()

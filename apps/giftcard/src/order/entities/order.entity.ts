@@ -200,6 +200,18 @@ export class Order {
     })
     currencyId: number
 
+    /* 代币名称 */
+    @Column({
+        name: 'currency_symbol',
+        comment: '代币名称'
+    })
+    @IsOptional()
+    @IsString()
+    @Excel({
+        name: '代币ID',
+    })
+    currencySymbol?: string
+
     @Column({
         name: 'user_name',
         default: '',

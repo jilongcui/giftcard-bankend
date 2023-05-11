@@ -123,7 +123,7 @@ export class ApplyCardService {
     const applycard = await this.applycardRepository.save(applycardDto)
 
     const currency = await this.currencyService.findOneByName('USDT')
-    const order = await this.requestBankcard(userId, currency.id, cardInfo.id, cardInfo.info.openFee)
+    const order = await this.requestBankcard(userId, currency.id, currency.symbol, cardInfo.id, cardInfo.info.openFee)
 
     // KYC是否存在
     // await this.applycardRepository.update(applycard.id, {bankcardId: bankcard.id, status: ApplyCardStatus.ApplySuccess})
@@ -132,7 +132,7 @@ export class ApplyCardService {
   }
 
   // request bankcard
-  async requestBankcard(userId: number, currencyId: number, cardinfoId:number, openfee: number) {
+  async requestBankcard(userId: number, currencyId: number, currencySymbol: string,cardinfoId:number, openfee: number) {
     // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
     // let openCardBrokerage = 0.0
     // const opencardBrokerageString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_BROKERAGE_KEY)
@@ -179,7 +179,9 @@ export class ApplyCardService {
       order.remark = bankcard.cardNo
       order.homeAddress = ''
       order.count = 1
-
+      order.currencyId = currencyId
+      order.currencySymbol = currencySymbol
+      
       order.price = openfee
       order.totalPrice = openfee
       order.tradeFee = 0.0

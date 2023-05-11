@@ -64,9 +64,11 @@ export class OrderService {
 
     const currency= await this.currencyService.findOneByName('HKD')
     if (currency === null) {
-      order.currencyId = 1
+      order.currencyId = 2
+      order.currencySymbol = 'HKD'
     } else {
       order.currencyId = currency.id
+      order.currencySymbol = currency.symbol
     }
 
     order.invalidTime = moment().add(5, 'minute').toDate()
