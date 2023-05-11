@@ -113,6 +113,7 @@ export class BankcardService {
     let where: FindOptionsWhere<ListBankcardDto> = {}
     let result: any;
     where = {
+      status: '1',
       ...listMyBankcardDto,
       userId,
     }
