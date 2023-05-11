@@ -62,8 +62,6 @@ import { BrokerageRecordModule } from '@app/modules/brokerage_record/brokerage_r
     }),
     BankcardModule,
     SysConfigModule,
-    ProfitRecordModule,
-    BrokerageRecordModule,
     forwardRef(() => OrderModule)
   ],
   controllers: [PaymentController],

@@ -62,8 +62,6 @@ export class PaymentService {
     private readonly orderService: OrderService,
     private readonly sharedService: SharedService,
     private readonly sysconfigService: SysConfigService,
-    private readonly profitRecordService: ProfitRecordService,
-    private readonly brokerageRecordService: BrokerageRecordService,
 
     @InjectRepository(Payment) private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
@@ -177,32 +175,6 @@ export class PaymentService {
         // await manager.update(Giftcard, { id: asset.id }, { status: '1' })
       }
     })
-
-    this.logger.debug(order.assetType)
-    if (order.assetType === '0') { // 实名商品
-      const profitRecordDto: CreateProfitRecordDto ={
-        type: ProfitType.OpenCardFee,
-        content: '申请开卡',
-        userId: userId,
-        amount: order.totalPrice,
-        fee: order.totalPrice - openCardProfit,
-        txid: 'orderId: ' + order.id
-      }
-      await this.profitRecordService.create(profitRecordDto)
-
-      if(parentId) {
-        const brokerageRecordDto: CreateBrokerageRecordDto ={
-          type: BrokerageType.OpenCardBrokerage,
-          content: '申请开卡提成',
-          userId: parentId,
-          fromUserId: userId,
-          amount: order.totalPrice,
-          value: openCardProfit,
-          txid: 'orderId: ' + order.id
-        }
-        await this.brokerageRecordService.create(brokerageRecordDto)
-      }
-    }
     
     return order;
   }

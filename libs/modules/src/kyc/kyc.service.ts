@@ -15,6 +15,13 @@ import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 import { User } from '../system/user/entities/user.entity';
 import { Order } from 'apps/giftcard/src/order/entities/order.entity';
 import { Account } from '../account/entities/account.entity';
+import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
+import { CreateBrokerageRecordDto } from '../brokerage_record/dto/create-brokerage_record.dto';
+import { ProfitType } from '../profit_record/entities/profit_record.entity';
+import { BrokerageType } from '../brokerage_record/entities/brokerage_record.entity';
+import { InviteUser } from '../inviteuser/entities/invite-user.entity';
+import { SysConfigService } from '../system/sys-config/sys-config.service';
+import { SYSCONF_OPENCARD_BROKERAGE_KEY } from '@app/common/contants/sysconfig.contants';
 
 @Injectable()
 export class KycService {
@@ -27,6 +34,7 @@ export class KycService {
     private readonly sharedService: SharedService,
     private readonly configService: ConfigService,
     private readonly fund33Service: Fund33Service,
+    private readonly sysconfigService: SysConfigService,
   ) {
     this.notifyUrl = this.configService.get<string>('kyc.notifyUrl')
   }
@@ -59,7 +67,10 @@ export class KycService {
     kycDto.info.notifyUrl = this.notifyUrl
 
     await this.fund33Service.uploadKycInfo(kycDto.info)
-    return await this.kycRepository.save(kycDto)
+
+    const kyc2 = await this.kycRepository.save(kycDto)
+    await this.bankcardRepository.update(order.assetId, {kycId: kyc2.id})
+    return kyc2
   }
 
   async findOne(id: number) {
@@ -83,12 +94,56 @@ export class KycService {
     if(notifyKycDto.status === '3') kyc.status = '2'
     if(notifyKycDto.status === '2') { //  Success
       await this.bankcardRepository.manager.transaction(async manager => {
+        const userId = order.userId
         const bankcard = await manager.findOneBy(Bankcard, {cardNo: kyc.cardNo, status: '2'})
         if(!bankcard) {
           throw new ApiException("未发现KYC绑定的卡")
         }
         await manager.update(Bankcard, { id: bankcard.id }, { status: '1' }) // 激活银行卡
         await manager.update(User, {userId: bankcard.userId}, {vip: bankcard.cardinfo.index})
+        // 增加收益
+        let openCardBrokerage = 0.0
+        const opencardBrokerageString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_BROKERAGE_KEY)
+        this.logger.debug(opencardBrokerageString || "0.2")
+        openCardBrokerage = Number(opencardBrokerageString)
+
+        this.logger.debug('marketFee ratio' + openCardBrokerage)
+        if (openCardBrokerage > 1.0 || openCardBrokerage <= 0.0) {
+          openCardBrokerage = 0.2
+        }
+
+        openCardBrokerage = order.totalPrice * openCardBrokerage
+
+        const profitRecordDto: CreateProfitRecordDto ={
+          type: ProfitType.OpenCardFee,
+          content: '开卡平台收益',
+          userId: userId,
+          amount: order.totalPrice,
+          fee: order.totalPrice - openCardBrokerage,
+          txid: 'orderId: ' + order.id
+        }
+        await manager.save(profitRecordDto);
+        // await this.profitRecordService.create(profitRecordDto)
+  
+        const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
+        const parentId = inviteUser?.parentId
+        const currencyId = order.currencyId
+        if(parentId) {
+          await manager.increment(Account, { userId: parentId, currencyId: currencyId }, "usable", openCardBrokerage)
+          await manager.update(InviteUser, {id: userId}, {isOpenCard: true})
+  
+          const brokerageRecordDto: CreateBrokerageRecordDto ={
+            type: BrokerageType.OpenCardBrokerage,
+            content: '申请开卡提成',
+            userId: parentId,
+            fromUserId: userId,
+            amount: order.totalPrice,
+            value: openCardBrokerage,
+            txid: 'orderId: ' + order.id
+          }
+          await manager.save(profitRecordDto);
+          // await this.brokerageRecordService.create(brokerageRecordDto)
+        }
       })
       kyc.signNo = notifyKycDto.orderNo
       await this.kycRepository.save(kyc)

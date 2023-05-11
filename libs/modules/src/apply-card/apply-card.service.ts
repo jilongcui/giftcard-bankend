@@ -1,7 +1,7 @@
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
 import { CardinfoService } from '../cardinfo/cardinfo.service';
@@ -16,15 +16,26 @@ import { Cardinfo } from '../cardinfo/entities/cardinfo.entity';
 import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 import { Order } from 'apps/giftcard/src/order/entities/order.entity';
 import strRandom from 'string-random';
+import { ProfitRecordService } from '../profit_record/profit_record.service';
+import { ProfitType } from '../profit_record/entities/profit_record.entity';
+import { SYSCONF_OPENCARD_BROKERAGE_KEY } from '@app/common/contants/sysconfig.contants';
+import { SysConfigService } from '../system/sys-config/sys-config.service';
+import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
+import { CreateBrokerageRecordDto } from '../brokerage_record/dto/create-brokerage_record.dto';
+import { BrokerageType } from '../brokerage_record/entities/brokerage_record.entity';
+import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 
 @Injectable()
 export class ApplyCardService {
 
+  logger = new Logger(ApplyCardService.name)
+
   constructor(
     @InjectRepository(ApplyCard) private readonly applycardRepository: Repository<ApplyCard>,
     private readonly cardInfoService: CardinfoService,
-    private readonly kycService: KycService,
+    // private readonly kycService: KycService,
     private readonly currencyService: CurrencyService,
+    // private readonly sysconfigService: SysConfigService,
   ) {}
   findAll() {
     return `This action returns all applyCard`;
@@ -123,6 +134,16 @@ export class ApplyCardService {
   // request bankcard
   async requestBankcard(userId: number, currencyId: number, cardinfoId:number, openfee: number) {
     // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+    // let openCardBrokerage = 0.0
+    // const opencardBrokerageString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_BROKERAGE_KEY)
+    // this.logger.debug(opencardBrokerageString || "0.2")
+    // openCardBrokerage = Number(opencardBrokerageString)
+
+    // this.logger.debug('marketFee ratio' + openCardBrokerage)
+    // if (openCardBrokerage > 1.0 || openCardBrokerage <= 0.0) {
+    //   openCardBrokerage = 0.2
+    // }
+
     return await this.applycardRepository.manager.transaction(async manager => {
       const bankcard = await manager.findOne(Bankcard, { where: { status:'0'}, relations: {} })
       const cardInfo = await manager.findOne(Cardinfo, { where: { id: cardinfoId} })
@@ -132,6 +153,9 @@ export class ApplyCardService {
       if(!cardInfo) {
         throw new ApiException('银行卡类型不正确')
       }
+      const inviteUser  = await manager.findOneBy(InviteUser, { id: userId })
+      const parentId = inviteUser?.parentId
+
       const account = await manager.findOne(Account, { where: { currencyId, userId, usable: MoreThanOrEqual(openfee)} })
       if(!account) {
         throw new ApiException('资金不足')
@@ -160,9 +184,37 @@ export class ApplyCardService {
       order.totalPrice = openfee
       order.tradeFee = 0.0
       order.shipFee = 0.0
-      order.desc = "[" + cardInfo.name + "]" + cardInfo.info.typeName
+      order.desc = cardInfo.name
       order.image = cardInfo.info.image
-      return await manager.save(order);
+      await manager.save(order);
+
+      // openCardBrokerage = order.totalPrice * openCardBrokerage
+
+      // const profitRecordDto: CreateProfitRecordDto ={
+      //   type: ProfitType.OpenCardFee,
+      //   content: '申请开卡收益',
+      //   userId: userId,
+      //   amount: order.totalPrice,
+      //   fee: order.totalPrice - openCardBrokerage,
+      //   txid: 'orderId: ' + order.id
+      // }
+      // await manager.save(profitRecordDto);
+
+      // if(parentId) {
+      //   await manager.increment(Account, { userId: parentId, currencyId: currencyId }, "usable", openCardBrokerage)
+      //   await manager.update(InviteUser, {id: userId}, {isOpenCard: true})
+
+      //   const brokerageRecordDto: CreateBrokerageRecordDto ={
+      //     type: BrokerageType.OpenCardBrokerage,
+      //     content: '申请开卡提成',
+      //     userId: parentId,
+      //     fromUserId: userId,
+      //     amount: order.totalPrice,
+      //     value: openCardBrokerage,
+      //     txid: 'orderId: ' + order.id
+      //   }
+      //   await manager.save(profitRecordDto);
+      // }
     })
   }
 

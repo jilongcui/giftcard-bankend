@@ -1,0 +1,158 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { CreatePromotionAgentDto, ListMyPromotionAgentDto, ListPromotionAgentDto } from './dto/create-promotion_agent.dto';
+import { UpdatePromotionAgentDto, UpdatePromotionAgentStatusDto } from './dto/update-promotion_agent.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
+import { ApiException } from '@app/common/exceptions/api.exception';
+import { PromotionAgent } from './entities/promotion_agent.entity';
+import { PaginatedDto } from '@app/common/dto/paginated.dto';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
+import stringRandom from 'string-random';
+import { Order } from 'apps/giftcard/src/order/entities/order.entity';
+import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
+import { ProfitType } from '../profit_record/entities/profit_record.entity';
+import { ProfitRecordService } from '../profit_record/profit_record.service';
+import { Account } from '../account/entities/account.entity';
+
+@Injectable()
+export class PromotionAgentService {
+  logger = new Logger(PromotionAgentService.name)
+
+  constructor(
+    @InjectRepository(PromotionAgent) private readonly promoptionRepository: Repository<PromotionAgent>,
+    @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
+    private readonly profitRecordService: ProfitRecordService,
+  ) {
+  }
+
+  async create(createPromotionAgentDto: CreatePromotionAgentDto, userId: number) {
+    const promoption = await this.promoptionRepository.findOneBy({userId})
+    if(promoption) {
+      throw new ApiException("已存在推广大使")
+    }
+
+    return await this.promoptionRepository.manager.transaction(async manager => {
+      const promotionAgentfee = 100.00
+      const currencyId = 1
+
+      const account = await manager.findOne(Account, { where: { currencyId, userId, usable: MoreThanOrEqual(promotionAgentfee)} })
+      if(!account) {
+        throw new ApiException('资金不足')
+      }
+
+      await manager.decrement(Account, { userId: userId, currencyId }, "usable", promotionAgentfee)
+      await manager.increment(Account, { userId: 1 }, "usable", promotionAgentfee)
+      
+      // await this.profitRecordService.create(profitRecordDto)
+      const promotion = await this.promoptionRepository.save(createPromotionAgentDto)
+
+      // 创建订单
+      const order = new Order()
+      order.id = parseInt('1' + stringRandom(8, {letters: false}))
+      order.status = '4'
+      order.userId = userId
+      order.userName = ''
+      order.assetId = promotion.id
+      order.assetType = '2' // 申请推广大使费用
+      order.userPhone = ''
+      order.homeAddress = ''
+      order.count = 1
+
+      order.price = promotionAgentfee
+      order.totalPrice = promotionAgentfee
+      order.tradeFee = 0.0
+      order.shipFee = 0.0
+      order.desc = "申请推广大使费用"
+      await manager.save(order);
+
+      const profitRecordDto: CreateProfitRecordDto ={
+        type: ProfitType.PromoteVipFee,
+        content: '申请推广大使',
+        userId: userId,
+        amount: order.totalPrice,
+        fee: order.totalPrice,
+        txid: 'orderId: ' + order.id
+      }
+      await manager.save(profitRecordDto);
+    })
+  }
+
+  async findOne(id: number) {
+    return this.promoptionRepository.findOneBy({ id })
+  }
+
+  async findOneByUser(userId: number) {
+    return this.promoptionRepository.findOneBy({userId})
+  }
+
+  // async findOneByOrderNo(orderNo: string) {
+  //   return this.promoptionRepository.findOneBy({orderNo})
+  // }
+
+  update(id: number, updatePromotionAgentDto: UpdatePromotionAgentDto, userId: number) {
+    const promoption = this.promoptionRepository.findOneBy({id: id, userId: userId})
+    if (!promoption)
+      throw new ApiException("非此用户的推广大使")
+    return this.promoptionRepository.update(id, updatePromotionAgentDto)
+  }
+
+  updateStatus(id: number, updatePromotionAgentDto: UpdatePromotionAgentStatusDto, userId: number) {
+    const promoption = this.promoptionRepository.findOneBy({id: id, userId: userId})
+    if (!promoption)
+      throw new ApiException("非此用户的推广大使")
+    return this.promoptionRepository.update(id, updatePromotionAgentDto)
+  }
+
+  remove(id: number) {
+    return this.promoptionRepository.delete(id)
+  }
+
+  /* 分页查询 */
+  async list(listPromotionAgentList: ListPromotionAgentDto, paginationDto: PaginationDto): Promise<PaginatedDto<PromotionAgent>> {
+    let where: FindOptionsWhere<ListPromotionAgentDto> = {}
+    let result: any;
+    where = listPromotionAgentList
+
+    result = await this.promoptionRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      where,
+      relations: { user: true },
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+
+  /* 我的订单查询 */
+  async mylist(userId: number, listMyPromotionAgentDto: ListMyPromotionAgentDto, paginationDto: PaginationDto): Promise<PaginatedDto<PromotionAgent>> {
+    let where: FindOptionsWhere<ListPromotionAgentDto> = {}
+    let result: any;
+    where = {
+      ...listMyPromotionAgentDto,
+      userId,
+    }
+
+    result = await this.promoptionRepository.findAndCount({
+      // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
+      where,
+      relations: ["user"],
+      skip: paginationDto.skip,
+      take: paginationDto.take,
+      order: {
+        createTime: 'DESC',
+      }
+    })
+
+    return {
+      rows: result[0],
+      total: result[1]
+    }
+  }
+}
