@@ -15,10 +15,8 @@ import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 import { User } from '../system/user/entities/user.entity';
 import { Order } from 'apps/giftcard/src/order/entities/order.entity';
 import { Account } from '../account/entities/account.entity';
-import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
-import { CreateBrokerageRecordDto } from '../brokerage_record/dto/create-brokerage_record.dto';
-import { ProfitType } from '../profit_record/entities/profit_record.entity';
-import { BrokerageType } from '../brokerage_record/entities/brokerage_record.entity';
+import { ProfitRecord, ProfitType } from '../profit_record/entities/profit_record.entity';
+import { BrokerageRecord, BrokerageType } from '../brokerage_record/entities/brokerage_record.entity';
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { SysConfigService } from '../system/sys-config/sys-config.service';
 import { SYSCONF_OPENCARD_BROKERAGE_KEY, SYSCONF_OPENCARD_HIGH_BROKERAGE_KEY } from '@app/common/contants/sysconfig.contants';
@@ -127,14 +125,13 @@ export class KycService {
           openCardBrokerage = order.totalPrice * openCardBrokerage
         }
 
-        const profitRecordDto: CreateProfitRecordDto ={
-          type: ProfitType.OpenCardFee,
-          content: '开卡平台收益',
-          userId: userId,
-          amount: order.totalPrice,
-          fee: order.totalPrice - openCardBrokerage,
-          txid: 'orderId: ' + order.id
-        }
+        const profitRecordDto = new ProfitRecord()
+        profitRecordDto.type = ProfitType.OpenCardFee
+        profitRecordDto.content = '开卡平台收益',
+        profitRecordDto.userId = userId,
+        profitRecordDto.amount = order.totalPrice,
+        profitRecordDto.fee = order.totalPrice - openCardBrokerage,
+        profitRecordDto.txid = 'orderId: ' + order.id
         await manager.save(profitRecordDto);
         // await this.profitRecordService.create(profitRecordDto)
   
@@ -144,17 +141,15 @@ export class KycService {
           await manager.increment(Account, { userId: parentId, currencyId: currencyId }, "usable", openCardBrokerage)
           await manager.update(InviteUser, {id: userId}, {isOpenCard: true})
   
-          const brokerageRecordDto: CreateBrokerageRecordDto ={
-            type: BrokerageType.OpenCardBrokerage,
-            content: '申请开卡反佣',
-            userId: parentId,
-            fromUserId: userId,
-            amount: order.totalPrice,
-            value: openCardBrokerage,
-            txid: 'orderId: ' + order.id
-          }
+          const brokerageRecordDto = new BrokerageRecord()
+          brokerageRecordDto.type = BrokerageType.OpenCardBrokerage,
+          brokerageRecordDto.content = '申请开卡返佣',
+          brokerageRecordDto.userId = parentId,
+          brokerageRecordDto.fromUserId = userId,
+          brokerageRecordDto.amount = order.totalPrice,
+          brokerageRecordDto.value = openCardBrokerage,
+          brokerageRecordDto.txid = 'orderId: ' + order.id
           await manager.save(profitRecordDto);
-          // await this.brokerageRecordService.create(brokerageRecordDto)
         }
       })
       kyc.signNo = notifyKycDto.orderNo

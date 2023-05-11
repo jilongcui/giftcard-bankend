@@ -10,10 +10,12 @@ import { PaginationDto } from '@app/common/dto/pagination.dto';
 import stringRandom from 'string-random';
 import { Order } from 'apps/giftcard/src/order/entities/order.entity';
 import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
-import { ProfitType } from '../profit_record/entities/profit_record.entity';
+import { ProfitRecord, ProfitType } from '../profit_record/entities/profit_record.entity';
 import { ProfitRecordService } from '../profit_record/profit_record.service';
 import { Account } from '../account/entities/account.entity';
 import { User } from '../system/user/entities/user.entity';
+import { CurrencyService } from '../currency/currency.service';
+import * as moment from 'moment';
 
 @Injectable()
 export class PromotionAgentService {
@@ -21,6 +23,7 @@ export class PromotionAgentService {
 
   constructor(
     @InjectRepository(PromotionAgent) private readonly promoptionRepository: Repository<PromotionAgent>,
+    private readonly currencyService: CurrencyService
   ) {
   }
 
@@ -38,15 +41,20 @@ export class PromotionAgentService {
       if(!account) {
         throw new ApiException('资金不足')
       }
-      const promotionAgent: CreatePromotionAgent = {
-        ...createPromotionAgentDto,
-        userId: userId,
-        status: '1'
-      }
+      const promotionAgent = new PromotionAgent()
+      promotionAgent.city = createPromotionAgentDto.city
+      promotionAgent.country = createPromotionAgentDto.country
+      promotionAgent.email = createPromotionAgentDto.email
+      promotionAgent.introduction = createPromotionAgentDto.introduction
+      promotionAgent.advantage = createPromotionAgentDto.advantage
+      promotionAgent.telegram = createPromotionAgentDto.telegram
+      promotionAgent.kycId = createPromotionAgentDto.kycId
+      promotionAgent.userId = userId
+      promotionAgent.status = '1'
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", promotionAgentfee)
       await manager.increment(Account, { userId: 1 }, "usable", promotionAgentfee)
       
-      const promotion = await manager.save(PromotionAgent, promotionAgent)
+      const promotion = await manager.save(promotionAgent)
 
       // 创建订单
       const order = new Order()
@@ -59,6 +67,14 @@ export class PromotionAgentService {
       order.userPhone = ''
       order.homeAddress = ''
       order.count = 1
+      const currency= await this.currencyService.findOneByName('USDT')
+      if (currency === null) {
+        order.currencyId = 1
+      } else {
+        order.currencyId = currency.id
+      }
+
+      order.invalidTime = moment().add(5, 'minute').toDate()
 
       order.price = promotionAgentfee
       order.totalPrice = promotionAgentfee
@@ -67,15 +83,16 @@ export class PromotionAgentService {
       order.desc = "申请推广大使费用"
       await manager.save(order);
 
-      const profitRecordDto: CreateProfitRecordDto ={
-        type: ProfitType.PromoteVipFee,
-        content: '申请推广大使收益',
-        userId: userId,
-        amount: order.totalPrice,
-        fee: order.totalPrice,
-        txid: 'orderId: ' + order.id
-      }
+      const profitRecordDto = new ProfitRecord()
+      profitRecordDto.type = ProfitType.PromoteVipFee
+      profitRecordDto.content = '申请推广大使收益',
+      profitRecordDto.userId = userId,
+      profitRecordDto.amount = order.totalPrice,
+      profitRecordDto.fee = order.totalPrice,
+      profitRecordDto.txid = 'orderId: ' + order.id
       await manager.save(profitRecordDto);
+
+      return promotion
     })
   }
 

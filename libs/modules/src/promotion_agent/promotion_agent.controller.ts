@@ -10,7 +10,7 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { PromotionAgent } from './entities/promotion_agent.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('佣金管理')
+@ApiTags('推广大使管理')
 @ApiBearerAuth()
 @Controller('promotion-agent')
 export class PromotionAgentController {

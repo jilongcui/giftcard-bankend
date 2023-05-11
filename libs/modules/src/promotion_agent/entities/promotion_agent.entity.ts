@@ -138,6 +138,7 @@ export class PromotionAgent {
     
     @ApiHideProperty()
     @OneToOne(() => User)
+    @IsOptional()
     @JoinColumn({
         name: 'user_id',
     })

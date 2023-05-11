@@ -9,11 +9,12 @@ import { Order } from '../order/entities/order.entity';
 import { SharedModule } from '@app/shared';
 import { SysConfigModule } from '../system/sys-config/sys-config.module';
 import { PromotionAgent } from './entities/promotion_agent.entity';
+import { CurrencyModule } from '../currency/currency.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([PromotionAgent]),
-    SharedModule, SysConfigModule
+    SharedModule, SysConfigModule, CurrencyModule
   ],
   controllers: [PromotionAgentController],
   providers: [PromotionAgentService],
