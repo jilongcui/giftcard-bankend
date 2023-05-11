@@ -94,7 +94,7 @@ export class BankcardService {
 
     result = await this.bankcardRepository.findAndCount({
       where,
-      relations: { user: true },
+      relations: { user: true, kyc: true},
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
@@ -113,7 +113,7 @@ export class BankcardService {
     let where: FindOptionsWhere<ListBankcardDto> = {}
     let result: any;
     where = {
-      status: '1',
+      // status: '1',
       ...listMyBankcardDto,
       userId,
     }
@@ -121,7 +121,7 @@ export class BankcardService {
     result = await this.bankcardRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
-      relations: { cardinfo: true },
+      relations: { cardinfo: true, kyc: true},
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
