@@ -40,6 +40,7 @@ export class PromotionAgentService {
       }
       const promotionAgent = {
         ...createPromotionAgentDto,
+        userId: userId,
         status: '1'
       }
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", promotionAgentfee)
