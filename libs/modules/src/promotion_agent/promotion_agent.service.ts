@@ -134,7 +134,7 @@ export class PromotionAgentService {
     let promotion = await this.promoptionRepository.findOneBy({ id: id, status: '1' })
       
     await this.promoptionRepository.manager.transaction(async manager => {
-      await manager.update(User, { id: promotion.userId }, { promotionAgentId: promotion.id }) //
+      await manager.update(User, { userId: promotion.userId }, { promotionAgentId: promotion.id }) //
       await manager.update(PromotionAgent, { id: id }, { status: '2' }) // 
     })
   }
