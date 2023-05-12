@@ -120,6 +120,7 @@ export class CollectService {
                 accountFlow.userId = address.userId
                 accountFlow.amount = rechargeNotifyDto.amount
                 accountFlow.currencyId = currencyId
+                accountFlow.currencyName = currency.symbol
                 accountFlow.balance = 0
                 await manager.save(accountFlow)
 

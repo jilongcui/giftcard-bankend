@@ -141,6 +141,7 @@ export class KycService {
   
         
         const currencyId = order.currencyId
+        const currencySymbol = order.currencySymbol
         if(parentId) {
           await manager.increment(Account, { userId: parentId, currencyId: currencyId }, "usable", openCardBrokerage)
           await manager.update(InviteUser, {id: userId}, {isOpenCard: true})
@@ -151,6 +152,7 @@ export class KycService {
           accountFlow.userId = parentId
           accountFlow.amount = openCardBrokerage
           accountFlow.currencyId = currencyId
+          accountFlow.currencyName = currencySymbol
           accountFlow.balance = 0
           await manager.save(accountFlow)
 
@@ -181,6 +183,7 @@ export class KycService {
         await manager.update(Order, { id: order.id }, { status: '7' }) // fail
         // 释放定金
         const currencyId = order.currencyId
+        const currencySymbol = order.currencySymbol
         const openfee = order.price
         await manager.increment(Account, { userId: order.userId, currencyId }, "usable", openfee)
         await manager.decrement(Account, { userId: 1 }, "usable", openfee)
@@ -190,6 +193,7 @@ export class KycService {
         accountFlow.userId = order.userId
         accountFlow.amount = openfee
         accountFlow.currencyId = currencyId
+        accountFlow.currencyName = currencySymbol
         accountFlow.balance = 0
         await manager.save(accountFlow)
       })

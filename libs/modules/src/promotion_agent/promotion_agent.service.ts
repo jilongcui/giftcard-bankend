@@ -43,6 +43,8 @@ export class PromotionAgentService {
       if(!account) {
         throw new ApiException('资金不足')
       }
+      const currency= await this.currencyService.findOneByName('USDT')
+
       const promotionAgent = new PromotionAgent()
       promotionAgent.city = createPromotionAgentDto.city
       promotionAgent.country = createPromotionAgentDto.country
@@ -62,6 +64,7 @@ export class PromotionAgentService {
       accountFlow.userId = userId
       accountFlow.amount = promotionAgentfee
       accountFlow.currencyId = currencyId
+      accountFlow.currencyName = currency.symbol
       accountFlow.balance = 0
       await manager.save(accountFlow )
 
@@ -78,7 +81,6 @@ export class PromotionAgentService {
       order.userPhone = ''
       order.homeAddress = ''
       order.count = 1
-      const currency= await this.currencyService.findOneByName('USDT')
       if (currency === null) {
         order.currencyId = 1
         order.currencySymbol = 'USDT'
@@ -166,6 +168,7 @@ export class PromotionAgentService {
       accountFlow.userId = promotion.userId
       accountFlow.amount = order.totalPrice
       accountFlow.currencyId = order.currencyId
+      accountFlow.currencyName = order.currencySymbol
       accountFlow.balance = 0
       await manager.save(accountFlow )
     })
@@ -191,6 +194,7 @@ export class PromotionAgentService {
       accountFlow.userId = promotion.userId
       accountFlow.amount = order.totalPrice
       accountFlow.currencyId = order.currencyId
+      accountFlow.currencyName = order.currencySymbol
       accountFlow.balance = 0
       await manager.save(accountFlow )
     })

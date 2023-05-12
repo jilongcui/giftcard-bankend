@@ -79,6 +79,7 @@ export class WithdrawService {
         accountFlow.userId = userId
         accountFlow.amount = createWithdrawDto.amount
         accountFlow.currencyId = currency.id
+        accountFlow.currencyName = currency.symbol
         accountFlow.balance = 0
         await manager.save(accountFlow)
 
@@ -183,7 +184,7 @@ export class WithdrawService {
   }
 
   async notifyWithdraw(withdrawNotifyDto: ReqWithdrawNotifyDto) {
-    const withdraw = await this.withdrawRepository.findOne({where: { billNo: withdrawNotifyDto.orderNo }, relations: {}})
+    const withdraw = await this.withdrawRepository.findOne({where: { billNo: withdrawNotifyDto.orderNo }, relations: {currency: true}})
     if (withdraw === null) {
         throw new ApiException('提币记录不存在')
     }
@@ -203,6 +204,7 @@ export class WithdrawService {
             accountFlow.userId = withdraw.userId
             accountFlow.amount = withdraw.totalPrice
             accountFlow.currencyId = withdraw.currencyId
+            accountFlow.currencyName = withdraw.currency.symbol
             accountFlow.balance = 0
             await manager.save(accountFlow)
             return await this.withdrawRepository.save(withdraw)
@@ -226,7 +228,7 @@ export class WithdrawService {
   async cancel(id: number, userId: number) {
     let where: FindOptionsWhere<Withdraw> = {}
     let result: any;
-    let withdraw = await this.withdrawRepository.findOneBy({ id: id })
+    let withdraw = await this.withdrawRepository.findOne({where: { id: id }, relations: {currency: true}})
     if (withdraw.userId !== userId) {
         throw new ApiException("非本人提币")
     }
@@ -251,9 +253,9 @@ export class WithdrawService {
             accountFlow.userId = withdraw.userId
             accountFlow.amount = withdraw.totalPrice
             accountFlow.currencyId = withdraw.currencyId
+            accountFlow.currencyName = withdraw.currency.symbol
             accountFlow.balance = 0
             await manager.save(accountFlow)
-            return await this.withdrawRepository.save(withdraw)
 
             const withdrawFlow = new WithdrawFlow()
             withdrawFlow.step = '1'
@@ -268,7 +270,7 @@ export class WithdrawService {
 async fail(id: number, userId: number) {
     let where: FindOptionsWhere<Withdraw> = {}
     let result: any;
-    let withdraw = await this.withdrawRepository.findOneBy({ id: id })
+    let withdraw = await this.withdrawRepository.findOne({where: { id: id }, relations: {currency: true}})
     // 银行卡提现 - 审核未通过
     if (withdraw.type === '1') {
         await this.withdrawRepository.manager.transaction(async manager => {
@@ -285,6 +287,7 @@ async fail(id: number, userId: number) {
             accountFlow.userId = withdraw.userId
             accountFlow.amount = withdraw.totalPrice
             accountFlow.currencyId = withdraw.currencyId
+            accountFlow.currencyName = withdraw.currency.symbol
             accountFlow.balance = 0
             await manager.save(accountFlow)
 

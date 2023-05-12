@@ -157,6 +157,7 @@ export class AccountService {
       accountFlow.userId = userId
       accountFlow.amount = exchangeFee
       accountFlow.currencyId = currencyFrom.id
+      accountFlow.currencyName = currencyFrom.symbol
       accountFlow.balance = 0
       await manager.save(accountFlow )
 
@@ -166,6 +167,7 @@ export class AccountService {
       accountFlow2.userId = userId
       accountFlow2.amount = exchangeFee
       accountFlow2.currencyId = currencyTo.id
+      accountFlow.currencyName = currencyTo.symbol
       accountFlow2.balance = 0
       await manager.save(accountFlow2 )
       
@@ -256,6 +258,7 @@ export class AccountService {
       accountFlow.userId = userId
       accountFlow.amount = fromAmount
       accountFlow.currencyId = currency.id
+      accountFlow.currencyName = currency.symbol
       accountFlow.balance = 0
       await manager.save(accountFlow )
 
@@ -265,6 +268,7 @@ export class AccountService {
       accountFlow2.userId = user.userId
       accountFlow2.amount = toAmount
       accountFlow2.currencyId = currency.id
+      accountFlow.currencyName = currency.symbol
       accountFlow2.balance = 0
       await manager.save(accountFlow2 )
 

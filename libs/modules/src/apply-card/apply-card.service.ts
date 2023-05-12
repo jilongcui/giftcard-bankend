@@ -25,6 +25,7 @@ import { CreateBrokerageRecordDto } from '../brokerage_record/dto/create-brokera
 import { BrokerageType } from '../brokerage_record/entities/brokerage_record.entity';
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { AccountFlow, AccountFlowDirection, AccountFlowType } from '../account/entities/account-flow.entity';
+import { Currency } from '../currency/entities/currency.entity';
 
 @Injectable()
 export class ApplyCardService {
@@ -161,7 +162,7 @@ export class ApplyCardService {
       if(!account) {
         throw new ApiException('资金不足')
       }
-      
+
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", openfee)
       await manager.increment(Account, { userId: 1 }, "usable", openfee)
 
@@ -172,6 +173,7 @@ export class ApplyCardService {
       accountFlow.userId = userId
       accountFlow.amount = openfee
       accountFlow.currencyId = currencyId
+      accountFlow.currencyName = currencySymbol
       accountFlow.balance = 0
       await manager.save(accountFlow )
             
