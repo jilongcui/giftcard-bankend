@@ -11,11 +11,13 @@ import { ProfitRecordModule } from '../profit_record/profit_record.module';
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { SysConfigModule } from '../system/sys-config/sys-config.module';
 import { BrokerageRecordModule } from '../brokerage_record/brokerage_record.module';
+import { AccountFlow } from './entities/account-flow.entity';
+import { AccountFlowController } from './account-flow.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Account, Currency, Exchange, Transfer, InviteUser]),
+  imports: [TypeOrmModule.forFeature([Account, AccountFlow, Currency, Exchange, Transfer, InviteUser]),
     UserModule, ProfitRecordModule, BrokerageRecordModule, SysConfigModule],
-  controllers: [AccountController],
-  providers: [AccountService]
+  controllers: [AccountController, AccountFlowController],
+  providers: [AccountService, AccountService]
 })
 export class AccountModule { }
