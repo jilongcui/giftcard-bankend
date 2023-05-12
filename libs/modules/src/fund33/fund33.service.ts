@@ -171,8 +171,8 @@ export class Fund33Service {
 
     // this.logger.debug(JSON.stringify(body))
     const remoteUrl = this.baseUrl + requestUri
-    this.logger.debug(remoteUrl)
-    this.logger.debug(JSON.stringify(body))
+    // this.logger.debug(remoteUrl)
+    // this.logger.debug(JSON.stringify(body))
     let res = await this.httpService.axiosRef.post<Fund33Response<Fund33QueryBalance>>(remoteUrl, body, options);
     const responseData = res.data
     // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
@@ -248,8 +248,8 @@ export class Fund33Service {
 
     // this.logger.debug(JSON.stringify(body))
     const remoteUrl = this.baseUrl + requestUri
-    this.logger.debug(remoteUrl)
-    this.logger.debug(JSON.stringify(body))
+    // this.logger.debug(remoteUrl)
+    // this.logger.debug(JSON.stringify(body))
     let res = await this.httpService.axiosRef.post<Fund33Response<any>>(remoteUrl, body, options);
     const responseData = res.data
     // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
@@ -411,7 +411,7 @@ export class Fund33Service {
     }
 
     const remoteUrl = this.baseUrl + requestUri
-    this.logger.debug(querystring.stringify(body))
+    // this.logger.debug(querystring.stringify(body))
     let res = await this.httpService.axiosRef.post<Fund33Response<Fund33QueryTransaction>>(remoteUrl, options);
     const responseData = res.data
     // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
@@ -463,7 +463,7 @@ export class Fund33Service {
     }
 
     const remoteUrl = this.baseUrl + requestUri
-    this.logger.debug(querystring.stringify(body))
+    // this.logger.debug(querystring.stringify(body))
     let res = await this.httpService.axiosRef.post<Fund33Response<Fund33QueryUNTransaction>>(remoteUrl, options);
     const responseData = res.data
     // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
