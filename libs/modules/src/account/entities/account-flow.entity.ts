@@ -74,7 +74,7 @@ export class AccountFlow {
     amount: number
 
     @Column({
-        name: 'amount',
+        name: 'balance',
         type: "decimal", precision: 10, scale: 4, default: 0,
         comment: '总金额'
     })
