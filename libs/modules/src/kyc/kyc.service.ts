@@ -98,7 +98,9 @@ export class KycService {
         if(!bankcard) {
           throw new ApiException("未发现KYC绑定的卡")
         }
+        
         await manager.update(Bankcard, { id: bankcard.id }, { status: '1' }) // 激活银行卡
+        await manager.update(Order, { id: order.id }, { status: '2' }) // 待发货.
         const user = await manager.findOneBy(User, {userId: bankcard.userId})
         if(user.vip < bankcard.cardinfo.index) {
           await manager.update(User, {userId: bankcard.userId}, {vip: bankcard.cardinfo.index})

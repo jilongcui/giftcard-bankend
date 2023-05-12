@@ -180,7 +180,7 @@ export class ApplyCardService {
       // 创建订单
       const order = new Order()
       order.id = parseInt('1' + strRandom(8, {letters: false}))
-      order.status = '2'
+      order.status = '5' // 需要kyc审核
       order.userId = userId
       order.userName = ''
       order.assetId = bankcard.id
