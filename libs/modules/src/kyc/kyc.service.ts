@@ -69,6 +69,7 @@ export class KycService {
 
     const kyc2 = await this.kycRepository.save(kycDto)
     await this.bankcardRepository.update(order.assetId, {kycId: kyc2.id})
+    await this.orderRepository.update(order.id, {status: '6'})
     return kyc2
   }
 
@@ -177,7 +178,7 @@ export class KycService {
         const order = await manager.findOneBy(Order, {assetId: bankcard.id})
 
         await manager.update(Bankcard, { id: bankcard.id }, { userId: null, status: '0' }) // 释放银行卡
-        await manager.update(Order, { id: order.id }, { status: '6' }) // failer.
+        await manager.update(Order, { id: order.id }, { status: '7' }) // fail
         // 释放定金
         const currencyId = order.currencyId
         const openfee = order.price
