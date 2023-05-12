@@ -10,7 +10,7 @@ import { AccountFlow } from './entities/account-flow.entity';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 
-@ApiTags('账户流水')
+@ApiTags('账单流水')
 @ApiBearerAuth()
 @Controller('account-flow')
 export class AccountFlowController {

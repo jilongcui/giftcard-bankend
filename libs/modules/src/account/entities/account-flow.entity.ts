@@ -29,7 +29,6 @@ export class AccountFlow {
     @IsNumber()
     id: number
 
-    /* 类型 0: Recharge 1:Withdraw 2: First-Buy 3: Market-Buy 4: Market-Sell 5: Transfer */
     @Column({
         name: 'type',
         type: 'enum',
@@ -39,7 +38,6 @@ export class AccountFlow {
     @IsEnum(AccountFlowType)
     type: AccountFlowType
 
-    /* 资金转移方向 0: Out 1: In */
     @Column({
         name: 'direction',
         type: 'enum',
