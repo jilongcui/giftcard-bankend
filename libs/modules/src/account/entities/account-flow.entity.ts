@@ -37,7 +37,7 @@ export class AccountFlow {
         comment: '类型 0: Recharge 1:Withdraw 2: First-Buy 3: Market-Outcome 4: Market-Income 5: Transfer '
     })
     @IsEnum(AccountFlowType)
-    type: string
+    type: AccountFlowType
 
     /* 资金转移方向 0: Out 1: In */
     @Column({
@@ -46,8 +46,8 @@ export class AccountFlow {
         enum: AccountFlowDirection,
         comment: '资金转移方向 0: Out 1: In'
     })
-    @IsEnum(AccountFlowType)
-    direction: string
+    @IsEnum(AccountFlowDirection)
+    direction: AccountFlowDirection
 
     @Column({
         name: 'currency_id',
