@@ -40,6 +40,10 @@ export class ListMyOrderDto {
     @IsOptional()
     @IsString()
     status?: string
+
+    @IsOptional()
+    @IsString()
+    currencySymbol?: string
 }
 
 /* 同步失效的订单 */
