@@ -1,6 +1,27 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsArray, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
+export enum AccountFlowType {
+    'Recharge' = 'Recharge',
+    'Withdraw' = 'Withdraw',
+    'WithdrawRevert' = 'WithdrawRevert',
+    'Transfer' = 'Transfer',
+    'Exchange' = 'Exchange',
+    'BankWithdraw' = 'BankWithdraw',
+    'BankWithdrawRevert' = 'BankWithdrawRevert',
+    'OpenCard' = 'OpenCard',
+    'OpenCardRevert' = 'OpenCardRevert',
+    'UpgradeCard' = 'UpgradeCard',
+    'OpenCardBrokerage' = 'OpenCardBrokerage',
+    'PromotionAgent' = 'PromotionAgent',
+    'PromotionAgentRevert' = 'PromotionAgentRevert',
+}
+
+export enum AccountFlowDirection {
+    'In' = 'In',
+    'Out' = 'Out',
+}
 
 @Entity()
 export class AccountFlow {
@@ -11,24 +32,41 @@ export class AccountFlow {
     /* 类型 0: Recharge 1:Withdraw 2: First-Buy 3: Market-Buy 4: Market-Sell 5: Transfer */
     @Column({
         name: 'type',
-        type: 'char',
+        type: 'enum',
+        enum: AccountFlowType,
         comment: '类型 0: Recharge 1:Withdraw 2: First-Buy 3: Market-Outcome 4: Market-Income 5: Transfer '
     })
-    @IsString()
+    @IsEnum(AccountFlowType)
     type: string
 
     /* 资金转移方向 0: Out 1: In */
     @Column({
         name: 'type',
-        type: 'char',
+        type: 'enum',
+        enum: AccountFlowDirection,
         comment: '资金转移方向 0: Out 1: In'
     })
-    @IsString()
+    @IsEnum(AccountFlowType)
     direction: string
 
     @Column({
+        name: 'currency_id',
+        comment: '代币id'
+    })
+    @IsNumber()
+    currencyId: number
+
+    /* 代币name */
+    @Column({
+        name: 'currency_name',
+        comment: '代币name'
+    })
+    @IsString()
+    currencyName: string
+
+    @Column({
         name: 'amount',
-        type: "decimal", precision: 10, scale: 2, default: 0,
+        type: "decimal", precision: 10, scale: 4, default: 0,
         comment: '金额'
     })
     @IsOptional()
@@ -37,7 +75,7 @@ export class AccountFlow {
 
     @Column({
         name: 'amount',
-        type: "decimal", precision: 10, scale: 2, default: 0,
+        type: "decimal", precision: 10, scale: 4, default: 0,
         comment: '总金额'
     })
     @IsOptional()

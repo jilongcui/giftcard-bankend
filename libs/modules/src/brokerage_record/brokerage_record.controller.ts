@@ -7,7 +7,6 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
-import { Order } from '../order/entities/order.entity';
 import { BrokerageRecord } from './entities/brokerage_record.entity';
 
 @ApiTags("用户佣金报表")

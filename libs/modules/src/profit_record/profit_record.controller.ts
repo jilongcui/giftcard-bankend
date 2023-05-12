@@ -8,7 +8,6 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
-import { Order } from '../order/entities/order.entity';
 import { ProfitRecord } from './entities/profit_record.entity';
 
 @ApiTags("系统收益报表")

@@ -27,8 +27,8 @@ export class Fund33Controller {
     return this.fund33Service.queryBalance(queryBalanceDto, userId)
   }
 
-  @Post('recharge')
-  recharge(@Body() queryRechargeDto: QueryRechargeDto, @UserDec(UserEnum.userId) userId: number) {
-    return this.fund33Service.recharge(queryRechargeDto, userId)
-  }
+  // @Post('recharge')
+  // recharge(@Body() queryRechargeDto: QueryRechargeDto, @UserDec(UserEnum.userId) userId: number) {
+  //   return this.fund33Service.recharge(queryRechargeDto, userId)
+  // }
 }

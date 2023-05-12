@@ -324,7 +324,7 @@ export class PaymentService {
       
       this.logger.debug("Payment Notice Decoded result: " + JSON.stringify(paymentNotify))
       const orderId = paymentNotify.out_trade_no
-      const order = await this.orderRepository.findOne({ where: { id: parseInt(orderId), status: '1' }, relations: { user: true, payment: true } })
+      const order = await this.orderRepository.findOne({ where: { id: parseInt(orderId), status: '1' }, relations: { user: true } })
       if (!order) return {code: 200, data: null}
       if (order.assetType === '0') { // 藏品
         asset = await this.bankcardRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })

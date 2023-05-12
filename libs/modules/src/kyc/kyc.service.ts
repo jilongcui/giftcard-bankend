@@ -20,6 +20,7 @@ import { BrokerageRecord, BrokerageType } from '../brokerage_record/entities/bro
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { SysConfigService } from '../system/sys-config/sys-config.service';
 import { SYSCONF_OPENCARD_BROKERAGE_KEY, SYSCONF_OPENCARD_HIGH_BROKERAGE_KEY } from '@app/common/contants/sysconfig.contants';
+import { AccountFlow, AccountFlowType, AccountFlowDirection } from '../account/entities/account-flow.entity';
 
 @Injectable()
 export class KycService {
@@ -141,6 +142,15 @@ export class KycService {
           await manager.increment(Account, { userId: parentId, currencyId: currencyId }, "usable", openCardBrokerage)
           await manager.update(InviteUser, {id: userId}, {isOpenCard: true})
   
+          const accountFlow = new AccountFlow()
+          accountFlow.type = AccountFlowType.OpenCardBrokerage
+          accountFlow.direction = AccountFlowDirection.In
+          accountFlow.userId = parentId
+          accountFlow.amount = openCardBrokerage
+          accountFlow.currencyId = currencyId
+          accountFlow.balance = 0
+          await manager.create(AccountFlow, accountFlow)
+
           const brokerageRecordDto = new BrokerageRecord()
           brokerageRecordDto.type = BrokerageType.OpenCardBrokerage,
           brokerageRecordDto.content = '申请开卡返佣',
@@ -162,12 +172,23 @@ export class KycService {
         if(!bankcard) {
           throw new ApiException("未发现KYC绑定的卡")
         }
+        const order = await manager.findOneBy(Order, {assetId: bankcard.id})
+
         await manager.update(Bankcard, { id: bankcard.id }, { userId: null, status: '0' }) // 释放银行卡
+        await manager.update(Order, { id: order.id }, { status: '6' }) // failer.
         // 释放定金
         const currencyId = order.currencyId
         const openfee = order.price
         await manager.increment(Account, { userId: order.userId, currencyId }, "usable", openfee)
         await manager.decrement(Account, { userId: 1 }, "usable", openfee)
+        const accountFlow = new AccountFlow()
+        accountFlow.type = AccountFlowType.OpenCardRevert
+        accountFlow.direction = AccountFlowDirection.In
+        accountFlow.userId = order.userId
+        accountFlow.amount = openfee
+        accountFlow.currencyId = currencyId
+        accountFlow.balance = 0
+        await manager.create(AccountFlow, accountFlow)
       })
       kyc.signNo = notifyKycDto.orderNo
       await this.kycRepository.save(kyc)

@@ -12,6 +12,7 @@ import { CardinfoService } from '@app/modules/cardinfo/cardinfo.service';
 import { Kyc } from '@app/modules/kyc/entities/kyc.entity';
 import { Account } from '@app/modules/account/entities/account.entity';
 import { User } from '@app/modules/system/user/entities/user.entity';
+import { AccountFlow, AccountFlowDirection, AccountFlowType } from '@app/modules/account/entities/account-flow.entity';
 
 @Injectable()
 export class BankcardService {
@@ -164,9 +165,19 @@ export class BankcardService {
         throw new ApiException('资金不足')
       }
 
-      await manager.decrement(Account, { userId: userId, currencyId }, "usable", updateFee)
+      const updateResult = await manager.decrement(Account, { userId: userId, currencyId }, "usable", updateFee)
+      this.logger.debug(updateResult)
       await manager.increment(Account, { userId: 1 }, "usable", updateFee)
-            
+      // Add Account Flow
+      const accountFlow = new AccountFlow()
+      accountFlow.type = AccountFlowType.UpgradeCard
+      accountFlow.direction = AccountFlowDirection.Out
+      accountFlow.userId = userId
+      accountFlow.amount = updateFee
+      accountFlow.currencyId = currencyId
+      accountFlow.balance = 0
+      await manager.create(AccountFlow, accountFlow )
+
       await manager.update(Bankcard, { id: bankcard.id }, { cardinfoId: nextCardinfo.id })
       await manager.update(User, {userId: userId}, {vip: nextCardinfo.index})
       return await manager.findOne(Bankcard, {where: {id: bankcard.id}, relations: {cardinfo: true}})

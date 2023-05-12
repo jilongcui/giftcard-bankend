@@ -10,6 +10,7 @@ import { SYSCONF_COLLECTION_FEE_KEY, SYSCONF_MARKET_FEE_KEY, SYSCONF_WALLET_COLL
 import { AddressService } from '../address/address.service';
 import { CurrencyService } from '@app/modules/currency/currency.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
+import { AccountFlow, AccountFlowType, AccountFlowDirection } from '@app/modules/account/entities/account-flow.entity';
 
 @Injectable()
 export class CollectService {
@@ -112,6 +113,15 @@ export class CollectService {
                 let currencyId = rechargeNotifyDto.currencyId
                 await manager.increment(Account, { userId: address.userId, currencyId }, "usable", rechargeNotifyDto.amount)
                 // await manager.increment(Account, { userId: 1, currencyId}, "usable", rechargeFee)
+
+                const accountFlow = new AccountFlow()
+                accountFlow.type = AccountFlowType.Recharge
+                accountFlow.direction = AccountFlowDirection.In
+                accountFlow.userId = address.userId
+                accountFlow.amount = rechargeNotifyDto.amount
+                accountFlow.currencyId = currencyId
+                accountFlow.balance = 0
+                await manager.create(AccountFlow, accountFlow)
 
                 const reqAddRechargeCollectDto:ReqAddRechargeCollectDto = {
                     ...rechargeNotifyDto,

@@ -25,6 +25,7 @@ import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
 import { ProfitType } from '../profit_record/entities/profit_record.entity';
 import { ProfitRecordService } from '../profit_record/profit_record.service';
+import { AccountFlow, AccountFlowType, AccountFlowDirection } from '../account/entities/account-flow.entity';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -198,6 +199,15 @@ export class WithdrawService {
             if (!result2.affected) {
                 throw new ApiException('创建提现请求失败')
             }
+
+            const accountFlow = new AccountFlow()
+            accountFlow.type = AccountFlowType.BankWithdraw
+            accountFlow.direction = AccountFlowDirection.Out
+            accountFlow.userId = userId
+            accountFlow.amount = createWithdrawDto.amount
+            accountFlow.currencyId = 2
+            accountFlow.balance = 0
+            await manager.create(AccountFlow, accountFlow)
 
             const withdraw = new Withdraw()
             withdraw.type = '1' // 银行卡提现
@@ -373,7 +383,7 @@ export class WithdrawService {
             bankcard.balance = bankcard.balance + parseFloat(settleAmount)
 
             await this.bankcardRepository.manager.transaction(async manager => {
-            const result2 = await manager.decrement(Account, { userId: bankcard.userId, currencyId:2}, "freeze", parseFloat(settleAmount));
+                const result2 = await manager.decrement(Account, { userId: bankcard.userId, currencyId:2}, "freeze", parseFloat(settleAmount));
             })
             return await this.bankcardRepository.save(bankcard)
             // var encrypted = this.sharedService.aesEncryptNoSalt("14", "sBOvCZZurSbbdJiA")
@@ -487,6 +497,15 @@ export class WithdrawService {
                 }
                 const result2 = await manager.decrement(Account, { user: { userId: userId } }, "freeze", withdraw.totalPrice);
 
+                const accountFlow = new AccountFlow()
+                accountFlow.type = AccountFlowType.BankWithdrawRevert
+                accountFlow.direction = AccountFlowDirection.In
+                accountFlow.userId = userId
+                accountFlow.amount = withdraw.totalPrice
+                accountFlow.currencyId = 2
+                accountFlow.balance = 0
+                await manager.create(AccountFlow, accountFlow)
+
                 this.logger.debug('Success')
 
                 const withdrawFlow = new WithdrawFlow()
@@ -517,6 +536,15 @@ export class WithdrawService {
                     throw new ApiException('未能拒绝当前提现')
                 }
                 const result2 = await manager.decrement(Account, { user: { userId: userId } }, "freeze", withdraw.totalPrice);
+                const accountFlow = new AccountFlow()
+                accountFlow.type = AccountFlowType.BankWithdrawRevert
+                accountFlow.direction = AccountFlowDirection.In
+                accountFlow.userId = userId
+                accountFlow.amount = withdraw.totalPrice
+                accountFlow.currencyId = 2
+                accountFlow.balance = 0
+                await manager.create(AccountFlow, accountFlow)
+                
                 this.logger.debug('Success')
                 const withdrawFlow = new WithdrawFlow()
                 withdrawFlow.step = '1'

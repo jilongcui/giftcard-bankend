@@ -16,6 +16,7 @@ import { Account } from '../account/entities/account.entity';
 import { User } from '../system/user/entities/user.entity';
 import { CurrencyService } from '../currency/currency.service';
 import * as moment from 'moment';
+import { AccountFlow, AccountFlowType, AccountFlowDirection } from '../account/entities/account-flow.entity';
 
 @Injectable()
 export class PromotionAgentService {
@@ -23,6 +24,7 @@ export class PromotionAgentService {
 
   constructor(
     @InjectRepository(PromotionAgent) private readonly promoptionRepository: Repository<PromotionAgent>,
+    @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     private readonly currencyService: CurrencyService
   ) {
   }
@@ -54,6 +56,15 @@ export class PromotionAgentService {
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", promotionAgentfee)
       await manager.increment(Account, { userId: 1 }, "usable", promotionAgentfee)
       
+      const accountFlow = new AccountFlow()
+      accountFlow.type = AccountFlowType.PromotionAgent
+      accountFlow.direction = AccountFlowDirection.Out
+      accountFlow.userId = userId
+      accountFlow.amount = promotionAgentfee
+      accountFlow.currencyId = currencyId
+      accountFlow.balance = 0
+      await manager.create(AccountFlow, accountFlow )
+
       const promotion = await manager.save(promotionAgent)
 
       // 创建订单
@@ -142,10 +153,21 @@ export class PromotionAgentService {
   async fail(id: number) {
     let where: FindOptionsWhere<PromotionAgent> = {}
     let result: any;
-    let promotion = await this.promoptionRepository.findOneBy({ id: id, status: '1' })
-      
+    const promotion = await this.promoptionRepository.findOneBy({ id: id, status: '1' })
+    const order = await this.orderRepository.findOneBy({ assetId: id, assetType: '2' })
+    
     await this.promoptionRepository.manager.transaction(async manager => {
-      await manager.update(PromotionAgent, { id: id }, { status: '3' }) // failer.
+      await manager.update(PromotionAgent, { id: promotion.id }, { status: '3' }) // kyc fail.
+      await manager.update(Order, { id: order.id }, { status: '0' }) // failer.
+      await manager.decrement(Account, { userId: promotion.userId, currencyId: order.currencyId }, "usable", order.totalPrice)
+      const accountFlow = new AccountFlow()
+      accountFlow.type = AccountFlowType.PromotionAgentRevert
+      accountFlow.direction = AccountFlowDirection.In
+      accountFlow.userId = promotion.userId
+      accountFlow.amount = order.totalPrice
+      accountFlow.currencyId = order.currencyId
+      accountFlow.balance = 0
+      await manager.create(AccountFlow, accountFlow )
     })
   }
 
@@ -156,9 +178,21 @@ export class PromotionAgentService {
     if (userId == 0 || promotion.userId !== userId) {
       throw new ApiException("非本人订单")
     }
+    const order = await this.orderRepository.findOneBy({ assetId: id, assetType: '2' })
       
     await this.promoptionRepository.manager.transaction(async manager => {
       await manager.update(PromotionAgent, { id: promotion.id }, {status: '0' })
+      await manager.update(Order, { id: order.id }, { status: '0' }) // cancel.
+      await manager.decrement(Account, { userId: userId, currencyId: order.currencyId }, "usable", order.totalPrice)
+
+      const accountFlow = new AccountFlow()
+      accountFlow.type = AccountFlowType.PromotionAgentRevert
+      accountFlow.direction = AccountFlowDirection.In
+      accountFlow.userId = promotion.userId
+      accountFlow.amount = order.totalPrice
+      accountFlow.currencyId = order.currencyId
+      accountFlow.balance = 0
+      await manager.create(AccountFlow, accountFlow )
     })
   }
 

@@ -18,18 +18,18 @@ import { Withdraw } from '../fund/entities/withdraw.entity';
 @Controller('fund33/withdraw')
 export class WithdrawController {
     constructor(
-        private readonly fundService: WithdrawService
+        private readonly withdrawService: WithdrawService
     ) { }
 
     @Post()
     async createWithdraw(@Body() creatWithdrawDto: CreateWithdrawDto, @UserDec(UserEnum.userId) userId: number) {
-        return await this.fundService.createWithdrawRequest(creatWithdrawDto, userId);
+        return await this.withdrawService.createWithdrawRequest(creatWithdrawDto, userId);
     }
 
     @Post('confirm')
     @RequiresRoles(['admin', 'system'])
     async confirmWithdraw(@Body() confirmWithdrawDto: ConfirmWithdrawDto, @UserDec(UserEnum.userId) userId: number) {
-        return await this.fundService.confirmWithdrawRequest(confirmWithdrawDto, userId);
+        return await this.withdrawService.confirmWithdrawRequest(confirmWithdrawDto, userId);
     }
 
     /* 资金提现列表 */
@@ -37,7 +37,7 @@ export class WithdrawController {
     @CacheTTL(60)
     @ApiPaginatedResponse(PaginatedDto<Withdraw>)
     async list(@Query() listWithdrawDto: ListWithdrawDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
-        return await this.fundService.list(listWithdrawDto, paginationDto);
+        return await this.withdrawService.list(listWithdrawDto, paginationDto);
     }
 
     /* 我的资金提现列表 */
@@ -45,24 +45,24 @@ export class WithdrawController {
     @Get('mylist')
     @ApiPaginatedResponse(PaginatedDto<Withdraw>)
     async mylist(@Query() listMyWithdrawDto: ListMyWithdrawDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
-        return await this.fundService.mylist(userId, listMyWithdrawDto, paginationDto);
+        return await this.withdrawService.mylist(userId, listMyWithdrawDto, paginationDto);
     }
 
     @Put(':id/cancel')
     async cancel(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
-        return await this.fundService.cancel(+id, userId);
+        return await this.withdrawService.cancel(+id, userId);
     }
 
     @Put(':id/fail')
     @RequiresRoles(['admin', 'system'])
     async fail(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
-        return await this.fundService.fail(+id, userId);
+        return await this.withdrawService.fail(+id, userId);
     }
 
     @Get(':id')
     @ApiDataResponse(typeEnum.object, Withdraw)
     async findOne(@Param('id') id: string) {
-        return await this.fundService.findOne(+id);
+        return await this.withdrawService.findOne(+id);
     }
 
 }

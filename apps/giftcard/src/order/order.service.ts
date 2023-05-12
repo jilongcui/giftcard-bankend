@@ -210,7 +210,7 @@ export class OrderService {
   }
 
   findOne(id: number) {
-    return this.orderRepository.findOne({ where: { id }, relations: {payment: true } })
+    return this.orderRepository.findOne({ where: { id }, relations: { } })
   }
 
   update(id: number, updateOrderDto: UpdateOrderDto) {

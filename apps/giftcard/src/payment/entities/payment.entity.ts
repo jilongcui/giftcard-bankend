@@ -56,6 +56,7 @@ export class Payment {
 
     @Column({
         name: 'order_id',
+        default: null,
         comment: '关联的订单'
     })
     @IsOptional()
@@ -65,7 +66,7 @@ export class Payment {
 
     /* 一级市场 */
     @ApiHideProperty()
-    @OneToOne(() => Order, order => order.payment)
+    @OneToOne(() => Order)
     @JoinColumn({
         name: 'order_id',
     })

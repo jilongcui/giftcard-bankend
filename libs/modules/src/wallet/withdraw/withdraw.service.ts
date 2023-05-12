@@ -20,6 +20,7 @@ import { ReqAddressWithdrawDto } from '../address/dto/req-address.dto';
 import { CurrencyService } from '@app/modules/currency/currency.service';
 import { SYSCONF_WITHDRAW_FEE_KEY } from '@app/common/contants/sysconfig.contants';
 import { SysConfigService } from '@app/modules/system/sys-config/sys-config.service';
+import { AccountFlow, AccountFlowType, AccountFlowDirection } from '@app/modules/account/entities/account-flow.entity';
 
 @Injectable()
 export class WithdrawService {
@@ -72,8 +73,17 @@ export class WithdrawService {
             throw new ApiException('创建提现请求失败')
         }
 
+        const accountFlow = new AccountFlow()
+        accountFlow.type = AccountFlowType.Withdraw
+        accountFlow.direction = AccountFlowDirection.Out
+        accountFlow.userId = userId
+        accountFlow.amount = createWithdrawDto.amount
+        accountFlow.currencyId = currency.id
+        accountFlow.balance = 0
+        await manager.create(AccountFlow, accountFlow)
+
         const withdraw = new Withdraw()
-        withdraw.type = '1' // 银行卡提现
+        withdraw.type = '1' // 提现到wallet地址
         withdraw.status = '0' // 待审核
         withdraw.currencyId = currency.id
         withdraw.toAddress = createWithdrawDto.toAddress
@@ -185,8 +195,16 @@ export class WithdrawService {
         return await this.withdrawRepository.manager.transaction(async manager => {
             // 把Withdraw的状态改成4: 失败
             await manager.update(Withdraw, { id: withdraw.id, status: '1' }, { status: '4' }) // 提现失败
-            await manager.increment(Account, { userId: withdraw.userId }, "usable", withdraw.totalPrice)
-            await manager.decrement(Account, { userId: withdraw.userId }, "freeze", withdraw.totalPrice);
+            await manager.increment(Account, { userId: withdraw.userId, currencyId: withdraw.currencyId }, "usable", withdraw.totalPrice)
+            await manager.decrement(Account, { userId: withdraw.userId, currencyId: withdraw.currencyId }, "freeze", withdraw.totalPrice);
+            const accountFlow = new AccountFlow()
+            accountFlow.type = AccountFlowType.WithdrawRevert
+            accountFlow.direction = AccountFlowDirection.In
+            accountFlow.userId = withdraw.userId
+            accountFlow.amount = withdraw.totalPrice
+            accountFlow.currencyId = withdraw.currencyId
+            accountFlow.balance = 0
+            await manager.create(AccountFlow, accountFlow)
             return await this.withdrawRepository.save(withdraw)
         })
     }
@@ -195,8 +213,8 @@ export class WithdrawService {
         // 把Withdraw的状态改成2: 已支付
         // await manager.update(Withdraw, { id: withdraw.id, status: '1' }, { status: '2' })
         
-        await manager.increment(Account, { userId: 1 }, "usable", withdraw.totalFee)
-        const result2 = await manager.decrement(Account, { userId: withdraw.userId }, "freeze", withdraw.totalPrice);
+        await manager.increment(Account, { userId: 1, currencyId: withdraw.currencyId }, "usable", withdraw.totalFee)
+        const result2 = await manager.decrement(Account, { userId: withdraw.userId, currencyId: withdraw.currencyId }, "freeze", withdraw.totalPrice);
         withdraw.status = '2'
         withdraw.txid = withdrawNotifyDto.txid
         return await this.withdrawRepository.save(withdraw)
@@ -219,13 +237,23 @@ export class WithdrawService {
             if (result.affected <= 0) {
                 throw new ApiException("未能取消提币")
             }
-            result = await manager.increment(Account, { user: { userId: userId }, }, "usable", withdraw.totalPrice);
+            result = await manager.increment(Account, { user: { userId: userId, currencyId: withdraw.currencyId }, }, "usable", withdraw.totalPrice);
             if (!result.affected) {
                 throw new ApiException('未能取消当前提现')
             }
-            const result2 = await manager.decrement(Account, { user: { userId: userId } }, "freeze", withdraw.totalPrice);
+            const result2 = await manager.decrement(Account, { user: { userId: userId, currencyId: withdraw.currencyId } }, "freeze", withdraw.totalPrice);
 
             this.logger.debug('Success')
+
+            const accountFlow = new AccountFlow()
+            accountFlow.type = AccountFlowType.WithdrawRevert
+            accountFlow.direction = AccountFlowDirection.In
+            accountFlow.userId = withdraw.userId
+            accountFlow.amount = withdraw.totalPrice
+            accountFlow.currencyId = withdraw.currencyId
+            accountFlow.balance = 0
+            await manager.create(AccountFlow, accountFlow)
+            return await this.withdrawRepository.save(withdraw)
 
             const withdrawFlow = new WithdrawFlow()
             withdrawFlow.step = '1'
@@ -245,12 +273,21 @@ async fail(id: number, userId: number) {
     if (withdraw.type === '1') {
         await this.withdrawRepository.manager.transaction(async manager => {
             await manager.update(Withdraw, { id: withdraw.id }, { status: '5' }) // Unlocked.
-            const result = await manager.increment(Account, { user: { userId: withdraw.userId }, }, "usable", withdraw.totalPrice);
+            const result = await manager.increment(Account, { user: { userId: withdraw.userId, currencyId: withdraw.currencyId }, }, "usable", withdraw.totalPrice);
             if (!result.affected) {
                 throw new ApiException('未能拒绝当前提现')
             }
-            const result2 = await manager.decrement(Account, { user: { userId: userId } }, "freeze", withdraw.totalPrice);
+            const result2 = await manager.decrement(Account, { user: { userId: userId, currencyId: withdraw.currencyId } }, "freeze", withdraw.totalPrice);
             this.logger.debug('Success')
+            const accountFlow = new AccountFlow()
+            accountFlow.type = AccountFlowType.WithdrawRevert
+            accountFlow.direction = AccountFlowDirection.In
+            accountFlow.userId = withdraw.userId
+            accountFlow.amount = withdraw.totalPrice
+            accountFlow.currencyId = withdraw.currencyId
+            accountFlow.balance = 0
+            await manager.create(AccountFlow, accountFlow)
+            
             const withdrawFlow = new WithdrawFlow()
             withdrawFlow.step = '1'
             withdrawFlow.status = '2'

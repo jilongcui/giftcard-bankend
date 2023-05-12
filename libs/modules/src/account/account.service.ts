@@ -19,6 +19,7 @@ import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { SYSCONF_EXCHANGE_BROKERAGE_KEY } from '@app/common/contants/sysconfig.contants';
 import { SysConfigService } from '../system/sys-config/sys-config.service';
 import { BrokerageRecordService } from '../brokerage_record/brokerage_record.service';
+import { AccountFlow, AccountFlowType, AccountFlowDirection } from './entities/account-flow.entity';
 
 @Injectable()
 export class AccountService {
@@ -148,6 +149,26 @@ export class AccountService {
       await manager.increment(Account, { userId: userId, currencyId: currencyTo.id }, "usable", toAmount)
       await manager.increment(Account, { userId: 1 }, "usable", exchangeFee)
       await manager.update(InviteUser, {id: userId}, {isExchangeUsdt: true})
+
+      // Add Account Flow
+      const accountFlow = new AccountFlow()
+      accountFlow.type = AccountFlowType.Exchange
+      accountFlow.direction = AccountFlowDirection.Out
+      accountFlow.userId = userId
+      accountFlow.amount = exchangeFee
+      accountFlow.currencyId = currencyFrom.id
+      accountFlow.balance = 0
+      await manager.create(AccountFlow, accountFlow )
+
+      const accountFlow2 = new AccountFlow()
+      accountFlow2.type = AccountFlowType.Exchange
+      accountFlow2.direction = AccountFlowDirection.In
+      accountFlow2.userId = userId
+      accountFlow2.amount = exchangeFee
+      accountFlow2.currencyId = currencyTo.id
+      accountFlow2.balance = 0
+      await manager.create(AccountFlow, accountFlow2 )
+      
       const exchange = new Exchange()
       exchange.fromAmount = fromAmount
       exchange.fee = exchangeFee
@@ -227,6 +248,26 @@ export class AccountService {
       await manager.decrement(Account, { userId: userId, currencyId: currency.id }, "usable", fromAmount)
       await manager.increment(Account, { userId: user.userId, currencyId: currency.id }, "usable", toAmount)
       await manager.increment(Account, { userId: 1 }, "usable", transferFee)
+
+      // Add Account Flow
+      const accountFlow = new AccountFlow()
+      accountFlow.type = AccountFlowType.Transfer
+      accountFlow.direction = AccountFlowDirection.Out
+      accountFlow.userId = userId
+      accountFlow.amount = fromAmount
+      accountFlow.currencyId = currency.id
+      accountFlow.balance = 0
+      await manager.create(AccountFlow, accountFlow )
+
+      const accountFlow2 = new AccountFlow()
+      accountFlow2.type = AccountFlowType.Transfer
+      accountFlow2.direction = AccountFlowDirection.In
+      accountFlow2.userId = user.userId
+      accountFlow2.amount = toAmount
+      accountFlow2.currencyId = currency.id
+      accountFlow2.balance = 0
+      await manager.create(AccountFlow, accountFlow2 )
+
       const transfer = new Transfer()
       transfer.fromAmount = fromAmount
       transfer.fee = transferFee

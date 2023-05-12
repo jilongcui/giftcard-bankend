@@ -26,7 +26,7 @@ export class Order {
     })
     desc: string
 
-    /* 商品类型 0: "实名卡", 1: "非实名卡" */
+    /* 商品类型 0: "实名卡", 1: "非实名卡", 2: "推广大使"*/
     @Column({
         name: 'asset_type',
         comment: '商品类型 0: "实名卡", 1: "非实名卡"',
@@ -39,7 +39,7 @@ export class Order {
     @Excel({
         name: '商品类型',
         readConverterExp: {
-            0: "实名卡", 1: "非实名卡"
+            0: "实名卡", 1: "非实名卡", 2: "推广大使"
         }
     })
     assetType?: string
@@ -136,10 +136,10 @@ export class Order {
     })
     shipFee: number
 
-    /* 订单状态 0: 订单取消 1: 待付款 2: 待发货 3: 待收货 4: 交易成功*/
+    /* 订单状态 0: 订单取消 1: 待付款 2: 待发货 3: 待收货 4: 交易成功 5: 需要KYC 6: 订单失败 */
     @Column({
         name: 'status',
-        comment: '订单状态 0: 订单取消 1: 待付款 2: 待发货 3: 待收货 4: 交易成功',
+        comment: '订单状态 0: 订单取消 1: 待付款 2: 待发货 3: 待收货 4: 交易成功 5: 需要KYC 6: 订单失败',
         type: 'char',
         length: 1
     })
@@ -147,7 +147,7 @@ export class Order {
     @Excel({
         name: '订单状态',
         readConverterExp: {
-            0: "订单取消", 1: "待付款", 2: "待发货", 3: "待收货", 4: "交易成功"
+            0: "订单取消", 1: "待付款", 2: "待发货", 3: "待收货", 4: "交易成功", 5: "需要KYC", 6: "订单失败"
         }
     })
     status: string
@@ -308,8 +308,8 @@ export class Order {
     })
     user: User
 
-    @ApiHideProperty()
-    @OneToOne(() => Payment, payment => payment.order)
-    @IsOptional()
-    payment?: Payment
+    // @ApiHideProperty()
+    // @OneToOne(() => Payment, payment => payment.order)
+    // @IsOptional()
+    // payment?: Payment
 }
