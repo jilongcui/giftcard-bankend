@@ -13,6 +13,7 @@ import { Kyc } from '@app/modules/kyc/entities/kyc.entity';
 import { Account } from '@app/modules/account/entities/account.entity';
 import { User } from '@app/modules/system/user/entities/user.entity';
 import { AccountFlow, AccountFlowDirection, AccountFlowType } from '@app/modules/account/entities/account-flow.entity';
+import { Currency } from '@app/modules/currency/entities/currency.entity';
 
 @Injectable()
 export class BankcardService {
@@ -161,6 +162,7 @@ export class BankcardService {
     return await this.bankcardRepository.manager.transaction(async manager => {
       const currencyId = 1
       const account = await manager.findOne(Account, { where: { currencyId, userId, usable: MoreThanOrEqual(updateFee)} })
+      const currency = await manager.findOne(Currency, { where: { id: currencyId} })
       if(!account) {
         throw new ApiException('资金不足')
       }
@@ -175,8 +177,10 @@ export class BankcardService {
       accountFlow.userId = userId
       accountFlow.amount = updateFee
       accountFlow.currencyId = currencyId
+      accountFlow.currencyName = currency.symbol
       accountFlow.balance = 0
-      await manager.create(AccountFlow, accountFlow )
+
+      await manager.save(accountFlow )
 
       await manager.update(Bankcard, { id: bankcard.id }, { cardinfoId: nextCardinfo.id })
       await manager.update(User, {userId: userId}, {vip: nextCardinfo.index})
