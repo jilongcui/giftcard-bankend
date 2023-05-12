@@ -167,7 +167,7 @@ export class AccountService {
       accountFlow2.userId = userId
       accountFlow2.amount = exchangeFee
       accountFlow2.currencyId = currencyTo.id
-      accountFlow.currencyName = currencyTo.symbol
+      accountFlow2.currencyName = currencyTo.symbol
       accountFlow2.balance = 0
       await manager.save(accountFlow2 )
       
@@ -247,7 +247,8 @@ export class AccountService {
       if(!account) {
         throw new ApiException('资金不足')
       }
-      await manager.decrement(Account, { userId: userId, currencyId: currency.id }, "usable", fromAmount)
+      const result = await manager.decrement(Account, { userId: userId, currencyId: currency.id }, "usable", fromAmount)
+      this.logger.debug(result.raw[0])
       await manager.increment(Account, { userId: user.userId, currencyId: currency.id }, "usable", toAmount)
       await manager.increment(Account, { userId: 1 }, "usable", transferFee)
 
@@ -268,7 +269,7 @@ export class AccountService {
       accountFlow2.userId = user.userId
       accountFlow2.amount = toAmount
       accountFlow2.currencyId = currency.id
-      accountFlow.currencyName = currency.symbol
+      accountFlow2.currencyName = currency.symbol
       accountFlow2.balance = 0
       await manager.save(accountFlow2 )
 
