@@ -41,7 +41,7 @@ export class AccountFlow {
 
     /* 资金转移方向 0: Out 1: In */
     @Column({
-        name: 'type',
+        name: 'direction',
         type: 'enum',
         enum: AccountFlowDirection,
         comment: '资金转移方向 0: Out 1: In'
