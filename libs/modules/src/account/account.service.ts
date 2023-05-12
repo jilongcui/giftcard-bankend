@@ -158,7 +158,7 @@ export class AccountService {
       accountFlow.amount = exchangeFee
       accountFlow.currencyId = currencyFrom.id
       accountFlow.balance = 0
-      await manager.create(AccountFlow, accountFlow )
+      await manager.save(accountFlow )
 
       const accountFlow2 = new AccountFlow()
       accountFlow2.type = AccountFlowType.Exchange
@@ -167,7 +167,7 @@ export class AccountService {
       accountFlow2.amount = exchangeFee
       accountFlow2.currencyId = currencyTo.id
       accountFlow2.balance = 0
-      await manager.create(AccountFlow, accountFlow2 )
+      await manager.save(accountFlow2 )
       
       const exchange = new Exchange()
       exchange.fromAmount = fromAmount
@@ -257,7 +257,7 @@ export class AccountService {
       accountFlow.amount = fromAmount
       accountFlow.currencyId = currency.id
       accountFlow.balance = 0
-      await manager.create(AccountFlow, accountFlow )
+      await manager.save(accountFlow )
 
       const accountFlow2 = new AccountFlow()
       accountFlow2.type = AccountFlowType.Transfer
@@ -266,7 +266,7 @@ export class AccountService {
       accountFlow2.amount = toAmount
       accountFlow2.currencyId = currency.id
       accountFlow2.balance = 0
-      await manager.create(AccountFlow, accountFlow2 )
+      await manager.save(accountFlow2 )
 
       const transfer = new Transfer()
       transfer.fromAmount = fromAmount

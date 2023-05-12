@@ -152,7 +152,7 @@ export class KycService {
           accountFlow.amount = openCardBrokerage
           accountFlow.currencyId = currencyId
           accountFlow.balance = 0
-          await manager.create(AccountFlow, accountFlow)
+          await manager.save(accountFlow)
 
           const brokerageRecordDto = new BrokerageRecord()
           brokerageRecordDto.type = BrokerageType.OpenCardBrokerage,
@@ -191,7 +191,7 @@ export class KycService {
         accountFlow.amount = openfee
         accountFlow.currencyId = currencyId
         accountFlow.balance = 0
-        await manager.create(AccountFlow, accountFlow)
+        await manager.save(accountFlow)
       })
       kyc.signNo = notifyKycDto.orderNo
       await this.kycRepository.save(kyc)

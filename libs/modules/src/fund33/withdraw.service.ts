@@ -207,7 +207,7 @@ export class WithdrawService {
             accountFlow.amount = createWithdrawDto.amount
             accountFlow.currencyId = 2
             accountFlow.balance = 0
-            await manager.create(AccountFlow, accountFlow)
+            await manager.save(accountFlow)
 
             const withdraw = new Withdraw()
             withdraw.type = '1' // 银行卡提现
@@ -504,7 +504,7 @@ export class WithdrawService {
                 accountFlow.amount = withdraw.totalPrice
                 accountFlow.currencyId = 2
                 accountFlow.balance = 0
-                await manager.create(AccountFlow, accountFlow)
+                await manager.save(accountFlow)
 
                 this.logger.debug('Success')
 
@@ -543,8 +543,8 @@ export class WithdrawService {
                 accountFlow.amount = withdraw.totalPrice
                 accountFlow.currencyId = 2
                 accountFlow.balance = 0
-                await manager.create(AccountFlow, accountFlow)
-                
+                await manager.save(accountFlow)
+
                 this.logger.debug('Success')
                 const withdrawFlow = new WithdrawFlow()
                 withdrawFlow.step = '1'

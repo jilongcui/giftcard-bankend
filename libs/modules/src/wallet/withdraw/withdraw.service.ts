@@ -80,7 +80,7 @@ export class WithdrawService {
         accountFlow.amount = createWithdrawDto.amount
         accountFlow.currencyId = currency.id
         accountFlow.balance = 0
-        await manager.create(AccountFlow, accountFlow)
+        await manager.save(accountFlow)
 
         const withdraw = new Withdraw()
         withdraw.type = '1' // 提现到wallet地址
@@ -204,7 +204,7 @@ export class WithdrawService {
             accountFlow.amount = withdraw.totalPrice
             accountFlow.currencyId = withdraw.currencyId
             accountFlow.balance = 0
-            await manager.create(AccountFlow, accountFlow)
+            await manager.save(accountFlow)
             return await this.withdrawRepository.save(withdraw)
         })
     }
@@ -252,7 +252,7 @@ export class WithdrawService {
             accountFlow.amount = withdraw.totalPrice
             accountFlow.currencyId = withdraw.currencyId
             accountFlow.balance = 0
-            await manager.create(AccountFlow, accountFlow)
+            await manager.save(accountFlow)
             return await this.withdrawRepository.save(withdraw)
 
             const withdrawFlow = new WithdrawFlow()
@@ -286,8 +286,8 @@ async fail(id: number, userId: number) {
             accountFlow.amount = withdraw.totalPrice
             accountFlow.currencyId = withdraw.currencyId
             accountFlow.balance = 0
-            await manager.create(AccountFlow, accountFlow)
-            
+            await manager.save(accountFlow)
+
             const withdrawFlow = new WithdrawFlow()
             withdrawFlow.step = '1'
             withdrawFlow.status = '2'

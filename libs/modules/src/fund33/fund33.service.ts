@@ -304,7 +304,7 @@ export class Fund33Service {
   //     accountFlow.amount = realAmount
   //     accountFlow.currencyId = 2
   //     accountFlow.balance = 0
-  //     await manager.create(AccountFlow, accountFlow )
+  //     await manager.save(accountFlow )
 
   //     // const withdraw = new Withdraw()
   //     // withdraw.type = '1' // 银行卡提现

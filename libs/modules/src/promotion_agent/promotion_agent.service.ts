@@ -63,7 +63,7 @@ export class PromotionAgentService {
       accountFlow.amount = promotionAgentfee
       accountFlow.currencyId = currencyId
       accountFlow.balance = 0
-      await manager.create(AccountFlow, accountFlow )
+      await manager.save(accountFlow )
 
       const promotion = await manager.save(promotionAgent)
 
@@ -167,7 +167,7 @@ export class PromotionAgentService {
       accountFlow.amount = order.totalPrice
       accountFlow.currencyId = order.currencyId
       accountFlow.balance = 0
-      await manager.create(AccountFlow, accountFlow )
+      await manager.save(accountFlow )
     })
   }
 
@@ -192,7 +192,7 @@ export class PromotionAgentService {
       accountFlow.amount = order.totalPrice
       accountFlow.currencyId = order.currencyId
       accountFlow.balance = 0
-      await manager.create(AccountFlow, accountFlow )
+      await manager.save(accountFlow )
     })
   }
 

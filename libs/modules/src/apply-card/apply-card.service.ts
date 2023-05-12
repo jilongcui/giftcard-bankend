@@ -173,7 +173,7 @@ export class ApplyCardService {
       accountFlow.amount = openfee
       accountFlow.currencyId = currencyId
       accountFlow.balance = 0
-      await manager.create(AccountFlow, accountFlow )
+      await manager.save(accountFlow )
             
       // await manager.update(User, {userId: userId}, {vip: cardInfo.index})
 

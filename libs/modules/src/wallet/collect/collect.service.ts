@@ -121,7 +121,7 @@ export class CollectService {
                 accountFlow.amount = rechargeNotifyDto.amount
                 accountFlow.currencyId = currencyId
                 accountFlow.balance = 0
-                await manager.create(AccountFlow, accountFlow)
+                await manager.save(accountFlow)
 
                 const reqAddRechargeCollectDto:ReqAddRechargeCollectDto = {
                     ...rechargeNotifyDto,
