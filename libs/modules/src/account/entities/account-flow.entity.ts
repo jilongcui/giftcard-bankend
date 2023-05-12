@@ -23,7 +23,7 @@ export enum AccountFlowDirection {
     'Out' = 'Out',
 }
 
-@Entity()
+@Entity('account_flow')
 export class AccountFlow {
     @PrimaryGeneratedColumn()
     @IsNumber()
