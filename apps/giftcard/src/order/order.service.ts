@@ -84,7 +84,7 @@ export class OrderService {
         order.totalPrice = 0.0
         order.tradeFee = 0.0
         order.shipFee = 0.0
-        order.desc = "[" + asset.cardinfo.name + "]" + asset.cardinfo.info.typeName
+        order.desc = asset.cardinfo.name
         order.image = asset.cardinfo.info.image
         await manager.save(order);
         await manager.update(Bankcard, { id: order.assetId }, { status: '2' }) // Asset is locked.
@@ -97,7 +97,7 @@ export class OrderService {
         order.price = asset.price
         order.tradeFee = asset.tradefee
         order.shipFee = asset.shipfee * order.count
-        order.desc = "[" + asset.cardType + "]" + asset.cardName
+        order.desc = asset.cardName
         order.image = asset.images[0] || undefined
         await manager.save(order);
         // await manager.update(Giftcard, { id: order.assetId }, { status: '2' }) // Asset is locked.

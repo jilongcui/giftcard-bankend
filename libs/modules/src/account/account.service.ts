@@ -247,8 +247,7 @@ export class AccountService {
       if(!account) {
         throw new ApiException('资金不足')
       }
-      const result = await manager.decrement(Account, { userId: userId, currencyId: currency.id }, "usable", fromAmount)
-      this.logger.debug(result.raw[0])
+      await manager.decrement(Account, { userId: userId, currencyId: currency.id }, "usable", fromAmount)
       await manager.increment(Account, { userId: user.userId, currencyId: currency.id }, "usable", toAmount)
       await manager.increment(Account, { userId: 1 }, "usable", transferFee)
 

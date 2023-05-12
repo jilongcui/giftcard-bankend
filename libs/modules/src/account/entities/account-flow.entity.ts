@@ -18,6 +18,22 @@ export enum AccountFlowType {
     'PromotionAgentRevert' = 'PromotionAgentRevert',
 }
 
+export enum AccountFlowTypeDesc {
+    'Recharge' = '钱包充值',
+    'Withdraw' = '钱包提币',
+    'WithdrawRevert' = '钱包提币提币退回',
+    'Transfer' = '钱包转账',
+    'Exchange' = '钱包兑换',
+    'BankWithdraw' = '充值到银行卡',
+    'BankWithdrawRevert' = '充值到银行卡退回',
+    'OpenCard' = '开卡费',
+    'OpenCardRevert' = '开卡费退回',
+    'UpgradeCard' = '升级卡费',
+    'OpenCardBrokerage' = '开卡返佣',
+    'PromotionAgent' = '推广大使费用',
+    'PromotionAgentRevert' = '推广大使费用退回',
+}
+
 export enum AccountFlowDirection {
     'In' = 'In',
     'Out' = 'Out',
