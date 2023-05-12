@@ -13,11 +13,12 @@ import { SysConfigModule } from '../system/sys-config/sys-config.module';
 import { BrokerageRecordModule } from '../brokerage_record/brokerage_record.module';
 import { AccountFlow } from './entities/account-flow.entity';
 import { AccountFlowController } from './account-flow.controller';
+import { AccountFlowService } from './account-flow.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Account, AccountFlow, Currency, Exchange, Transfer, InviteUser]),
     UserModule, ProfitRecordModule, BrokerageRecordModule, SysConfigModule],
   controllers: [AccountController, AccountFlowController],
-  providers: [AccountService, AccountService]
+  providers: [AccountService, AccountFlowService]
 })
 export class AccountModule { }
