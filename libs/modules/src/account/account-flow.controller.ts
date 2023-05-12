@@ -6,7 +6,7 @@ import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { AccountFlowService } from './account-flow.service';
 import { CreateAccountFlowDto, ListAccountFlowDto, ListMyAccountFlowDto,  } from './dto/request-account-flow.dto';
-import { Account } from './entities/account.entity';
+import { AccountFlow } from './entities/account-flow.entity';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 
@@ -26,14 +26,14 @@ export class AccountFlowController {
   /* 账户列表 */
   @Get('list')
   @RequiresRoles(['admin', 'system'])
-  @ApiPaginatedResponse(Account)
+  @ApiPaginatedResponse(AccountFlow)
   async list(@Query() listAccountDto: ListAccountFlowDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.accountFlowService.list(listAccountDto, paginationDto);
   }
 
   /* 账户列表 */
   @Get('mylist')
-  @ApiPaginatedResponse(Account)
+  @ApiPaginatedResponse(AccountFlow)
   async mylist(@Query() listAccountDto: ListMyAccountFlowDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {
     return await this.accountFlowService.mylist(listAccountDto, userId, paginationDto);
   }
