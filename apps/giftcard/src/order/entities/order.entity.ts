@@ -9,6 +9,7 @@ import { Payment } from "../../payment/entities/payment.entity";
 @Entity()
 export class Order {
     @PrimaryGeneratedColumn()
+    @Type()
     @IsNumber()
     @Excel({
         name: '订单ID'
@@ -104,6 +105,7 @@ export class Order {
         comment: '商品金额'
     })
     @IsOptional()
+    @Type()
     @IsNumber()
     @Excel({
         name: '单价',
@@ -117,6 +119,7 @@ export class Order {
         comment: '交易手续费'
     })
     @IsOptional()
+    @Type()
     @IsNumber()
     @Excel({
         name: '交易手续费',
@@ -130,6 +133,7 @@ export class Order {
         comment: '运输手续费'
     })
     @IsOptional()
+    @Type()
     @IsNumber()
     @Excel({
         name: '运输手续费',
@@ -183,6 +187,7 @@ export class Order {
         name: 'user_id',
         comment: '订单所属用户'
     })
+    @Type()
     @IsNumber()
     @Excel({
         name: '订单用户ID',
@@ -194,6 +199,7 @@ export class Order {
         name: 'currency_id',
         comment: '代币ID'
     })
+    @Type()
     @IsNumber()
     @Excel({
         name: '代币ID',

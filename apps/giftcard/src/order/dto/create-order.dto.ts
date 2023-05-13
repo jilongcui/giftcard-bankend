@@ -1,6 +1,7 @@
 import { OmitType, PartialType, PickType } from "@nestjs/swagger";
 import { Order } from "../entities/order.entity";
 import { IsString, IsNumber, IsOptional } from "class-validator";
+import { Type } from "class-transformer";
 
 export class UpdateOrderDto extends PartialType(Order) { }
 
@@ -10,9 +11,12 @@ export class RequestBankcardOrderDto {
     @IsString()
     assetType: string
 
+
+    @Type()
     @IsNumber()
     assetId: number
     
+    @Type()
     @IsNumber()
     count: number
 
