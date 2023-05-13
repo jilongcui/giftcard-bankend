@@ -181,21 +181,22 @@ export class WithdrawService {
         
         let amount = createWithdrawDto.amount
 
-        const ratio = bankcard.cardinfo.info.exchangeToCardRatio
+        const ratio = Number(bankcard.cardinfo.info.exchangeToCardRatio)
         const fee = amount * ratio
-        const realAmount = amount + fee
+        const realAmount = amount - fee
+        this.logger.debug(ratio)
 
         if (createWithdrawDto.amount <= fee) {
             throw new ApiException('提现金额低于手续费')
         }
 
         return await this.withdrawRepository.manager.transaction(async manager => {
-            const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
+            const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(amount) }, "usable", amount);
             if (!result.affected) {
                 throw new ApiException('创建提现请求失败')
             }
 
-            const result2 = await manager.increment(Account, { user: { userId: userId } }, "freeze", realAmount);
+            const result2 = await manager.increment(Account, { user: { userId: userId } }, "freeze", amount);
             if (!result2.affected) {
                 throw new ApiException('创建提现请求失败')
             }
