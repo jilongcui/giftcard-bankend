@@ -9,19 +9,21 @@ export class CreateOrderDto extends OmitType(Order, ['id', 'image', 'status', 'u
 export class ListOrderDto extends PartialType(OmitType(Order, ['user', 'count'] as const)) {
     /* 开始日期 */
     @IsString()
+    @IsOptional()
     @ApiProperty({
         name: 'beginTime',
         // default: moment().format("YYYY-MM-DD")
     })
-    beginTime: Date
+    beginTime?: Date
 
     /* 结束日期 */
     @IsString()
+    @IsOptional()
     @ApiProperty({
         name: 'endTime',
         // default: moment().format("YYYY-MM-DD")
     })
-    endTime: Date
+    endTime?: Date
 }
 
 export class RequestBankcardOrderDto {

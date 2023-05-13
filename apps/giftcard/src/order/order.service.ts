@@ -118,7 +118,8 @@ export class OrderService {
     let where: FindOptionsWhere<Order> = {}
     let result: any;
     where = listOrderList
-    where.createTime = Between(listOrderList.beginTime, listOrderList.endTime)
+    if(listOrderList.beginTime)
+      where.createTime = Between(listOrderList.beginTime, listOrderList.endTime)
 
     result = await this.orderRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
