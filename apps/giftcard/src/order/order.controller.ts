@@ -107,7 +107,7 @@ export class OrderController {
 
   @Put(':id/confirmShip')
   // @RequiresRoles(['admin', 'system'])
-  confirmShip(@Param('id') id: string,  @UserDec(UserEnum.userId) userId: number,) {
+  confirmShip(@Param('id') id: string,  @UserDec(UserEnum.userId) userId: number) {
     return this.orderService.confirmShip(+id, userId);
   }
 

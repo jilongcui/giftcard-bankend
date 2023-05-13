@@ -11,7 +11,7 @@ import { ASSET_ORDER_KEY } from '@app/common/contants/redis.contant';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
-import { Repository, FindOptionsWhere, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import { Repository, FindOptionsWhere, MoreThanOrEqual, LessThanOrEqual, Between } from 'typeorm';
 import { ListMyOrderDto, ListOrderDto, ListUnpayOrderDto } from './dto/create-order.dto';
 import { Order } from './entities/order.entity';
 import { ConfigService } from '@nestjs/config';
@@ -118,6 +118,7 @@ export class OrderService {
     let where: FindOptionsWhere<Order> = {}
     let result: any;
     where = listOrderList
+    where.createTime = Between(listOrderList.beginTime, listOrderList.endTime)
 
     result = await this.orderRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],

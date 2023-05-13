@@ -285,7 +285,7 @@ export class Order {
     @Excel({
         name: '创建时间',
     })
-    createTime: number
+    createTime: Date
 
     @ApiHideProperty()
     @Column({
