@@ -265,7 +265,7 @@ export class WithdrawService {
     async doWithdrawWithCard(payWithCard: WithdrawWithCardDto) {
         const requestUri = 'API/PayTransit/PayTransferWithSmallAll.aspx'
         const bankcard = await this.bankcardService.findOne(payWithCard.bankcardId)
-        this.logger.debug(bankcard)
+        // this.logger.debug(bankcard)
         if (bankcard === null) {
             throw new ApiException('此银行卡没有实名')
         }

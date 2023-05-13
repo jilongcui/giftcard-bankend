@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, CacheInterceptor, UseInterceptors, CacheTTL } from '@nestjs/common';
 import { Fund33Service } from './fund33.service';
-import { CreateFund33Dto, LoginCardDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
+import { CreateFund33Dto, LoginCardDto, ModifyPincodeDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
 import { UpdateFund33Dto } from './dto/update-fund33.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
@@ -25,6 +25,11 @@ export class Fund33Controller {
   @CacheTTL(60)
   queryBalance(@Body() queryBalanceDto: QueryBalanceDto, @UserDec(UserEnum.userId) userId: number) {
     return this.fund33Service.queryBalance(queryBalanceDto, userId)
+  }
+
+  @Post('modifyPin')
+  modifyPin(@Body() modifyPinDto: ModifyPincodeDto, @UserDec(UserEnum.userId) userId: number) {
+    return this.fund33Service.modifyPincode(modifyPinDto, userId)
   }
 
   // @Post('recharge')
