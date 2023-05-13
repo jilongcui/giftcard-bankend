@@ -105,6 +105,12 @@ export class OrderController {
     return this.orderService.updateShipInfo(+id, updateeOrderShipDto);
   }
 
+  @Put(':id/confirmShip')
+  // @RequiresRoles(['admin', 'system'])
+  confirmShip(@Param('id') id: string,  @UserDec(UserEnum.userId) userId: number,) {
+    return this.orderService.confirmShip(+id, userId);
+  }
+
   @Delete(':id')
   @RequiresRoles(['admin', 'system'])
   async removeOne(@Param('id') id: string) {

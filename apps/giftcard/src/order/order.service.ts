@@ -233,6 +233,17 @@ export class OrderService {
     return this.orderRepository.update(id, updateOrder2Dto)
   }
 
+  async confirmShip(id: number, userId: number) {
+    let order = await this.orderRepository.findOneBy({ id: id, status: '3' })
+    if (userId == 0 || order.userId !== userId) {
+      throw new ApiException("非本人订单，或者订单状态不对")
+    }
+    const updateOrderDto = {
+      status: '4'
+    }
+    return this.orderRepository.update(id, updateOrderDto)
+  }
+
   deleteOne(id: number) {
     return this.orderRepository.delete(id)
   }
