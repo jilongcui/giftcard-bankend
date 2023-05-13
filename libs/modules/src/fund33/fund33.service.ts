@@ -208,7 +208,7 @@ export class Fund33Service {
   }
 
   /**
-   * 查询当前卡上的余额
+   * 修改银行卡密码
    */
   async modifyPincode(modifypincodeDto: ModifyPincodeDto, userId: number) {
 
@@ -247,7 +247,7 @@ export class Fund33Service {
     const remoteUrl = this.baseUrl + requestUri
     // this.logger.debug(remoteUrl)
     // this.logger.debug(JSON.stringify(body))
-    let res = await this.httpService.axiosRef.post<Fund33Response<Fund33QueryBalance>>(remoteUrl, body, options);
+    let res = await this.httpService.axiosRef.post<Fund33Response<any>>(remoteUrl, body, options);
     const responseData = res.data
     // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
 
