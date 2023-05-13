@@ -125,7 +125,8 @@ export class AccountService {
     const currencyFrom = await this.currencyRepository.findOneBy({id: exhangeAccountDto.currIdFrom})
     const currencyTo = await this.currencyRepository.findOneBy({id: exhangeAccountDto.currIdTo})
     // this.logger.debug(`ratio ${currencyTo.exratio} / ${currencyFrom.exratio}`)
-    const ratio = (currencyFrom.exratio + currencyFrom.exratioBias) / (currencyTo.exratio + currencyTo.exratioBias) 
+    const ratio = currencyFrom.exratio / currencyTo.exratio
+    // const ratio = (currencyFrom.exratio + currencyFrom.exratioBias) / (currencyTo.exratio + currencyTo.exratioBias) 
 
     const fromAmount = exhangeAccountDto.amount
     const exchangeFee = fromAmount * 0.01 // toFixed
