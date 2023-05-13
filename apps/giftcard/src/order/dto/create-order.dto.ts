@@ -7,23 +7,6 @@ export class UpdateOrderDto extends PartialType(Order) { }
 
 export class CreateOrderDto extends OmitType(Order, ['id', 'image', 'status', 'userId', 'userName', 'desc', 'shipName', 'shipNo', 'totalPrice',] as const) { }
 export class ListOrderDto extends PartialType(OmitType(Order, ['user', 'count'] as const)) {
-    /* 开始日期 */
-    @IsString()
-    @IsOptional()
-    @ApiProperty({
-        name: 'beginTime',
-        // default: moment().format("YYYY-MM-DD")
-    })
-    beginTime?: Date
-
-    /* 结束日期 */
-    @IsString()
-    @IsOptional()
-    @ApiProperty({
-        name: 'endTime',
-        // default: moment().format("YYYY-MM-DD")
-    })
-    endTime?: Date
 }
 
 export class RequestBankcardOrderDto {

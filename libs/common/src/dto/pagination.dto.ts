@@ -7,7 +7,7 @@
  * @FilePath: \meimei\src\common\dto\pagination.dto.ts
  * You can you up，no can no bb！！
  */
-import { ApiHideProperty } from "@nestjs/swagger"
+import { ApiHideProperty, ApiProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
 import { IsBoolean, IsBooleanString, IsNumber, IsOptional, IsString } from "class-validator"
 
@@ -53,4 +53,22 @@ export class PaginationDto {
     /* mysql返回条数 */
     @ApiHideProperty()
     public take: number
+
+    /* 开始日期 */
+    @IsString()
+    @IsOptional()
+    @ApiProperty({
+        name: 'beginTime',
+        // default: moment().format("YYYY-MM-DD")
+    })
+    beginTime?: Date
+
+    /* 结束日期 */
+    @IsString()
+    @IsOptional()
+    @ApiProperty({
+        name: 'endTime',
+        // default: moment().format("YYYY-MM-DD")
+    })
+    endTime?: Date
 }

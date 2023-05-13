@@ -117,9 +117,11 @@ export class OrderService {
   async list(listOrderList: ListOrderDto, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
     let where: FindOptionsWhere<Order> = {}
     let result: any;
-    where = listOrderList
-    if(listOrderList.beginTime)
-      where.createTime = Between(listOrderList.beginTime, listOrderList.endTime)
+    where = {
+      ...listOrderList
+    }
+    if(paginationDto.beginTime)
+      where.createTime = Between(paginationDto.beginTime, paginationDto.endTime)
 
     result = await this.orderRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
