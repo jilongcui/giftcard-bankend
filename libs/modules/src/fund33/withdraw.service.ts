@@ -544,6 +544,7 @@ export class WithdrawService {
                 accountFlow.userId = userId
                 accountFlow.amount = withdraw.totalPrice
                 accountFlow.currencyId = 2
+                accountFlow.currencyName = 'HKD'
                 accountFlow.balance = 0
                 await manager.save(accountFlow)
 
