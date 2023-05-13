@@ -83,7 +83,7 @@ export class Currency {
         comment: 'exchange ratio bias percent', // exchange ratio
     })
     @IsNumber()
-    exratioBisa: number
+    exratioBias: number
 
     @Column({
         name: 'status',
