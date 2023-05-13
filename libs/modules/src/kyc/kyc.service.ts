@@ -95,7 +95,7 @@ export class KycService {
     if(notifyKycDto.status === '2') { //  Success
       await this.bankcardRepository.manager.transaction(async manager => {
         const userId = order.userId
-        const bankcard = await manager.findOneBy(Bankcard, {cardNo: kyc.cardNo, status: '2'})
+        const bankcard = await manager.findOne(Bankcard, {where:{cardNo: kyc.cardNo, status: '2'}, relations: {cardinfo: true}})
         if(!bankcard) {
           throw new ApiException("未发现KYC绑定的卡")
         }
