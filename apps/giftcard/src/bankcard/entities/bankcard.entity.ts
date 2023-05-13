@@ -11,6 +11,7 @@ import { Excel } from "@app/modules/common/excel/excel.decorator";
 @Entity()
 export class Bankcard {
     @PrimaryGeneratedColumn()
+    @Type()
     @IsNumber()
     id: number
 
@@ -146,6 +147,7 @@ export class Bankcard {
         type: "decimal", precision: 10, scale: 2,
         comment: '银行卡余额'
     })
+    @Type()
     @IsNumber()
     balance: number
 
@@ -155,6 +157,7 @@ export class Bankcard {
         default: null,
         comment: '银行卡的KYC认证'
     })
+    @Type()
     @IsNumber()
     kycId: number
 

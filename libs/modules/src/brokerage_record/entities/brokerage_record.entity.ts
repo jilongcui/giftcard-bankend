@@ -1,4 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
@@ -10,6 +11,7 @@ export enum BrokerageType {
 @Entity()
 export class BrokerageRecord {
     @PrimaryGeneratedColumn()
+    @Type()
     @IsNumber()
     id: number
 
@@ -28,6 +30,7 @@ export class BrokerageRecord {
         comment: 'user Id'
     })
     @IsOptional()
+    @Type()
     @IsNumber()
     userId: number
 
@@ -36,6 +39,7 @@ export class BrokerageRecord {
         comment: 'from user Id'
     })
     @IsOptional()
+    @Type()
     @IsNumber()
     fromUserId: number
 
@@ -56,6 +60,7 @@ export class BrokerageRecord {
         comment: '金额'
     })
     @IsOptional()
+    @Type()
     @IsNumber()
     amount: number
 
@@ -65,6 +70,7 @@ export class BrokerageRecord {
         comment: '佣金'
     })
     @IsOptional()
+    @Type()
     @IsNumber()
     value?: number
 

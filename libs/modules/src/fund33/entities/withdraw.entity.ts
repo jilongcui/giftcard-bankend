@@ -9,6 +9,7 @@ import { Bankcard } from "apps/giftcard/src/bankcard/entities/bankcard.entity";
 @Entity('bank_withdraw')
 export class Withdraw {
     @PrimaryGeneratedColumn()
+    @Type()
     @IsNumber()
     id: number
 
@@ -22,7 +23,7 @@ export class Withdraw {
     @IsString()
     type: string
 
-    /* 提现状态 0: 未审核 1: 提现中 2: 提现完成 3:取消提现 4: 提现失败 */
+    /* 提现状态 0: 等待审核 1: 提现中 2: 提现完成 3:取消提现 4: 提现失败 5: 审核未通过 */
     @Column({
         name: 'status',
         default: '0',
@@ -39,6 +40,7 @@ export class Withdraw {
         type: "decimal", precision: 10, scale: 2, default: 0,
         comment: '订单总金额'
     })
+    @Type()
     @IsNumber()
     totalPrice: number
 
@@ -48,6 +50,7 @@ export class Withdraw {
         type: "decimal", precision: 10, scale: 2, default: 0.00,
         comment: '提现手续费'
     })
+    @Type()
     @IsNumber()
     totalFee: number
 
@@ -57,6 +60,7 @@ export class Withdraw {
         type: "decimal", precision: 10, scale: 2, default: 0.00,
         comment: '订单实际金额'
     })
+    @Type()
     @IsNumber()
     realPrice: number
 
@@ -67,6 +71,7 @@ export class Withdraw {
         comment: '订单数量'
     })
     @IsOptional()
+    @Type()
     @IsNumber()
     count?: number
 
@@ -94,6 +99,7 @@ export class Withdraw {
     })
     @IsOptional()
     @Type()
+    @Type()
     @IsNumber()
     bankcardId?: number
 
@@ -110,6 +116,7 @@ export class Withdraw {
         comment: '订单所属用户'
     })
     @IsOptional()
+    @Type()
     @IsNumber()
     userId?: number
 

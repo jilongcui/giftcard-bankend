@@ -3,6 +3,7 @@ import { IsEnum, IsNumber, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { AddressTypeEnum } from "../../address/entities/address.entity";
 import { Currency } from "@app/modules/currency/entities/currency.entity";
+import { Type } from "class-transformer";
 
 @Entity()
 export class RechargeCollect {
@@ -10,6 +11,7 @@ export class RechargeCollect {
         name: 'id',
         comment: '主ID',
     })
+    @Type()
     @IsNumber()
     id: number;
 
@@ -32,6 +34,7 @@ export class RechargeCollect {
         name: 'currency_id',
         comment: '关联currency表',
     })
+    @Type()
     @IsNumber()
     currencyId: number;
 
@@ -58,6 +61,7 @@ export class RechargeCollect {
         type: "decimal", precision: 10, scale: 4, default: 0,
         nullable: true,
     })
+    @Type()
     @IsNumber()
     amount: number;
 
@@ -67,6 +71,7 @@ export class RechargeCollect {
         type: "decimal", precision: 10, scale: 4, default: 0,
         nullable: true,
     })
+    @Type()
     @IsNumber()
     fee: number;
 
@@ -85,6 +90,7 @@ export class RechargeCollect {
         comment: '是否提供了汇总手续费，1为是，0为否，防止重复提供手续费',
         default: 0
     })
+    @Type()
     @IsNumber()
     feeState: number;
 
@@ -94,6 +100,7 @@ export class RechargeCollect {
         type: 'tinyint',
         default: 0,
     })
+    @Type()
     @IsNumber()
     state: number;
 
@@ -103,6 +110,7 @@ export class RechargeCollect {
         type: 'tinyint',
         default: 0
     })
+    @Type()
     @IsNumber()
     confirmState: number;
 
@@ -111,6 +119,7 @@ export class RechargeCollect {
         name: 'user_id',
         comment: '所属用户'
     })
+    @Type()
     @IsNumber()
     userId: number
 

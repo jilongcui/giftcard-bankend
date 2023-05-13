@@ -28,6 +28,7 @@ export class User extends BaseEntity {
         name: 'user_id',
         comment: '用户ID'
     })
+    @Type()
     @IsNumber()
     @Excel({
         name: '用户ID'
@@ -64,6 +65,7 @@ export class User extends BaseEntity {
         default: 0,
         comment: '用户Vip等级'
     })
+    @Type()
     @IsNumber()
     @Excel({
         name: '用户Vip等级'
@@ -75,6 +77,7 @@ export class User extends BaseEntity {
         comment: '推广大使ID',
         default: null
     })
+    @Type()
     @IsNumber()
     @Excel({
         name: '推广大使Id'

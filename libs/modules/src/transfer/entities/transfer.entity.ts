@@ -1,6 +1,7 @@
 import { Currency } from "@app/modules/currency/entities/currency.entity";
 import { User } from "@app/modules/system/user/entities/user.entity";
 import { ApiHideProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import { IsEnum, IsNumber, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
@@ -10,6 +11,7 @@ export class Transfer {
         name: 'id',
         comment: '主ID',
     })
+    @Type()
     @IsNumber()
     id: number;
 
@@ -17,6 +19,7 @@ export class Transfer {
         name: 'from_user_id',
         comment: '从用户',
     })
+    @Type()
     @IsNumber()
     fromUserId: number;
 
@@ -31,6 +34,7 @@ export class Transfer {
         name: 'to_user_id',
         comment: '到代币',
     })
+    @Type()
     @IsNumber()
     toUserId: number;
 
@@ -45,6 +49,7 @@ export class Transfer {
         name: 'currency_id',
         comment: '代币',
     })
+    @Type()
     @IsNumber()
     currencyId: number;
 
@@ -61,6 +66,7 @@ export class Transfer {
         type: "decimal", precision: 10, scale: 4, default: 0,
         nullable: true,
     })
+    @Type()
     @IsNumber()
     fromAmount: number;
 
@@ -70,6 +76,7 @@ export class Transfer {
         type: "decimal", precision: 10, scale: 4, default: 0,
         nullable: true,
     })
+    @Type()
     @IsNumber()
     fee: number;
 
@@ -79,6 +86,7 @@ export class Transfer {
         type: "decimal", precision: 10, scale: 4, default: 0,
         nullable: true,
     })
+    @Type()
     @IsNumber()
     toAmount: number;
 
@@ -96,6 +104,7 @@ export class Transfer {
         name: 'user_id',
         comment: '所属用户'
     })
+    @Type()
     @IsNumber()
     userId: number
 
