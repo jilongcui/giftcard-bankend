@@ -437,7 +437,7 @@ export class WithdrawService {
         result = await this.withdrawRepository.findAndCount({
             // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
             where,
-            relations: { user: true },
+            relations: { user: true, bankcard: true },
             skip: paginationDto.skip,
             take: paginationDto.take,
             order: {

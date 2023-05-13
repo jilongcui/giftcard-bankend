@@ -5,6 +5,8 @@ import { Type } from "class-transformer";
 import { Cardinfo } from "@app/modules/cardinfo/entities/cardinfo.entity";
 import { User } from "@app/modules/system/user/entities/user.entity";
 import { Order } from "../../order/entities/order.entity";
+import { Excel } from "@app/modules/common/excel/excel.decorator";
+import { ExcelTypeEnum } from "@app/modules/common/excel/excel.enum";
 
 @Entity()
 export class Giftcard {
@@ -12,15 +14,18 @@ export class Giftcard {
     @IsNumber()
     id: number
 
-    /* 持卡人银行卡号 */
-    // @Column({
-    //     name: 'card_no',
-    //     length: 50,
-    //     comment: '持卡人银行卡号'
-    // })
-    // @IsOptional()
-    // @IsString()
-    // cardNo?: string
+    /* 银行卡号 */
+    @Column({
+        name: 'card_no',
+        length: 50,
+        comment: '银行卡号'
+    })
+    @Excel({
+        name: '银行卡号'
+    })
+    @IsOptional()
+    @IsString()
+    cardNo?: string
 
     // /* 持卡人预留手机号 */
     // @Column({
@@ -37,6 +42,9 @@ export class Giftcard {
         name: 'card_name',
         length: 150,
         comment: '卡的名称'
+    })
+    @Excel({
+        name: '卡的名称'
     })
     @IsString()
     cardName: string
@@ -58,6 +66,9 @@ export class Giftcard {
         type: "decimal", precision: 10, scale: 2,
         comment: '银行卡价格'
     })
+    @Excel({
+        name: '银行卡价格'
+    })
     @IsNumber()
     price: number
 
@@ -67,6 +78,9 @@ export class Giftcard {
         default: 0.00,
         type: "decimal", precision: 10, scale: 2,
         comment: '运费HKD'
+    })
+    @Excel({
+        name: '运费HKD'
     })
     @IsNumber()
     shipfee: number
@@ -78,6 +92,9 @@ export class Giftcard {
         type: "decimal", precision: 10, scale: 2,
         comment: '手续费HKD'
     })
+    @Excel({
+        name: '手续费HKD'
+    })
     @IsNumber()
     tradefee: number
 
@@ -87,13 +104,21 @@ export class Giftcard {
         default: '0',
         comment: '银行卡状态 0: 已下架 1: 已上架 2: 已锁定 3: 已售出'
     })
+    @Excel({
+        name: '银行卡状态',
+        type: ExcelTypeEnum.EXPORT
+    })
     @IsString()
     status: string
 
     @Column({
         name: 'user_id',
         default: null,
-        comment: '订单所属用户'
+        comment: '所属用户'
+    })
+    @Excel({
+        name: '所属用户',
+        type: ExcelTypeEnum.EXPORT
     })
     @Type()
     @IsNumber()

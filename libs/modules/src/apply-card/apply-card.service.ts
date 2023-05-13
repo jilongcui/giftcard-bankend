@@ -188,7 +188,7 @@ export class ApplyCardService {
       order.assetId = bankcard.id
       order.assetType = '0' // 申请开卡
       order.userPhone = ''
-      order.remark = bankcard.cardNo
+      order.cardNo = bankcard.cardNo
       order.homeAddress = ''
       order.count = 1
       order.currencyId = currencyId

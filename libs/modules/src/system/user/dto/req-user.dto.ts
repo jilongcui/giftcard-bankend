@@ -8,6 +8,14 @@ import { User } from "../entities/user.entity"
 export class ReqUserListDto {
     @IsOptional()
     @IsString()
+    userId?: number
+
+    @IsOptional()
+    @IsString()
+    email?: string
+
+    @IsOptional()
+    @IsString()
     userName?: string
 
     @IsOptional()

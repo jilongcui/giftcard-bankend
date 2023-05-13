@@ -200,4 +200,21 @@ export class GiftcardService {
     return Math.floor((Math.random() * 999999999) + 1000000000);
   }
 
+  /* 导入批量插入用户 */
+  async insert(data: any) {
+    let giftcardArr: Giftcard[] = []
+    for await (const iterator of data) {
+        let giftcard = new Giftcard()
+        if (!iterator.cardNo || !iterator.cardName) throw new ApiException('银行卡卡号、卡的名称')
+        const one = await this.giftcardRepository.findOneBy({cardNo: iterator.cardNo})
+        if (one) throw new ApiException('该银行卡已存在')
+        giftcard = Object.assign(giftcard, iterator)
+        giftcardArr.push(giftcard)
+    }
+    await this.giftcardRepository.createQueryBuilder()
+        .insert()
+        .into(Giftcard)
+        .values(giftcardArr)
+        .execute()
+  }
 }

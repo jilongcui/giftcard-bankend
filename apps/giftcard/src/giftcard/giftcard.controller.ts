@@ -1,24 +1,30 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put, UseInterceptors, CacheInterceptor } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put, UseInterceptors, CacheInterceptor, StreamableFile, UploadedFile } from '@nestjs/common';
 import { GiftcardService } from './giftcard.service';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { CreateGiftcardDto, CreateGiftcardKycDto, ListOnlineGiftcardDto, UpdateGiftcardDto } from './dto/request-giftcard.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { ListGiftcardDto, ListMyGiftcardDto } from './dto/request-giftcard.dto';
 import { Giftcard } from './entities/giftcard.entity';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
+import { Keep } from '@app/common/decorators/keep.decorator';
+import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
+import { ApiFile } from '@app/modules/pdf/pdf.controller';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ExcelService } from '@app/modules/common/excel/excel.service';
 
 @ApiTags('礼品卡')
 @ApiBearerAuth()
 @UseInterceptors(CacheInterceptor)
 @Controller('giftcard')
 export class GiftcardController {
-  constructor(private readonly giftcardService: GiftcardService) { }
+  constructor(private readonly giftcardService: GiftcardService,
+    private readonly excelService: ExcelService) { }
 
   @Post()
   create(@Body() createGiftcardDto: CreateGiftcardDto, @UserDec(UserEnum.userId) userId: number) {
@@ -88,6 +94,26 @@ export class GiftcardController {
   @RequiresRoles(['admin', 'system'])
   remove(@Param('id') id: string) {
     return this.giftcardService.deleteOne(+id);
+  }
+
+  /* 下载模板 */
+  @Post('importTemplate')
+  @Keep()
+  async importTemplate() {
+    const file = await this.excelService.importTemplate(Giftcard)
+    return new StreamableFile(file)
+  }
+  
+  /* 银行卡导入 */
+  @RepeatSubmit()
+  @Post('importData')
+  @ApiConsumes('multipart/form-data')
+  @ApiFile()
+  @RequiresPermissions('system:user:import')
+  @UseInterceptors(FileInterceptor('file'))
+  async importData(@UploadedFile() file: Express.Multer.File) {
+      const data = await this.excelService.import(Giftcard, file)
+      await this.giftcardService.insert(data)
   }
 }
 

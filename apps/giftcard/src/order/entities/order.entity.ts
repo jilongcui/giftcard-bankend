@@ -147,6 +147,7 @@ export class Order {
         type: 'char',
         length: 1
     })
+    @Type()
     @IsString()
     @Excel({
         name: '订单状态',
@@ -168,6 +169,19 @@ export class Order {
         name: '订单图片',
     })
     image?: string
+
+    /* 银行卡卡号 */
+    @Column({
+        name: 'card_no',
+        default: '',
+        comment: '银行卡卡号'
+    })
+    @IsOptional()
+    @IsString()
+    @Excel({
+        name: '银行卡卡号',
+    })
+    cardNo?: string
 
     /* 用户留言 */
     @Column({
