@@ -230,7 +230,7 @@ export class OrderService {
       ...updateOrderDto,
       status: '3'
     }
-    return this.orderRepository.update(id, updateOrderDto)
+    return this.orderRepository.update(id, updateOrder2Dto)
   }
 
   deleteOne(id: number) {
