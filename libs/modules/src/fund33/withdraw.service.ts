@@ -181,21 +181,21 @@ export class WithdrawService {
         
         let amount = createWithdrawDto.amount
 
-        let fee = amount * 1 / 1000
-        if (fee < 1.0) fee = 1.0
-        amount = amount - fee
+        const ratio = bankcard.cardinfo.info.exchangeToCardRatio
+        const fee = amount * ratio
+        const realAmount = amount + fee
 
         if (createWithdrawDto.amount <= fee) {
             throw new ApiException('提现金额低于手续费')
         }
 
         return await this.withdrawRepository.manager.transaction(async manager => {
-            const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(createWithdrawDto.amount) }, "usable", createWithdrawDto.amount);
+            const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
             if (!result.affected) {
                 throw new ApiException('创建提现请求失败')
             }
 
-            const result2 = await manager.increment(Account, { user: { userId: userId } }, "freeze", createWithdrawDto.amount);
+            const result2 = await manager.increment(Account, { user: { userId: userId } }, "freeze", realAmount);
             if (!result2.affected) {
                 throw new ApiException('创建提现请求失败')
             }
@@ -204,7 +204,7 @@ export class WithdrawService {
             accountFlow.type = AccountFlowType.BankWithdraw
             accountFlow.direction = AccountFlowDirection.Out
             accountFlow.userId = userId
-            accountFlow.amount = createWithdrawDto.amount
+            accountFlow.amount = realAmount
             accountFlow.currencyId = 2
             accountFlow.currencyName = 'HKD'
             accountFlow.balance = 0
@@ -217,7 +217,7 @@ export class WithdrawService {
             withdraw.userId = userId
             withdraw.totalPrice = createWithdrawDto.amount
             withdraw.totalFee = fee
-            withdraw.realPrice = withdraw.totalPrice - withdraw.totalFee
+            withdraw.realPrice = realAmount
             withdraw.count = 1
             withdraw.merchBillNo = this.randomBillNo()
             withdraw.merchBatchNo = this.randomBatchNo()
@@ -350,15 +350,15 @@ export class WithdrawService {
         const timestamp = moment().unix()*1000 + moment().milliseconds()
         const nonce = this.sharedService.generateNonce(16)
         let body = {
-        amount: rechargeDto.amount.toString(),
-        appKey: this.appKey,
-        appSecret: this.appSecret,
-        cardNumber: bankcard.cardNo,
-        merOrderNo: this.sharedService.generateNonce(8),
-        nonce: nonce,
-        // notifyUrl: '',
-        sign: undefined,
-        timestamp: timestamp,
+            amount: rechargeDto.amount.toString(),
+            appKey: this.appKey,
+            appSecret: this.appSecret,
+            cardNumber: bankcard.cardNo,
+            merOrderNo: this.sharedService.generateNonce(8),
+            nonce: nonce,
+            // notifyUrl: '',
+            sign: undefined,
+            timestamp: timestamp,
         }
 
         const signContent = this.sign(body)

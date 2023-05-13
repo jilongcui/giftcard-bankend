@@ -8,7 +8,7 @@ import * as moment from 'moment';
 import * as querystring from 'querystring';
 import strRandom from 'string-random';
 import { MoreThanOrEqual, Repository } from 'typeorm';
-import { LoginCardDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
+import { LoginCardDto, ModifyPincodeDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
 import { Fund33QueryBalance, Fund33QueryTransaction, Fund33QueryUNTransaction, Fund33RechargeDto, Fund33Response } from './dto/response-fund33.dto';
 import { Account } from '../account/entities/account.entity';
 import { KycCertifyInfo } from '../kyc/entities/kyc.entity';
@@ -202,6 +202,61 @@ export class Fund33Service {
         // const verifyOk = verify.verify(this.platformPublicKey, responseData.sign, 'base64');
         // this.logger.debug(verifyOk)
         // return querystring.parse(decryptedData)
+        return bankcard.balance
+    }
+    throw new ApiException('发送请求失败: ' + responseData.msg)
+  }
+
+  /**
+   * 查询当前卡上的余额
+   */
+  async modifyPincode(modifypincodeDto: ModifyPincodeDto, userId: number) {
+
+    const requestUri = '/api/card/modify/PIN'
+    // 对所有的原始参数进行签名
+
+    const cardId = modifypincodeDto.cardId
+    const bankcard = await this.bankcardRepository.findOneBy({userId: userId, id: cardId})
+    if(!bankcard)
+      throw new ApiException("不拥有此银行卡")
+
+    const timestamp = moment().unix()*1000 + moment().milliseconds()
+    const nonce = this.sharedService.generateNonce(16)
+    let body = {
+      appKey: this.appKey,
+      appSecret: this.appSecret,
+      cardNumber: bankcard.cardNo,
+      newPin: modifypincodeDto.newPin,
+      nonce: nonce,
+      pin: modifypincodeDto.oldPin,
+      sign: undefined,
+      timestamp: timestamp,
+    }
+
+    const signContent = this.sign(body)
+    body.sign = signContent
+    body.appSecret = undefined
+
+    let options = {
+      headers: {
+          "Content-Type": "application/json"
+      },
+    }
+
+    // this.logger.debug(JSON.stringify(body))
+    const remoteUrl = this.baseUrl + requestUri
+    // this.logger.debug(remoteUrl)
+    // this.logger.debug(JSON.stringify(body))
+    let res = await this.httpService.axiosRef.post<Fund33Response<Fund33QueryBalance>>(remoteUrl, body, options);
+    const responseData = res.data
+    // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
+
+    this.logger.debug(responseData)
+    if (responseData.success == true) {
+        // const decryptedData = key2.decrypt(responseData.encrypt_data, 'utf8');
+        // decode cardnumber
+        // this.bankcardRepository.save(bankcard)
+        
         return bankcard.balance
     }
     throw new ApiException('发送请求失败: ' + responseData.msg)
