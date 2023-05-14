@@ -148,6 +148,7 @@ export class WithdrawService {
             withdraw.type = '1' // 银行卡提现
             withdraw.status = '0' // 待审核
             withdraw.bankcardId = bankcard.id
+            withdraw.cardNo = bankcard.cardNo
             withdraw.userId = userId
             withdraw.totalPrice = createWithdrawDto.amount
             withdraw.totalFee = fee

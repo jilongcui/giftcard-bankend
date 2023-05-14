@@ -122,6 +122,18 @@ export class Withdraw {
     @IsNumber()
     bankcardId?: number
 
+    @Column({
+        name: 'card_no',
+        default: '',
+        comment: '卡号',
+        length: 50
+    })
+    @Excel({
+        name: '卡号'
+    })
+    @IsString()
+    cardNo?: string
+
     /* 关联的银行卡 */
     @ApiHideProperty()
     @ManyToOne(() => Bankcard)
