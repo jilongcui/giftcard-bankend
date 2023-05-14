@@ -6,11 +6,10 @@ import { Account } from '../account/entities/account.entity';
 import { Currency } from '../currency/entities/currency.entity';
 import { UserModule } from '../system/user/user.module';
 import { Transfer } from './entities/transfer.entity';
-import { ExcelModule } from '../common/excel/excel.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Account, Currency, Transfer]), UserModule,ExcelModule,
+    TypeOrmModule.forFeature([Account, Currency, Transfer]), UserModule,
   ],
   controllers: [TransferController],
   providers: [TransferService],

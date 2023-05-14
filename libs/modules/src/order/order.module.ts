@@ -11,7 +11,6 @@ import { AssetRecord } from '../market/entities/asset-record.entity';
 import { PreemptionWhitelist } from '../assistant/preemption/entities/preemptionWhitelist.entity';
 import { PaymentModule } from '@app/modules/payment/payment.module';
 import { User } from '../system/user/entities/user.entity';
-import { ExcelModule } from '../common/excel/excel.module';
 import { Magicbox } from '../magicbox/entities/magicbox.entity';
 import { MemberInfo } from '../member/entities/member-info.entity';
 @Module({

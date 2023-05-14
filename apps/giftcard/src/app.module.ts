@@ -6,7 +6,6 @@ import configuration from 'apps/nestjs-backend/src/config/configuration'
 import { SharedModule } from '@app/shared/shared.module';
 import { LogModule } from '@app/modules/monitor/log/log.module';
 import { UserModule } from '@app/modules/system/user/user.module';
-import { ExcelModule } from '@app/modules/common/excel/excel.module';
 import { CommonModule } from '@app/modules/common/common.module';
 import { DictModule } from '@app/modules/system/dict/dict.module';
 import { AccountModule } from '@app/modules/account/account.module';
@@ -83,7 +82,6 @@ import { BrokerageRecordModule } from '@app/modules/brokerage_record/brokerage_r
     AuthModule,
     UserModule,
     DictModule,
-    ExcelModule,
     SysConfigModule,
     NoticeModule,
     PostModule,

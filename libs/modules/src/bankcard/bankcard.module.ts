@@ -8,7 +8,6 @@ import { Kyc } from '../kyc/entities/kyc.entity';
 import { Cardinfo } from '../cardinfo/entities/cardinfo.entity';
 import { User } from '../system/user/entities/user.entity';
 import { CardinfoModule } from '../cardinfo/cardinfo.module';
-import { ExcelModule } from '../common/excel/excel.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { storage } from '../common/upload/upload.module';
 
@@ -21,7 +20,7 @@ import { storage } from '../common/upload/upload.module';
     storage: storage,
     preservePath: false,
   }),
-  IdentityModule, CardinfoModule, ExcelModule],
+  IdentityModule, CardinfoModule],
   controllers: [BankcardController],
   providers: [BankcardService],
   exports: [BankcardService]

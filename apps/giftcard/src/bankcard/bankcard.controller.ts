@@ -48,6 +48,17 @@ export class BankcardController {
     return await this.bankcardService.list(listBankcardDto, paginationDto);
   }
 
+  /* 导出列表 */
+  @RepeatSubmit()
+  @Post('export')
+  @RequiresPermissions('monitor:bankcard:export')
+  @Keep()
+  async export(@Query() listBankcardDto: ListBankcardDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+      const { rows } = await this.bankcardService.list(listBankcardDto, paginationDto);
+      const file = await this.excelService.export(Bankcard, rows)
+      return new StreamableFile(file)
+  }
+
   @Get('userlist')
   @RequiresPermissions('system:bankcard:userlist')
   @ApiPaginatedResponse(Bankcard)

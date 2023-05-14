@@ -39,6 +39,17 @@ export class GiftcardController {
     return await this.giftcardService.list(listGiftcardDto, paginationDto);
   }
 
+  /* 导出列表 */
+  @RepeatSubmit()
+  @Post('export')
+  @RequiresPermissions('monitor:giftcard:export')
+  @Keep()
+  async export(@Query() listGiftcardDto: ListGiftcardDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+      const { rows } = await this.giftcardService.list(listGiftcardDto, paginationDto);
+      const file = await this.excelService.export(Giftcard, rows)
+      return new StreamableFile(file)
+  }
+
   @Get('userlist')
   @RequiresPermissions('system:giftcard:userlist')
   @ApiPaginatedResponse(Giftcard)

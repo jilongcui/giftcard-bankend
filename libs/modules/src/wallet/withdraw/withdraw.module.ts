@@ -11,7 +11,6 @@ import { Address } from '../address/entities/address.entity';
 import { CurrencyModule } from '@app/modules/currency/currency.module';
 import { SysConfigModule } from '@app/modules/system/sys-config/sys-config.module';
 import { Currency } from '@app/modules/currency/entities/currency.entity';
-import { ExcelModule } from '@app/modules/common/excel/excel.module';
 
 @Module({
   imports: [
@@ -20,7 +19,7 @@ import { ExcelModule } from '@app/modules/common/excel/excel.module';
       maxRedirects: 5,
     }),
     TypeOrmModule.forFeature([Withdraw, Account, Address, Currency, WithdrawFlow]),
-    AddressModule, CurrencyModule, SysConfigModule, ExcelModule
+    AddressModule, CurrencyModule, SysConfigModule
   ],
   controllers: [WithdrawController],
   providers: [WithdrawService],
