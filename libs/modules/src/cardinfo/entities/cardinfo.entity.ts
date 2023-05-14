@@ -1,7 +1,7 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import { IsNumber, IsObject, IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { MemberInfo } from "./cardinfo-detail.entity";
+import { MemberInfo } from "./member-info.entity";
 import { Type } from "class-transformer";
 
 @Entity()
