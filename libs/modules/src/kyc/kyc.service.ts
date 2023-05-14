@@ -82,12 +82,15 @@ export class KycService {
   }
 
   async findOneByOrderNo(orderNo: string) {
-    return this.kycRepository.findOneBy({orderNo})
+    return this.kycRepository.findOneBy({orderNo, status: '0'})
   }
 
   async notify(notifyKycDto: NotifyKycStatusDto) {
     this.logger.debug(`notify: ` + JSON.stringify(notifyKycDto))
-    const kyc = await this.findOneByOrderNo(notifyKycDto.merOrderNo)
+    const kyc = await this.kycRepository.findOneBy({orderNo: notifyKycDto.merOrderNo, status: '0'})
+    if(!kyc) {
+      throw new ApiException("KYC状态不对")
+    }
     const order = await this.orderRepository.findOneBy({id: Number(notifyKycDto.merOrderNo)})
     if(notifyKycDto.status === '1') kyc.status = '0'
     if(notifyKycDto.status === '2') kyc.status = '1'
