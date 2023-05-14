@@ -125,7 +125,7 @@ export class ApplyCardService {
     const applycard = await this.applycardRepository.save(applycardDto)
 
     const currency = await this.currencyService.findOneByName('USDT')
-    const order = await this.requestBankcard(userId, currency.id, currency.symbol, cardInfo.id, cardInfo.info.openFee)
+    const order = await this.requestBankcard(userId, currency.id, currency.symbol, cardInfo.id, cardInfo.openFee)
 
     // KYC是否存在
     // await this.applycardRepository.update(applycard.id, {bankcardId: bankcard.id, status: ApplyCardStatus.ApplySuccess})
@@ -199,7 +199,7 @@ export class ApplyCardService {
       order.tradeFee = 0.0
       order.shipFee = 0.0
       order.desc = cardInfo.name
-      order.image = cardInfo.info.image
+      order.image = cardInfo.image
 
       const order2 =  await manager.save(order);
 

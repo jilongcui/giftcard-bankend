@@ -1,7 +1,8 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsNumber, IsObject, IsString } from "class-validator";
+import { IsNumber, IsObject, IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { CardInfoDetail } from "./cardinfo-detail.entity";
+import { MemberInfo } from "./cardinfo-detail.entity";
+import { Type } from "class-transformer";
 
 @Entity()
 export class Cardinfo {
@@ -21,13 +22,31 @@ export class Cardinfo {
     })
     name: string // VISA MASTER
 
-    /* 卡片详细资料 类的种类及费率 */
+    /* 开卡费用 */
+    @Column({
+        name: 'open_fee',
+        default: '0'
+    })
+    @Type()
+    @IsNumber()
+    openFee: number // 开卡费用
+
+    /* 卡片内容 */
+    @Column({
+        name: 'image',
+        length: 150,
+    })
+    @IsOptional()
+    @IsString()
+    image?: string
+
+    /* 卡片的会员资料 */
     @Column( 'simple-json',{
         name: 'info',
         comment: '卡的资料'
     })
     @IsObject()
-    info: CardInfoDetail
+    info: MemberInfo
     
     @ApiHideProperty()
     @CreateDateColumn({

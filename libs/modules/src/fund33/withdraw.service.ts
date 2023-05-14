@@ -193,11 +193,7 @@ export class WithdrawService {
             await manager.save(withdrawFlow)
         })
         // toFix
-        await this.doWithdrawWithCard({ bankcardId: withdraw.bankcardId, withdrawId: withdraw.id })
-    }
-
-    async doWithdrawWithCard(payWithCard: WithdrawWithCardDto) {
-        const bankcard = await this.bankcardService.findOne(payWithCard.bankcardId)
+        const bankcard = await this.bankcardService.findOne(withdraw.bankcardId)
         // this.logger.debug(bankcard)
         if (bankcard === null) {
             throw new ApiException('此银行卡没有实名')
@@ -206,11 +202,7 @@ export class WithdrawService {
             throw new ApiException('此银行卡未绑定')
         }
         
-        const withdraw = await this.withdrawRepository.findOneBy({ id: payWithCard.withdrawId })
-        if (withdraw === null) {
-            throw new ApiException('提币记录不存在')
-        }
-        await this.recharge({cardId: payWithCard.bankcardId,amount: withdraw.realPrice})
+        await this.doWithdrawWithCard(bankcard, withdraw)
 
         const profitRecordDto: CreateProfitRecordDto ={
             type: ProfitType.WithdrawToCardFee,
@@ -226,46 +218,29 @@ export class WithdrawService {
     /**
      * 给银行卡充值
      */
-    async recharge(rechargeDto: QueryRechargeDto) {
+    async doWithdrawWithCard(bankcard: Bankcard, withdraw: Withdraw) {
 
         const requestUri = '/api/card/top/up'
         // 对所有的原始参数进行签名
 
-        const cardId = rechargeDto.cardId
-        const bankcard = await this.bankcardRepository.findOne({where: {id: cardId}, relations:{cardinfo: true}})
-        if(!bankcard)
-        throw new ApiException("不拥有此银行卡")
-
-        let queryParams = {
-        cardNumber: bankcard.cardNo,
-        }
+        // const cardId = withdraw.cardId
+        // const bankcard = await this.bankcardRepository.findOne({where: {id: cardId}, relations:{cardinfo: true}})
+        // if(!bankcard)
+        // throw new ApiException("不拥有此银行卡")
 
     
-        const rechargeRatio = bankcard.cardinfo.info.rechargeRatio
-        const rechageFee = rechargeDto.amount * rechargeRatio
-        const realAmount = rechargeDto.amount - rechageFee
+        const realAmount = withdraw.totalPrice
+
         await this.bankcardRepository.manager.transaction(async manager => {
-        const result = await manager.decrement(Account, { userId: bankcard.userId, currencyId:2, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
+        const result = await manager.decrement(Account, { userId: withdraw.userId, currencyId:2, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
         if (!result.affected) {
             throw new ApiException('创建充值请求失败')
         }
 
-        const result2 = await manager.increment(Account, { userId: bankcard.userId, currencyId:2, }, "freeze", realAmount);
+        const result2 = await manager.increment(Account, { userId: withdraw.userId, currencyId:2, }, "freeze", realAmount);
         if (!result2.affected) {
             throw new ApiException('创建充值请求失败')
         }
-
-        // const withdraw = new Withdraw()
-        // withdraw.type = '1' // 银行卡提现
-        // withdraw.status = '0' // 待审核
-        // withdraw.fromAddressId = createWithdrawDto.addressId
-        // withdraw.toAddress = createWithdrawDto.toAddress
-        // withdraw.userId = userId
-        // withdraw.totalPrice = createWithdrawDto.amount
-        // withdraw.totalFee = fee
-        // withdraw.realPrice = withdraw.totalPrice - withdraw.totalFee
-        // withdraw.billNo = this.randomBillNo()
-        // const withdraw2 = await manager.save(withdraw)
 
         // const withdrawFlow = new WithdrawFlow()
         // withdrawFlow.step = '0'
@@ -283,10 +258,10 @@ export class WithdrawService {
         const timestamp = moment().unix()*1000 + moment().milliseconds()
         const nonce = this.sharedService.generateNonce(16)
         let body = {
-            amount: rechargeDto.amount.toString(),
+            amount: withdraw.totalPrice.toString(),
             appKey: this.appKey,
             appSecret: this.appSecret,
-            cardNumber: bankcard.cardNo,
+            cardNumber: withdraw.cardNo,
             merOrderNo: this.sharedService.generateNonce(8),
             nonce: nonce,
             // notifyUrl: '',
@@ -299,9 +274,9 @@ export class WithdrawService {
         body.appSecret = undefined
 
         let options = {
-        headers: {
-            "Content-Type": "application/json"
-        },
+            headers: {
+                "Content-Type": "application/json"
+            },
         }
 
         // this.logger.debug(JSON.stringify(body))
@@ -320,22 +295,6 @@ export class WithdrawService {
                 const result2 = await manager.decrement(Account, { userId: bankcard.userId, currencyId:2}, "freeze", parseFloat(settleAmount));
             })
             return await this.bankcardRepository.save(bankcard)
-            // var encrypted = this.sharedService.aesEncryptNoSalt("14", "sBOvCZZurSbbdJiA")
-            // this.logger.debug(encrypted)
-
-            // const backNumber = 'U88v0HHTLxUp9LUkj95AJA=='
-            // this.appSecret = 'sBOvCZZurSbbdJiA'
-            // this.logger.debug(backNumber)
-            // const cardNumber = this.sharedService.aesDecryptNoSalt(backNumber, this.appSecret)
-            // this.logger.debug("CardNumber: " + cardNumber)
-
-            // 验证签名
-            // const verify = createVerify('RSA-SHA1');
-            // verify.write(decryptedData);
-            // verify.end();
-            // const verifyOk = verify.verify(this.platformPublicKey, responseData.sign, 'base64');
-            // this.logger.debug(verifyOk)
-            // return querystring.parse(decryptedData)
             return responseData
         }
         throw new ApiException('发送请求失败: ' + responseData.msg)

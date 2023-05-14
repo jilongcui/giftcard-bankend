@@ -85,7 +85,7 @@ export class OrderService {
         order.tradeFee = 0.0
         order.shipFee = 0.0
         order.desc = asset.cardinfo.name
-        order.image = asset.cardinfo.info.image
+        order.image = asset.cardinfo.image
         await manager.save(order);
         await manager.update(Bankcard, { id: order.assetId }, { status: '2' }) // Asset is locked.
       } else if (createOrderDto.assetType === '1') { // 非实名卡 礼品卡
