@@ -5,10 +5,14 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, One
 import { Type } from "class-transformer";
 import { WithdrawFlow } from "./withdraw-flow.entity";
 import { Bankcard } from "apps/giftcard/src/bankcard/entities/bankcard.entity";
+import { Excel } from "@app/modules/common/excel/excel.decorator";
 
 @Entity('bank_withdraw')
 export class Withdraw {
     @PrimaryGeneratedColumn()
+    @Excel({
+        name: '订单ID'
+    })
     @Type()
     @IsNumber()
     id: number
@@ -19,6 +23,9 @@ export class Withdraw {
         comment: '提现种类 1:提现到银行卡 2: 提现到微信 3: 提现到支付宝',
         type: 'char',
         length: 1
+    })
+    @Excel({
+        name: '订单ID'
     })
     @IsString()
     type: string
@@ -31,6 +38,9 @@ export class Withdraw {
         type: 'char',
         length: 1
     })
+    @Excel({
+        name: '订单ID'
+    })
     @IsString()
     status: string
 
@@ -38,7 +48,10 @@ export class Withdraw {
     @Column({
         name: 'total_price',
         type: "decimal", precision: 10, scale: 2, default: 0,
-        comment: '订单总金额'
+        comment: '提现总金额'
+    })
+    @Excel({
+        name: '订单ID'
     })
     @Type()
     @IsNumber()
@@ -50,6 +63,9 @@ export class Withdraw {
         type: "decimal", precision: 10, scale: 2, default: 0.00,
         comment: '提现手续费'
     })
+    @Excel({
+        name: '订单ID'
+    })
     @Type()
     @IsNumber()
     totalFee: number
@@ -58,40 +74,43 @@ export class Withdraw {
     @Column({
         name: 'real_price',
         type: "decimal", precision: 10, scale: 2, default: 0.00,
-        comment: '订单实际金额'
+        comment: '实际金额'
+    })
+    @Excel({
+        name: '订单ID'
     })
     @Type()
     @IsNumber()
     realPrice: number
 
-    /* 提现数量 */
-    @Column({
-        name: 'count',
-        default: '1',
-        comment: '订单数量'
-    })
-    @IsOptional()
-    @Type()
-    @IsNumber()
-    count?: number
+    // /* 提现数量 */
+    // @Column({
+    //     name: 'count',
+    //     default: '1',
+    //     comment: '订单数量'
+    // })
+    // @IsOptional()
+    // @Type()
+    // @IsNumber()
+    // count?: number
 
-    @Column({
-        name: 'merch_bill_no',
-        default: '',
-        comment: '来自支付平台的 确认订单后，汇付宝单据号',
-        length: 50
-    })
-    @IsString()
-    merchBillNo?: string
+    // @Column({
+    //     name: 'merch_bill_no',
+    //     default: '',
+    //     comment: '来自支付平台的 确认订单后，汇付宝单据号',
+    //     length: 50
+    // })
+    // @IsString()
+    // merchBillNo?: string
 
-    @Column({
-        name: 'merch_batch_no',
-        default: '',
-        comment: '来自支付平台的 确认订单后，汇付宝单据号',
-        length: 50
-    })
-    @IsString()
-    merchBatchNo?: string
+    // @Column({
+    //     name: 'merch_batch_no',
+    //     default: '',
+    //     comment: '来自支付平台的 确认订单后，汇付宝单据号',
+    //     length: 50
+    // })
+    // @IsString()
+    // merchBatchNo?: string
 
     @Column({
         name: 'bankcard_id',

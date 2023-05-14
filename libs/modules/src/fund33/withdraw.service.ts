@@ -101,73 +101,6 @@ export class WithdrawService {
         key2.setOptions({ encryptionScheme: 'pkcs1' });
     }
 
-    // // 网关签约接口
-    // async webSign(webSignDto: WebSignDto, userId: number) {
-    //     const method = 'heepay.agreement.bank.sign.page'
-    //     const requestUri = 'API/PageSign/Index.aspx?'
-    //     const tradeNo = this.randomTradeNo().toString()
-    //     const bankcard = await this.bankcardService.findOne(webSignDto.bankcardId)
-    //     // this.logger.debug(bankcard)
-    //     if (bankcard == null) {
-    //         throw new ApiException('没有此银行卡')
-    //     }
-
-    //     if (bankcard.userId != userId) {
-    //         throw new ApiException('非本人银行卡')
-    //     }
-    //     const bizContent = {
-    //         bank_card_no: bankcard.cardNo,
-    //         bank_card_type: bankcard.cardType,
-    //         bank_user_name: bankcard.identity.realName,
-    //         bank_type: bankcard.cardType,
-    //         cert_no: bankcard.identity.cardId,
-    //         mobile: bankcard.mobile,
-    //         merch_user_id: userId.toString(),
-    //         // from_user_ip: "219.143.153.103",
-    //         return_url: 'https://www.startland.top',
-    //         notify_url: 'https://www.startland.top/api/fund/webSignNotify',
-    //         out_trade_no: tradeNo,
-    //         out_trade_time: moment().format("YYYY-MM-DD HH:mm:ss"),
-    //     }
-    //     // this.logger.debug(JSON.stringify(bizContent));
-
-    //     const bizResult = await this.sendJsonRequest<WebSignResponse>(method, requestUri, bizContent)
-    //     this.logger.debug(bizResult)
-
-    //     if (bizResult.merch_id != this.merchId) throw new ApiException("商户ID错误")
-    //     if (bizResult.out_trade_no !== tradeNo) throw new ApiException("网签编号错误")
-    //     await this.bankcardService.update(bankcard.id, { signTradeNo: bizContent.out_trade_no, signTradeTime: bizContent.out_trade_time })
-    //     return bizResult.sign_url;
-    // }
-
-
-    // // 网关签约接口
-    // async webSignNotify(webSignNotifyDto: WebSignNotifyDto) {
-    //     // sign_no 是加密的，我们需要解密
-    //     const signNo = key2.decrypt(webSignNotifyDto.sign_no, 'utf8');
-    //     this.logger.debug(signNo)
-    //     // 验证签名
-    //     const verifyData = this.sharedService.compactJsonToString({
-    //         merch_id: webSignNotifyDto.merch_id,
-    //         out_trade_no: webSignNotifyDto.out_trade_no,
-    //         out_trade_time: webSignNotifyDto.out_trade_time,
-    //         sign_no: signNo,
-    //     })
-    //     this.logger.debug(verifyData)
-    //     // 验证签名
-    //     const verify = createVerify('RSA-SHA1');
-    //     verify.write(verifyData);
-    //     verify.end();
-    //     const verifyOk = verify.verify(this.platformPublicKey, webSignNotifyDto.sign, 'base64');
-    //     this.logger.debug(verifyOk)
-    //     if (!verifyOk) {
-    //         return 'error'
-    //     }
-    //     // 我们需要把这个signNo保存到数据库里
-    //     this.bankcardService.updateWithTradeNo(webSignNotifyDto.out_trade_no, webSignNotifyDto.out_trade_time, { status: '1', signNo: signNo })
-    //     return 'ok'
-    // }
-
     // 创建提现请求
     async createWithdrawRequest(createWithdrawDto: CreateWithdrawDto, userId: number) {
         const bankcard = await this.bankcardService.findOne(createWithdrawDto.bankcardId)
@@ -219,9 +152,9 @@ export class WithdrawService {
             withdraw.totalPrice = createWithdrawDto.amount
             withdraw.totalFee = fee
             withdraw.realPrice = realAmount
-            withdraw.count = 1
-            withdraw.merchBillNo = this.randomBillNo()
-            withdraw.merchBatchNo = this.randomBatchNo()
+            // withdraw.count = 1
+            // withdraw.merchBillNo = this.randomBillNo()
+            // withdraw.merchBatchNo = this.randomBatchNo()
             const withdraw2 = await manager.save(withdraw)
 
             const withdrawFlow = new WithdrawFlow()
@@ -262,9 +195,7 @@ export class WithdrawService {
         await this.doWithdrawWithCard({ bankcardId: withdraw.bankcardId, withdrawId: withdraw.id })
     }
 
-    // 小额支付 API/PayTransit/PayTransferWithSmallAll.aspx
     async doWithdrawWithCard(payWithCard: WithdrawWithCardDto) {
-        const requestUri = 'API/PayTransit/PayTransferWithSmallAll.aspx'
         const bankcard = await this.bankcardService.findOne(payWithCard.bankcardId)
         // this.logger.debug(bankcard)
         if (bankcard === null) {

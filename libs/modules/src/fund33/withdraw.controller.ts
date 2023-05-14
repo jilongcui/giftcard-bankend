@@ -1,4 +1,4 @@
-import { Body, CacheInterceptor, CacheTTL, Controller, Get, Inject, Param, Post, Put, Query, UseInterceptors } from '@nestjs/common';
+import { Body, CacheInterceptor, CacheTTL, Controller, Get, Inject, Param, Post, Put, Query, StreamableFile, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqBankCertifyDto, ReqWithdrawDto, WithdrawWithCardDto } from '../fund/dto/request-fund.dto';
@@ -11,6 +11,10 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { Withdraw } from '../fund/entities/withdraw.entity';
+import { Keep } from '@app/common/decorators/keep.decorator';
+import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
+import { ExcelService } from '../common/excel/excel.service';
 
 @ApiTags('33资金提现管理')
 @ApiBearerAuth()
@@ -18,7 +22,8 @@ import { Withdraw } from '../fund/entities/withdraw.entity';
 @Controller('fund33/withdraw')
 export class WithdrawController {
     constructor(
-        private readonly withdrawService: WithdrawService
+        private readonly withdrawService: WithdrawService,
+        private readonly excelService: ExcelService,
     ) { }
 
     @Post()
@@ -38,6 +43,17 @@ export class WithdrawController {
     @ApiPaginatedResponse(PaginatedDto<Withdraw>)
     async list(@Query() listWithdrawDto: ListWithdrawDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
         return await this.withdrawService.list(listWithdrawDto, paginationDto);
+    }
+
+    /* 导出资金提现列表 */
+    @RepeatSubmit()
+    @Post('export')
+    @RequiresPermissions('monitor:withdraw:export')
+    @Keep()
+    async exportOrder(listWithdrawDto: ListWithdrawDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+        const { rows } = await this.withdrawService.list(listWithdrawDto, paginationDto);
+        const file = await this.excelService.export(Withdraw, rows)
+        return new StreamableFile(file)
     }
 
     /* 我的资金提现列表 */
