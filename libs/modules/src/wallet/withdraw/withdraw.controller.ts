@@ -61,7 +61,7 @@ export class WithdrawController {
     @Post('export')
     @RequiresPermissions('monitor:withdraw:export')
     @Keep()
-    async export(@Query() listWithdrawDto: ListWithdrawDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    async export(@Body() listWithdrawDto: ListWithdrawDto, @Body(PaginationPipe) paginationDto: PaginationDto) {
         const { rows } = await this.withdrawService.list(listWithdrawDto, paginationDto);
         const file = await this.excelService.export(Withdraw, rows)
         return new StreamableFile(file)

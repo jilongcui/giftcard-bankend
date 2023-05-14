@@ -44,7 +44,7 @@ export class GiftcardController {
   @Post('export')
   @RequiresPermissions('monitor:giftcard:export')
   @Keep()
-  async export(@Query() listGiftcardDto: ListGiftcardDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+  async export(@Body() listGiftcardDto: ListGiftcardDto, @Body(PaginationPipe) paginationDto: PaginationDto) {
       const { rows } = await this.giftcardService.list(listGiftcardDto, paginationDto);
       const file = await this.excelService.export(Giftcard, rows)
       return new StreamableFile(file)

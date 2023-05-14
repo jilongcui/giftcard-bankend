@@ -53,7 +53,7 @@ export class BankcardController {
   @Post('export')
   @RequiresPermissions('monitor:bankcard:export')
   @Keep()
-  async export(@Query() listBankcardDto: ListBankcardDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+  async export(@Body() listBankcardDto: ListBankcardDto, @Body(PaginationPipe) paginationDto: PaginationDto) {
       const { rows } = await this.bankcardService.list(listBankcardDto, paginationDto);
       const file = await this.excelService.export(Bankcard, rows)
       return new StreamableFile(file)

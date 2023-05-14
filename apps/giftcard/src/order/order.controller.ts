@@ -61,7 +61,7 @@ export class OrderController {
   @Post('export')
   @RequiresPermissions('monitor:order:export')
   @Keep()
-  async exportOrder(@Query() listOrderDto: ListOrderDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+  async exportOrder(@Body() listOrderDto: ListOrderDto, @Body(PaginationPipe) paginationDto: PaginationDto) {
     const { rows } = await this.orderService.list(listOrderDto, paginationDto);
     const file = await this.excelService.export(Order, rows)
     return new StreamableFile(file)

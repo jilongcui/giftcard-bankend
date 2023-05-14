@@ -31,7 +31,7 @@ export class ExchangeController {
     @Post('export')
     @RequiresPermissions('monitor:withdraw:export')
     @Keep()
-    async export(@Query() listExchangeDto: ListExchangeDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    async export(@Body() listExchangeDto: ListExchangeDto, @Body(PaginationPipe) paginationDto: PaginationDto) {
         const { rows } = await this.exchangeService.list(listExchangeDto, paginationDto);
         const file = await this.excelService.export(Exchange, rows)
         return new StreamableFile(file)

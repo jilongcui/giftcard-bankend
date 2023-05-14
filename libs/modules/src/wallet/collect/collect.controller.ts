@@ -32,7 +32,7 @@ export class CollectController {
     @Post('export')
     @RequiresPermissions('monitor:collect:export')
     @Keep()
-    async export(@Query() listRechargeCollectDto: ListRechargeCollectDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    async export(@Body() listRechargeCollectDto: ListRechargeCollectDto, @Body(PaginationPipe) paginationDto: PaginationDto) {
         const { rows } = await this.collectService.list(listRechargeCollectDto, paginationDto);
         const file = await this.excelService.export(RechargeCollect, rows)
         return new StreamableFile(file)

@@ -31,7 +31,7 @@ export class TransferController {
     @Post('export')
     @RequiresPermissions('monitor:transfer:export')
     @Keep()
-    async export(@Query() listTransferDto: ListTransferDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+    async export(@Body() listTransferDto: ListTransferDto, @Body(PaginationPipe) paginationDto: PaginationDto) {
         const { rows } = await this.transferService.list(listTransferDto, paginationDto);
         const file = await this.excelService.export(Transfer, rows)
         return new StreamableFile(file)
