@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
-import { ReqAddRechargeCollectDto, ReqCollectRechargeNotifyDto, ReqRechargeCollectListDto } from './dto/req-rechargecollect-list.dto';
+import { ReqAddRechargeCollectDto, ReqCollectRechargeNotifyDto, ListRechargeCollectDto } from './dto/req-rechargecollect-list.dto';
 import { RechargeCollect } from './entities/rechage-collect.entity';
 import { Account } from '@app/modules/account/entities/account.entity';
 import { SysConfigService } from '@app/modules/system/sys-config/sys-config.service';
@@ -11,6 +11,7 @@ import { AddressService } from '../address/address.service';
 import { CurrencyService } from '@app/modules/currency/currency.service';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { AccountFlow, AccountFlowType, AccountFlowDirection } from '@app/modules/account/entities/account-flow.entity';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
 
 @Injectable()
 export class CollectService {
@@ -23,27 +24,27 @@ export class CollectService {
         ) { }
 
     /* 分页查询 */
-    async list(reqRechargecollectList: ReqRechargeCollectListDto): Promise<PaginatedDto<RechargeCollect>> {
+    async list(listRechargecollect: ListRechargeCollectDto, paginationDto: PaginationDto): Promise<PaginatedDto<RechargeCollect>> {
         let where: FindOptionsWhere<RechargeCollect> = {}
-        if (reqRechargecollectList.address) {
-            where.from = Like(`%${reqRechargecollectList.address}%`)
+        if (listRechargecollect.address) {
+            where.from = Like(`%${listRechargecollect.address}%`)
         }
-        if (reqRechargecollectList.txid) {
+        if (listRechargecollect.txid) {
 
-            where.txid = Like(`%${reqRechargecollectList.txid}%`)
+            where.txid = Like(`%${listRechargecollect.txid}%`)
         }
-        if (reqRechargecollectList.addressType) {
-            where.addressType = reqRechargecollectList.addressType
+        if (listRechargecollect.addressType) {
+            where.addressType = listRechargecollect.addressType
         }
-        if (reqRechargecollectList.confirmState) {
-            where.confirmState = reqRechargecollectList.confirmState
+        if (listRechargecollect.confirmState) {
+            where.confirmState = listRechargecollect.confirmState
         }
         const result = await this.collectRepository.findAndCount({
             // select: ['id', 'txid', 'type', 'userId', 'confirmState', 'status'],
             where,
             relations: {currency: true},
-            skip: reqRechargecollectList.skip,
-            take: reqRechargecollectList.take,
+            skip: paginationDto.skip,
+            take: paginationDto.take,
             order: {
                 createTime: 'DESC',
             }
@@ -55,20 +56,20 @@ export class CollectService {
     }
 
     /* 分页查询 */
-    async mylist(reqRechargecollectList: ReqRechargeCollectListDto, userId: number): Promise<PaginatedDto<RechargeCollect>> {
+    async mylist(userId: number, listRechargecollect: ListRechargeCollectDto, paginationDto: PaginationDto): Promise<PaginatedDto<RechargeCollect>> {
         let where: FindOptionsWhere<RechargeCollect> = {}
-        if (reqRechargecollectList.address) {
-            where.from = Like(`%${reqRechargecollectList.address}%`)
+        if (listRechargecollect.address) {
+            where.from = Like(`%${listRechargecollect.address}%`)
         }
-        if (reqRechargecollectList.txid) {
+        if (listRechargecollect.txid) {
 
-            where.txid = Like(`%${reqRechargecollectList.txid}%`)
+            where.txid = Like(`%${listRechargecollect.txid}%`)
         }
-        if (reqRechargecollectList.addressType) {
-            where.addressType = reqRechargecollectList.addressType
+        if (listRechargecollect.addressType) {
+            where.addressType = listRechargecollect.addressType
         }
-        if (reqRechargecollectList.confirmState) {
-            where.confirmState = reqRechargecollectList.confirmState
+        if (listRechargecollect.confirmState) {
+            where.confirmState = listRechargecollect.confirmState
         }
         where.userId = userId
 
@@ -76,8 +77,8 @@ export class CollectService {
             // select: ['id', 'txid', 'type', 'userId', 'confirmState', 'status'],
             where,
             relations: {currency: true},
-            skip: reqRechargecollectList.skip,
-            take: reqRechargecollectList.take,
+            skip: paginationDto.skip,
+            take: paginationDto.take,
             order: {
                 createTime: 'DESC',
             }
