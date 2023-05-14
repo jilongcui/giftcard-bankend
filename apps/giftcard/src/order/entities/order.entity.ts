@@ -165,9 +165,6 @@ export class Order {
     })
     @IsOptional()
     @IsString()
-    @Excel({
-        name: '订单图片',
-    })
     image?: string
 
     /* 银行卡卡号 */

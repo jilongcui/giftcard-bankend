@@ -121,6 +121,7 @@ export class OrderService {
     where = {
       ...listOrderList
     }
+    this.logger.debug(JSON.stringify(where))
     if(paginationDto.beginTime)
       where.createTime = Between(paginationDto.beginTime, paginationDto.endTime)
 
