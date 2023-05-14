@@ -8,7 +8,7 @@ import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 import { WithdrawFlow } from "./withdraw-flow.entity";
 
 @Entity('bank_withdraw')
-export class Withdraw1 {
+export class Withdraw {
     @PrimaryGeneratedColumn()
     @IsNumber()
     id: number
@@ -23,7 +23,7 @@ export class Withdraw1 {
     @IsString()
     type: string
 
-    /* 提现状态 0: 未审核 1: 提现中 2: 提现完成 3:取消提现 4: 提现失败 */
+    /* 提现状态 0: 等待审核 1: 提现中 2: 提现完成 3:取消提现 4: 提现失败 5: 审核未通过 */
     @Column({
         name: 'status',
         default: '0',
