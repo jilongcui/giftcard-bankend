@@ -418,13 +418,16 @@ export class WithdrawService {
         let withdraw = await this.withdrawRepository.findOneBy({ id: id })
         // this.logger.debug(id)
         // this.logger.debug(JSON.stringify(withdraw))
-        // if (withdraw.userId !== userId) {
-        //     throw new ApiException("非本人提币")
-        // }
+        if (withdraw.status !== '0') {
+            throw new ApiException("提币状态不对")
+        }
         // 银行卡提现 - 审核未通过
         if (withdraw.type === '1') {
             await this.withdrawRepository.manager.transaction(async manager => {
-                await manager.update(Withdraw, { id: withdraw.id }, { status: '5' }) // Unlocked.
+                const result1 = await manager.update(Withdraw, { id: withdraw.id, status: '0' }, { status: '5' }) // Unlocked.
+                if (result1.affected <= 0) {
+                    throw new ApiException("未能取消提币")
+                }
                 const result = await manager.increment(Account, { user: { userId: withdraw.userId }, }, "usable", withdraw.totalPrice);
                 if (!result.affected) {
                     throw new ApiException('未能拒绝当前提现')
