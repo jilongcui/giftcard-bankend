@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateTransferDto {}
 
-export class ReqTransferListDto extends PaginationDto {
+export class ListTransferDto {
 
     /* 来源用户 */
     @IsOptional()

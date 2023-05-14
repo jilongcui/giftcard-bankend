@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ReqTransferListDto } from './dto/create-transfer.dto';
+import { ListTransferDto } from './dto/create-transfer.dto';
 import { Transfer } from './entities/transfer.entity';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
 
 @Injectable()
 export class TransferService {
@@ -15,7 +16,7 @@ export class TransferService {
   
   
   /* 分页查询 */
-  async list(reqTransferList: ReqTransferListDto): Promise<PaginatedDto<Transfer>> {
+  async list(reqTransferList: ListTransferDto, paginationDto: PaginationDto): Promise<PaginatedDto<Transfer>> {
     let where: FindOptionsWhere<Transfer> = {}
     if (reqTransferList.fromUserId) {
       where.fromUserId = reqTransferList.fromUserId
@@ -62,8 +63,8 @@ export class TransferService {
         },
         relations: {fromUser: true, toUser: true, currency: true},
         where,
-        skip: reqTransferList.skip,
-        take: reqTransferList.take,
+        skip: paginationDto.skip,
+        take: paginationDto.take,
         order: {
           createTime: 'DESC',
         }
@@ -75,7 +76,7 @@ export class TransferService {
   }
 
   /* 个人分页查询 */
-  async mylist(reqTransferList: ReqTransferListDto, userId: number): Promise<PaginatedDto<Transfer>> {
+  async mylist(userId: number, reqTransferList: ListTransferDto, paginationDto: PaginationDto): Promise<PaginatedDto<Transfer>> {
     let where1: FindOptionsWhere<Transfer> = {}
     where1.fromUserId = userId
     if (reqTransferList.status) {
@@ -125,8 +126,8 @@ export class TransferService {
         },
         relations: {fromUser: true, toUser: true, currency: true},
         where: [where1, where2],
-        skip: reqTransferList.skip,
-        take: reqTransferList.take,
+        skip: paginationDto.skip,
+        take: paginationDto.take,
         order: {
           createTime: 'DESC',
         }

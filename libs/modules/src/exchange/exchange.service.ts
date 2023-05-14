@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ReqExchangeListDto } from './dto/create-exchange.dto';
+import { ListExchangeDto } from './dto/create-exchange.dto';
 import { Exchange } from './entities/exchange.entity';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginationDto } from '@app/common/dto/pagination.dto';
 
 @Injectable()
 export class ExchangeService {
@@ -12,25 +13,25 @@ export class ExchangeService {
     @InjectRepository(Exchange) private readonly exchangeRepository: Repository<Exchange>) {}
   
   /* 分页查询 */
-  async list(reqExchangeList: ReqExchangeListDto): Promise<PaginatedDto<Exchange>> {
+  async list(listExchangeDto: ListExchangeDto, paginationDto: PaginationDto): Promise<PaginatedDto<Exchange>> {
     let where: FindOptionsWhere<Exchange> = {}
-    if (reqExchangeList.fromCurrencyId) {
-      where.fromCurrencyId = reqExchangeList.fromCurrencyId
+    if (listExchangeDto.fromCurrencyId) {
+      where.fromCurrencyId = listExchangeDto.fromCurrencyId
     }
 
-    if (reqExchangeList.toCurrencyId) {
-      where.toCurrencyId = reqExchangeList.toCurrencyId
+    if (listExchangeDto.toCurrencyId) {
+      where.toCurrencyId = listExchangeDto.toCurrencyId
     }
 
-    if (reqExchangeList.status) {
-        where.status = reqExchangeList.status
+    if (listExchangeDto.status) {
+        where.status = listExchangeDto.status
     }
     const result = await this.exchangeRepository.findAndCount({
         // select: ['id', 'txid', 'type', 'userId', 'confirmState', 'status'],
         relations: {fromCurrency: true, toCurrency: true},
         where,
-        skip: reqExchangeList.skip,
-        take: reqExchangeList.take,
+        skip: paginationDto.skip,
+        take: paginationDto.take,
         order: {
           createTime: 'DESC',
         }
@@ -42,18 +43,18 @@ export class ExchangeService {
   }
 
   /* 个人分页查询 */
-  async mylist(reqExchangeList: ReqExchangeListDto, userId: number): Promise<PaginatedDto<Exchange>> {
+  async mylist(userId: number, listExchangeDto: ListExchangeDto, paginationDto: PaginationDto): Promise<PaginatedDto<Exchange>> {
     let where: FindOptionsWhere<Exchange> = {}
-    if (reqExchangeList.fromCurrencyId) {
-      where.fromCurrencyId = reqExchangeList.fromCurrencyId
+    if (listExchangeDto.fromCurrencyId) {
+      where.fromCurrencyId = listExchangeDto.fromCurrencyId
     }
 
-    if (reqExchangeList.toCurrencyId) {
-      where.toCurrencyId = reqExchangeList.toCurrencyId
+    if (listExchangeDto.toCurrencyId) {
+      where.toCurrencyId = listExchangeDto.toCurrencyId
     }
 
-    if (reqExchangeList.status) {
-        where.status = reqExchangeList.status
+    if (listExchangeDto.status) {
+        where.status = listExchangeDto.status
     }
 
     where.userId = userId
@@ -62,8 +63,8 @@ export class ExchangeService {
         // select: ['id', 'txid', 'type', 'userId', 'confirmState', 'status'],
         relations: {fromCurrency: true, toCurrency: true},
         where,
-        skip: reqExchangeList.skip,
-        take: reqExchangeList.take,
+        skip: paginationDto.skip,
+        take: paginationDto.take,
         order: {
           createTime: 'DESC',
         }

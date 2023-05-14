@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Put, Query, StreamableFile } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, ReqWithdrawNotifyDto } from './dto/create-withdraw.dto';
@@ -11,13 +11,18 @@ import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { Public } from '@app/common/decorators/public.decorator';
+import { Keep } from '@app/common/decorators/keep.decorator';
+import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
+import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';
+import { ExcelService } from '@app/modules/common/excel/excel.service';
 
 @ApiTags('提现管理')
 @ApiBearerAuth()
 @Controller('wallet/withdraw')
 export class WithdrawController {
     constructor(
-        private readonly withdrawService: WithdrawService
+        private readonly withdrawService: WithdrawService,
+        private readonly excelService: ExcelService,
     ) { }
 
     @Post()
@@ -49,6 +54,17 @@ export class WithdrawController {
     @ApiPaginatedResponse(PaginatedDto<Withdraw>)
     async list(@Query() listWithdrawDto: ListWithdrawDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
         return await this.withdrawService.list(listWithdrawDto, paginationDto);
+    }
+
+    /* 导出列表 */
+    @RepeatSubmit()
+    @Post('export')
+    @RequiresPermissions('monitor:withdraw:export')
+    @Keep()
+    async export(@Query() listWithdrawDto: ListWithdrawDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
+        const { rows } = await this.withdrawService.list(listWithdrawDto, paginationDto);
+        const file = await this.excelService.export(Withdraw, rows)
+        return new StreamableFile(file)
     }
 
     /* 我的订单列表 */

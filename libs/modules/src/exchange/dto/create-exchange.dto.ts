@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateExchangeDto {}
 
-export class ReqExchangeListDto extends PaginationDto {
+export class ListExchangeDto {
 
     /* 来源币 */
     @IsOptional()
