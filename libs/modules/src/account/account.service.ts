@@ -222,7 +222,7 @@ export class AccountService {
         const accountFlow3 = new AccountFlow()
         accountFlow3.type = AccountFlowType.ExchangeBrokerage
         accountFlow3.direction = AccountFlowDirection.In
-        accountFlow3.userId = userId
+        accountFlow3.userId = parentId
         accountFlow3.amount = exchangeFee * brokerageRatio
         accountFlow3.currencyId = currencyFrom.id
         accountFlow3.currencyName = currencyFrom.symbol
