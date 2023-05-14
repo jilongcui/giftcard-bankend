@@ -9,7 +9,7 @@ export class WithdrawFlow {
     @IsNumber()
     id: number
 
-    /* 提现状态 0: 未审核 1: 提现中 2: 提现完成 3:取消提现 4: 提现失败 */
+    /* 提现流水步骤 0: 发起提现 1: 平台审核 2: 银行处理 3:到账 */
     @Column({
         name: 'step',
         default: '0',

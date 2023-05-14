@@ -10,7 +10,7 @@ import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-respo
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
-import { Withdraw } from '../fund/entities/withdraw.entity';
+import { Withdraw } from '../fund33/entities/withdraw.entity';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
 import { RequiresPermissions } from '@app/common/decorators/requires-permissions.decorator';

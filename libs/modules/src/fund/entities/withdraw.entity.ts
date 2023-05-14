@@ -8,7 +8,7 @@ import { Bankcard } from "@app/modules/bankcard/entities/bankcard.entity";
 import { WithdrawFlow } from "./withdraw-flow.entity";
 
 @Entity('bank_withdraw')
-export class Withdraw {
+export class Withdraw1 {
     @PrimaryGeneratedColumn()
     @IsNumber()
     id: number
