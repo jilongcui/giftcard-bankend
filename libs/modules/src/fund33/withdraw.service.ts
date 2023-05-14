@@ -116,7 +116,7 @@ export class WithdrawService {
 
         const ratio = Number(bankcard.cardinfo.info.exchangeToCardRatio)
         const fee = amount * ratio
-        const realAmount = amount - fee
+        const realAmount = amount + fee
         this.logger.debug(ratio)
 
         if (createWithdrawDto.amount <= fee) {
@@ -124,12 +124,12 @@ export class WithdrawService {
         }
 
         return await this.withdrawRepository.manager.transaction(async manager => {
-            const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(amount) }, "usable", amount);
+            const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
             if (!result.affected) {
                 throw new ApiException('创建提现请求失败')
             }
 
-            const result2 = await manager.increment(Account, { user: { userId: userId } }, "freeze", amount);
+            const result2 = await manager.increment(Account, { user: { userId: userId } }, "freeze", realAmount);
             if (!result2.affected) {
                 throw new ApiException('创建提现请求失败')
             }
@@ -191,28 +191,30 @@ export class WithdrawService {
             withdrawFlow.remark = '审核通过'
             withdrawFlow.withdrawId = withdraw.id
             await manager.save(withdrawFlow)
-        })
-        // toFix
-        const bankcard = await this.bankcardService.findOne(withdraw.bankcardId)
-        // this.logger.debug(bankcard)
-        if (bankcard === null) {
-            throw new ApiException('此银行卡没有实名')
-        }
-        if (bankcard.status === '0' || bankcard.status === '2') {
-            throw new ApiException('此银行卡未绑定')
-        }
-        
-        await this.doWithdrawWithCard(bankcard, withdraw)
 
-        const profitRecordDto: CreateProfitRecordDto ={
-            type: ProfitType.WithdrawToCardFee,
-            content: bankcard.cardNo,
-            userId: bankcard.userId,
-            amount: withdraw.realPrice,
-            fee: withdraw.totalPrice - withdraw.totalFee,
-            txid: 'withdrawId: ' + withdraw.id
-        }
-        await this.profitRecordService.create(profitRecordDto)
+            // toFix
+            const bankcard = await this.bankcardService.findOne(withdraw.bankcardId)
+            // this.logger.debug(bankcard)
+            if (bankcard === null) {
+                throw new ApiException('此银行卡没有实名')
+            }
+            if (bankcard.status === '0' || bankcard.status === '2') {
+                throw new ApiException('此银行卡未绑定')
+            }
+            
+            await this.doWithdrawWithCard(bankcard, withdraw)
+
+            const profitRecordDto: CreateProfitRecordDto ={
+                type: ProfitType.WithdrawToCardFee,
+                content: bankcard.cardNo,
+                userId: bankcard.userId,
+                amount: withdraw.realPrice,
+                fee: withdraw.totalFee,
+                txid: 'withdrawId: ' + withdraw.id
+            }
+            await manager.save(profitRecordDto)
+        })
+        
     }
 
     /**
@@ -232,27 +234,27 @@ export class WithdrawService {
         const realAmount = withdraw.totalPrice
 
         await this.bankcardRepository.manager.transaction(async manager => {
-        const result = await manager.decrement(Account, { userId: withdraw.userId, currencyId:2, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
-        if (!result.affected) {
-            throw new ApiException('创建充值请求失败')
-        }
+            const result = await manager.decrement(Account, { userId: withdraw.userId, currencyId:2, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
+            if (!result.affected) {
+                throw new ApiException('创建充值请求失败')
+            }
 
-        const result2 = await manager.increment(Account, { userId: withdraw.userId, currencyId:2, }, "freeze", realAmount);
-        if (!result2.affected) {
-            throw new ApiException('创建充值请求失败')
-        }
+            const result2 = await manager.increment(Account, { userId: withdraw.userId, currencyId:2, }, "freeze", realAmount);
+            if (!result2.affected) {
+                throw new ApiException('创建充值请求失败')
+            }
 
-        // const withdrawFlow = new WithdrawFlow()
-        // withdrawFlow.step = '0'
-        // withdrawFlow.status = '1'
-        // withdrawFlow.remark = '发起提现'
-        // withdrawFlow.withdrawId = withdraw2.id
-        // await manager.save(withdrawFlow)
-        // withdraw2.bankcard = bankcard
-        // withdraw2.bankcard.user = undefined
-        // withdraw2.bankcard.identity = undefined
-        // withdraw2.bankcard.signTradeNo = undefined
-        // return withdraw2
+            // const withdrawFlow = new WithdrawFlow()
+            // withdrawFlow.step = '0'
+            // withdrawFlow.status = '1'
+            // withdrawFlow.remark = '发起提现'
+            // withdrawFlow.withdrawId = withdraw2.id
+            // await manager.save(withdrawFlow)
+            // withdraw2.bankcard = bankcard
+            // withdraw2.bankcard.user = undefined
+            // withdraw2.bankcard.identity = undefined
+            // withdraw2.bankcard.signTradeNo = undefined
+            // return withdraw2
         })
 
         const timestamp = moment().unix()*1000 + moment().milliseconds()

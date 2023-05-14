@@ -14,7 +14,7 @@ import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record
 import { ProfitSubType, ProfitType } from '../profit_record/entities/profit_record.entity';
 import { ProfitRecordService } from '../profit_record/profit_record.service';
 import { CreateBrokerageRecordDto } from '../brokerage_record/dto/create-brokerage_record.dto';
-import { BrokerageType } from '../brokerage_record/entities/brokerage_record.entity';
+import { BrokerageRecord, BrokerageType } from '../brokerage_record/entities/brokerage_record.entity';
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { SYSCONF_EXCHANGE_BROKERAGE_KEY } from '@app/common/contants/sysconfig.contants';
 import { SysConfigService } from '../system/sys-config/sys-config.service';
@@ -156,21 +156,21 @@ export class AccountService {
       accountFlow.type = AccountFlowType.Exchange
       accountFlow.direction = AccountFlowDirection.Out
       accountFlow.userId = userId
-      accountFlow.amount = exchangeFee
+      accountFlow.amount = fromAmount
       accountFlow.currencyId = currencyFrom.id
       accountFlow.currencyName = currencyFrom.symbol
       accountFlow.balance = 0
-      await manager.save(accountFlow )
+      await manager.save(accountFlow)
 
       const accountFlow2 = new AccountFlow()
       accountFlow2.type = AccountFlowType.Exchange
       accountFlow2.direction = AccountFlowDirection.In
       accountFlow2.userId = userId
-      accountFlow2.amount = exchangeFee
+      accountFlow2.amount = toAmount
       accountFlow2.currencyId = currencyTo.id
       accountFlow2.currencyName = currencyTo.symbol
       accountFlow2.balance = 0
-      await manager.save(accountFlow2 )
+      await manager.save(accountFlow2)
       
       const exchange = new Exchange()
       exchange.fromAmount = fromAmount
@@ -209,16 +209,25 @@ export class AccountService {
         const brokerageRatioString = await this.sysconfigService.getValue(SYSCONF_EXCHANGE_BROKERAGE_KEY)
         this.logger.debug(brokerageRatioString || "0.2")
         const brokerageRatio = Number(brokerageRatioString)
-        const brokerageRecordDto: CreateBrokerageRecordDto ={
-          type: BrokerageType.ExchangeBrokerage,
-          content: 'USDT转HKD提成',
-          userId: parentId,
-          fromUserId: userId,
-          amount: fromAmount,
-          value: exchangeFee * brokerageRatio,
-          txid: 'exchangeId: ' + exchange2.id
-        }
-        await this.brokerageRecordService.create(brokerageRecordDto)
+        const brokerageRecordDto = new BrokerageRecord()
+        brokerageRecordDto.type = BrokerageType.ExchangeBrokerage,
+        brokerageRecordDto.content = 'USDT转HKD提成',
+        brokerageRecordDto.userId = parentId,
+        brokerageRecordDto.fromUserId = userId,
+        brokerageRecordDto.amount = fromAmount,
+        brokerageRecordDto.value = exchangeFee * brokerageRatio,
+        brokerageRecordDto.txid = 'exchangeId: ' + exchange2.id
+        await manager.save(brokerageRecordDto)
+
+        const accountFlow3 = new AccountFlow()
+        accountFlow3.type = AccountFlowType.ExchangeBrokerage
+        accountFlow3.direction = AccountFlowDirection.In
+        accountFlow3.userId = userId
+        accountFlow3.amount = exchangeFee * brokerageRatio
+        accountFlow3.currencyId = currencyFrom.id
+        accountFlow3.currencyName = currencyFrom.symbol
+        accountFlow3.balance = 0
+        await manager.save(accountFlow3)
       }
 
       return exchange2

@@ -8,6 +8,7 @@ export enum AccountFlowType {
     'WithdrawRevert' = 'WithdrawRevert',
     'Transfer' = 'Transfer',
     'Exchange' = 'Exchange',
+    'ExchangeBrokerage' = 'ExchangeBrokerage',
     'BankWithdraw' = 'BankWithdraw',
     'BankWithdrawRevert' = 'BankWithdrawRevert',
     'OpenCard' = 'OpenCard',
