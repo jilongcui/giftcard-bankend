@@ -200,9 +200,6 @@ export class WithdrawService {
             if (bankcard.status === '0' || bankcard.status === '2') {
                 throw new ApiException('此银行卡未绑定')
             }
-            
-            await this.doWithdrawWithCard(bankcard, withdraw)
-
             const profitRecordDto = new ProfitRecord()
             profitRecordDto.type = ProfitType.WithdrawToCardFee
             profitRecordDto.content = bankcard.cardNo,
@@ -211,6 +208,8 @@ export class WithdrawService {
             profitRecordDto.fee = withdraw.totalFee,
             profitRecordDto.txid = 'withdrawId: ' + withdraw.id
             await manager.save(profitRecordDto)
+
+            await this.doWithdrawWithCard(bankcard, withdraw)
         })
         
     }
