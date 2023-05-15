@@ -58,7 +58,6 @@ export class WithdrawService {
     constructor(
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
-        private readonly bankcardService: BankcardService,
         private readonly sharedService: SharedService,
         private readonly profitRecordService: ProfitRecordService,
         @InjectRepository(Withdraw) private readonly withdrawRepository: Repository<Withdraw>,
@@ -102,7 +101,7 @@ export class WithdrawService {
 
     // 创建提现请求
     async createWithdrawRequest(createWithdrawDto: CreateWithdrawDto, userId: number) {
-        const bankcard = await this.bankcardService.findOne(createWithdrawDto.bankcardId)
+        const bankcard = await this.bankcardRepository.findOne({where: {id:createWithdrawDto.bankcardId}})
         this.logger.debug(bankcard)
         // if (bankcard.signNo === undefined || bankcard.signNo === '') {
         //     throw new ApiException('此银行卡没有实名')
@@ -192,7 +191,7 @@ export class WithdrawService {
             await manager.save(withdrawFlow)
 
             // toFix
-            const bankcard = await this.bankcardService.findOne(withdraw.bankcardId)
+            const bankcard = await this.bankcardRepository.findOne({where: {id:withdraw.bankcardId}})
             // this.logger.debug(bankcard)
             if (bankcard === null) {
                 throw new ApiException('此银行卡没有实名')

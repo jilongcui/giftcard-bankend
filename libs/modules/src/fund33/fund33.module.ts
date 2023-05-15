@@ -20,12 +20,12 @@ import { ProfitRecordModule } from '../profit_record/profit_record.module';
       ttl: 30, // seconds
     }),
     
-    SharedModule, BankcardModule,
+    SharedModule,
     HttpModule.register({
       timeout: 10000,
       maxRedirects: 5,
     }),
-    ProfitRecordModule
+    ProfitRecordModule,
   ],
   controllers: [Fund33Controller, WithdrawController],
   providers: [Fund33Service, WithdrawService],

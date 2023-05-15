@@ -14,6 +14,7 @@ import { Account } from '@app/modules/account/entities/account.entity';
 import { User } from '@app/modules/system/user/entities/user.entity';
 import { AccountFlow, AccountFlowDirection, AccountFlowType } from '@app/modules/account/entities/account-flow.entity';
 import { Currency } from '@app/modules/currency/entities/currency.entity';
+import { Fund33Service } from '@app/modules/fund33/fund33.service';
 
 @Injectable()
 export class BankcardService {
@@ -26,6 +27,7 @@ export class BankcardService {
     private readonly cardinfoService: CardinfoService,
     private readonly configService: ConfigService,
     private readonly sharedService: SharedService,
+    private readonly fund33Service: Fund33Service
 
   ) {
     this.secret = this.configService.get<string>('platform.secret')
@@ -131,13 +133,14 @@ export class BankcardService {
       }
     })
 
-    // for(let bankcard of result[0]) {
-    //   try {
-    //     bankcard.balance = await this.fund33Service.queryBalance({cardId: bankcard.id }, userId);
-    //   } catch (error) {
+    for(let bankcard of result[0]) {
+      try {
+        bankcard.balance = await this.fund33Service.queryBalance({cardId: bankcard.id }, userId);
+        this.bankcardRepository.save(bankcard)
+      } catch (error) {
         
-    //   }
-    // }
+      }
+    }
 
     return {
       rows: result[0],

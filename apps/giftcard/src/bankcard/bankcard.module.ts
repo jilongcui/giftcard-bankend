@@ -9,6 +9,7 @@ import { CardinfoModule } from '@app/modules/cardinfo/cardinfo.module';
 import { User } from '@app/modules/system/user/entities/user.entity';
 import { storage } from '@app/modules/common/upload/upload.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { Fund33Module } from '@app/modules/fund33/fund33.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Bankcard, Kyc, Cardinfo, User]),
@@ -19,7 +20,7 @@ import { MulterModule } from '@nestjs/platform-express';
     storage: storage,
     preservePath: false,
   }),
-  CardinfoModule],
+  CardinfoModule, Fund33Module],
   controllers: [BankcardController],
   providers: [BankcardService],
   exports: [BankcardService]
