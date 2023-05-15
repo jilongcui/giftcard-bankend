@@ -101,7 +101,7 @@ export class WithdrawService {
 
     // 创建提现请求
     async createWithdrawRequest(createWithdrawDto: CreateWithdrawDto, userId: number) {
-        const bankcard = await this.bankcardRepository.findOne({where: {id:createWithdrawDto.bankcardId}})
+        const bankcard = await this.bankcardRepository.findOne({where: {id:createWithdrawDto.bankcardId}, relations: { user: true, cardinfo: true, order: true}})
         this.logger.debug(bankcard)
         // if (bankcard.signNo === undefined || bankcard.signNo === '') {
         //     throw new ApiException('此银行卡没有实名')
@@ -191,7 +191,7 @@ export class WithdrawService {
             await manager.save(withdrawFlow)
 
             // toFix
-            const bankcard = await this.bankcardRepository.findOne({where: {id:withdraw.bankcardId}})
+            const bankcard = await this.bankcardRepository.findOne({where: {id:withdraw.bankcardId}, relations: { user: true, cardinfo: true, order: true}})
             // this.logger.debug(bankcard)
             if (bankcard === null) {
                 throw new ApiException('此银行卡没有实名')
@@ -220,11 +220,6 @@ export class WithdrawService {
 
         const requestUri = '/api/card/top/up'
         // 对所有的原始参数进行签名
-
-        // const cardId = withdraw.cardId
-        // const bankcard = await this.bankcardRepository.findOne({where: {id: cardId}, relations:{cardinfo: true}})
-        // if(!bankcard)
-        // throw new ApiException("不拥有此银行卡")
 
         const timestamp = moment().unix()*1000 + moment().milliseconds()
         const nonce = this.sharedService.generateNonce(16)
