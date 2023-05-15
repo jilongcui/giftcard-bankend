@@ -229,33 +229,6 @@ export class WithdrawService {
         // if(!bankcard)
         // throw new ApiException("不拥有此银行卡")
 
-    
-        const realAmount = withdraw.totalPrice
-
-        await this.bankcardRepository.manager.transaction(async manager => {
-            const result = await manager.decrement(Account, { userId: withdraw.userId, currencyId:2, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
-            if (!result.affected) {
-                throw new ApiException('创建充值请求失败')
-            }
-
-            const result2 = await manager.increment(Account, { userId: withdraw.userId, currencyId:2, }, "freeze", realAmount);
-            if (!result2.affected) {
-                throw new ApiException('创建充值请求失败')
-            }
-
-            // const withdrawFlow = new WithdrawFlow()
-            // withdrawFlow.step = '0'
-            // withdrawFlow.status = '1'
-            // withdrawFlow.remark = '发起提现'
-            // withdrawFlow.withdrawId = withdraw2.id
-            // await manager.save(withdrawFlow)
-            // withdraw2.bankcard = bankcard
-            // withdraw2.bankcard.user = undefined
-            // withdraw2.bankcard.identity = undefined
-            // withdraw2.bankcard.signTradeNo = undefined
-            // return withdraw2
-        })
-
         const timestamp = moment().unix()*1000 + moment().milliseconds()
         const nonce = this.sharedService.generateNonce(16)
         let body = {
