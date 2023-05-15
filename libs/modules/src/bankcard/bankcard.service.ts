@@ -182,7 +182,6 @@ export class BankcardService {
       }
 
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", updateFee)
-      await manager.increment(Account, { userId: 1 }, "usable", updateFee)
             
       await manager.update(Bankcard, { id: bankcard.id }, { cardinfoId: nextCardinfo.id })
       await manager.update(User, {userId: userId}, {vip: nextCardinfo.index})

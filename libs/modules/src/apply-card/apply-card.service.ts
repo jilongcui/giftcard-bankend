@@ -164,7 +164,6 @@ export class ApplyCardService {
       }
 
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", openfee)
-      await manager.increment(Account, { userId: 1, currencyId}, "usable", openfee)
 
       // Add Account Flow
       const accountFlow = new AccountFlow()

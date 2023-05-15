@@ -171,8 +171,6 @@ export class BankcardService {
       }
 
       const updateResult = await manager.decrement(Account, { userId: userId, currencyId }, "usable", updateFee)
-      this.logger.debug(updateResult)
-      await manager.increment(Account, { userId: 1 }, "usable", updateFee)
       // Add Account Flow
       const accountFlow = new AccountFlow()
       accountFlow.type = AccountFlowType.UpgradeCard
