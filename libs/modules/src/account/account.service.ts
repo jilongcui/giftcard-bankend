@@ -138,12 +138,12 @@ export class AccountService {
       realRatio = currencyFrom.buy_exratio / (currencyTo.buy_exratio - Math.abs(currencyFrom.buy_exratioBias))
     }
     this.logger.debug(usdtRatio)
-    const amount = exhangeAccountDto.amount
-    const exchangeFee = amount * 0.01 // toFixed
-    const toAmount = amount * realRatio
-    const fromAmount = amount + exchangeFee
+    const fromAmount = exhangeAccountDto.amount
+    const exchangeFee = fromAmount * 0.01 // toFixed
+    const toAmount = (fromAmount - exchangeFee) * realRatio
+    // const fromAmount = amount + exchangeFee
 
-    this.logger.debug(`fromAmount: ${amount} fee: ${exchangeFee} toAmount: ${toAmount}`)
+    this.logger.debug(`fromAmount: ${fromAmount} fee: ${exchangeFee} toAmount: ${toAmount}`)
 
     // Exchange
     return this.accountRepository.manager.transaction(async manager => {
@@ -159,7 +159,6 @@ export class AccountService {
 
       await manager.decrement(Account, { userId: userId, currencyId: currencyFrom.id }, "usable", fromAmount)
       await manager.increment(Account, { userId: userId, currencyId: currencyTo.id }, "usable", toAmount)
-      await manager.increment(Account, { userId: 1 }, "usable", exchangeFee)
       await manager.update(InviteUser, {id: userId}, {isExchangeUsdt: true})
 
       // Add Account Flow
@@ -184,7 +183,7 @@ export class AccountService {
       await manager.save(accountFlow2)
       
       const exchange = new Exchange()
-      exchange.fromAmount = amount
+      exchange.fromAmount = fromAmount
       exchange.fee = exchangeFee
       exchange.toAmount = toAmount
       exchange.ratio = usdtRatio
