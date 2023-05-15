@@ -116,21 +116,21 @@ export class CurrencyService {
         // Sell HKD Exchange Ratio
         // Equal to we Buy HKD Ratio
         const newRatio = priceArray[i]
-        if(Math.abs(newRatio - currency.buy_exratio) / currency.buy_exratio > 0.2) {
-          this.logger.error(`汇率变动机场: new Ratio: ${newRatio} old Ratio ${currency.buy_exratio}`)
-          // continue
-        } else
-          currency.buy_exratio = newRatio
-      }
-
-      if(actionArray[i] == 'buy') {
-        // Buy Exchange Ratio
-        const newRatio = priceArray[i]
         if(Math.abs(newRatio - currency.sell_exratio) / currency.sell_exratio > 0.2) {
           this.logger.error(`汇率变动机场: new Ratio: ${newRatio} old Ratio ${currency.sell_exratio}`)
           // continue
         } else
           currency.sell_exratio = newRatio
+      }
+
+      if(actionArray[i] == 'buy') {
+        // Buy Exchange Ratio
+        const newRatio = priceArray[i]
+        if(Math.abs(newRatio - currency.buy_exratio) / currency.buy_exratio > 0.2) {
+          this.logger.error(`汇率变动机场: new Ratio: ${newRatio} old Ratio ${currency.buy_exratio}`)
+          // continue
+        } else
+          currency.buy_exratio = newRatio
       }
       
       await this.currencyRepository.save(currency)

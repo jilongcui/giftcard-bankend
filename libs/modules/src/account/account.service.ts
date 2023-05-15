@@ -129,13 +129,13 @@ export class AccountService {
     let usdtRatio
     let realRatio
     if(currencyFrom.symbol === 'USDT') {
-      action = 'BUY'
-      usdtRatio = currencyFrom.buy_exratio
-      realRatio = (currencyFrom.buy_exratio + Math.abs(currencyFrom.buy_exratioBias)) / currencyTo.buy_exratio
-    } else if(currencyTo.symbol === 'USDT') {
       action = 'SELL'
-      usdtRatio = currencyTo.sell_exratio
-      realRatio = currencyFrom.sell_exratio / (currencyTo.sell_exratio - Math.abs(currencyFrom.sell_exratioBias))
+      usdtRatio = currencyFrom.sell_exratio
+      realRatio = (currencyFrom.sell_exratio + Math.abs(currencyFrom.sell_exratioBias)) / currencyTo.sell_exratio
+    } else if(currencyTo.symbol === 'USDT') {
+      action = 'BUY'
+      usdtRatio = currencyTo.buy_exratio
+      realRatio = currencyFrom.buy_exratio / (currencyTo.buy_exratio - Math.abs(currencyFrom.buy_exratioBias))
     }
     this.logger.debug(usdtRatio)
     const amount = exhangeAccountDto.amount
