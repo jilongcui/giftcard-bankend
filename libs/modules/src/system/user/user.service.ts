@@ -237,7 +237,7 @@ export class UserService {
         //     queryBuilde.andWhere(sataScopeSql)
         // }
 
-        const result = await queryBuilde.andWhere(where).orderBy("user.userId", 'DESC').getManyAndCount()
+        const result = await queryBuilde.andWhere(where).orderBy("user.createTime", 'DESC').getManyAndCount()
         return {
             rows: result[0],
             total: result[1]
