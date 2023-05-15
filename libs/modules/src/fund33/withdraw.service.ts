@@ -23,7 +23,7 @@ import { QueryRechargeDto } from './dto/create-fund33.dto';
 import { BankcardService } from 'apps/giftcard/src/bankcard/bankcard.service';
 import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
-import { ProfitType } from '../profit_record/entities/profit_record.entity';
+import { ProfitRecord, ProfitType } from '../profit_record/entities/profit_record.entity';
 import { ProfitRecordService } from '../profit_record/profit_record.service';
 import { AccountFlow, AccountFlowType, AccountFlowDirection } from '../account/entities/account-flow.entity';
 
@@ -180,7 +180,7 @@ export class WithdrawService {
             throw new ApiException('提币状态不对')
         }
 
-        await this.withdrawRepository.manager.transaction(async manager => {
+        return await this.withdrawRepository.manager.transaction(async manager => {
             withdraw.status = '1' // 已审核
             await manager.save(withdraw)
 
@@ -203,14 +203,13 @@ export class WithdrawService {
             
             await this.doWithdrawWithCard(bankcard, withdraw)
 
-            const profitRecordDto: CreateProfitRecordDto ={
-                type: ProfitType.WithdrawToCardFee,
-                content: bankcard.cardNo,
-                userId: bankcard.userId,
-                amount: withdraw.realPrice,
-                fee: withdraw.totalFee,
-                txid: 'withdrawId: ' + withdraw.id
-            }
+            const profitRecordDto = new ProfitRecord()
+            profitRecordDto.type = ProfitType.WithdrawToCardFee
+            profitRecordDto.content = bankcard.cardNo,
+            profitRecordDto.userId = bankcard.userId,
+            profitRecordDto.amount = withdraw.realPrice,
+            profitRecordDto.fee = withdraw.totalFee,
+            profitRecordDto.txid = 'withdrawId: ' + withdraw.id
             await manager.save(profitRecordDto)
         })
         
