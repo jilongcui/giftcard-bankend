@@ -13,7 +13,6 @@ import { Transfer } from '../transfer/entities/transfer.entity';
 import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
 import { ProfitSubType, ProfitType } from '../profit_record/entities/profit_record.entity';
 import { ProfitRecordService } from '../profit_record/profit_record.service';
-import { CreateBrokerageRecordDto } from '../brokerage_record/dto/create-brokerage_record.dto';
 import { BrokerageRecord, BrokerageType } from '../brokerage_record/entities/brokerage_record.entity';
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { SYSCONF_EXCHANGE_BROKERAGE_KEY } from '@app/common/contants/sysconfig.contants';
@@ -122,17 +121,29 @@ export class AccountService {
   async exchange(exhangeAccountDto: ExhangeAccountDto, userId: number) {
 
     // this.logger.debug('exchange')
+    // FROM USDT to HKD BUY
+    // FROM HKD to USDT SELL 
     const currencyFrom = await this.currencyRepository.findOneBy({id: exhangeAccountDto.currIdFrom})
     const currencyTo = await this.currencyRepository.findOneBy({id: exhangeAccountDto.currIdTo})
-    // this.logger.debug(`ratio ${currencyTo.exratio} / ${currencyFrom.exratio}`)
-    const ratio = currencyFrom.exratio / currencyTo.exratio
-    // const ratio = (currencyFrom.exratio + currencyFrom.exratioBias) / (currencyTo.exratio + currencyTo.exratioBias) 
+    let action
+    let usdtRatio
+    let realRatio
+    if(currencyFrom.symbol === 'USDT') {
+      action = 'BUY'
+      usdtRatio = currencyFrom.buy_exratio
+      realRatio = (currencyFrom.buy_exratio + Math.abs(currencyFrom.buy_exratioBias)) / currencyTo.buy_exratio
+    } else if(currencyTo.symbol === 'USDT') {
+      action = 'SELL'
+      usdtRatio = currencyTo.sell_exratio
+      realRatio = currencyFrom.sell_exratio / (currencyTo.sell_exratio - Math.abs(currencyFrom.sell_exratioBias))
+    }
+    this.logger.debug(usdtRatio)
+    const amount = exhangeAccountDto.amount
+    const exchangeFee = amount * 0.01 // toFixed
+    const toAmount = amount * realRatio
+    const fromAmount = amount + exchangeFee
 
-    const fromAmount = exhangeAccountDto.amount
-    const exchangeFee = fromAmount * 0.01 // toFixed
-    const toAmount = (fromAmount - exchangeFee) * ratio
-
-    this.logger.debug(`fromAmount: ${fromAmount} fee: ${exchangeFee} toAmount: ${toAmount}`)
+    this.logger.debug(`fromAmount: ${amount} fee: ${exchangeFee} toAmount: ${toAmount}`)
 
     // Exchange
     return this.accountRepository.manager.transaction(async manager => {
@@ -173,9 +184,10 @@ export class AccountService {
       await manager.save(accountFlow2)
       
       const exchange = new Exchange()
-      exchange.fromAmount = fromAmount
+      exchange.fromAmount = amount
       exchange.fee = exchangeFee
       exchange.toAmount = toAmount
+      exchange.ratio = usdtRatio
       exchange.fromCurrencyId = currencyFrom.id
       exchange.toCurrencyId = currencyTo.id
       exchange.status = '1' // 
@@ -242,9 +254,9 @@ export class AccountService {
 
     this.logger.debug(JSON.stringify(currency))
     const user = await this.userService.findOneByMixName(tranferAccountDto.userTo)
-    const fromAmount = tranferAccountDto.amount
-    const transferFee = fromAmount * 0.01 // toFixed
-    const toAmount = fromAmount - transferFee
+    const toAmount = tranferAccountDto.amount
+    const transferFee = toAmount * 0.01 // toFixed
+    const fromAmount = toAmount + transferFee
 
     // Transfer
     return this.accountRepository.manager.transaction(async manager => {
@@ -270,7 +282,7 @@ export class AccountService {
       accountFlow.currencyId = currency.id
       accountFlow.currencyName = currency.symbol
       accountFlow.balance = 0
-      await manager.save(accountFlow )
+      await manager.save(accountFlow)
 
       const accountFlow2 = new AccountFlow()
       accountFlow2.type = AccountFlowType.Transfer
@@ -280,10 +292,10 @@ export class AccountService {
       accountFlow2.currencyId = currency.id
       accountFlow2.currencyName = currency.symbol
       accountFlow2.balance = 0
-      await manager.save(accountFlow2 )
+      await manager.save(accountFlow2)
 
       const transfer = new Transfer()
-      transfer.fromAmount = fromAmount
+      transfer.fromAmount = toAmount
       transfer.fee = transferFee
       transfer.toAmount = toAmount
       transfer.fromUserId = userId
@@ -304,7 +316,7 @@ export class AccountService {
         subtype: subType,
         content: user.userId.toString(),
         userId: userId,
-        amount: fromAmount,
+        amount: toAmount,
         fee: transferFee,
         txid: 'transferId: ' + transfer2.id
       }

@@ -9,7 +9,6 @@ import { HttpService } from '@nestjs/axios';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { CURRENCY_UPDATE_KEY } from '@app/common/contants/redis.contant';
-import { ApiException } from '@app/common/exceptions/api.exception';
 
 @Injectable()
 export class CurrencyService {
@@ -105,8 +104,6 @@ export class CurrencyService {
       await this.redis.set(CURRENCY_UPDATE_KEY, '1', 'EX', 60 * 60 * 1)
 
     for(let i=0; i< actionArray.length; i++) {
-      if(actionArray[i] !== 'sell') continue
-
       const names = cryptoTypeArray[i].toUpperCase().split('_')
       if(names.length != 2) {
         // this.logger.error("汇率获取失败: ", cryptoTypeArray[i])
@@ -115,12 +112,27 @@ export class CurrencyService {
       const currency = await this.findOneByName(names[0])
       if(!currency) continue
 
-      const newRatio = priceArray[i]
-      if(Math.abs(newRatio - currency.exratio) / currency.exratio > 0.2) {
-        this.logger.error(`汇率变动机场: new Ratio: ${newRatio} old Ratio ${currency.exratio}`)
-        // continue
+      if(actionArray[i] == 'sell') {
+        // Sell HKD Exchange Ratio
+        // Equal to we Buy HKD Ratio
+        const newRatio = priceArray[i]
+        if(Math.abs(newRatio - currency.buy_exratio) / currency.buy_exratio > 0.2) {
+          this.logger.error(`汇率变动机场: new Ratio: ${newRatio} old Ratio ${currency.buy_exratio}`)
+          // continue
+        } else
+          currency.buy_exratio = newRatio
       }
-      currency.exratio = newRatio
+
+      if(actionArray[i] == 'buy') {
+        // Buy Exchange Ratio
+        const newRatio = priceArray[i]
+        if(Math.abs(newRatio - currency.sell_exratio) / currency.sell_exratio > 0.2) {
+          this.logger.error(`汇率变动机场: new Ratio: ${newRatio} old Ratio ${currency.sell_exratio}`)
+          // continue
+        } else
+          currency.sell_exratio = newRatio
+      }
+      
       await this.currencyRepository.save(currency)
     }
   }

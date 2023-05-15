@@ -42,7 +42,7 @@ export class Exchange {
 
     @Column({
         name: 'from_amount',
-        comment: '汇款金额',
+        comment: '兑入金额',
         type: "decimal", precision: 10, scale: 4, default: 0,
         nullable: true,
     })
@@ -51,7 +51,7 @@ export class Exchange {
 
     @Column({
         name: 'fee',
-        comment: '汇款手续费',
+        comment: '手续费',
         type: "decimal", precision: 10, scale: 4, default: 0,
         nullable: true,
     })
@@ -60,12 +60,21 @@ export class Exchange {
 
     @Column({
         name: 'to_amount',
-        comment: '汇款金额',
+        comment: '兑出金额',
         type: "decimal", precision: 10, scale: 4, default: 0,
         nullable: true,
     })
     @IsNumber()
     toAmount: number;
+
+    @Column({
+        name: 'ratio',
+        comment: '兑换比例',
+        type: "decimal", precision: 10, scale: 4, default: 7.78,
+        nullable: true,
+    })
+    @IsNumber()
+    ratio: number;
 
     @Column({
         name: 'status',

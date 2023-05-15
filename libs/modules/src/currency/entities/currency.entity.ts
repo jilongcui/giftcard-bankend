@@ -68,22 +68,40 @@ export class Currency {
     gatherMin: number
 
     @Column({
-        name: 'exratio',
+        name: 'sell_exratio',
         type: "decimal", precision: 10, scale: 4,
         default: 1.0,
         comment: 'exchange ratio to usdt', // exchange ratio
     })
     @IsNumber()
-    exratio: number
+    sell_exratio: number
 
     @Column({
-        name: 'exratio_bias',
+        name: 'sell_exratio_bias',
         type: "decimal", precision: 10, scale: 4,
         default: 0,
         comment: 'exchange ratio bias percent', // exchange ratio
     })
     @IsNumber()
-    exratioBias: number
+    sell_exratioBias: number
+
+    @Column({
+        name: 'buy_exratio',
+        type: "decimal", precision: 10, scale: 4,
+        default: 1.0,
+        comment: 'exchange ratio to usdt', // exchange ratio
+    })
+    @IsNumber()
+    buy_exratio: number
+
+    @Column({
+        name: 'buy_exratio_bias',
+        type: "decimal", precision: 10, scale: 4,
+        default: 0,
+        comment: 'exchange ratio bias percent', // exchange ratio
+    })
+    @IsNumber()
+    buy_exratioBias: number
 
     @Column({
         name: 'status',

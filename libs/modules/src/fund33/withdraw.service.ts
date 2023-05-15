@@ -83,7 +83,6 @@ export class WithdrawService {
         this.platformCert3DESKey = this.configService.get<string>('fund.platformCert3DESKey')
         this.platformCertMD5Key = this.configService.get<string>('fund.platformCertMD5Key')
 
-
         this.platformPay3DESKey = this.configService.get<string>('fund.platformPay3DESKey')
         this.platformPayMD5Key = this.configService.get<string>('fund.platformPayMD5Key')
 
@@ -150,9 +149,9 @@ export class WithdrawService {
             withdraw.bankcardId = bankcard.id
             withdraw.cardNo = bankcard.cardNo
             withdraw.userId = userId
-            withdraw.totalPrice = createWithdrawDto.amount
+            withdraw.totalPrice = realAmount
             withdraw.totalFee = fee
-            withdraw.realPrice = realAmount
+            withdraw.realPrice = amount
             // withdraw.count = 1
             // withdraw.merchBillNo = this.randomBillNo()
             // withdraw.merchBatchNo = this.randomBatchNo()
