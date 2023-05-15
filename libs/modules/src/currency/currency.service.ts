@@ -45,7 +45,7 @@ export class CurrencyService {
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
-        // createTime: 1,
+        id: 'ASC',
       }
     })
 
