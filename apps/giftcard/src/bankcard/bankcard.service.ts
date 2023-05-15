@@ -92,7 +92,7 @@ export class BankcardService {
     let result: any;
     where = listBankcardList
     where.status = Not('0')
-    where.userId = Not(null)
+    where.userId = Not(IsNull())
 
     result = await this.bankcardRepository.findAndCount({
       where,
