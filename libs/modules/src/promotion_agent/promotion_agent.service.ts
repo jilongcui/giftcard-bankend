@@ -56,7 +56,6 @@ export class PromotionAgentService {
       promotionAgent.userId = userId
       promotionAgent.status = '1'
       await manager.decrement(Account, { userId: userId, currencyId }, "usable", promotionAgentfee)
-      await manager.increment(Account, { userId: 1 }, "usable", promotionAgentfee)
       
       const accountFlow = new AccountFlow()
       accountFlow.type = AccountFlowType.PromotionAgent

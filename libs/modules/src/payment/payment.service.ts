@@ -314,7 +314,6 @@ export class PaymentService {
             marketFee = order.totalPrice * marketFee
 
             await manager.increment(Account, { userId: asset.userId }, "usable", order.totalPrice - marketFee)
-            await manager.increment(Account, { userId: 1 }, "usable", marketFee)
           }
           await manager.update(Payment, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
           await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
@@ -406,7 +405,6 @@ export class PaymentService {
         marketFee = order.totalPrice * marketFee
 
         await manager.increment(Account, { userId: asset.userId }, "usable", order.totalPrice - marketFee)
-        await manager.increment(Account, { userId: 1 }, "usable", marketFee)
       }
 
     })
@@ -854,7 +852,6 @@ export class PaymentService {
             marketFee = order.totalPrice * marketFee
 
             await manager.increment(Account, { userId: asset.userId }, "usable", order.totalPrice - marketFee)
-            await manager.increment(Account, { userId: 1 }, "usable", marketFee)
           }
           await manager.update(Payment, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
           await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })

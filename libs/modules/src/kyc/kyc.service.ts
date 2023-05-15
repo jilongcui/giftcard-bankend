@@ -189,7 +189,6 @@ export class KycService {
         const currencySymbol = order.currencySymbol
         const openfee = order.price
         await manager.increment(Account, { userId: order.userId, currencyId }, "usable", openfee)
-        await manager.decrement(Account, { userId: 1 }, "usable", openfee)
         const accountFlow = new AccountFlow()
         accountFlow.type = AccountFlowType.OpenCardRevert
         accountFlow.direction = AccountFlowDirection.In

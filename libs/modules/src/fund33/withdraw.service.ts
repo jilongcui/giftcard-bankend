@@ -26,6 +26,7 @@ import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record
 import { ProfitRecord, ProfitType } from '../profit_record/entities/profit_record.entity';
 import { ProfitRecordService } from '../profit_record/profit_record.service';
 import { AccountFlow, AccountFlowType, AccountFlowDirection } from '../account/entities/account-flow.entity';
+import { CurrencyService } from '../currency/currency.service';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -60,6 +61,7 @@ export class WithdrawService {
         private readonly configService: ConfigService,
         private readonly sharedService: SharedService,
         private readonly profitRecordService: ProfitRecordService,
+        private readonly currencyService: CurrencyService,
         @InjectRepository(Withdraw) private readonly withdrawRepository: Repository<Withdraw>,
         @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
         @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
@@ -121,13 +123,15 @@ export class WithdrawService {
             throw new ApiException('提现金额低于手续费')
         }
 
+        const currency = await this.currencyService.findOneByName('HKD')
+
         return await this.withdrawRepository.manager.transaction(async manager => {
-            const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
+            const result = await manager.decrement(Account, { currencyId: currency.id, user: { userId: userId }, usable: MoreThanOrEqual(realAmount) }, "usable", realAmount);
             if (!result.affected) {
                 throw new ApiException('创建提现请求失败')
             }
 
-            const result2 = await manager.increment(Account, { user: { userId: userId } }, "freeze", realAmount);
+            const result2 = await manager.increment(Account, { userId: userId, currencyId: currency.id }, "freeze", realAmount);
             if (!result2.affected) {
                 throw new ApiException('创建提现请求失败')
             }
@@ -201,10 +205,10 @@ export class WithdrawService {
             }
             const profitRecordDto = new ProfitRecord()
             profitRecordDto.type = ProfitType.WithdrawToCardFee
-            profitRecordDto.content = bankcard.cardNo,
-            profitRecordDto.userId = bankcard.userId,
-            profitRecordDto.amount = withdraw.realPrice,
-            profitRecordDto.fee = withdraw.totalFee,
+            profitRecordDto.content = bankcard.cardNo
+            profitRecordDto.userId = bankcard.userId
+            profitRecordDto.amount = withdraw.realPrice
+            profitRecordDto.fee = withdraw.totalFee
             profitRecordDto.txid = 'withdrawId: ' + withdraw.id
             await manager.save(profitRecordDto)
 
@@ -343,6 +347,7 @@ export class WithdrawService {
         if (withdraw.userId !== userId) {
             throw new ApiException("非本人提币")
         }
+        const currency = await this.currencyService.findOneByName('HKD')
         // 银行卡提现 - 取消
         if (withdraw.type === '1') {
             await this.withdrawRepository.manager.transaction(async manager => {
@@ -350,19 +355,19 @@ export class WithdrawService {
                 if (result.affected <= 0) {
                     throw new ApiException("未能取消提币")
                 }
-                result = await manager.increment(Account, { user: { userId: userId }, }, "usable", withdraw.totalPrice);
+                result = await manager.increment(Account, { userId: userId, currencyId: currency.id}, "usable", withdraw.totalPrice);
                 if (!result.affected) {
                     throw new ApiException('未能取消当前提现')
                 }
-                const result2 = await manager.decrement(Account, { user: { userId: userId } }, "freeze", withdraw.totalPrice);
+                const result2 = await manager.decrement(Account, { userId: userId, currencyId: currency.id }, "freeze", withdraw.totalPrice);
 
                 const accountFlow = new AccountFlow()
                 accountFlow.type = AccountFlowType.BankWithdrawRevert
                 accountFlow.direction = AccountFlowDirection.In
                 accountFlow.userId = userId
                 accountFlow.amount = withdraw.totalPrice
-                accountFlow.currencyId = 2
-                accountFlow.currencyName = 'HKD'
+                accountFlow.currencyId = currency.id
+                accountFlow.currencyName = currency.symbol
                 accountFlow.balance = 0
                 await manager.save(accountFlow)
 
@@ -387,6 +392,7 @@ export class WithdrawService {
         if (withdraw.status !== '0') {
             throw new ApiException("提币状态不对")
         }
+        const currency = await this.currencyService.findOneByName('HKD')
         // 银行卡提现 - 审核未通过
         if (withdraw.type === '1') {
             await this.withdrawRepository.manager.transaction(async manager => {
@@ -394,18 +400,18 @@ export class WithdrawService {
                 if (result1.affected <= 0) {
                     throw new ApiException("未能取消提币")
                 }
-                const result = await manager.increment(Account, { user: { userId: withdraw.userId }, }, "usable", withdraw.totalPrice);
+                const result = await manager.increment(Account, { user: { userId: withdraw.userId }, currencyId: currency.id}, "usable", withdraw.totalPrice);
                 if (!result.affected) {
                     throw new ApiException('未能拒绝当前提现')
                 }
-                const result2 = await manager.decrement(Account, { user: { userId: userId } }, "freeze", withdraw.totalPrice);
+                const result2 = await manager.decrement(Account, { user: { userId: userId }, currencyId: currency.id}, "freeze", withdraw.totalPrice);
                 const accountFlow = new AccountFlow()
                 accountFlow.type = AccountFlowType.BankWithdrawRevert
                 accountFlow.direction = AccountFlowDirection.In
                 accountFlow.userId = userId
                 accountFlow.amount = withdraw.totalPrice
-                accountFlow.currencyId = 2
-                accountFlow.currencyName = 'HKD'
+                accountFlow.currencyId = currency.id
+                accountFlow.currencyName = currency.symbol
                 accountFlow.balance = 0
                 await manager.save(accountFlow)
 

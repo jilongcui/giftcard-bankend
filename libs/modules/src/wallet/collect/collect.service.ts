@@ -113,7 +113,6 @@ export class CollectService {
                 // let rechargeFee = rechargeNotifyDto.amount * marketRatio
                 let currencyId = rechargeNotifyDto.currencyId
                 await manager.increment(Account, { userId: address.userId, currencyId }, "usable", rechargeNotifyDto.amount)
-                // await manager.increment(Account, { userId: 1, currencyId}, "usable", rechargeFee)
 
                 const accountFlow = new AccountFlow()
                 accountFlow.type = AccountFlowType.Recharge

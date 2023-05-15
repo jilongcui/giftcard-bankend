@@ -286,7 +286,6 @@ export class AddressService implements OnModuleInit {
     //             let marketFee = rechargeNotifyDto.amount * marketRatio
     //             let currencyId = rechargeNotifyDto.currencyId
     //             await manager.increment(Account, { userId: address.userId, currencyId }, "usable", rechargeNotifyDto.amount - marketFee)
-    //             await manager.increment(Account, { userId: 1, currencyId}, "usable", marketFee)
 
     //             const reqAddRechargeCollectDto:ReqAddRechargeCollectDto = {
     //                 ...rechargeNotifyDto,

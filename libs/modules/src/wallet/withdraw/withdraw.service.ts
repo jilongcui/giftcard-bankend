@@ -63,12 +63,12 @@ export class WithdrawService {
     }
 
     return await this.withdrawRepository.manager.transaction(async manager => {
-        const result = await manager.decrement(Account, { user: { userId: userId }, usable: MoreThanOrEqual(createWithdrawDto.amount) }, "usable", createWithdrawDto.amount);
+        const result = await manager.decrement(Account, { userId: userId, currencyId: currency.id, usable: MoreThanOrEqual(createWithdrawDto.amount) }, "usable", createWithdrawDto.amount);
         if (!result.affected) {
             throw new ApiException('创建提现请求失败')
         }
 
-        const result2 = await manager.increment(Account, { user: { userId: userId } }, "freeze", createWithdrawDto.amount);
+        const result2 = await manager.increment(Account, { userId: userId, currencyId: currency.id,}, "freeze", createWithdrawDto.amount);
         if (!result2.affected) {
             throw new ApiException('创建提现请求失败')
         }
@@ -215,7 +215,6 @@ export class WithdrawService {
         // 把Withdraw的状态改成2: 已支付
         // await manager.update(Withdraw, { id: withdraw.id, status: '1' }, { status: '2' })
         
-        await manager.increment(Account, { userId: 1, currencyId: withdraw.currencyId }, "usable", withdraw.totalFee)
         const result2 = await manager.decrement(Account, { userId: withdraw.userId, currencyId: withdraw.currencyId }, "freeze", withdraw.totalPrice);
         withdraw.status = '2'
         withdraw.txid = withdrawNotifyDto.txid
@@ -239,11 +238,11 @@ export class WithdrawService {
             if (result.affected <= 0) {
                 throw new ApiException("未能取消提币")
             }
-            result = await manager.increment(Account, { user: { userId: userId, currencyId: withdraw.currencyId }, }, "usable", withdraw.totalPrice);
+            result = await manager.increment(Account, { userId: userId, currencyId: withdraw.currencyId }, "usable", withdraw.totalPrice);
             if (!result.affected) {
                 throw new ApiException('未能取消当前提现')
             }
-            const result2 = await manager.decrement(Account, { user: { userId: userId, currencyId: withdraw.currencyId } }, "freeze", withdraw.totalPrice);
+            const result2 = await manager.decrement(Account, { userId: userId, currencyId: withdraw.currencyId }, "freeze", withdraw.totalPrice);
 
             this.logger.debug('Success')
 
@@ -275,11 +274,11 @@ async fail(id: number, userId: number) {
     if (withdraw.type === '1') {
         await this.withdrawRepository.manager.transaction(async manager => {
             await manager.update(Withdraw, { id: withdraw.id }, { status: '5' }) // Unlocked.
-            const result = await manager.increment(Account, { user: { userId: withdraw.userId, currencyId: withdraw.currencyId }, }, "usable", withdraw.totalPrice);
+            const result = await manager.increment(Account, { userId: withdraw.userId, currencyId: withdraw.currencyId }, "usable", withdraw.totalPrice);
             if (!result.affected) {
                 throw new ApiException('未能拒绝当前提现')
             }
-            const result2 = await manager.decrement(Account, { user: { userId: userId, currencyId: withdraw.currencyId } }, "freeze", withdraw.totalPrice);
+            const result2 = await manager.decrement(Account, { userId: userId, currencyId: withdraw.currencyId }, "freeze", withdraw.totalPrice);
             this.logger.debug('Success')
             const accountFlow = new AccountFlow()
             accountFlow.type = AccountFlowType.WithdrawRevert
