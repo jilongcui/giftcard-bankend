@@ -400,11 +400,11 @@ export class WithdrawService {
                 if (result1.affected <= 0) {
                     throw new ApiException("未能取消提币")
                 }
-                const result = await manager.increment(Account, { user: { userId: withdraw.userId }, currencyId: currency.id}, "usable", withdraw.totalPrice);
+                const result = await manager.increment(Account, { userId: withdraw.userId, currencyId: currency.id}, "usable", withdraw.totalPrice);
                 if (!result.affected) {
                     throw new ApiException('未能拒绝当前提现')
                 }
-                const result2 = await manager.decrement(Account, { user: { userId: userId }, currencyId: currency.id}, "freeze", withdraw.totalPrice);
+                const result2 = await manager.decrement(Account, { userId: userId, currencyId: currency.id}, "freeze", withdraw.totalPrice);
                 const accountFlow = new AccountFlow()
                 accountFlow.type = AccountFlowType.BankWithdrawRevert
                 accountFlow.direction = AccountFlowDirection.In
