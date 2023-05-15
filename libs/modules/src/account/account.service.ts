@@ -78,7 +78,7 @@ export class AccountService {
       skip: paginationDto.skip,
       take: paginationDto.take,
       order: {
-        createTime: 'DESC',
+        id: 'ASC',
       }
     })
 
