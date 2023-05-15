@@ -120,11 +120,11 @@ export class KycService {
           if(parent.promotionAgentId) { // Promotion Agent
             const opencardBrokerageString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_HIGH_BROKERAGE_KEY)
             this.logger.debug(opencardBrokerageString || "0.5")
-            openCardBrokerage = Number(opencardBrokerageString)
+            openCardBrokerage = Number(opencardBrokerageString || "0.5")
           } else {
             const opencardBrokerageString = await this.sysconfigService.getValue(SYSCONF_OPENCARD_BROKERAGE_KEY)
             this.logger.debug(opencardBrokerageString || "0.2")
-            openCardBrokerage = Number(opencardBrokerageString)
+            openCardBrokerage = Number(opencardBrokerageString || "0.2")
           }
           
           this.logger.debug('marketFee ratio' + openCardBrokerage)
