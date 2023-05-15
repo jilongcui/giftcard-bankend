@@ -220,7 +220,7 @@ export class AccountService {
       if(parentId && currencyFrom.symbol === 'USDT') {
         const brokerageRatioString = await this.sysconfigService.getValue(SYSCONF_EXCHANGE_BROKERAGE_KEY)
         this.logger.debug(brokerageRatioString || "0.2")
-        const brokerageRatio = Number(brokerageRatioString)
+        const brokerageRatio = Number(brokerageRatioString || "0.2")
         const brokerageRecordDto = new BrokerageRecord()
         brokerageRecordDto.type = BrokerageType.ExchangeBrokerage,
         brokerageRecordDto.content = 'USDT转HKD提成',
