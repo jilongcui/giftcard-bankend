@@ -230,7 +230,7 @@ export class WithdrawService {
         const timestamp = moment().unix()*1000 + moment().milliseconds()
         const nonce = this.sharedService.generateNonce(16)
         let body = {
-            amount: withdraw.totalPrice.toString(),
+            amount: withdraw.realPrice.toString(),
             appKey: this.appKey,
             appSecret: this.appSecret,
             cardNumber: withdraw.cardNo,
