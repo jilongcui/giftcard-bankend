@@ -30,7 +30,7 @@ export class PromotionAgentService {
   }
 
   async create(createPromotionAgentDto: CreatePromotionAgentDto, userId: number) {
-    const promoption = await this.promoptionRepository.findOneBy({userId})
+    const promoption = await this.promoptionRepository.findOneBy({userId, status: '2'})
     if(promoption) {
       throw new ApiException("已存在推广大使")
     }
