@@ -96,8 +96,8 @@ export class OrderService {
         order.totalPrice = Number(asset.price) * order.count + Number(asset.tradefee) + Number(asset.shipfee * order.count)
         order.price = asset.price
         order.cardNo = asset.cardNo
-        order.tradeFee = asset.tradefee
-        order.shipFee = asset.shipfee * order.count
+        order.tradeFee = asset.tradefee * order.count
+        order.shipFee = asset.shipfee
         order.desc = asset.cardName
         order.image = asset.images[0] || undefined
         await manager.save(order);
