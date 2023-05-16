@@ -254,7 +254,7 @@ export class AccountService {
     this.logger.debug(JSON.stringify(currency))
     const user = await this.userService.findOneByMixName(tranferAccountDto.userTo)
     const toAmount = tranferAccountDto.amount
-    const transferFee = toAmount * 0.01 // toFixed
+    const transferFee = toAmount * 0.001 // toFixed
     const fromAmount = toAmount + transferFee
 
     // Transfer
