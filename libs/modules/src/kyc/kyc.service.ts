@@ -167,7 +167,7 @@ export class KycService {
           brokerageRecordDto.amount = order.totalPrice,
           brokerageRecordDto.value = openCardBrokerage,
           brokerageRecordDto.txid = 'orderId: ' + order.id
-          await manager.save(profitRecordDto);
+          await manager.save(brokerageRecordDto);
         }
       })
       kyc.signNo = notifyKycDto.orderNo
