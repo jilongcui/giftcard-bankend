@@ -54,7 +54,7 @@ export class KycService {
       status: '0',
       info: {...createKycInfoDto},
       cardType: createKycInfoDto.certType,
-      cardNo: order.remark,
+      cardNo: order.cardNo,
       signNo: '',
       failReason: '',
       orderNo: createKycInfoDto.merOrderNo,
