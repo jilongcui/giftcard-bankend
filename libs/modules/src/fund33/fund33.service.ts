@@ -14,6 +14,9 @@ import { Account } from '../account/entities/account.entity';
 import { KycCertifyInfo } from '../kyc/entities/kyc.entity';
 import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 import { AccountFlow, AccountFlowType, AccountFlowDirection } from '../account/entities/account-flow.entity';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
+import { BANKCARD_BALANCE_KEY } from '@app/common/contants/redis.contant';
 
 @Injectable()
 export class Fund33Service {
@@ -27,6 +30,7 @@ export class Fund33Service {
 
   constructor(
     @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
+    @InjectRedis() private readonly redis: Redis,
     private readonly httpService: HttpService,
     private readonly sharedService: SharedService,
     private readonly configService: ConfigService,
@@ -141,6 +145,12 @@ export class Fund33Service {
     // 对所有的原始参数进行签名
 
     const cardId = queryBalanceDto.cardId
+
+    const bankcardBalanceKey = BANKCARD_BALANCE_KEY + ":" +  cardId
+    const balance = this.redis.get(bankcardBalanceKey)
+    if(balance != undefined && balance != null) {
+      return balance
+    }
     const bankcard = await this.bankcardRepository.findOneBy({userId: userId, id: cardId})
     if(!bankcard)
       throw new ApiException("不拥有此银行卡")
@@ -186,22 +196,8 @@ export class Fund33Service {
         const actualAmount = responseData.data.actualAmount
         bankcard.balance = parseFloat(actualAmount)
         this.bankcardRepository.save(bankcard)
-        // var encrypted = this.sharedService.aesEncryptNoSalt("14", "sBOvCZZurSbbdJiA")
-        // this.logger.debug(encrypted)
+        await this.redis.set(bankcardBalanceKey, bankcard.balance, 'EX', 60 * 5)
 
-        // const backNumber = 'U88v0HHTLxUp9LUkj95AJA=='
-        // this.appSecret = 'sBOvCZZurSbbdJiA'
-        // this.logger.debug(backNumber)
-        // const cardNumber = this.sharedService.aesDecryptNoSalt(backNumber, this.appSecret)
-        // this.logger.debug("CardNumber: " + cardNumber)
-
-        // 验证签名
-        // const verify = createVerify('RSA-SHA1');
-        // verify.write(decryptedData);
-        // verify.end();
-        // const verifyOk = verify.verify(this.platformPublicKey, responseData.sign, 'base64');
-        // this.logger.debug(verifyOk)
-        // return querystring.parse(decryptedData)
         return bankcard.balance
     }
     throw new ApiException('发送请求失败: ' + responseData.msg)
