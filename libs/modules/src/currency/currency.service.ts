@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Repository, FindOptionsWhere } from 'typeorm';
-import { CreateCurrencyDto, ListCurrencyDto, UpdateCurrencyDto } from './dto/request-currency.dto';
+import { CreateCurrencyDto, ListCurrencyDto, UpdateCurrencyDto, UpdateRatioDto } from './dto/request-currency.dto';
 import { Currency } from './entities/currency.entity';
 import { HttpService } from '@nestjs/axios';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
@@ -65,6 +65,11 @@ export class CurrencyService {
 
   update(id: number, updateCurrencyDto: UpdateCurrencyDto) {
     return this.currencyRepository.update(id, updateCurrencyDto)
+  }
+
+  async updateRatio(name: string, updateUsdtDto: UpdateRatioDto) {
+    const currency = await this.findOneByName(name.toUpperCase())
+    return this.currencyRepository.update(currency.id, updateUsdtDto)
   }
 
   deleteOne(id: number) {

@@ -6,7 +6,7 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
 import { CurrencyService } from './currency.service';
-import { CreateCurrencyDto, ListCurrencyDto, UpdateAllCurrencyDto, UpdateCurrencyDto } from './dto/request-currency.dto';
+import { CreateCurrencyDto, ListCurrencyDto, UpdateAllCurrencyDto, UpdateCurrencyDto, UpdateRatioDto } from './dto/request-currency.dto';
 import { Currency } from './entities/currency.entity';
 
 @ApiTags('代币')
@@ -28,6 +28,11 @@ export class CurrencyController {
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateCurrencyDto: UpdateCurrencyDto) {
     return await this.activityService.update(+id, updateCurrencyDto);
+  }
+
+  @Patch(':name/updateRatio')
+  async updateRatio(@Param('name') name: string, @Body() updateUsdtRatioDto: UpdateRatioDto) {
+    return await this.activityService.updateRatio(name, updateUsdtRatioDto);
   }
 
   /* 产品列表 */
