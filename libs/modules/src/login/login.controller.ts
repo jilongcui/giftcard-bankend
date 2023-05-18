@@ -169,7 +169,7 @@ export class LoginController {
         return await this.loginService.register(reqRegDto, req)
     }
 
-    /* 手机验证码和密码恢复密码 */
+    /* 手机验证码恢复密码 */
     @Post('recoverByPhone')
     @Public()
     @UseGuards(SmsCodeGuard)
@@ -177,7 +177,7 @@ export class LoginController {
         return await this.loginService.recoverPassword(reqRegDto, req)
     }
 
-    /* 邮箱验证码和密码恢复密码 */
+    /* 邮箱验证码恢复密码 */
     @Post('recoverByEmail')
     @Public()
     @UseGuards(EmailCodeGuard)
