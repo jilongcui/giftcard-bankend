@@ -46,6 +46,7 @@ import { GiftcardModule } from './giftcard/giftcard.module';
 import { ProfitRecordModule } from '@app/modules/profit_record/profit_record.module';
 import { PromotionAgentModule } from '@app/modules/promotion_agent/promotion_agent.module';
 import { BrokerageRecordModule } from '@app/modules/brokerage_record/brokerage_record.module';
+import { VersionModule } from '@app/modules/version/version.module';
 
 // /* 将 provider的类名作为别名，方便定时器调用 */
 // const providers = [JobService, OrderService,]
@@ -119,7 +120,8 @@ import { BrokerageRecordModule } from '@app/modules/brokerage_record/brokerage_r
     GiftcardModule,
     ProfitRecordModule,
     BrokerageRecordModule,
-    PromotionAgentModule
+    PromotionAgentModule,
+    VersionModule,
   ],
   // controllers: [NotifyController],
   // providers: [...aliasProviders],
