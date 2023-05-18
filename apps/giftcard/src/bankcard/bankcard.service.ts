@@ -136,9 +136,9 @@ export class BankcardService {
     for(let bankcard of result[0]) {
       try {
         bankcard.balance = await this.fund33Service.queryBalance({cardId: bankcard.id }, userId);
-        this.bankcardRepository.save(bankcard)
+        // this.bankcardRepository.save(bankcard)
       } catch (error) {
-        
+        this.logger.error(error)
       }
     }
 

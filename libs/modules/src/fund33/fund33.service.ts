@@ -147,10 +147,11 @@ export class Fund33Service {
     const cardId = queryBalanceDto.cardId
 
     const bankcardBalanceKey = BANKCARD_BALANCE_KEY + ":" +  cardId
-    const balance = this.redis.get(bankcardBalanceKey)
+    const balance = await this.redis.get(bankcardBalanceKey)
     if(balance != undefined && balance != null) {
       return balance
     }
+    
     const bankcard = await this.bankcardRepository.findOneBy({userId: userId, id: cardId})
     if(!bankcard)
       throw new ApiException("不拥有此银行卡")
@@ -195,7 +196,7 @@ export class Fund33Service {
         const backNumber = responseData.data.cardNumber
         const actualAmount = responseData.data.actualAmount
         bankcard.balance = parseFloat(actualAmount)
-        this.bankcardRepository.save(bankcard)
+        await this.bankcardRepository.save(bankcard)
         await this.redis.set(bankcardBalanceKey, bankcard.balance, 'EX', 60 * 5)
 
         return bankcard.balance
