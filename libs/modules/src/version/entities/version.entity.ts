@@ -11,7 +11,7 @@
 import { Excel } from "@app/modules/common/excel/excel.decorator"
 import { ApiHideProperty } from "@nestjs/swagger"
 import { IsBoolean, IsEnum, IsNumber, IsString } from "class-validator"
-import { Column, CreateDateColumn, Entity } from "typeorm"
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm"
 
 export enum VersionTypeEnum {
     "forcibly" = "forcibly",
@@ -22,7 +22,7 @@ export enum VersionTypeEnum {
 @Entity()
 export class Version {
 
-    @Column({
+    @PrimaryGeneratedColumn({
         name: 'id',
         comment: 'id',
     })
