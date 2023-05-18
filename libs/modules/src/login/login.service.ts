@@ -141,7 +141,6 @@ export class LoginService {
     /* 注册 */
     async recoverPassword(reqMobileRecoverDto: ReqMobileRecoverDto |ReqEmailRecoverDto, request: Request) {
 
-        const reqAddUserDto = new ReqAddUserDto()
         let user: User;
         if (reqMobileRecoverDto instanceof ReqMobileRecoverDto) {
             user = await this.userService.findOneByPhone(reqMobileRecoverDto.phone)

@@ -170,7 +170,7 @@ export class LoginController {
     }
 
     /* 手机验证码和密码恢复密码 */
-    @Post('phoneRecover')
+    @Post('recoverByPhone')
     @Public()
     @UseGuards(SmsCodeGuard)
     async mixPhoneRecover(@Body() reqRegDto: ReqMobileRecoverDto, @Req() req: Request): Promise<any> {
@@ -178,7 +178,7 @@ export class LoginController {
     }
 
     /* 邮箱验证码和密码恢复密码 */
-    @Post('emailRecover')
+    @Post('recoverByEmail')
     @Public()
     @UseGuards(EmailCodeGuard)
     async mixEmailRecover(@Body() reqRegDto: ReqEmailRecoverDto, @Req() req: Request): Promise<any> {
