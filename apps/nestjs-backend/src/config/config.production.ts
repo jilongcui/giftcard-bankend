@@ -143,6 +143,7 @@ export default defineConfig({
 
   fund33: {
     baseUrl: process.env.FUND33_BASEURL,
+    notifyUrl: process.env.FUND33_NOTIFYURL,
     appId: process.env.FUND33_APPID,
     appKey: process.env.FUND33_APPKEY,
     appSecret: process.env.FUND33_APPSECRET,

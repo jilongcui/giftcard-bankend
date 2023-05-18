@@ -9,7 +9,7 @@ import { EntityManager, FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual, Repo
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
 
-import { BankCertifyBizDetail, ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqBankCertifyDto, ReqWithdrawDto, WithdrawWithCardDto } from '../fund/dto/request-fund.dto';
+import { BankCertifyBizDetail, ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqBankCertifyDto, ReqWithdrawDto, ReqWithdrawNotify, WithdrawWithCardDto } from '../fund/dto/request-fund.dto';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
@@ -55,6 +55,7 @@ export class WithdrawService {
     appKey: string
     appSecret: string
     secret: string
+    notifyUrl: string
 
     constructor(
         private readonly httpService: HttpService,
@@ -74,6 +75,7 @@ export class WithdrawService {
         this.baseUrl = this.configService.get<string>('fund33.baseUrl')
         this.appKey = this.configService.get<string>('fund33.appKey')
         this.appSecret = this.configService.get<string>('fund33.appSecret')
+        this.notifyUrl = this.configService.get<string>('fund33.notifyUrl')
         this.platformPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.platformPublicKey'))
         this.merchSecretKey = this.sharedService.getPrivateFromString(this.configService.get<string>('payment.merchSecretKey'))
         this.merchPublicKey = this.sharedService.getPublicPemFromString(this.configService.get<string>('payment.merchPublicKey'))
@@ -149,6 +151,7 @@ export class WithdrawService {
             const withdraw = new Withdraw()
             withdraw.type = '1' // 银行卡提现
             withdraw.status = '0' // 待审核
+            withdraw.orderNo = this.sharedService.generateNonce(8)
             withdraw.bankcardId = bankcard.id
             withdraw.cardNo = bankcard.cardNo
             withdraw.userId = userId
@@ -232,9 +235,9 @@ export class WithdrawService {
             appKey: this.appKey,
             appSecret: this.appSecret,
             cardNumber: withdraw.cardNo,
-            merOrderNo: this.sharedService.generateNonce(8),
+            merOrderNo: withdraw.orderNo, // this.sharedService.generateNonce(8),
             nonce: nonce,
-            // notifyUrl: '',
+            notifyUrl: this.notifyUrl,
             sign: undefined,
             timestamp: timestamp,
         }
@@ -260,16 +263,13 @@ export class WithdrawService {
             const bankNumber = responseData.data.cardNumber
             if(bankNumber !== withdraw.cardNo) 
                 throw new ApiException("BankNumber is not equal to: " + bankNumber)
-
-            
             const settleAmount = Number(responseData.data.settleAmount || "0.0")
             if(settleAmount !== withdraw.realPrice) 
                 this.logger.debug("settleAmount is not equal to: " + settleAmount)
-            bankcard.balance = Number(bankcard.balance) + Number(settleAmount)
-            this.logger.debug(bankcard.balance)
+            
+            
             return await this.bankcardRepository.manager.transaction(async manager => {
                 const result2 = await manager.decrement(Account, { userId: bankcard.userId, currencyId:2}, "freeze", settleAmount);
-                return await manager.save(bankcard)
             })
             return responseData
         }
@@ -432,59 +432,37 @@ export class WithdrawService {
         }
     }
 
-    /*
     // 支付通知
-    async fundNotify(cryptoNotifyDto: ReqCryptoNotifyDto) {
+    async withdrawNotify(withdrawNotifyDto: ReqWithdrawNotify) {
         // sign_no 是加密的，我们需要解密
         try {
-            // this.logger.debug("fundNotify")
-            // this.logger.debug(JSON.stringify(cryptoNotifyDto))
-            const decryptedData = key2.decrypt(cryptoNotifyDto.encrypt_data, 'utf8');
-            this.logger.debug(decryptedData)
-            let isSignOk
-            // 验证签名
-            // const verify = createVerify('RSA-SHA1');
-            // verify.write(decryptedData);
-            // verify.end();
-            // isSignOk = verify.verify(this.platformPublicKey, cryptoNotifyDto.sign, 'base64');
-            // // Prints: true
-            isSignOk = true
-            // 处理支付结果
-            if (!isSignOk) {
-                return 'error'
-            }
-            const fundNotify: any = querystring.parse(decryptedData)
-            if (fundNotify.status === 'SUCCESS') {
-                // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
+            // this.logger.debug("Withdraw Notify")
+            this.logger.debug(JSON.stringify(withdrawNotifyDto))
+            if (withdrawNotifyDto.status === '2') {
                 await this.withdrawRepository.manager.transaction(async manager => {
-                    const orderId = fundNotify.agent_bill_id
-                    const order = await manager.findOne(Withdraw, { where: { id: parseInt(orderId), status: '1' }, relations: { user: true, fund: true } })
-                    if (!order) return 'ok'
-                    await manager.update(Withdraw, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
-                    await manager.update(Withdraw, { id: parseInt(orderId) }, { status: '2' })
-                    if (order.type === '0') {
-                        const unpayWithdrawKey = ACTIVITY_USER_ORDER_KEY + ":" + order.activityId + ":" + order.userId
-                        await this.doFundComfirmedLv1(order, order.userId, order.user.userName)
-                        // 首先读取订单缓存，如果还有未完成订单，那么就直接返回订单。
-                        await this.redis.del(unpayWithdrawKey)
-                    } else if (order.type === '1') {
-                        await this.doFundComfirmedLv2(order, order.userId, order.user.userName)
-                    } else if (order.type === '2') {
-                        await this.doFundComfirmedRecharge(order.fund, order.userId, order.user.userName)
-                    }
+                    const orderNo = withdrawNotifyDto.merOrderNo
+                    const withdraw = await manager.findOne(Withdraw, { where: { orderNo: orderNo, status: '1' }, relations: { bankcard: true } })
+                    if (!withdraw) return 'ok'
+                    await manager.update(Withdraw, { id: withdraw.id }, { status: '2', signNo: withdrawNotifyDto.orderNo })
+                    withdraw.bankcard.balance = Number(withdraw.bankcard.balance) + Number(withdrawNotifyDto.settleAmount)
+                    this.logger.debug(withdraw.bankcard.balance)
+                    await manager.save(withdraw.bankcard)
                 })
             } else {
-                this.logger.error("Fund Notice not success.")
-                return 'error'
+                this.logger.error("Withdraw Notice not success.")
+                await this.withdrawRepository.manager.transaction(async manager => {
+                    const withdrawId = withdrawNotifyDto.merOrderNo
+                    const withdraw = await manager.findOne(Withdraw, { where: { id: parseInt(withdrawId), status: '1' }, relations: { user: true } })
+                    if (!withdraw) return 'ok'
+                    await manager.update(Withdraw, { id: parseInt(withdrawId) }, { status: '4', signNo: withdrawNotifyDto.orderNo})
+                })
             }
         } catch (error) {
-            this.logger.error("Fund Notice : " + error)
-            return 'error'
+            this.logger.error("Withdraw Notice : " + error)
         }
 
         return 'ok'
     }
-    */
 
     // 交易查询
     async queryFund() {

@@ -180,6 +180,7 @@ export interface IConfig {
 
     fund33?: {
         baseUrl: string,
+        notifyUrl: string,
         appId: string,
         appKey: string,
         appSecret: string,

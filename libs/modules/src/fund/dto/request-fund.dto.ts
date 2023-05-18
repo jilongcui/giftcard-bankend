@@ -117,21 +117,14 @@ export class BankCertifyBizDetail {
     id_card: string
 }
 
-export class ReqCryptoNotifyDto {
-    agent_id?: string
-    encrypt_data?: string
-    sign?: string
-}
-
 export class ReqWithdrawNotify {
-    agent_id?: number
-    agent_bill_id: string
-    agent_bill_time: string
-    hy_bill_no: string
-    hy_deal_time: string
-    deal_note: string
-    pay_amt: string
-    real_amt: string
+    orderNo: string
+    merOrderNo: string
     status: string
-    hy_auth_uid: string
+    completeTime: string
+    createTime: string
+    settleAmount: string
+    appKey: string
+    sign: string
+    ext?: string
 }

@@ -25,7 +25,7 @@ export class Withdraw {
         length: 1
     })
     @Excel({
-        name: '订单ID'
+        name: '提现种类'
     })
     @IsString()
     type: string
@@ -39,7 +39,7 @@ export class Withdraw {
         length: 1
     })
     @Excel({
-        name: '订单ID'
+        name: '提现状态'
     })
     @IsString()
     status: string
@@ -51,7 +51,7 @@ export class Withdraw {
         comment: '提现总金额'
     })
     @Excel({
-        name: '订单ID'
+        name: '提现总金额'
     })
     @Type()
     @IsNumber()
@@ -64,7 +64,7 @@ export class Withdraw {
         comment: '提现手续费'
     })
     @Excel({
-        name: '订单ID'
+        name: '提现手续费'
     })
     @Type()
     @IsNumber()
@@ -77,7 +77,7 @@ export class Withdraw {
         comment: '实际金额'
     })
     @Excel({
-        name: '订单ID'
+        name: '实际金额'
     })
     @Type()
     @IsNumber()
@@ -94,23 +94,23 @@ export class Withdraw {
     // @IsNumber()
     // count?: number
 
-    // @Column({
-    //     name: 'merch_bill_no',
-    //     default: '',
-    //     comment: '来自支付平台的 确认订单后，汇付宝单据号',
-    //     length: 50
-    // })
-    // @IsString()
-    // merchBillNo?: string
+    @Column({
+        name: 'order_no',
+        default: '',
+        comment: '来自支付平台的 确认订单后，汇付宝单据号',
+        length: 50
+    })
+    @IsString()
+    orderNo?: string
 
-    // @Column({
-    //     name: 'merch_batch_no',
-    //     default: '',
-    //     comment: '来自支付平台的 确认订单后，汇付宝单据号',
-    //     length: 50
-    // })
-    // @IsString()
-    // merchBatchNo?: string
+    @Column({
+        name: 'sign_no',
+        default: '',
+        comment: '来自支付平台的 确认订单后，汇付宝单据号',
+        length: 50
+    })
+    @IsString()
+    signNo?: string
 
     @Column({
         name: 'bankcard_id',
