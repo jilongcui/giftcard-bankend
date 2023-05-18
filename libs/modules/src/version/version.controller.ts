@@ -17,9 +17,8 @@ import {Version} from './entities/version.entity'
 @ApiBearerAuth()
 @Controller('version')
 export class VersionController {
-  constructor(private readonly versionService: VersionService,
-    private readonly excelService: ExcelService,
-    @Inject(forwardRef(() => PaymentService)) private readonly paymentService: PaymentService
+  constructor(
+    private readonly versionService: VersionService,
     ) {}
 
   @Post()
@@ -75,11 +74,4 @@ export class VersionController {
   async remove(@Param('ids') ids: string) {
     return await this.versionService.delete(ids.split(','));
   }
-
-  @Post(':id/innerPay')
-  async payWithBalance(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
-    return await this.paymentService.payWithBalance(+id, userId);
-  }
-
-
 }
