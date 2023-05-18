@@ -16,7 +16,7 @@ import { Public } from '@app/common/decorators/public.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { LocalAuthGuard } from '@app/common/guards/local-auth.guard';
 import { Router } from '../system/menu/dto/res-menu.dto';
-import { QueryInviteUserDto, ReqInnerRegDto, ReqLoginDto, ReqMobileLoginDto, ReqWeixinLoginDto, ReqMobileRegDto, ReqEmailLoginDto, ReqEmailRegDto, ReqMixLoginDto } from './dto/req-login.dto';
+import { QueryInviteUserDto, ReqInnerRegDto, ReqLoginDto, ReqMobileLoginDto, ReqWeixinLoginDto, ReqMobileRegDto, ReqEmailLoginDto, ReqEmailRegDto, ReqMixLoginDto, ReqEmailRecoverDto, ReqMobileRecoverDto } from './dto/req-login.dto';
 import { ResImageCaptchaDto, ResLoginDto } from './dto/res-login.dto';
 import { LoginService } from './login.service';
 import { Request, Response } from 'express';
@@ -167,6 +167,22 @@ export class LoginController {
     @UseGuards(EmailCodeGuard)
     async mixEmailregister(@Body() reqRegDto: ReqEmailRegDto, @Req() req: Request): Promise<ResLoginDto> {
         return await this.loginService.register(reqRegDto, req)
+    }
+
+    /* 手机验证码和密码恢复密码 */
+    @Post('phoneRecover')
+    @Public()
+    @UseGuards(SmsCodeGuard)
+    async mixPhoneRecover(@Body() reqRegDto: ReqMobileRecoverDto, @Req() req: Request): Promise<any> {
+        return await this.loginService.recoverPassword(reqRegDto, req)
+    }
+
+    /* 邮箱验证码和密码恢复密码 */
+    @Post('emailRecover')
+    @Public()
+    @UseGuards(EmailCodeGuard)
+    async mixEmailRecover(@Body() reqRegDto: ReqEmailRecoverDto, @Req() req: Request): Promise<any> {
+        return await this.loginService.recoverPassword(reqRegDto, req)
     }
 
     @Post('iregister')

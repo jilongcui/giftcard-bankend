@@ -143,6 +143,17 @@ export class ReqUpdateSelfPwd {
     newPassword: string
 }
 
+/* 复位自己的密码信息 */
+export class ReqRecoverPwd {
+    /* 密码 */
+    @IsString()
+    password: string
+
+    /* 密码2 */
+    @IsString()
+    password2: string
+}
+
 /* 更改自己的用户信息 */
 export class ReqUpdatePhone {
     /* 电话号码 */

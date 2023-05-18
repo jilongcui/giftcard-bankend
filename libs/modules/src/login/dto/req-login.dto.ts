@@ -105,6 +105,44 @@ export class ReqEmailRegDto {
     invite?: string
 }
 
+export class ReqMobileRecoverDto {
+    /* 用户名 */
+    @IsString()
+    phone: string
+
+    /* 验证码code */
+    @IsString()
+    code: string
+
+    /* 密码 */
+    @IsOptional()
+    @IsString()
+    password: string
+
+    @IsOptional()
+    @IsString()
+    password2?: string
+}
+
+export class ReqEmailRecoverDto {
+    /* 用户名 */
+    @IsString()
+    email: string
+
+    /* 验证码code */
+    @IsString()
+    code: string
+
+    /* 密码 */
+    @IsOptional()
+    @IsString()
+    password: string
+
+    @IsOptional()
+    @IsString()
+    password2?: string
+}
+
 export class ReqInnerRegDto {
     @IsOptional()
     @IsString()

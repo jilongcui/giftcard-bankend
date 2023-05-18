@@ -24,7 +24,7 @@ import { Request } from 'express';
 import { LogService } from '../monitor/log/log.service';
 import { ConfigService } from '@nestjs/config';
 import { Captcha } from 'captcha.gif';
-import { QueryInviteUserDto, ReqEmailRegDto, ReqInnerRegDto, ReqMobileRegDto } from './dto/req-login.dto';
+import { QueryInviteUserDto, ReqEmailRecoverDto, ReqEmailRegDto, ReqInnerRegDto, ReqMobileRecoverDto, ReqMobileRegDto } from './dto/req-login.dto';
 import { ReqAddUserDto } from '../system/user/dto/req-user.dto';
 import { isPhoneNumber } from 'class-validator';
 import * as moment from 'moment'
@@ -136,6 +136,29 @@ export class LoginService {
         //调用存储在线用户接口
         // await this.logService.addLogininfor(request, '注册成功', `${USER_TOKEN_KEY}:${user.userId}`)
         return { token: jwtSign }
+    }
+
+    /* 注册 */
+    async recoverPassword(reqMobileRecoverDto: ReqMobileRecoverDto |ReqEmailRecoverDto, request: Request) {
+
+        const reqAddUserDto = new ReqAddUserDto()
+        let user: User;
+        if (reqMobileRecoverDto instanceof ReqMobileRecoverDto) {
+            user = await this.userService.findOneByPhone(reqMobileRecoverDto.phone)
+            if (!user) throw new ApiException('该手机号用户不存在')
+            if(reqMobileRecoverDto.password != undefined && reqMobileRecoverDto.password !== '') {
+                await this.userService.recoverPwd({password: reqMobileRecoverDto.password, password2: reqMobileRecoverDto.password2} , user.userName)
+            }
+        } else if (reqMobileRecoverDto instanceof ReqEmailRecoverDto) {
+            if(reqMobileRecoverDto.password != undefined && reqMobileRecoverDto.password !== '') {
+            await this.userService.recoverPwd({password: reqMobileRecoverDto.password, password2: reqMobileRecoverDto.password2} , user.userName)
+        }
+            user = await this.userService.findOneByPhone(reqMobileRecoverDto.email)
+            if (!user) throw new ApiException('该手机号用户不存在')
+            if(reqMobileRecoverDto.password != undefined && reqMobileRecoverDto.password !== '') {
+                await this.userService.recoverPwd({password: reqMobileRecoverDto.password, password2: reqMobileRecoverDto.password2} , user.userName)
+            }
+        }
     }
 
     private makeRandomPhone(): string {

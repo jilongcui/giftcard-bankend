@@ -25,7 +25,7 @@ import { DeptService } from '../dept/dept.service';
 import { PostService } from '../post/post.service';
 import { ReqRoleListDto } from '../role/dto/req-role.dto';
 import { RoleService } from '../role/role.service';
-import { ReqAddUserDto, ReqSetSelfPwd, ReqUpdataSelfDto, ReqUpdateEmail, ReqUpdatePhone, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
+import { ReqAddUserDto, ReqRecoverPwd, ReqSetSelfPwd, ReqUpdataSelfDto, ReqUpdateEmail, ReqUpdatePhone, ReqUpdateSelfPwd, ReqUpdateUserDto, ReqUserListDto } from './dto/req-user.dto';
 import { ResAuthRoleDto, ResHasRoleDto } from './dto/res-user.dto';
 import { User } from './entities/user.entity';
 import { AddressService } from '@app/modules/wallet/address/address.service';
@@ -515,6 +515,18 @@ export class UserService {
         if (await this.redis.get(`${USER_VERSION_KEY}:${user.userId}`)) {
             await this.redis.set(`${USER_VERSION_KEY}:${user.userId}`, 2)  //调整密码版本，强制用户重新登录
         }
+    }
+
+    /* 恢复自己的密码 */
+    async recoverPwd(reqRecoverPwd: ReqRecoverPwd, userName: string) {
+        const user = await this.findOneByUsername(userName)
+        const password = this.sharedService.md5(reqRecoverPwd.password + user.salt)
+        if (reqRecoverPwd.password !== reqRecoverPwd.password2) throw new ApiException('密码不匹配')
+        user.password = this.sharedService.md5(reqRecoverPwd.password + user.salt)
+        await this.userRepository.save(user)
+        // if (await this.redis.get(`${USER_VERSION_KEY}:${user.userId}`)) {
+        //     await this.redis.set(`${USER_VERSION_KEY}:${user.userId}`, 3)  //调整密码版本，强制用户重新登录
+        // }
     }
 
     /* 设置自己的新密码 */
