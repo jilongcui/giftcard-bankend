@@ -102,6 +102,7 @@ export class User extends BaseEntity {
     @Column({
         comment: '用户邮箱',
         length: 50,
+        unique: true,
         default: null
     })
     @IsOptional()
@@ -115,6 +116,7 @@ export class User extends BaseEntity {
     @Column({
         comment: '手机号码',
         length: 11,
+        unique: true,
         default: null
     })
     @IsOptional()
