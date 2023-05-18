@@ -14,7 +14,7 @@ import Redis from 'ioredis';
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
-import { USER_VERSION_KEY } from '@app/common/contants/redis.contant';
+import { USER_TOKEN_KEY, USER_VERSION_KEY } from '@app/common/contants/redis.contant';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { CreateAccountDto } from '@app/modules/account/dto/request-account.dto';
@@ -524,6 +524,9 @@ export class UserService {
         if (reqRecoverPwd.password !== reqRecoverPwd.password2) throw new ApiException('密码不匹配')
         user.password = this.sharedService.md5(reqRecoverPwd.password + user.salt)
         await this.userRepository.save(user)
+        if (await this.redis.get(`${USER_TOKEN_KEY}:${user.userId}`)) {
+            await this.redis.del(`${USER_TOKEN_KEY}:${user.userId}`)
+        }
         // if (await this.redis.get(`${USER_VERSION_KEY}:${user.userId}`)) {
         //     await this.redis.set(`${USER_VERSION_KEY}:${user.userId}`, 3)  //调整密码版本，强制用户重新登录
         // }
