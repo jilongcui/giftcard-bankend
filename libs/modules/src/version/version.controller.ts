@@ -58,6 +58,11 @@ export class VersionController {
     return await this.versionService.list(listVersionDto, paginationDto);
   }
 
+  @Get('latest')
+  @Public()
+  async latest(@Param('id') id: string) {
+    return await this.versionService.findLatestOne();
+  }
   
   @Get(':id')
   @Public()

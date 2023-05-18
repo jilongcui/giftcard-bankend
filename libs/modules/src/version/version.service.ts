@@ -27,6 +27,10 @@ export class VersionService {
     return this.versionRepository.update(id, updateOrderDto)
   }
 
+  findLatestOne() {
+    return this.versionRepository.findOne({ where: { status: '1' }, order: {createTime: 'DESC'}, relations: { } })
+  }
+
   findOne(id: number) {
     return this.versionRepository.findOne({ where: { id }, relations: { } })
   }
