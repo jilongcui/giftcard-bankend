@@ -257,14 +257,20 @@ export class WithdrawService {
 
         this.logger.debug(responseData)
         if (responseData.success == true) {
-            const backNumber = responseData.data.cardNumber
-            const settleAmount = responseData.data.settleAmount
-            bankcard.balance = bankcard.balance + parseFloat(settleAmount)
+            const bankNumber = responseData.data.cardNumber
+            if(bankNumber !== withdraw.cardNo) 
+                throw new ApiException("BankNumber is not equal to: " + bankNumber)
 
-            await this.bankcardRepository.manager.transaction(async manager => {
-                const result2 = await manager.decrement(Account, { userId: bankcard.userId, currencyId:2}, "freeze", parseFloat(settleAmount));
+            
+            const settleAmount = Number(responseData.data.settleAmount || "0.0")
+            if(settleAmount !== withdraw.realPrice) 
+                throw new ApiException("settleAmount is not equal to: " + settleAmount)
+            bankcard.balance = bankcard.balance + settleAmount
+            this.logger.debug(bankcard.balance)
+            return await this.bankcardRepository.manager.transaction(async manager => {
+                const result2 = await manager.decrement(Account, { userId: bankcard.userId, currencyId:2}, "freeze", settleAmount);
+                return await manager.save(bankcard)
             })
-            return await this.bankcardRepository.save(bankcard)
             return responseData
         }
         throw new ApiException('发送请求失败: ' + responseData.msg)
