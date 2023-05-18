@@ -30,7 +30,7 @@ export class VersionController {
   @Put(':id/valid')
   async valide(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
     const updateVersionDto: UpdateVersionDto ={
-      status: '0'
+      status: '1'
     }
     return await this.versionService.update(+id, updateVersionDto);
   }
@@ -59,7 +59,7 @@ export class VersionController {
 
   @Get('latest')
   @Public()
-  async latest(@Param('id') id: string) {
+  async latest() {
     return await this.versionService.findLatestOne();
   }
   
