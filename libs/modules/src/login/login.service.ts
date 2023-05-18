@@ -149,11 +149,9 @@ export class LoginService {
                 await this.userService.recoverPwd({password: reqMobileRecoverDto.password, password2: reqMobileRecoverDto.password2} , user.userName)
             }
         } else if (reqMobileRecoverDto instanceof ReqEmailRecoverDto) {
-            if(reqMobileRecoverDto.password != undefined && reqMobileRecoverDto.password !== '') {
-            await this.userService.recoverPwd({password: reqMobileRecoverDto.password, password2: reqMobileRecoverDto.password2} , user.userName)
-        }
-            user = await this.userService.findOneByPhone(reqMobileRecoverDto.email)
-            if (!user) throw new ApiException('该手机号用户不存在')
+            
+            user = await this.userService.findOneByEmail(reqMobileRecoverDto.email)
+            if (!user) throw new ApiException('该Email用户不存在')
             if(reqMobileRecoverDto.password != undefined && reqMobileRecoverDto.password !== '') {
                 await this.userService.recoverPwd({password: reqMobileRecoverDto.password, password2: reqMobileRecoverDto.password2} , user.userName)
             }
