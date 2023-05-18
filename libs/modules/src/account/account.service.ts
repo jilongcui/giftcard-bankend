@@ -252,7 +252,7 @@ export class AccountService {
     const currency = await this.currencyRepository.findOneBy({id: tranferAccountDto.currencyId})
 
     this.logger.debug(JSON.stringify(currency))
-    const user = await this.userService.findOneByMixName(tranferAccountDto.userTo)
+    const user = await this.userService.findOneByUserId(tranferAccountDto.userTo)
     const toAmount = tranferAccountDto.amount
     const transferFee = toAmount * 0.001 // toFixed
     const fromAmount = toAmount + transferFee

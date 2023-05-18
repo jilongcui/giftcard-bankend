@@ -100,9 +100,6 @@ export class UserService {
             .andWhere(
                 new Brackets((qb) => {
                     qb.where({
-                        userId: username,
-                    })
-                    .orWhere({
                         userName: username,
                     })
                     .orWhere({
@@ -159,6 +156,11 @@ export class UserService {
             })
             .getOne()
         return user
+    }
+
+    /* 根据微信openid查询用户 */
+    async findOneByUserId(userId: number|string) {
+        return await this.userRepository.findOneBy({ userId: +userId })
     }
 
     /* 根据微信openid查询用户 */

@@ -65,10 +65,10 @@ export class AuthService {
   async validateMixName(phoneOrEmail: string, password: string) {
     const user = await this.userService.findOneByMixName(phoneOrEmail);
     if (!user) throw new ApiException("用户不存在")
-    this.logger.debug(JSON.stringify(user))
+    // this.logger.debug(JSON.stringify(user))
     const comparePassword = this.sharedService.md5(password + user.salt)
     if (comparePassword !== user.password) throw new ApiException("密码错误")
-    this.logger.debug(comparePassword + " <> " + user.password)
+    // this.logger.debug(comparePassword + " <> " + user.password)
     return user
   }
 
