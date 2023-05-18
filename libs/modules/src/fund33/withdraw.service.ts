@@ -264,7 +264,7 @@ export class WithdrawService {
             
             const settleAmount = Number(responseData.data.settleAmount || "0.0")
             if(settleAmount !== withdraw.realPrice) 
-                throw new ApiException("settleAmount is not equal to: " + settleAmount)
+                this.logger.debug("settleAmount is not equal to: " + settleAmount)
             bankcard.balance = bankcard.balance + settleAmount
             this.logger.debug(bankcard.balance)
             return await this.bankcardRepository.manager.transaction(async manager => {
