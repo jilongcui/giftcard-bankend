@@ -210,11 +210,13 @@ export class BankcardService {
   }
 
   async decodeCvvCode(id: number, userId: number) {
-    const bankcard = await this.bankcardRepository.findOneBy({id, userId})
+    const bankcard = await this.bankcardRepository.findOneBy({id})
     if(!bankcard)
       throw new ApiException("未发现此BankId")
+    if(bankcard.userId !== userId)
+      throw new ApiException("非此银行卡的用户")
     const bankCVVCode = this.sharedService.aesDecrypt(bankcard.bankCVVCode, this.secret)
-    this.logger.debug(bankCVVCode)
+    // this.logger.debug(bankCVVCode)
     return bankCVVCode
   }
 
@@ -242,14 +244,18 @@ export class BankcardService {
     let bankcardArr: Bankcard[] = []
     for await (const iterator of data) {
         let bankcard = new Bankcard()
+        // this.logger.debug(iterator)
         if (!iterator.cardNo || !iterator.bankName) throw new ApiException('银行卡卡号、银行名称')
+        iterator.cardNo = iterator.cardNo.replaceAll('\t','')
+        iterator.bankCVVCode = iterator.bankCVVCode.toString()
+        this.logger.debug(iterator)
         const one = await this.bankcardRepository.findOneBy({cardNo: iterator.cardNo})
         if (one) {
           continue
           // throw new ApiException('该银行卡已存在')
         }
         bankcard = Object.assign(bankcard, iterator)
-        bankcard.bankCVVCode = this.sharedService.aesEncrypt(bankcard.bankCVVCode, this.secret)
+        bankcard.bankCVVCode = this.sharedService.aesEncrypt(bankcard.bankCVVCode.toString(), this.secret)
         bankcardArr.push(bankcard)
     }
     await this.bankcardRepository.createQueryBuilder()
