@@ -2,7 +2,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put, UseInterceptors, CacheInterceptor, StreamableFile, UploadedFile } from '@nestjs/common';
 import { BankcardService } from './bankcard.service';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
-import { CreateBankcardDto, CreateBankcardKycDto, UpdateBankcardDto } from './dto/request-bankcard.dto';
+import { CreateBankcardDto, CreateBankcardKycDto, UpdateBankcardCvvCodeDto, UpdateBankcardDto } from './dto/request-bankcard.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
@@ -79,10 +79,16 @@ export class BankcardController {
     return this.bankcardService.findOne(+id);
   }
 
-  @Put(':id/invalidate')
+  @Put(':id/updateCvvCode')
   // @RequiresRoles(['admin', 'system'])
-  invalidate(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
-    return this.bankcardService.invalidate(+id, userId);
+  updateCvvCode(@Param('id') id: string, @Body() updateCvvCodeDto:UpdateBankcardCvvCodeDto, @UserDec(UserEnum.userId) userId: number) {
+    return this.bankcardService.encodeCvvCode(+id, updateCvvCodeDto);
+  }
+
+  @Get(':id/readCvvCode')
+  // @RequiresRoles(['admin', 'system'])
+  getCvvCode(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
+    return this.bankcardService.decodeCvvCode(+id, userId);
   }
 
   @Patch(':id')

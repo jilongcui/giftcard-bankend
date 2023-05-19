@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Repository, FindOptionsWhere, MoreThanOrEqual, Not, IsNull } from 'typeorm';
-import { CreateBankcardDto, ListMyBankcardDto, ListBankcardDto, UpdateBankcardDto, UpdateBankcardStatusDto, CreateBankcardKycDto } from './dto/request-bankcard.dto';
+import { CreateBankcardDto, ListMyBankcardDto, ListBankcardDto, UpdateBankcardDto, UpdateBankcardStatusDto, CreateBankcardKycDto, UpdateBankcardCvvCodeDto } from './dto/request-bankcard.dto';
 import { Bankcard } from './entities/bankcard.entity';
 import { ConfigService } from '@nestjs/config';
 import { ApiException } from '@app/common/exceptions/api.exception';
@@ -202,9 +202,20 @@ export class BankcardService {
     return this.bankcardRepository.update(id, updateBankcardDto)
   }
 
-  // async updateWithTradeNo(tradeNo: string, tradeTime: string, updateBankcardDto: UpdateBankcardDto) {
-  //   return this.bankcardRepository.update({ signTradeNo: tradeNo, signTradeTime: tradeTime }, updateBankcardDto)
-  // }
+  async encodeCvvCode(id: number, updateCvvCodeDto: UpdateBankcardCvvCodeDto) {
+    updateCvvCodeDto.bankCVVCode = this.sharedService.aesEncrypt(updateCvvCodeDto.bankCVVCode, this.secret)
+    this.logger.debug(updateCvvCodeDto.bankCVVCode)
+    return this.bankcardRepository.update(id, updateCvvCodeDto)
+  }
+
+  async decodeCvvCode(id: number, userId: number) {
+    const bankcard = await this.bankcardRepository.findOneBy({id, userId})
+    if(!bankcard)
+      throw new ApiException("未发现此BankId")
+    const bankCVVCode = this.sharedService.aesDecrypt(bankcard.bankCVVCode, this.secret)
+    this.logger.debug(bankCVVCode)
+    return bankCVVCode
+  }
 
   deleteOne(id: number) {
     return this.bankcardRepository.delete(id)

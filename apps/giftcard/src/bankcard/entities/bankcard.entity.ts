@@ -88,7 +88,7 @@ export class Bankcard {
     @Column({
         name: 'bank_cvvcode',
         comment: '银行卡CVV',
-        length: '10'
+        length: '80'
     })
     // @Excel({
     //     name: '银行卡CVV'
