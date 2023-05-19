@@ -114,6 +114,39 @@ export class OrderService {
     return await this.orderRepository.save(createOrderDto)
   }
 
+  /* 获取总值 */
+  async mytotal(userId: number): Promise<any> {
+    let where: FindOptionsWhere<Order> = {}
+    let result: any;
+    const { count1 } = await this.orderRepository
+    .createQueryBuilder("order")
+    .select("count(order.id)", "count1")
+    .where("order.userId = :userId", { userId: userId})
+    .andWhere("order.status = :status", { status: '1'}) // 待付款
+    .andWhere("order.invalidTime > :nowtime", { nowtime: moment(moment.now()).toDate()}) // 还未失效
+    .getRawOne()
+
+    const { count2 } = await this.orderRepository
+    .createQueryBuilder("order")
+    .select("count(order.id)", "count2")
+    .where("order.userId = :userId", { userId: userId})
+    .andWhere("order.status = :status", { status: '2'}) // 待发货
+    .getRawOne()
+
+    const { count3 } = await this.orderRepository
+    .createQueryBuilder("order")
+    .select("count(order.id)", "count2")
+    .where("order.userId = :userId", { userId: userId})
+    .andWhere("order.status = :status", { status: '2'}) // 待收货
+    .getRawOne()
+
+    return {
+      countForPay: count1,
+      countForShip: count2,
+      countForReceive: count3
+    }
+  }
+
   /* 分页查询 */
   async list(listOrderList: ListOrderDto, paginationDto: PaginationDto): Promise<PaginatedDto<Order>> {
     let where: FindOptionsWhere<Order> = {}

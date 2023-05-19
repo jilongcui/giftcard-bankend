@@ -32,6 +32,13 @@ export class OrderController {
     return this.orderService.createBankcardOrder(createOrderDto,  userId, nickName);
   }
 
+  /* 获取统计信息 */
+  @Get('mytotal')
+  @Public()
+  async total(@UserDec(UserEnum.userId) userId: number) {
+    return await this.orderService.mytotal(userId);
+  }
+
   @Put(':id/cancel')
   async cancel(@Param('id') id: string, @UserDec(UserEnum.userId) userId: number) {
     return await this.orderService.cancel(+id, userId);
