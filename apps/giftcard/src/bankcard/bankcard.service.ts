@@ -249,6 +249,7 @@ export class BankcardService {
           // throw new ApiException('该银行卡已存在')
         }
         bankcard = Object.assign(bankcard, iterator)
+        bankcard.bankCVVCode = this.sharedService.aesEncrypt(bankcard.bankCVVCode, this.secret)
         bankcardArr.push(bankcard)
     }
     await this.bankcardRepository.createQueryBuilder()
