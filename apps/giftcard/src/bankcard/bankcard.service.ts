@@ -137,6 +137,7 @@ export class BankcardService {
       try {
         bankcard.balance = await this.fund33Service.queryBalance({cardId: bankcard.id }, userId);
         // this.bankcardRepository.save(bankcard)
+        bankcard.bankCVVCode = undefined
       } catch (error) {
         this.logger.error(error)
       }
