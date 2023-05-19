@@ -9,7 +9,7 @@ import { EntityManager, FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual, Repo
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
 
-import { BankCertifyBizDetail, ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqBankCertifyDto, ReqWithdrawDto, ReqWithdrawNotify, WithdrawWithCardDto } from '../fund/dto/request-fund.dto';
+import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqWithdrawNotify } from '../fund/dto/request-fund.dto';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
@@ -436,7 +436,7 @@ export class WithdrawService {
     async withdrawNotify(withdrawNotifyDto: ReqWithdrawNotify) {
         // sign_no 是加密的，我们需要解密
         try {
-            // this.logger.debug("Withdraw Notify")
+            this.logger.debug("Withdraw Notify")
             this.logger.debug(JSON.stringify(withdrawNotifyDto))
             if (withdrawNotifyDto.status === '2') {
                 await this.withdrawRepository.manager.transaction(async manager => {

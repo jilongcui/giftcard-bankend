@@ -118,13 +118,32 @@ export class BankCertifyBizDetail {
 }
 
 export class ReqWithdrawNotify {
+    @IsString()
     orderNo: string
+
+    @IsString()
     merOrderNo: string
+
+    @IsString()
     status: string
+
+    @IsString()
     completeTime: string
+
+    @IsString()
     createTime: string
+
+    @IsString()
     settleAmount: string
-    appKey: string
+
+    @IsOptional()
+    @IsString()
+    appKey?: string
+
+    @IsString()
     sign: string
+
+    @IsString()
+    @IsOptional()
     ext?: string
 }
