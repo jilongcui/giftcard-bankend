@@ -244,7 +244,10 @@ export class BankcardService {
         let bankcard = new Bankcard()
         if (!iterator.cardNo || !iterator.bankName) throw new ApiException('银行卡卡号、银行名称')
         const one = await this.bankcardRepository.findOneBy({cardNo: iterator.cardNo})
-        if (one) throw new ApiException('该银行卡已存在')
+        if (one) {
+          continue
+          // throw new ApiException('该银行卡已存在')
+        }
         bankcard = Object.assign(bankcard, iterator)
         bankcardArr.push(bankcard)
     }

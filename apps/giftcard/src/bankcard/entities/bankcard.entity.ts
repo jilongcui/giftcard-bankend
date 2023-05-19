@@ -19,6 +19,7 @@ export class Bankcard {
     @Column({
         name: 'card_no',
         length: 50,
+        unique: true,
         comment: '持卡人银行卡号'
     })
     @Excel({
@@ -90,9 +91,9 @@ export class Bankcard {
         comment: '银行卡CVV',
         length: '80'
     })
-    // @Excel({
-    //     name: '银行卡CVV'
-    // })
+    @Excel({
+        name: '银行卡CVV'
+    })
     @IsOptional()
     @IsString()
     bankCVVCode?: string
