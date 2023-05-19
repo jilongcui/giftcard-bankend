@@ -34,7 +34,6 @@ export class OrderController {
 
   /* 获取统计信息 */
   @Get('mytotal')
-  @Public()
   async total(@UserDec(UserEnum.userId) userId: number) {
     return await this.orderService.mytotal(userId);
   }
