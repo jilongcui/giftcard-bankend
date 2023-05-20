@@ -15,7 +15,7 @@ import { LoginModule } from '@app/modules/login/login.module';
 import { JobModule } from '@app/modules/monitor/job/job.module';
 import { OnlineModule } from '@app/modules/monitor/online/online.module';
 import { ServerModule } from '@app/modules/monitor/server/server.module';
-import { SmscodeModule } from '@app/modules/smscode/smscode.module';
+import { SmscodeModule } from 'apps/giftcard/src/smscode/smscode.module';
 import { AuthModule } from '@app/modules/system/auth/auth.module';
 import { BannerModule } from '@app/modules/system/banner/banner.module';
 import { DeptModule } from '@app/modules/system/dept/dept.module';
