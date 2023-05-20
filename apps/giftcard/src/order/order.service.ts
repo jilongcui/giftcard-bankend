@@ -137,7 +137,7 @@ export class OrderService {
     .createQueryBuilder("order")
     .select("count(order.id)", "count3")
     .where("order.userId = :userId", { userId: userId})
-    .andWhere("order.status = :status", { status: '2'}) // 待收货
+    .andWhere("order.status = :status", { status: '3'}) // 待收货
     .getRawOne()
 
     return {
