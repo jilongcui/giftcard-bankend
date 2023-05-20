@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { AuthService } from '../auth.service';
@@ -7,6 +7,7 @@ import { Payload } from '@app/modules/login/login.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+  logger = new Logger(JwtStrategy.name)
   constructor(
     private readonly authService: AuthService
   ) {
@@ -22,6 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     let { userId, pv } = payload
     let token = (request.headers as any).authorization.slice(7)
     await this.authService.validateToken(userId, pv, token)
+    this.logger.debug('userId ' + userId)
     return { userId };  //返回值会被 守卫的  handleRequest方法 捕获
   }
 }
