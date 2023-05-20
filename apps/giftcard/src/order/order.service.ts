@@ -135,7 +135,7 @@ export class OrderService {
 
     const { count3 } = await this.orderRepository
     .createQueryBuilder("order")
-    .select("count(order.id)", "count2")
+    .select("count(order.id)", "count3")
     .where("order.userId = :userId", { userId: userId})
     .andWhere("order.status = :status", { status: '2'}) // 待收货
     .getRawOne()
