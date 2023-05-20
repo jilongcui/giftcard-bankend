@@ -104,7 +104,7 @@ export class SmscodeService {
         // const data = qs.parse(message).encode
         // this.logger.debug(querystring.stringify(message))
         // this.logger.debug(data)
-        const url = `http://8.140.188.254:18003/send.do?uid=9218&pw=C6C9F1C6&mb=18905170811&ms=${message}&ex=77`
+        const url = `http://8.140.188.254:18003/send.do?uid=9218&pw=C6C9F1C6&mb=${mobile}&ms=${message}&ex=77`
         this.logger.debug(url)
 
         let res = await this.httpService.axiosRef.get<any>(url, options);
