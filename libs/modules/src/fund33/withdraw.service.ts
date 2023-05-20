@@ -27,6 +27,7 @@ import { ProfitRecord, ProfitType } from '../profit_record/entities/profit_recor
 import { ProfitRecordService } from '../profit_record/profit_record.service';
 import { AccountFlow, AccountFlowType, AccountFlowDirection } from '../account/entities/account-flow.entity';
 import { CurrencyService } from '../currency/currency.service';
+import { BANKCARD_BALANCE_KEY } from '@app/common/contants/redis.contant';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -444,10 +445,13 @@ export class WithdrawService {
                     const withdraw = await manager.findOne(Withdraw, { where: { orderNo: orderNo, status: '1' }, relations: { bankcard: true } })
                     if (!withdraw) return 'ok'
                     await manager.update(Withdraw, { id: withdraw.id }, { status: '2', signNo: withdrawNotifyDto.orderNo })
-                    withdraw.bankcard.balance = Number(withdraw.bankcard.balance) + Number(withdrawNotifyDto.settleAmount)
-                    this.logger.debug(withdraw.bankcard.balance)
+                    // withdraw.bankcard.balance = Number(withdraw.bankcard.balance) + Number(withdrawNotifyDto.settleAmount)
+                    // this.logger.debug(withdraw.bankcard.balance)
                     await manager.save(withdraw.bankcard)
+                    const bankcardBalanceKey = BANKCARD_BALANCE_KEY + ":" +  withdraw.bankcardId
+                    await this.redis.del(bankcardBalanceKey)
                 })
+                
             } else {
                 this.logger.error("Withdraw Notice not success.")
                 await this.withdrawRepository.manager.transaction(async manager => {
