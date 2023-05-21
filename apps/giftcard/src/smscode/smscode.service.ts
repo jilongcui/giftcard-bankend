@@ -113,7 +113,7 @@ export class SmscodeService {
         if(codes.length <2 ) {
             throw new ApiException("发送短信失败")
         }
-        return codes[0]
+        return code
     }
 
     private async sendSmSCode1(mobile: string, templateId: string): Promise<string> {
