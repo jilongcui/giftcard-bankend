@@ -109,10 +109,11 @@ export class SmscodeService {
 
         let res = await this.httpService.axiosRef.get<any>(url, options);
         this.logger.debug(res.data)
-        if(res.data <0 ) {
+        const codes = res.data.split(',')
+        if(codes.length <2 ) {
             throw new ApiException("发送短信失败")
         }
-        return res.data
+        return codes[0]
     }
 
     private async sendSmSCode1(mobile: string, templateId: string): Promise<string> {
