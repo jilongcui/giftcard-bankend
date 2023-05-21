@@ -84,7 +84,7 @@ export class SmscodeService {
 
     private async sendSmSCode(mobile: string, templatedId: string): Promise<string> {
         const code = `${this.random()}`;
-        const message = encodeURI(`【88Wallet】您的验证码：${code}，如非本人操作，请忽略本短信！`); 
+        const message = encodeURI(`【原理科技】您的验证码：${code}，如非本人操作，请忽略本短信！`); 
         // const timestr = moment().format('YYYYMMDDHHmmss')
         // const body = {
         //     "mb": `${mobile}`,
@@ -104,7 +104,7 @@ export class SmscodeService {
         // const data = qs.parse(message).encode
         // this.logger.debug(querystring.stringify(message))
         // this.logger.debug(data)
-        const url = `http://8.140.188.254:18003/send.do?uid=9218&pw=C6C9F1C6&mb=${mobile}&ms=${message}&ex=77`
+        const url = `http://8.140.188.254:18003/send.do?uid=20222&pw=E8B6F5E0&mb=${mobile}&ms=${message}&ex=77`
         this.logger.debug(url)
 
         let res = await this.httpService.axiosRef.get<any>(url, options);
