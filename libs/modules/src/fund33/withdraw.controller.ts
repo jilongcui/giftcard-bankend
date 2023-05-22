@@ -18,7 +18,7 @@ import { Withdraw } from './entities/withdraw.entity';
 
 @ApiTags('33资金提现管理')
 @ApiBearerAuth()
-@UseInterceptors(CacheInterceptor)
+// @UseInterceptors(CacheInterceptor)
 @Controller('fund33/withdraw')
 export class WithdrawController {
     constructor(
@@ -39,7 +39,7 @@ export class WithdrawController {
 
     /* 资金提现列表 */
     @Get('list')
-    @CacheTTL(60)
+    // @CacheTTL(60)
     @ApiPaginatedResponse(PaginatedDto<Withdraw>)
     async list(@Query() listWithdrawDto: ListWithdrawDto, @Query(PaginationPipe) paginationDto: PaginationDto) {
         return await this.withdrawService.list(listWithdrawDto, paginationDto);
@@ -57,7 +57,7 @@ export class WithdrawController {
     }
 
     /* 我的资金提现列表 */
-    @CacheTTL(60)
+    // @CacheTTL(60)
     @Get('mylist')
     @ApiPaginatedResponse(PaginatedDto<Withdraw>)
     async mylist(@Query() listMyWithdrawDto: ListMyWithdrawDto, @UserDec(UserEnum.userId) userId: number, @Query(PaginationPipe) paginationDto: PaginationDto) {

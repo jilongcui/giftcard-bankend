@@ -20,7 +20,7 @@ import { ExcelService } from '@app/modules/common/excel/excel.service';
 
 @ApiTags('礼品卡')
 @ApiBearerAuth()
-@UseInterceptors(CacheInterceptor)
+// @UseInterceptors(CacheInterceptor)
 @Controller('giftcard')
 export class GiftcardController {
   constructor(private readonly giftcardService: GiftcardService,
