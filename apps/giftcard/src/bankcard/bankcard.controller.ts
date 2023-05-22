@@ -19,7 +19,7 @@ import { ApiFile } from '@app/modules/common/upload/upload.controller';
 
 @ApiTags('银行卡')
 @ApiBearerAuth()
-@UseInterceptors(CacheInterceptor)
+// @UseInterceptors(CacheInterceptor)
 @Controller('bankcard')
 export class BankcardController {
   constructor(private readonly bankcardService: BankcardService,
