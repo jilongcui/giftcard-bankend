@@ -98,7 +98,7 @@ export default defineConfig({
   },
 
   aws: {
-    platformEmail: process.env.PLATFORM_EMAIl || 'jilongcui@gmail.com',
+    platformEmail: process.env.PLATFORM_EMAIL || 'service@88wallet.com',
     emailRegion: process.env.EMAIL_REGION || 'ap-southeast-1',
     emailVersion: process.env.EMAIL_VERSION || '2010-12-01',
   },
