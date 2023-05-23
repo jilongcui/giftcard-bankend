@@ -72,13 +72,22 @@ export class LoginService {
 
         const reqAddUserDto = new ReqAddUserDto()
         let user: User;
+        let parentUser
+        // Add invite relationship.
+        if (reqMobileRegDto.invite !== undefined && reqMobileRegDto.invite !== '') {
+            parentUser = await this.userService.findOneByInviteCode(reqMobileRegDto.invite)
+            // this.logger.debug(parentUser)
+            if (!parentUser)
+                throw new ApiException('邀请码不存在')
+        }
+
         if (reqMobileRegDto instanceof ReqMobileRegDto) {
             user = await this.userService.findOneByPhone(reqMobileRegDto.phone)
             if (user) throw new ApiException('该手机号已存在')
             reqAddUserDto.phonenumber = reqMobileRegDto.phone;
             reqAddUserDto.userName = "gf_" + strRandom(8).toLowerCase() // reqMobileRegDto.phone;
         } else if (reqMobileRegDto instanceof ReqEmailRegDto) {
-            user = await this.userService.findOneByPhone(reqMobileRegDto.email)
+            user = await this.userService.findOneByEmail(reqMobileRegDto.email)
             if (user) throw new ApiException('该邮箱已存在')
             reqAddUserDto.email = reqMobileRegDto.email;
             reqAddUserDto.userName = "gf_" + strRandom(8).toLowerCase() // reqMobileRegDto.email;
@@ -101,20 +110,11 @@ export class LoginService {
 
         // Add invite relationship.
         if (reqMobileRegDto.invite !== undefined && reqMobileRegDto.invite !== '') {
-            const parentUser = await this.userService.findOneByInviteCode(reqMobileRegDto.invite)
-            // this.logger.debug(parentUser)
-            if (!parentUser)
-                throw new ApiException('邀请码不存在')
-            // Check if is invited.
-            const parent = await this.inviteUserService.parent(user.userId)
-            if (parent) {
-                throw new ApiException('已经绑定邀请码')
-            }
             // Add invite relation ship.
             const inviteInfo = await this.inviteUserService.bindParent(user.userId, parentUser.userId)
             // this.logger.debug(inviteInfo)
         }
-
+        
         if(reqMobileRegDto.password != undefined && reqMobileRegDto.password !== '') {
             await this.userService.setSelfPwd({newPassword: reqMobileRegDto.password} , user.userName)
         }
