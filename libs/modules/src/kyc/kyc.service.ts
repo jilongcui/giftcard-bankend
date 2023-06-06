@@ -237,6 +237,7 @@ export class KycService {
     kyc.info.merOrderNo = updateCardNoDto.merOrderNo
     kyc.info.cardNumber = updateCardNoDto.cardNo
     kyc.status = '0'
+    kyc.cardNo = updateCardNoDto.cardNo
 
     await this.bankcardRepository.update(bankcard.id, {userId: kyc.userId, kycId: kyc.id, status: '2'})
     await this.orderRepository.update(order.id, {status: '6', cardNo: updateCardNoDto.cardNo})
