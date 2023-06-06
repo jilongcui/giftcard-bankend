@@ -10,6 +10,15 @@ export class UpdateKycStatusDto {
     @IsString()
     status: string
 }
+
+export class UpdateKycCardNoDto {
+    @IsString()
+    merOrderNo: string
+
+    @IsString()
+    cardNo: string
+}
+
 export class NotifyKycStatusDto {
     @IsString()
     orderNo: string

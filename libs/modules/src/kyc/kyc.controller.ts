@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
 import { KycService } from './kyc.service';
 import { CreateKycDto, CreateKycInfoDto, ListKycDto, ListMyKycDto } from './dto/create-kyc.dto';
-import { NotifyKycStatusDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
+import { NotifyKycStatusDto, UpdateKycCardNoDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -41,6 +41,11 @@ export class KycController {
   @RequiresRoles(['admin', 'system'])
   findOne(@Param('id') id: string) {
     return this.kycService.findOne(+id);
+  }
+
+  @Post('reassign')
+  reAssignCardNo(@Body() reAssignKycDto: UpdateKycCardNoDto, @UserDec(UserEnum.userId) userId: number,) {
+    return this.kycService.reAssignCardNo(reAssignKycDto);
   }
 
   @Patch(':id')

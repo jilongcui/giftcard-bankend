@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { Repository, FindOptionsWhere, MoreThanOrEqual } from 'typeorm';
 import { CreateKycDto, CreateKycInfoDto, ListKycDto, ListMyKycDto } from './dto/create-kyc.dto';
-import { NotifyKycStatusDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
+import { NotifyKycStatusDto, UpdateKycCardNoDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
 import { Kyc, KycCertifyInfo } from './entities/kyc.entity';
 import { Fund33Service } from '../fund33/fund33.service';
 import { SharedService } from '@app/shared';
@@ -218,6 +218,30 @@ export class KycService {
     if (!kyc)
       throw new ApiException("非此用户的KYC")
     return this.kycRepository.update(id, updateKycDto)
+  }
+
+  async reAssignCardNo(updateCardNoDto: UpdateKycCardNoDto) {
+    const kyc = await this.kycRepository.findOneBy({orderNo: updateCardNoDto.merOrderNo})
+    if (!kyc)
+      throw new ApiException("未发现订单绑定的KYC")
+    const order = await this.orderRepository.findOneBy({id: Number(updateCardNoDto.merOrderNo)})
+    const bankcard = await this.bankcardRepository.findOne({where:{cardNo: updateCardNoDto.cardNo}, relations: {cardinfo: true}})
+    if(!bankcard) {
+      throw new ApiException("未发现待绑定的卡")
+    }
+    if(bankcard.status != '0') {
+      throw new ApiException("待绑定的卡状态不对")
+    }
+
+    kyc.info.notifyUrl = this.notifyUrl
+    kyc.info.cardNumber = updateCardNoDto.cardNo
+    kyc.status = '0'
+
+    await this.bankcardRepository.update(bankcard.id, {userId: kyc.userId, kycId: kyc.id, status: '2'})
+    await this.orderRepository.update(order.id, {status: '6', cardNo: updateCardNoDto.cardNo})
+    await this.fund33Service.uploadKycInfo(kyc.info)
+    const kyc2 = await this.kycRepository.save(kyc)
+    return kyc2
   }
 
   remove(id: number) {
