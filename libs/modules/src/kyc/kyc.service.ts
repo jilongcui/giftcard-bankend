@@ -234,6 +234,7 @@ export class KycService {
     }
 
     kyc.info.notifyUrl = this.notifyUrl
+    kyc.info.merOrderNo = updateCardNoDto.merOrderNo
     kyc.info.cardNumber = updateCardNoDto.cardNo
     kyc.status = '0'
 
