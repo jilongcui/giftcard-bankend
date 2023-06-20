@@ -192,6 +192,9 @@ export class UserService {
     /* 分页查询用户列表 */
     async list(reqUserListDto: ReqUserListDto, paginationDto: PaginationDto, roleId?: number, reverse?: Boolean, sataScopeSql?: string): Promise<PaginatedDto<User>> {
         let where: FindOptionsWhere<User> = { delFlag: '0' }
+        if (reqUserListDto.userId) {
+            where.userId = reqUserListDto.userId
+        }
         if (reqUserListDto.userName) {
             where.userName = Like(`%${reqUserListDto.userName}%`)
         }
