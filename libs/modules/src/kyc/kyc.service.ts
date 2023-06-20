@@ -39,10 +39,10 @@ export class KycService {
   }
 
   async create(createKycInfoDto: CreateKycInfoDto, userId: number) {
-    const kyc = await this.kycRepository.findOneBy({userId})
-    if(kyc && kyc.status == '1') {
-      throw new ApiException("已存在KYC")
-    }
+    // const kyc = await this.kycRepository.findOneBy({userId})
+    // if(kyc && kyc.status == '1') {
+    //   throw new ApiException("已存在KYC")
+    // }
     const order = await this.orderRepository.findOneBy({id: Number(createKycInfoDto.merOrderNo)})
     // createKycInfoDto.sourceOfFunds =JSON.stringify(createKycInfoDto.sourceOfFunds)
     // createKycInfoDto.industry =JSON.stringify(createKycInfoDto.industry)
@@ -50,7 +50,7 @@ export class KycService {
     // createKycInfoDto.intended =JSON.stringify(createKycInfoDto.intended)
     // createKycInfoDto.purposeOfUse =JSON.stringify(createKycInfoDto.purposeOfUse)
     const kycDto: CreateKycDto = {
-      id: kyc?.id,
+      // id: kyc?.id,
       status: '0',
       info: {...createKycInfoDto},
       cardType: createKycInfoDto.certType,
