@@ -60,14 +60,22 @@ export class KycService {
       orderNo: createKycInfoDto.merOrderNo,
       userId: userId
     }
-    
-    // this.logger.debug(kycDto)
+    this.logger.debug(kycDto)
     // kycDto.info.merOrderNo = kycDto.orderNo
     kycDto.info.notifyUrl = this.notifyUrl
     kycDto.info.cardNumber = order.cardNo
     await this.fund33Service.uploadKycInfo(kycDto.info)
 
+    try{
+      const kyc2 = await this.kycRepository.save(kycDto)
+    } catch (err) {
+      this.logger.debug(err)
+      throw new ApiException(err)
+    }
     const kyc2 = await this.kycRepository.save(kycDto)
+    this.logger.debug('KYC2.id ' + kyc2.id)
+    this.logger.debug('order.assetId ' + order.assetId)
+    this.logger.debug('order.id ' + order.id)
     await this.bankcardRepository.update(order.assetId, {kycId: kyc2.id})
     await this.orderRepository.update(order.id, {status: '6'})
     return kyc2

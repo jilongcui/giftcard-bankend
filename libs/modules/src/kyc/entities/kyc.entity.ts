@@ -255,7 +255,7 @@ export class Kyc {
     userId: number
     
     @ApiHideProperty()
-    @OneToOne(() => User)
+    @ManyToOne(() => User)
     @JoinColumn({
         name: 'user_id',
     })
