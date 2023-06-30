@@ -120,7 +120,7 @@ export class EmailService {
   async sendSystemNotice(subject: string, content: string) {
     
     const contentHtml = fs.readFileSync('./template/email_template.html', "utf8");
-    const systemEmail = this.configService.get<any>(`email.system_email`)
+    const systemEmail = this.configService.get<any>(`email.systemEmail`)
     const sendEmailDto: SendEmailDto = {
       to: systemEmail,
       subject: subject,

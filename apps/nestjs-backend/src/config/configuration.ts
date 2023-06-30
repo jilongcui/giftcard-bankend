@@ -139,6 +139,7 @@ export interface IConfig {
     }
 
     email?: {
+        systemEmail: string,
         regCodeTemplate: {
             subject: {
                 'CN': string,
