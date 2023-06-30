@@ -28,6 +28,7 @@ import { ProfitRecordService } from '../profit_record/profit_record.service';
 import { AccountFlow, AccountFlowType, AccountFlowDirection } from '../account/entities/account-flow.entity';
 import { CurrencyService } from '../currency/currency.service';
 import { BANKCARD_BALANCE_KEY } from '@app/common/contants/redis.contant';
+import { EmailService } from '../email/email.service';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -64,6 +65,7 @@ export class WithdrawService {
         private readonly sharedService: SharedService,
         private readonly profitRecordService: ProfitRecordService,
         private readonly currencyService: CurrencyService,
+        private readonly emailService: EmailService,
         @InjectRepository(Withdraw) private readonly withdrawRepository: Repository<Withdraw>,
         @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
         @InjectRepository(Bankcard) private readonly bankcardRepository: Repository<Bankcard>,
@@ -173,6 +175,8 @@ export class WithdrawService {
             withdraw2.bankcard = bankcard
             withdraw2.bankcard.user = undefined
             withdraw2.bankcard.signTradeNo = undefined
+
+            this.emailService.sendSystemNotice(`【通知】用户发起银行卡提现-${realAmount}`, `用户(userId)发起银行卡提现-${realAmount}`)
             return withdraw2
         })
     }

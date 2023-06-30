@@ -13,6 +13,7 @@ import { BankcardModule } from 'apps/giftcard/src/bankcard/bankcard.module';
 import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
 import { ProfitRecordModule } from '../profit_record/profit_record.module';
 import { CurrencyModule } from '../currency/currency.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { CurrencyModule } from '../currency/currency.module';
       timeout: 10000,
       maxRedirects: 5,
     }),
-    ProfitRecordModule, CurrencyModule
+    ProfitRecordModule, CurrencyModule,EmailModule
   ],
   controllers: [Fund33Controller, WithdrawController],
   providers: [Fund33Service, WithdrawService],
