@@ -240,7 +240,7 @@ export class AccountService {
         accountFlow3.balance = 0
         await manager.save(accountFlow3)
 
-        await manager.increment(Account, { userId: parentId, currencyId: currencyTo.id }, "usable",  exchangeFee * brokerageRatio)
+        await manager.increment(Account, { userId: parentId, currencyId: currencyFrom.id }, "usable",  exchangeFee * brokerageRatio)
       }
 
       return exchange2
