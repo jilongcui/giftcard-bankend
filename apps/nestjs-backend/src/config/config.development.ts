@@ -103,7 +103,7 @@ export default defineConfig({
   },
 
   email: {
-    systemEmail: process.env.SYSTEM_EMAIl,
+    systemEmail: process.env.SYSTEM_EMAIL,
     regCodeTemplate: {
       subject: {
         'CN': '注册验证码 {code}',
