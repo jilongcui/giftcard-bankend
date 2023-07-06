@@ -138,6 +138,19 @@ export class KycCertifyInfo {
     @IsString()
     @IsOptional()
     signImage: string
+    /* amlPep	是	string	是否是政治任务 */
+    @IsString()
+    amlPep: string
+    /* amlCountryHasLaunder	是	string	是否有禁止洗黑钱法律 */
+    @IsString()
+    amlCountryHasLaunder: string
+    /* amlLaunderSubjectSuch	是	string	是否有受洗黑钱法律管制 */
+    @IsString()
+    amlLaunderSubjectSuch: string
+    /* amlLaunderNoConvictionRecord	是	string	无罪记录 */
+    @IsString()
+    amlLaunderNoConvictionRecord: string
+
 }
 
 @Entity()

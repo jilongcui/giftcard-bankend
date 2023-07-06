@@ -314,6 +314,7 @@ export class Fund33Service {
         
         return 
     }
+    this.logger.error('UploadKycInfo error: ' + responseData.msg)
     throw new ApiException('UploadKycInfo error: ' + responseData.msg)
   }
 
