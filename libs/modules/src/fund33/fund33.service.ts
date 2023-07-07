@@ -196,6 +196,7 @@ export class Fund33Service {
         const backNumber = responseData.data.cardNumber
         const actualAmount = responseData.data.actualAmount
         bankcard.balance = parseFloat(actualAmount)
+        bankcard.validThrough = responseData.data.validityDate
         await this.bankcardRepository.save(bankcard)
         await this.redis.set(bankcardBalanceKey, bankcard.balance, 'EX', 60 * 5)
 
