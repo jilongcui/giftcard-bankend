@@ -300,7 +300,7 @@ export class OrderService {
       throw new ApiException("非本人订单")
     }
       
-    // this.logger.debug(`assetId: ${order.assetId}`)
+    this.logger.debug(`cancel assetId: ${order.assetId}`)
     unpayOrderKey = ASSET_ORDER_KEY + ":" + order.userId
     await this.orderRepository.manager.transaction(async manager => {
       // Set invalid status
@@ -308,7 +308,7 @@ export class OrderService {
       order.status = '0'
       // totalCount += order.count
       manager.save(order)
-      await manager.update(Bankcard, { id: order.assetId }, { userId: null, status: '0' }) // Unlocked.
+      await manager.update(Bankcard, { id: order.assetId, userId: order.userId, status: '2' }, { userId: null, status: '0' }) // Unlocked.
     })
     await this.redis.del(unpayOrderKey)
   }
