@@ -115,6 +115,7 @@ export class Withdraw {
         comment: '订单所属用户'
     })
     @IsOptional()
+    @Type()
     @IsNumber()
     userId?: number
 
