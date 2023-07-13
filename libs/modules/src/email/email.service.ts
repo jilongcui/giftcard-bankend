@@ -110,7 +110,7 @@ export class EmailService {
 
     try {
         await this.send(sendEmailDto);
-        await this.redis.set(`${USER_EMAILCODE_KEY}:${email}`, code, 'EX', 300)
+        await this.redis.set(`${USER_EMAILCODE_KEY}:${email}`, code, 'EX', 600)
 
     } catch (err) {
         throw new ApiException(err)
