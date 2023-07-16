@@ -188,8 +188,10 @@ export class KycService {
         if(!bankcard) {
           throw new ApiException("未发现KYC绑定的卡")
         }
-        const order = await manager.findOneBy(Order, {assetId: bankcard.id})
-
+        const order = await manager.findOneBy(Order, {id: parseInt(kyc.orderNo)})
+        if(!order) {
+          throw new ApiException("未找到订单号")
+        }
         await manager.update(Bankcard, { id: bankcard.id }, { userId: null, status: '0' }) // 释放银行卡
         await manager.update(Order, { id: order.id }, { status: '7' }) // fail
         // 释放定金
