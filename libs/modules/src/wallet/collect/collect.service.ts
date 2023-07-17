@@ -29,6 +29,10 @@ export class CollectService {
         if (listRechargecollect.address) {
             where.from = Like(`%${listRechargecollect.address}%`)
         }
+        if (listRechargecollect.userId) {
+
+            where.userId = listRechargecollect.userId
+        }
         if (listRechargecollect.txid) {
 
             where.txid = Like(`%${listRechargecollect.txid}%`)
