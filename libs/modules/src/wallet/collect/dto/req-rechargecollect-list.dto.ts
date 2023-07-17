@@ -3,6 +3,7 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 import { PaginationDto } from "@app/common/dto/pagination.dto";
 import { RechargeCollect } from "../entities/rechage-collect.entity";
 import { AddressTypeEnum } from "../../address/entities/address.entity";
+import { Type } from "class-transformer";
 
 export class ReqAddRechargeCollectDto extends OmitType(RechargeCollect, ['id', 'createTime'] as const) { }
 export class ReqCollectRechargeNotifyDto extends OmitType(RechargeCollect, ['id', 'state', 'confirmState', 'feeState', 'createTime', 'userId', 'fee'] as const) { }
@@ -11,6 +12,7 @@ export class ListRechargeCollectDto {
 
     /* 用户Id */
     @IsOptional()
+    @Type()
     @IsNumber()
     userId?: number;
 
