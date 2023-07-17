@@ -19,6 +19,10 @@ export class ExchangeService {
       where.fromCurrencyId = listExchangeDto.fromCurrencyId
     }
 
+    if (listExchangeDto.userId) {
+      where.userId = listExchangeDto.userId
+    }
+
     if (listExchangeDto.toCurrencyId) {
       where.toCurrencyId = listExchangeDto.toCurrencyId
     }

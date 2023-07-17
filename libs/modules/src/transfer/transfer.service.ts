@@ -19,7 +19,7 @@ export class TransferService {
   async list(reqTransferList: ListTransferDto, paginationDto: PaginationDto): Promise<PaginatedDto<Transfer>> {
     let where: FindOptionsWhere<Transfer> = {}
     if (reqTransferList.fromUserId) {
-      where.fromUserId = reqTransferList.fromUserId
+      where.fromUserId = reqTransferList.userId
     }
 
     if (reqTransferList.toUserId) {
