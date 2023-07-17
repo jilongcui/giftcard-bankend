@@ -9,6 +9,11 @@ export class ReqCollectRechargeNotifyDto extends OmitType(RechargeCollect, ['id'
 
 export class ListRechargeCollectDto {
 
+    /* 用户Id */
+    @IsOptional()
+    @IsNumber()
+    userId?: number;
+
     /* 地址 */
     @IsOptional()
     @IsString()
