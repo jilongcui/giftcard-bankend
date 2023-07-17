@@ -1,4 +1,5 @@
 import { PaginationDto } from "@app/common/dto/pagination.dto";
+import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateExchangeDto {}
@@ -17,10 +18,11 @@ export class ListExchangeDto {
 
     /* 交易ID */
     @IsOptional()
+    @Type()
     @IsNumber()
     userId?: number;
 
-    /* 币种ID */
+    /* 创建时间 */
     @IsOptional()
     @IsNumber()
     createTime?: number;
