@@ -5,7 +5,7 @@ import { User } from "@app/modules/system/user/entities/user.entity"
 import { ApiHideProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
 import { IsNumber, IsString, IsOptional } from "class-validator"
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, CreateDateColumn, JoinColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, CreateDateColumn, JoinColumn, OneToMany, ManyToOne } from "typeorm"
 
 @Entity()
 export class PromotionAgent {
@@ -137,7 +137,7 @@ export class PromotionAgent {
     // kyc?: Kyc
     
     @ApiHideProperty()
-    @OneToOne(() => User)
+    @ManyToOne(() => User)
     @IsOptional()
     @JoinColumn({
         name: 'user_id',
