@@ -137,7 +137,7 @@ export class PromotionAgent {
     // kyc?: Kyc
     
     @ApiHideProperty()
-    @ManyToOne(() => User)
+    @OneToOne(() => User)
     @IsOptional()
     @JoinColumn({
         name: 'user_id',
