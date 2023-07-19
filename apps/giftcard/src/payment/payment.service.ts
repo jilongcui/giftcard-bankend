@@ -172,7 +172,7 @@ export class PaymentService {
       if (order.assetType === '0') { // Bankcard
         await manager.update(Bankcard, { id: asset.id }, { status: '1' })
       } else if (order.assetType === '1') { // Giftcard
-        // await manager.update(Giftcard, { id: asset.id }, { status: '1' })
+        await manager.update(Giftcard, { id: asset.id }, { status: '3' })
       }
     })
     

@@ -71,7 +71,7 @@ export class OrderService {
       order.currencySymbol = currency.symbol
     }
 
-    order.invalidTime = moment().add(5, 'minute').toDate()
+    order.invalidTime = moment().add(10, 'minute').toDate()
 
     return await this.orderRepository.manager.transaction(async manager => {
       if (createOrderDto.assetType === '0') { // 实名卡
@@ -84,10 +84,12 @@ export class OrderService {
         order.totalPrice = 0.0
         order.tradeFee = 0.0
         order.shipFee = 0.0
+        order.remark = '实体卡物流订单'
+        order.assetType = '3'
         order.desc = asset.cardinfo.name
         order.image = asset.cardinfo.image
         await manager.save(order);
-        await manager.update(Bankcard, { id: order.assetId }, { status: '2' }) // Asset is locked.
+        // await manager.update(Bankcard, { id: order.assetId }, { status: '2' }) // Asset is locked.
       } else if (createOrderDto.assetType === '1') { // 非实名卡 礼品卡
         let asset: Giftcard
         asset = await manager.findOne(Giftcard, { where: { id: order.assetId, status: '1' }, relations: {} })
@@ -98,13 +100,14 @@ export class OrderService {
         order.cardNo = asset.cardNo
         order.tradeFee = asset.tradefee * order.count
         order.shipFee = asset.shipfee
+        order.remark = '礼品卡订单'
         order.desc = asset.cardName
         order.image = asset.images[0] || undefined
         await manager.save(order);
         // await manager.update(Giftcard, { id: order.assetId }, { status: '2' }) // Asset is locked.
       }
       // 5 分钟
-      await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 5)
+      await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 10)
       return order;
     })
   }
@@ -300,15 +303,21 @@ export class OrderService {
       throw new ApiException("非本人订单")
     }
       
-    this.logger.debug(`cancel assetId: ${order.assetId}`)
+    this.logger.debug(`cancel asset Id: ${order.assetId} type: ${order.assetType}`)
     unpayOrderKey = ASSET_ORDER_KEY + ":" + order.userId
     await this.orderRepository.manager.transaction(async manager => {
       // Set invalid status
       // where.assetId = order.assetId
-      order.status = '0'
-      // totalCount += order.count
-      manager.save(order)
-      await manager.update(Bankcard, { id: order.assetId, userId: order.userId, status: '2' }, { userId: null, status: '0' }) // Unlocked.
+      if (order.assetType === '0') {
+        order.status = '0'
+        // totalCount += order.count
+        await manager.save(order)
+        await manager.update(Bankcard, { id: order.assetId, userId: order.userId, status: '2' }, { userId: null, status: '0' }) // 未激活.
+      } else if( order.assetType === '1') {
+        order.status = '0'
+        await manager.save(order)
+        await manager.update(Giftcard, { id: order.assetId, userId: order.userId, status: '2' }, { userId: null, status: '1' }) // 已上架.
+      }
     })
     await this.redis.del(unpayOrderKey)
   }

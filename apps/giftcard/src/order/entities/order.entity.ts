@@ -30,7 +30,7 @@ export class Order {
     /* 商品类型 0: "实名卡", 1: "非实名卡", 2: "推广大使"*/
     @Column({
         name: 'asset_type',
-        comment: '商品类型 0: "实名卡", 1: "非实名卡"',
+        comment: '商品类型 0: "实名卡", 1: "非实名卡", 2: "推广大使", 3: "实名卡物流申请"',
         type: 'char',
         length: 1,
         default: '0'
@@ -40,7 +40,7 @@ export class Order {
     @Excel({
         name: '商品类型',
         readConverterExp: {
-            0: "实名卡", 1: "非实名卡", 2: "推广大使"
+            0: "实名卡申请", 1: "非实名卡", 2: "推广大使", 3: "实名卡物流申请"
         }
     })
     assetType?: string
