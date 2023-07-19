@@ -160,7 +160,7 @@ export class PromotionAgentService {
     await this.promoptionRepository.manager.transaction(async manager => {
       await manager.update(PromotionAgent, { id: promotion.id }, { status: '3' }) // kyc fail.
       await manager.update(Order, { id: order.id }, { status: '0' }) // failer.
-      await manager.decrement(Account, { userId: promotion.userId, currencyId: order.currencyId }, "usable", order.totalPrice)
+      await manager.increment(Account, { userId: promotion.userId, currencyId: order.currencyId }, "usable", order.totalPrice)
       const accountFlow = new AccountFlow()
       accountFlow.type = AccountFlowType.PromotionAgentRevert
       accountFlow.direction = AccountFlowDirection.In
@@ -185,7 +185,7 @@ export class PromotionAgentService {
     await this.promoptionRepository.manager.transaction(async manager => {
       await manager.update(PromotionAgent, { id: promotion.id }, {status: '0' })
       await manager.update(Order, { id: order.id }, { status: '0' }) // cancel.
-      await manager.decrement(Account, { userId: userId, currencyId: order.currencyId }, "usable", order.totalPrice)
+      await manager.increment(Account, { userId: userId, currencyId: order.currencyId }, "usable", order.totalPrice)
 
       const accountFlow = new AccountFlow()
       accountFlow.type = AccountFlowType.PromotionAgentRevert
