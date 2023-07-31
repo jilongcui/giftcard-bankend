@@ -53,6 +53,9 @@ export class WithdrawService {
     }
     
     let amount = createWithdrawDto.amount
+    if (amount <= 0.0) {
+        throw new ApiException('输入金额有误')
+    }
 
     const withdrawFeeString = await this.sysconfigService.getValue(SYSCONF_WITHDRAW_FEE_KEY)
     let withdrawFee = Number(withdrawFeeString)
