@@ -139,6 +139,9 @@ export class AccountService {
     }
     this.logger.debug(usdtRatio)
     const fromAmount = exhangeAccountDto.amount
+    if (fromAmount <= 0) {
+      throw new ApiException('输入的金额不对')
+    }
     const exchangeFee = fromAmount * 0.01 // toFixed
     const toAmount = (fromAmount - exchangeFee) * realRatio
     // const fromAmount = amount + exchangeFee
@@ -259,6 +262,9 @@ export class AccountService {
     const transferFee = toAmount * 0.001 // toFixed
     const fromAmount = toAmount + transferFee
 
+    if (toAmount <= 0) {
+      throw new ApiException('输入的金额不对')
+    }
     // Transfer
     return this.accountRepository.manager.transaction(async manager => {
 
