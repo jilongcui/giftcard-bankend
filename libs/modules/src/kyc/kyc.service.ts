@@ -51,7 +51,7 @@ export class KycService {
     // createKycInfoDto.purposeOfUse =JSON.stringify(createKycInfoDto.purposeOfUse)
     const kycDto: CreateKycDto = {
       // id: kyc?.id,
-      status: '3', // 待提交
+      status: '0', // 待提交
       info: {...createKycInfoDto},
       cardType: createKycInfoDto.certType,
       cardNo: order.cardNo,

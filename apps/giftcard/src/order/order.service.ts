@@ -73,7 +73,7 @@ export class OrderService {
       order.currencySymbol = currency.symbol
     }
 
-    order.invalidTime = moment().add(10, 'minute').toDate()
+    order.invalidTime = moment().add(120, 'minute').toDate()
 
     return await this.orderRepository.manager.transaction(async manager => {
       if (createOrderDto.assetType === '0') { // 实名卡
