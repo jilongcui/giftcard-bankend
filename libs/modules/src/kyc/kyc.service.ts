@@ -108,7 +108,35 @@ export class KycService {
         throw new ApiException('KYC状态不对')
     }
 
+    if (kyc.userId !== userId) {
+      throw new ApiException("非本人KYC")
+    }
+
     return await this.kycRepository.manager.transaction(async manager => {
+      const bankcard = await manager.findOneBy(Bankcard, {cardNo: kyc.cardNo, status: '2'})
+      if(!bankcard) {
+        throw new ApiException("未发现KYC绑定的卡")
+      }
+      const order = await manager.findOneBy(Order, {id: parseInt(kyc.orderNo)})
+      if(!order) {
+        throw new ApiException("未找到订单号")
+      }
+      await manager.update(Bankcard, { id: bankcard.id }, { userId: null, status: '0' }) // 释放银行卡
+      await manager.update(Order, { id: order.id }, { status: '7' }) // fail
+      // 释放定金
+      const currencyId = order.currencyId
+      const currencySymbol = order.currencySymbol
+      const openfee = order.price
+      await manager.increment(Account, { userId: order.userId, currencyId }, "usable", openfee)
+      const accountFlow = new AccountFlow()
+      accountFlow.type = AccountFlowType.OpenCardRevert
+      accountFlow.direction = AccountFlowDirection.In
+      accountFlow.userId = order.userId
+      accountFlow.amount = openfee
+      accountFlow.currencyId = currencyId
+      accountFlow.currencyName = currencySymbol
+      accountFlow.balance = 0
+      await manager.save(accountFlow)
         kyc.status = '2' // 失败
         kyc.failReason = '用户取消'
         await manager.save(kyc)
