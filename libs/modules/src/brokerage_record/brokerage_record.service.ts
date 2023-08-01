@@ -37,7 +37,7 @@ export class BrokerageRecordService {
       .createQueryBuilder("brokerageRecord")
       .select("SUM(brokerageRecord.value)", "todayValue")
       // .where("brokerageRecord.type = :type", { type:  getTotalList.type})
-      .where("DATE(brokerageRecord.createTime) = CURDATE()")
+      .where("DATE(DATE_ADD(brokerageRecord.createTime,INTERVAL 8 HOUR)) = CURDATE()")
       .getRawOne()
 
       return {
@@ -55,7 +55,7 @@ export class BrokerageRecordService {
     .createQueryBuilder("brokerageRecord")
     .select("SUM(brokerageRecord.value)", "todayValue")
     .where("brokerageRecord.type = :type", { type:  getTotalList.type})
-    .andWhere("DATE(brokerageRecord.createTime) = CURDATE()")
+    .andWhere("DATE(DATE_ADD(brokerageRecord.createTime,INTERVAL 8 HOUR)) = CURDATE()")
     .getRawOne()
 
     return {

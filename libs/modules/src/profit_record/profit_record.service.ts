@@ -46,7 +46,7 @@ export class ProfitRecordService {
       .select("SUM(profitRecord.fee)", "todayUsdtFee")
       .where("profitRecord.type = :type", { type:  getTotalList.type})
       .andWhere("profitRecord.subtype = :subtype", { subtype:  ProfitSubType.USDT})
-      .andWhere("DATE(profitRecord.createTime) = CURDATE()")
+      .andWhere("DATE(DATE_ADD(profitRecord.createTime,INTERVAL 8 HOUR)) = CURDATE()")
       .getRawOne()
 
       const { todayHkdFee } = await this.profitRepository
@@ -54,7 +54,7 @@ export class ProfitRecordService {
       .select("SUM(profitRecord.fee)", "todayHkdFee")
       .where("profitRecord.type = :type", { type:  getTotalList.type})
       .andWhere("profitRecord.subtype = :subtype", { subtype:  ProfitSubType.HKD})
-      .andWhere("DATE(profitRecord.createTime) = CURDATE()")
+      .andWhere("DATE(DATE_ADD(profitRecord.createTime,INTERVAL 8 HOUR)) = CURDATE()")
       .getRawOne()
       return {
         totalUsdtFee: totalUsdtFee,

@@ -133,7 +133,7 @@ export class WithdrawService {
     .select("SUM(profitRecord.totalPrice)", "todayPrice")
     .addSelect("SUM(profitRecord.totalFee)", "todayFee")
     .where("profitRecord.status = :status", { status: '2'})
-    .andWhere("DATE(profitRecord.createTime) = CURDATE()")
+    .andWhere("DATE(DATE_ADD(profitRecord.createTime,INTERVAL 8 HOUR)) = CURDATE()")
     .getRawOne()
 
     return {
