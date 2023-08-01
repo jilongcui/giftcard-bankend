@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Withdraw } from './entities/withdraw.entity';
-import { FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
 
@@ -315,6 +315,9 @@ async fail(id: number, userId: number) {
         ...listWithdrawList
     }
 
+    if(paginationDto.beginTime)
+      where.createTime = Between(paginationDto.beginTime, paginationDto.endTime)
+      
     result = await this.withdrawRepository.findAndCount({
         // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
         where,

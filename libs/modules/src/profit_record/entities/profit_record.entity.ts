@@ -98,5 +98,5 @@ export class ProfitRecord {
         name: 'create_time',
         comment: '创建时间'
     })
-    createTime: number
+    createTime: Date
 }

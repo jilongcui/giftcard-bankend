@@ -136,7 +136,7 @@ export class Withdraw {
         name: 'create_time',
         comment: '创建时间'
     })
-    createTime: number
+    createTime: Date
 
     @ApiHideProperty()
     @UpdateDateColumn({

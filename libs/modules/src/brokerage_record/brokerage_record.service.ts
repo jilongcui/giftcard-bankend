@@ -4,7 +4,7 @@ import { BrokerageRecord } from './entities/brokerage_record.entity';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import moment from 'moment';
-import { FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
 import { ListMyOrderDto, ListOrderDto } from '../order/dto/request-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -119,6 +119,9 @@ export class BrokerageRecordService {
     let result: any;
     where = listBrokerageList
 
+    if(paginationDto.beginTime)
+      where.createTime = Between(paginationDto.beginTime, paginationDto.endTime)
+      
     result = await this.brokerageRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,

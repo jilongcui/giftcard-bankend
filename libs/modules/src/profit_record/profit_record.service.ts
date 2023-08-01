@@ -5,7 +5,7 @@ import { ProfitRecord, ProfitSubType, ProfitType } from './entities/profit_recor
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import moment from 'moment';
-import { FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
 import { ListMyOrderDto, ListOrderDto } from '../order/dto/request-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -88,6 +88,9 @@ export class ProfitRecordService {
     let result: any;
     where = listOrderList
 
+    if(paginationDto.beginTime)
+      where.createTime = Between(paginationDto.beginTime, paginationDto.endTime)
+      
     result = await this.profitRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
       where,
