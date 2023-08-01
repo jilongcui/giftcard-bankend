@@ -140,4 +140,10 @@ export class OrderController {
     return await this.orderService.syncInvalidOrder(syncInvalidOrder.activityId)
   }
 
+  @Post('syncUnKycOrder')
+  // @RequiresPermissions('system:order:sync')
+  async syncUnKycOrder() {
+    return await this.orderService.syncUnKycOrder()
+  }
+
 }

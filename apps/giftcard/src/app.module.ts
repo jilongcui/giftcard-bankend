@@ -47,20 +47,22 @@ import { ProfitRecordModule } from '@app/modules/profit_record/profit_record.mod
 import { PromotionAgentModule } from '@app/modules/promotion_agent/promotion_agent.module';
 import { BrokerageRecordModule } from '@app/modules/brokerage_record/brokerage_record.module';
 import { VersionModule } from '@app/modules/version/version.module';
+import { JobService } from '@app/modules/monitor/job/job.service';
+import { OrderService } from './order/order.service';
 
-// /* 将 provider的类名作为别名，方便定时器调用 */
-// const providers = [JobService, OrderService,]
-// function createAliasProviders(): ExistingProvider[] {
-//   const aliasProviders: ExistingProvider[] = [];
-//   for (const p of providers) {
-//     aliasProviders.push({
-//       provide: p.name,
-//       useExisting: p,
-//     });
-//   }
-//   return aliasProviders;
-// }
-// const aliasProviders = createAliasProviders();
+/* 将 provider的类名作为别名，方便定时器调用 */
+const providers = [JobService, OrderService,]
+function createAliasProviders(): ExistingProvider[] {
+  const aliasProviders: ExistingProvider[] = [];
+  for (const p of providers) {
+    aliasProviders.push({
+      provide: p.name,
+      useExisting: p,
+    });
+  }
+  return aliasProviders;
+}
+const aliasProviders = createAliasProviders();
 
 @Module({
 
@@ -124,6 +126,6 @@ import { VersionModule } from '@app/modules/version/version.module';
     VersionModule,
   ],
   // controllers: [NotifyController],
-  // providers: [...aliasProviders],
+  providers: [...aliasProviders],
 })
 export class AppModule { }

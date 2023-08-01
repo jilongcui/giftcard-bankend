@@ -21,6 +21,8 @@ import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { Giftcard } from '../giftcard/entities/giftcard.entity';
 import { create } from 'lodash';
 import { CurrencyService } from '@app/modules/currency/currency.service';
+import { Account } from '@app/modules/account/entities/account.entity';
+import { AccountFlow, AccountFlowDirection, AccountFlowType } from '@app/modules/account/entities/account-flow.entity';
 
 @Injectable()
 export class OrderService {
@@ -322,26 +324,86 @@ export class OrderService {
     await this.redis.del(unpayOrderKey)
   }
 
-  // /* 更新过期订单状态 */
+  // /* 恢复未付款订单状态 */
   async syncInvalidOrder(activityId?: number) {
     let where: FindOptionsWhere<Order> = {}
     let result: any;
+    let unpayOrderKey: string;
     where =
     {
       status: '1',
       invalidTime: LessThanOrEqual(moment(moment.now() + 1000 * 10).toDate())
     }
     let totalCount: number = 0;
-    const order = await this.orderRepository.findOne({ where })
-    if (!order) return
+    let order = await this.orderRepository.findOne({ where })
+    if (order) {
+      this.logger.debug(`cancel unpay order, asset Id: ${order.assetId} type: ${order.assetType}`)
+      unpayOrderKey = ASSET_ORDER_KEY + ":" + order.userId
+      await this.orderRepository.manager.transaction(async manager => {
+        // Set invalid status
+        // where.assetId = order.assetId
+        if (order.assetType === '0') {
+          order.status = '0'
+          // totalCount += order.count
+          await manager.save(order)
+          await manager.update(Bankcard, { id: order.assetId, userId: order.userId, status: '2' }, { userId: null, status: '0' }) // 未激活.
+        } else if( order.assetType === '1') {
+          order.status = '0'
+          await manager.save(order)
+          await manager.update(Giftcard, { id: order.assetId, userId: order.userId, status: '2' }, { userId: null, status: '1' }) // 已上架.
+        }
+      })
+      await this.redis.del(unpayOrderKey)
+    }
+    return totalCount;
+  }
 
-    this.logger.debug(`assetId: ${order.assetId}`)
-    await this.orderRepository.manager.transaction(async manager => {
-      // Set invalid status
-      order.status = '0' // 取消订单
-      await manager.save(order)
-      // await manager.update(Bankcard, { id: order.assetId }, { status: '0' }) // 设置为未激活.
-    })
+  // /* 恢复未KYC的订单 */
+  async syncUnKycOrder() {
+    let where: FindOptionsWhere<Order> = {}
+    let result: any;
+    let unpayOrderKey: string;
+    
+    let totalCount: number = 0;
+    let order = await this.orderRepository.findOne({ where })
+
+    where =
+    {
+      status: '5',
+      assetType: '0',
+      invalidTime: LessThanOrEqual(moment(moment.now() + 1000 * 10).toDate())
+    }
+    order = await this.orderRepository.findOne({ where })
+    if (order) {
+      this.logger.debug(`cancel unkyc order, asset Id: ${order.assetId} type: ${order.assetType}`)
+      unpayOrderKey = ASSET_ORDER_KEY + ":" + order.userId
+      await this.orderRepository.manager.transaction(async manager => {
+        // Set invalid status
+        // where.assetId = order.assetId
+        order.status = '0'
+        // totalCount += order.count
+        await manager.save(order)
+        await manager.update(Bankcard, { id: order.assetId, userId: order.userId, status: '2' }, { userId: null, status: '0' }) // 未激活.
+        // 释放定金
+        const currencyId = order.currencyId
+        const currencySymbol = order.currencySymbol
+        const openfee = order.price
+        await manager.increment(Account, { userId: order.userId, currencyId }, "usable", openfee)
+        const accountFlow = new AccountFlow()
+        accountFlow.type = AccountFlowType.OpenCardRevert
+        accountFlow.direction = AccountFlowDirection.In
+        accountFlow.userId = order.userId
+        accountFlow.amount = openfee
+        accountFlow.currencyId = currencyId
+        accountFlow.currencyName = currencySymbol
+        accountFlow.balance = 0
+        await manager.save(accountFlow)
+      })
+      await this.redis.del(unpayOrderKey)
+    }
+
+    
+    
 
     return totalCount;
   }
