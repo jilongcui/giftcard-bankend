@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
 import { KycService } from './kyc.service';
 import { CreateKycDto, CreateKycInfoDto, ListKycDto, ListMyKycDto } from './dto/create-kyc.dto';
-import { NotifyKycStatusDto, UpdateKycCardNoDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
+import { ConfirmKycRequestDto, NotifyKycStatusDto, RejectKycRequestDto, UpdateKycCardNoDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
@@ -53,6 +53,23 @@ export class KycController {
     return this.kycService.update(+id, updateKycDto, userId);
   }
 
+  @Put('confirm')
+  @RequiresRoles(['admin', 'system'])
+  async confirmWithdraw(@Body() confirmKycDto: ConfirmKycRequestDto, @UserDec(UserEnum.userId) userId: number) {
+      return await this.kycService.confirmRequest(confirmKycDto, userId);
+  }
+
+  @Put('reject')
+  @RequiresRoles(['admin', 'system'])
+  async reject(@Body() rejectKycDto: RejectKycRequestDto, @UserDec(UserEnum.userId) userId: number) {
+      return await this.kycService.rejectRequest(rejectKycDto, userId);
+  }
+
+  @Put('cancel')
+  async cancel(@Body() cancelKycDto: RejectKycRequestDto, @UserDec(UserEnum.userId) userId: number) {
+      return await this.kycService.cancelRequest(cancelKycDto, userId);
+  }
+  
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body() updateKycDto: UpdateKycStatusDto, @UserDec(UserEnum.userId) userId: number,) {
     return this.kycService.updateStatus(+id, updateKycDto, userId);

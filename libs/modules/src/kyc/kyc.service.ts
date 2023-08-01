@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { Repository, FindOptionsWhere, MoreThanOrEqual } from 'typeorm';
 import { CreateKycDto, CreateKycInfoDto, ListKycDto, ListMyKycDto } from './dto/create-kyc.dto';
-import { NotifyKycStatusDto, UpdateKycCardNoDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
+import { CancelKycRequestDto, ConfirmKycRequestDto, NotifyKycStatusDto, RejectKycRequestDto, UpdateKycCardNoDto, UpdateKycDto, UpdateKycStatusDto } from './dto/update-kyc.dto';
 import { Kyc, KycCertifyInfo } from './entities/kyc.entity';
 import { Fund33Service } from '../fund33/fund33.service';
 import { SharedService } from '@app/shared';
@@ -51,7 +51,7 @@ export class KycService {
     // createKycInfoDto.purposeOfUse =JSON.stringify(createKycInfoDto.purposeOfUse)
     const kycDto: CreateKycDto = {
       // id: kyc?.id,
-      status: '0',
+      status: '3', // 待提交
       info: {...createKycInfoDto},
       cardType: createKycInfoDto.certType,
       cardNo: order.cardNo,
@@ -64,7 +64,7 @@ export class KycService {
     // kycDto.info.merOrderNo = kycDto.orderNo
     kycDto.info.notifyUrl = this.notifyUrl
     kycDto.info.cardNumber = order.cardNo
-    await this.fund33Service.uploadKycInfo(kycDto.info)
+    // await this.fund33Service.uploadKycInfo(kycDto.info)
 
     try{
       const kyc2 = await this.kycRepository.save(kycDto)
@@ -81,6 +81,82 @@ export class KycService {
     return kyc2
   }
 
+  // 确认KYC请求
+  async confirmRequest(confirmKycDto: ConfirmKycRequestDto, userId: number) {
+    const kyc = await this.kycRepository.findOneBy({id: confirmKycDto.kycId})
+    if (kyc === null) {
+        throw new ApiException('KYC记录不存在')
+    }
+    if (kyc.status !== '0') { // 等待提交审核
+        throw new ApiException('KYC状态不对')
+    }
+
+    return await this.kycRepository.manager.transaction(async manager => {
+        kyc.status = '3' // 银行审核中
+        await manager.save(kyc)
+        await this.fund33Service.uploadKycInfo(kyc.info)
+    })
+  }
+
+  // 用户取消KYC请求
+  async cancelRequest(confirmKycDto: CancelKycRequestDto, userId: number) {
+    const kyc = await this.kycRepository.findOneBy({id: confirmKycDto.kycId})
+    if (kyc === null) {
+        throw new ApiException('KYC记录不存在')
+    }
+    if (kyc.status !== '0') {
+        throw new ApiException('KYC状态不对')
+    }
+
+    return await this.kycRepository.manager.transaction(async manager => {
+        kyc.status = '2' // 失败
+        kyc.failReason = '用户取消'
+        await manager.save(kyc)
+    })
+  }
+
+  // 系统驳回KYC请求
+  async rejectRequest(rejectKycDto: RejectKycRequestDto, userId: number) {
+    const kyc = await this.kycRepository.findOneBy({id: rejectKycDto.kycId})
+    if (kyc === null) {
+        throw new ApiException('KYC记录不存在')
+    }
+    if (kyc.status !== '0') { // 等待提交审核
+        throw new ApiException('KYC状态不对')
+    }
+    
+    await this.bankcardRepository.manager.transaction(async manager => {
+      const bankcard = await manager.findOneBy(Bankcard, {cardNo: kyc.cardNo, status: '2'})
+      if(!bankcard) {
+        throw new ApiException("未发现KYC绑定的卡")
+      }
+      const order = await manager.findOneBy(Order, {id: parseInt(kyc.orderNo)})
+      if(!order) {
+        throw new ApiException("未找到订单号")
+      }
+      await manager.update(Bankcard, { id: bankcard.id }, { userId: null, status: '0' }) // 释放银行卡
+      await manager.update(Order, { id: order.id }, { status: '7' }) // fail
+      // 释放定金
+      const currencyId = order.currencyId
+      const currencySymbol = order.currencySymbol
+      const openfee = order.price
+      await manager.increment(Account, { userId: order.userId, currencyId }, "usable", openfee)
+      const accountFlow = new AccountFlow()
+      accountFlow.type = AccountFlowType.OpenCardRevert
+      accountFlow.direction = AccountFlowDirection.In
+      accountFlow.userId = order.userId
+      accountFlow.amount = openfee
+      accountFlow.currencyId = currencyId
+      accountFlow.currencyName = currencySymbol
+      accountFlow.balance = 0
+      await manager.save(accountFlow)
+
+      kyc.status = '2' // 审核失败
+      kyc.failReason = rejectKycDto.failReason || '初审失败，已拒绝' 
+      await manager.save(kyc)
+    })
+  }
+
   async findOne(id: number) {
     return this.kycRepository.findOneBy({ id })
   }
@@ -95,7 +171,7 @@ export class KycService {
 
   async notify(notifyKycDto: NotifyKycStatusDto) {
     this.logger.debug(`notify: ` + JSON.stringify(notifyKycDto))
-    const kyc = await this.kycRepository.findOneBy({orderNo: notifyKycDto.merOrderNo, status: '0'})
+    const kyc = await this.kycRepository.findOneBy({orderNo: notifyKycDto.merOrderNo, status: '3'})
     if(!kyc) {
       throw new ApiException("KYC状态不对")
     }

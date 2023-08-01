@@ -170,10 +170,10 @@ export class Kyc {
     @IsObject()
     info: KycCertifyInfo
 
-    /* 状态 0: 未认证 1: 认证成功 2: 认证失败 */
+    /* 状态 0: 待审核 1: 认证成功 2: 认证失败 3: 审核中 */
     @Column({
         name: 'status',
-        comment: '状态 0: 未认证 1: 认证成功 2: 认证失败',
+        comment: '状态 0: 待审核 1: 认证成功 2: 认证失败 3: 审核中 ',
         default: '0',
         type: 'char',
         length: 1
@@ -182,7 +182,7 @@ export class Kyc {
     @Excel({
         name: '状态',
         readConverterExp: {
-            0: "未认证", 1: "认证成功", 2: "认证失败"
+            0: "待审核", 1: "认证成功", 2: "认证失败", 3: "审核中"
         }
     })
     status: string
