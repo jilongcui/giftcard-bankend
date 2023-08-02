@@ -97,7 +97,7 @@ export class BankcardController {
     return this.bankcardService.update(+id, updateBankcardDto);
   }
 
-  @Patch(':id')
+  @Patch(':id/bindUser')
   @RequiresRoles(['admin', 'system'])
   bindUser(@Param('id') id: string, @Body() updateBankcardDto: UpdateBankcardUserDto) {
     return this.bankcardService.bindUser(+id, updateBankcardDto);
