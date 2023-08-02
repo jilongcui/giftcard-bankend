@@ -199,7 +199,7 @@ export class KycService {
 
   async notify(notifyKycDto: NotifyKycStatusDto) {
     this.logger.debug(`notify: ` + JSON.stringify(notifyKycDto))
-    const kyc = await this.kycRepository.findOneBy({orderNo: notifyKycDto.merOrderNo, status: '3'})
+    const kyc = await this.kycRepository.findOneBy({orderNo: notifyKycDto.merOrderNo, status: '0'})
     if(!kyc) {
       throw new ApiException("KYC状态不对")
     }

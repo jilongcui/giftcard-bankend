@@ -109,7 +109,7 @@ export class OrderService {
         // await manager.update(Giftcard, { id: order.assetId }, { status: '2' }) // Asset is locked.
       }
       // 5 分钟
-      await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 10)
+      await this.redis.set(unpayOrderKey, order.id, 'EX', 60 * 120)
       return order;
     })
   }
