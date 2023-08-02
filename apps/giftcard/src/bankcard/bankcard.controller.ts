@@ -2,7 +2,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put, UseInterceptors, CacheInterceptor, StreamableFile, UploadedFile } from '@nestjs/common';
 import { BankcardService } from './bankcard.service';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
-import { CreateBankcardDto, CreateBankcardKycDto, UpdateBankcardCvvCodeDto, UpdateBankcardDto } from './dto/request-bankcard.dto';
+import { CreateBankcardDto, CreateBankcardKycDto, UpdateBankcardCvvCodeDto, UpdateBankcardDto, UpdateBankcardUserDto } from './dto/request-bankcard.dto';
 import { ApiPaginatedResponse } from '@app/common/decorators/api-paginated-response.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
@@ -95,6 +95,12 @@ export class BankcardController {
   @RequiresRoles(['admin', 'system'])
   update(@Param('id') id: string, @Body() updateBankcardDto: UpdateBankcardDto) {
     return this.bankcardService.update(+id, updateBankcardDto);
+  }
+
+  @Patch(':id')
+  @RequiresRoles(['admin', 'system'])
+  bindUser(@Param('id') id: string, @Body() updateBankcardDto: UpdateBankcardUserDto) {
+    return this.bankcardService.bindUser(+id, updateBankcardDto);
   }
 
   @Delete(':id')

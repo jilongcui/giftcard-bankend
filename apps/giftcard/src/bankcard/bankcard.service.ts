@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { Repository, FindOptionsWhere, MoreThanOrEqual, Not, IsNull } from 'typeorm';
-import { CreateBankcardDto, ListMyBankcardDto, ListBankcardDto, UpdateBankcardDto, UpdateBankcardStatusDto, CreateBankcardKycDto, UpdateBankcardCvvCodeDto } from './dto/request-bankcard.dto';
+import { CreateBankcardDto, ListMyBankcardDto, ListBankcardDto, UpdateBankcardDto, UpdateBankcardStatusDto, CreateBankcardKycDto, UpdateBankcardCvvCodeDto, UpdateBankcardUserDto } from './dto/request-bankcard.dto';
 import { Bankcard } from './entities/bankcard.entity';
 import { ConfigService } from '@nestjs/config';
 import { ApiException } from '@app/common/exceptions/api.exception';
@@ -15,6 +15,7 @@ import { User } from '@app/modules/system/user/entities/user.entity';
 import { AccountFlow, AccountFlowDirection, AccountFlowType } from '@app/modules/account/entities/account-flow.entity';
 import { Currency } from '@app/modules/currency/entities/currency.entity';
 import { Fund33Service } from '@app/modules/fund33/fund33.service';
+import { UserService } from '@app/modules/system/user/user.service';
 
 @Injectable()
 export class BankcardService {
@@ -27,6 +28,7 @@ export class BankcardService {
     private readonly cardinfoService: CardinfoService,
     private readonly configService: ConfigService,
     private readonly sharedService: SharedService,
+    private readonly userService: UserService,
     private readonly fund33Service: Fund33Service
 
   ) {
@@ -227,6 +229,18 @@ export class BankcardService {
 
   async delete(noticeIdArr: number[] | string[]) {
     return this.bankcardRepository.delete(noticeIdArr)
+  }
+
+  async bindUser(id: number, updateBankcardUserDto: UpdateBankcardUserDto) {
+    const user = await this.userService.findById(updateBankcardUserDto.userId)
+    if(!user) {
+      throw new ApiException("未发现此用户")
+    }
+    let updateBankcardDto: UpdateBankcardDto = {
+      status: '1',
+      userId: updateBankcardUserDto.userId
+    }
+    return this.bankcardRepository.update(id, updateBankcardDto)
   }
 
   async invalidate(id: number, userId: number) {
