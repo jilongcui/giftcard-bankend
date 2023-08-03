@@ -26,6 +26,7 @@ import { BrokerageType } from '../brokerage_record/entities/brokerage_record.ent
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { AccountFlow, AccountFlowDirection, AccountFlowType } from '../account/entities/account-flow.entity';
 import { Currency } from '../currency/entities/currency.entity';
+import moment from 'moment';
 
 @Injectable()
 export class ApplyCardService {
@@ -199,6 +200,7 @@ export class ApplyCardService {
       order.shipFee = 0.0
       order.desc = cardInfo.name
       order.image = cardInfo.image
+      order.invalidTime = moment().add(120, 'minute').toDate()
 
       const order2 =  await manager.save(order);
 
