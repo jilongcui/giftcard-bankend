@@ -26,7 +26,7 @@ import { BrokerageType } from '../brokerage_record/entities/brokerage_record.ent
 import { InviteUser } from '../inviteuser/entities/invite-user.entity';
 import { AccountFlow, AccountFlowDirection, AccountFlowType } from '../account/entities/account-flow.entity';
 import { Currency } from '../currency/entities/currency.entity';
-import moment from 'moment';
+import * as moment from 'moment';
 
 @Injectable()
 export class ApplyCardService {
