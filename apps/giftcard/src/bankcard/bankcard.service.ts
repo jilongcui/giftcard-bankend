@@ -123,7 +123,6 @@ export class BankcardService {
       ...listMyBankcardDto,
       userId,
     }
-    this.logger.debug('mylist ' + userId)
 
     result = await this.bankcardRepository.findAndCount({
       // select: ['id', 'address', 'privateKey', 'userId', 'createTime', 'status'],
