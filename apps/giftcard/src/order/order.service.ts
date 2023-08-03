@@ -365,7 +365,6 @@ export class OrderService {
     let unpayOrderKey: string;
     
     let totalCount: number = 0;
-    let order = await this.orderRepository.findOne({ where })
 
     where =
     {
@@ -373,9 +372,9 @@ export class OrderService {
       assetType: '0',
       invalidTime: LessThanOrEqual(moment(moment.now() + 1000 * 10).toDate())
     }
-    order = await this.orderRepository.findOne({ where })
+    let order = await this.orderRepository.findOne({ where })
     if (order) {
-      this.logger.debug(`cancel unkyc order, asset Id: ${order.assetId} type: ${order.assetType}`)
+      this.logger.debug(`cancel unkyc order, asset Id: ${order.assetId}, order id: ${order.id}, type: ${order.assetType}`)
       unpayOrderKey = ASSET_ORDER_KEY + ":" + order.userId
       await this.orderRepository.manager.transaction(async manager => {
         // Set invalid status
