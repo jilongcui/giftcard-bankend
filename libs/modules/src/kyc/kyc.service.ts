@@ -83,6 +83,7 @@ export class KycService {
 
   // 确认KYC请求
   async confirmRequest(confirmKycDto: ConfirmKycRequestDto, userId: number) {
+    this.logger.debug('confirmKycDto ' + confirmKycDto)
     const kyc = await this.kycRepository.findOneBy({id: confirmKycDto.kycId})
     if (kyc === null) {
         throw new ApiException('KYC记录不存在')

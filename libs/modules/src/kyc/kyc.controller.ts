@@ -70,10 +70,10 @@ export class KycController {
       return await this.kycService.cancelRequest(cancelKycDto, userId);
   }
   
-  @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body() updateKycDto: UpdateKycStatusDto, @UserDec(UserEnum.userId) userId: number,) {
-    return this.kycService.updateStatus(+id, updateKycDto, userId);
-  }
+  // @Patch(':id/status')
+  // updateStatus(@Param('id') id: string, @Body() updateKycDto: UpdateKycStatusDto, @UserDec(UserEnum.userId) userId: number,) {
+  //   return this.kycService.updateStatus(+id, updateKycDto, userId);
+  // }
 
   @Post('notify')
   @Public()
