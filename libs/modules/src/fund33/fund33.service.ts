@@ -343,6 +343,7 @@ export class Fund33Service {
 
     const signContent = this.sign(body)
     body.sign = signContent
+    body.appSecret = undefined
 
     let options = {
       headers: {
@@ -353,7 +354,7 @@ export class Fund33Service {
 
     const remoteUrl = this.baseUrl + requestUri
     // this.logger.debug(querystring.stringify(body))
-    let res = await this.httpService.axiosRef.post<Fund33Response<Fund33QueryTransaction>>(remoteUrl, options);
+    let res = await this.httpService.axiosRef.post<Fund33Response<Fund33QueryTransaction>>(remoteUrl, body, options);
     const responseData = res.data
     // const responseData = await this.sharedService.xmlToJson<BankCertifyResponse>(res.data)
 
