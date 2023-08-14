@@ -12,6 +12,17 @@ export class QueryBalanceDto {
     cardId: number
 }
 
+export class QueryTransactionDto {
+    @IsString()
+    cardNumber: string
+
+    @IsString()
+    startDate: string
+
+    @IsString()
+    endDate: string
+}
+
 export class ModifyPincodeDto {
     @IsNumber()
     cardId: number

@@ -8,7 +8,7 @@ import * as moment from 'moment';
 import * as querystring from 'querystring';
 import strRandom from 'string-random';
 import { MoreThanOrEqual, Repository } from 'typeorm';
-import { LoginCardDto, ModifyPincodeDto, QueryBalanceDto, QueryRechargeDto } from './dto/create-fund33.dto';
+import { LoginCardDto, ModifyPincodeDto, QueryBalanceDto, QueryRechargeDto, QueryTransactionDto } from './dto/create-fund33.dto';
 import { Fund33QueryBalance, Fund33QueryTransaction, Fund33QueryUNTransaction, Fund33RechargeDto, Fund33Response } from './dto/response-fund33.dto';
 import { Account } from '../account/entities/account.entity';
 import { KycCertifyInfo } from '../kyc/entities/kyc.entity';
@@ -323,17 +323,17 @@ export class Fund33Service {
    * 查询交易记录
    * 备注：最大查询3个月内交易
    */
-  async queryTransaction(cardNumber: string, startDate: string, endDate: string) {
+  async queryTransaction(queryTransactionDto: QueryTransactionDto) {
     const requestUri = '/api/query/transaction'
     // 对所有的原始参数进行签名
     const timestamp = moment().unix()*1000
     let body = {
       appSecret: this.appSecret,
-      cardNumber: cardNumber,
-      endDate: endDate,
+      cardNumber: queryTransactionDto.cardNumber,
+      endDate: queryTransactionDto.endDate,
       nonce: this.sharedService.generateNonce(16),
       sign: undefined,
-      startDate: startDate,
+      startDate: queryTransactionDto.startDate,
       timestamp: timestamp,
     }
 
