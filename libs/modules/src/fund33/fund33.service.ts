@@ -327,8 +327,6 @@ export class Fund33Service {
     const requestUri = '/api/card/query/transaction'
     
     // 对所有的原始参数进行签名
-    this.logger.debug(this.appKey)
-    this.logger.debug(this.appSecret)
     const timestamp = moment().unix()*1000 + moment().milliseconds()
     const nonce = this.sharedService.generateNonce(16)
     let body = {
