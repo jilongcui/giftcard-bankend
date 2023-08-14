@@ -324,7 +324,7 @@ export class Fund33Service {
    * 备注：最大查询3个月内交易
    */
   async queryTransaction(queryTransactionDto: QueryTransactionDto) {
-    const requestUri = '/api/query/transaction'
+    const requestUri = '/api/card/query/transaction'
     
     // 对所有的原始参数进行签名
     this.logger.debug(this.appKey)
