@@ -325,9 +325,10 @@ export class Fund33Service {
    */
   async queryTransaction(queryTransactionDto: QueryTransactionDto) {
     const requestUri = '/api/query/transaction'
+    
     // 对所有的原始参数进行签名
-    const timestamp = moment().unix()*1000
-    let body = {
+    const timestamp = moment().unix()*1000 + moment().milliseconds()
+    let bodyRaw = {
       appSecret: this.appSecret,
       cardNumber: queryTransactionDto.cardNumber,
       endDate: queryTransactionDto.endDate,
@@ -336,6 +337,9 @@ export class Fund33Service {
       startDate: queryTransactionDto.startDate,
       timestamp: timestamp,
     }
+    this.logger.debug(JSON.stringify(bodyRaw))
+
+    const body = this.sharedService.sortObject(bodyRaw)
 
     const signContent = this.sign(body)
     body.sign = signContent
