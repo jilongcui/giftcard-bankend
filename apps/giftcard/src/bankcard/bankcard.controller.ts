@@ -80,7 +80,7 @@ export class BankcardController {
   }
 
   @Put(':id/updateCvvCode')
-  // @RequiresRoles(['admin', 'system'])
+  @RequiresRoles(['admin', 'system'])
   updateCvvCode(@Param('id') id: string, @Body() updateCvvCodeDto:UpdateBankcardCvvCodeDto, @UserDec(UserEnum.userId) userId: number) {
     return this.bankcardService.encodeCvvCode(+id, updateCvvCodeDto);
   }
