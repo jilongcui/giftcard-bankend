@@ -328,12 +328,12 @@ export class Fund33Service {
     
     // 对所有的原始参数进行签名
     const timestamp = moment().unix()*1000 + moment().milliseconds()
-
+    const nonce = this.sharedService.generateNonce(16)
     let body = {
       appKey: this.appKey,
       appSecret: this.appSecret,
       cardNumber: queryTransactionDto.cardNumber,
-      nonce: this.sharedService.generateNonce(16),
+      nonce: nonce,
       sign: undefined,
       timestamp: timestamp,
     }
