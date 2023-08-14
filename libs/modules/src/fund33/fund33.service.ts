@@ -328,18 +328,16 @@ export class Fund33Service {
     
     // 对所有的原始参数进行签名
     const timestamp = moment().unix()*1000 + moment().milliseconds()
-    let bodyRaw = {
+
+    let body = {
+      appKey: this.appKey,
       appSecret: this.appSecret,
       cardNumber: queryTransactionDto.cardNumber,
-      endDate: queryTransactionDto.endDate,
       nonce: this.sharedService.generateNonce(16),
       sign: undefined,
-      startDate: queryTransactionDto.startDate,
       timestamp: timestamp,
     }
-    this.logger.debug(JSON.stringify(bodyRaw))
-
-    const body = this.sharedService.sortObject(bodyRaw)
+    this.logger.debug(JSON.stringify(body))
 
     const signContent = this.sign(body)
     body.sign = signContent
