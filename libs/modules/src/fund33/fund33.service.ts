@@ -335,8 +335,10 @@ export class Fund33Service {
       appKey: this.appKey,
       appSecret: this.appSecret,
       cardNumber: queryTransactionDto.cardNumber,
+      endDate: queryTransactionDto.endDate,
       nonce: nonce,
       sign: undefined,
+      startDate: queryTransactionDto.startDate,
       timestamp: timestamp,
     }
     this.logger.debug(JSON.stringify(body))
