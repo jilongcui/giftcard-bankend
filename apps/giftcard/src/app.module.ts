@@ -2,7 +2,7 @@ import { ExistingProvider, forwardRef, Module } from '@nestjs/common';
 import { NotifyController } from './notify/notify.controller';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import configuration from 'apps/nestjs-backend/src/config/configuration'
+import configuration from './config/configuration'
 import { SharedModule } from '@app/shared/shared.module';
 import { LogModule } from '@app/modules/monitor/log/log.module';
 import { UserModule } from '@app/modules/system/user/user.module';

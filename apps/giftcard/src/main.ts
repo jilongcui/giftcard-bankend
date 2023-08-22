@@ -2,7 +2,7 @@ import { AllExceptionsFilter } from '@app/common/filters/all-exception.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { setupSwagger } from 'apps/nestjs-backend/src/setup-swagger';
+import { setupSwagger } from './setup-swagger';
 import { join } from 'lodash';
 import * as history from 'connect-history-api-fallback'
 import { AppModule } from './app.module';
