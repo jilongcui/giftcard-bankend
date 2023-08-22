@@ -25,7 +25,6 @@ import { SysConfigModule } from '@app/modules/system/sys-config/sys-config.modul
 import { AddressModule } from '@app/modules/wallet/address/address.module';
 import { MemberModule } from '@app/modules/member/member.module';
 import { EmailModule } from '@app/modules/email/email.module';
-import { PdfModule } from '@app/modules/pdf/pdf.module';
 import { KycModule } from '@app/modules/kyc/kyc.module';
 import { CardinfoModule } from '@app/modules/cardinfo/cardinfo.module';
 import { Fund33Module } from '@app/modules/fund33/fund33.module';
@@ -107,7 +106,6 @@ const aliasProviders = createAliasProviders();
     WithdrawModule,
     SubmitterModule,
     EmailModule,
-    PdfModule,
     KycModule,
     CardinfoModule,
     Fund33Module,

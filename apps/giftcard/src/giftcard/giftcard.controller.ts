@@ -14,7 +14,7 @@ import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { Public } from '@app/common/decorators/public.decorator';
 import { Keep } from '@app/common/decorators/keep.decorator';
 import { RepeatSubmit } from '@app/common/decorators/repeat-submit.decorator';
-import { ApiFile } from '@app/modules/pdf/pdf.controller';
+import { ApiFile } from '@app/modules/common/upload/upload.controller';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelService } from '@app/modules/common/excel/excel.service';
 
