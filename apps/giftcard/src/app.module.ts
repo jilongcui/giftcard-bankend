@@ -29,7 +29,6 @@ import { KycModule } from '@app/modules/kyc/kyc.module';
 import { CardinfoModule } from '@app/modules/cardinfo/cardinfo.module';
 import { Fund33Module } from '@app/modules/fund33/fund33.module';
 import { CollectModule } from '@app/modules/wallet/collect/collect.module';
-import { SubmitterModule } from '@app/modules/submitter/submitter.module';
 import { ApplyCardModule } from '@app/modules/apply-card/apply-card.module';
 import { WithdrawModule } from '@app/modules/wallet/withdraw/withdraw.module';
 import { ExchangeModule } from '@app/modules/exchange/exchange.module';
@@ -104,7 +103,6 @@ const aliasProviders = createAliasProviders();
     BannerModule,
     CollectModule,
     WithdrawModule,
-    SubmitterModule,
     EmailModule,
     KycModule,
     CardinfoModule,

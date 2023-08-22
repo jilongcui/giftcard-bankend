@@ -23,11 +23,7 @@ import { DataScopeInterceptor } from '@app/common/interceptors/data-scope.interc
 import { RepeatSubmitGuard } from '@app/common/guards/repeat-submit.guard';
 import { DemoEnvironmentGuard } from '@app/common/guards/demo-environment.guard';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import Redis from 'ioredis';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { JwtWsAuthGuard } from '@app/common/guards/jwt-ws-auth.guard';
-import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from '@app/modules/system/auth/auth.constants';
 
 
 @Global()
@@ -69,13 +65,6 @@ import { jwtConstants } from '@app/modules/system/auth/auth.constants';
             inject: [ConfigService]
 
         }),
-        // {executablePath: configService.get<string>('screenshot.execPath')
-        // PuppeteerModule.forRootAsync({
-        //     useFactory: async (configService: ConfigService) => ({
-        //         launchOptions: {executablePath:'/Applications/Chromium.app/Contents/MacOS/Chromium', isGlobal: true }, 
-        //     }),
-        //     inject: [ConfigService]
-        // }),
         LogModule,
         ThrottlerModule.forRoot({
             ttl: 10,
