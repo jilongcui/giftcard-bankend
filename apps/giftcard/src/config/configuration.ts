@@ -73,23 +73,6 @@ export interface IConfig {
         password: string,
     }
 
-    /* 配置微信登录 */
-    weixinLogin?: {
-        appId: string,
-        appSecret: string,
-        webAppId: string,
-        webAppSecret: string,
-        gzhAppId: string,
-        gzhAppSecret: string,
-    },
-
-    weixinPayment?: {
-        appId: string,
-        merchId: string,
-        api3Key: string,
-        notifyHost: string,
-    }
-
     /* 配置SMS短信 */
     tencentSMS?: {
         SecretId: string,
@@ -107,24 +90,6 @@ export interface IConfig {
         CosGlobalDomain: string,
         CosRegion: string,
         CosBucket: string,
-    }
-
-    crichain?: {
-        apiUrl: string,
-        tokenUrl: string,
-        contractAddr: string,
-        platformAddress: string,
-        platformPrivateKey: string,
-    }
-
-    payment?: {
-        baseUrl: string,
-        notifyHost: string,
-        platformPublicKey: string,
-        merchSecretKey: string,
-        merchPublicKey: string,
-        merchId: string,
-        orderSN: string,
     }
 
     wallet?: {
@@ -169,16 +134,6 @@ export interface IConfig {
         }
     }
 
-    fund?: {
-        baseCertUrl: string,
-        basePayUrl: string,
-        platformCert3DESKey: string,
-        platformCertMD5Key: string,
-        platformPay3DESKey: string,
-        platformPayMD5Key: string,
-        merchId: string,
-    }
-
     fund33?: {
         baseUrl: string,
         notifyUrl: string,
@@ -193,10 +148,6 @@ export interface IConfig {
 
     platform?: {
         secret: string
-    }
-
-    screenshot?: {
-        execPath: string
     }
 
     /* 是否演示环境 */
