@@ -237,6 +237,7 @@ export class BankcardService {
     }
     let updateBankcardDto: UpdateBankcardDto = {
       status: '1',
+      cardinfoId: 1,
       userId: updateBankcardUserDto.userId
     }
     return this.bankcardRepository.update(id, updateBankcardDto)

@@ -12,9 +12,6 @@ import { ReqWeixinPaymentNotifyDto, WeixinPayForMemberDto, WeixinPaymentNotify, 
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { SYSCONF_OPENCARD_BROKERAGE_KEY, SYSCONF_MARKET_FEE_KEY } from '@app/common/contants/sysconfig.contants';
-import WxPay from 'wechatpay-node-v3';
-import { WECHAT_PAY_MANAGER } from 'nest-wechatpay-node-v3';
-import { Ijsapi, Inative } from 'wechatpay-node-v3/dist/lib/interface';
 import { BankcardService } from '../bankcard/bankcard.service';
 import { SysConfigService } from '@app/modules/system/sys-config/sys-config.service';
 import { Account } from '@app/modules/account/entities/account.entity';
@@ -23,12 +20,6 @@ import { Bankcard } from '../bankcard/entities/bankcard.entity';
 import { Giftcard } from '../giftcard/entities/giftcard.entity';
 import { OrderService } from '../order/order.service';
 import { InviteUser } from '@app/modules/inviteuser/entities/invite-user.entity';
-import { ProfitRecordService } from '@app/modules/profit_record/profit_record.service';
-import { CreateProfitRecordDto } from '@app/modules/profit_record/dto/create-profit_record.dto';
-import { ProfitType } from '@app/modules/profit_record/entities/profit_record.entity';
-import { CreateBrokerageRecordDto } from '@app/modules/brokerage_record/dto/create-brokerage_record.dto';
-import { BrokerageType } from '@app/modules/brokerage_record/entities/brokerage_record.entity';
-import { BrokerageRecordService } from '@app/modules/brokerage_record/brokerage_record.service';
 
 const NodeRSA = require('node-rsa');
 var key = new NodeRSA({
@@ -69,9 +60,6 @@ export class PaymentService {
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
     @InjectRepository(InviteUser) private readonly inviteUesrRepository: Repository<InviteUser>,
     @InjectRedis() private readonly redis: Redis,
-    @Inject('XCXPayment') private xcxWxPay: WxPay,
-    @Inject('NTVPayment') private ntvWxPay: WxPay,
-    @Inject('GZHPayment') private gzhWxPay: WxPay,
   ) {
     this.baseUrl = this.configService.get<string>('payment.baseUrl')
     this.notifyHost = this.configService.get<string>('payment.notifyHost')
@@ -201,169 +189,6 @@ export class PaymentService {
 
   private randomTokenId(): number {
     return Math.floor((Math.random() * 999999999) + 1000000000);
-  }
-
-  /*
-    创建支付订单，然后给用户发送短信。
-    用户通过商户小程序进入商户网页，当用户选择相关商品购买时，
-    商户系统先调用该接口在微信支付服务后台生成预支付交易单。
-   **/
-  async payWithWeixin(weixinPay: WeixinPayForMemberDto, userId: number, openId: string, userIp: string) {
-
-    const order = await this.orderService.findOne(weixinPay.orderId)
-    let notifyUrl = this.weixinNotifyHost
-    if(weixinPay.type === WeixinPayType.XCX) {
-      notifyUrl = notifyUrl + '/payment/weixinNotify'
-    } else if(weixinPay.type === WeixinPayType.GZH) {
-      notifyUrl = notifyUrl + '/payment/weixinGzhNotify'
-    } else if(weixinPay.type === WeixinPayType.NTV) {
-      notifyUrl = notifyUrl + '/payment/weixinNtvNotify'
-    }
-    this.logger.debug(notifyUrl)
-    const params: Ijsapi = {
-      description: order.desc,
-      out_trade_no: 'wx' + weixinPay.orderId.toString(),
-      notify_url: notifyUrl,
-      amount: {
-        total: Math.floor(order.totalPrice * 100), // 单位为分
-        currency: 'CNY',
-      },
-      payer: {
-        openid: openId,
-      },
-      scene_info: {
-        payer_client_ip: userIp,
-      },
-    };
-
-    const params2: Inative = {
-      description: order.desc,
-      out_trade_no: weixinPay.orderId.toString(),
-      notify_url: notifyUrl,
-      // time_expire:,
-      // goods_tag:,
-      amount: {
-        total: Math.floor(order.totalPrice * 100), // 单位为分
-        currency: 'CNY',
-      },
-      scene_info: {
-        payer_client_ip: userIp,
-      },
-      // detail: {
-      //   invoice_id:"wx123",
-      //   goods_detail:[
-      //   {
-      //     goods_name: order.desc,
-      //     wechatpay_goods_id:order.id.toString(),
-      //     quantity:1,
-      //     merchant_goods_id:"商品编码",
-      //     unit_price:828800
-      //   }]
-      // }
-    }
-    // console.log(params);
-    let result
-    if( weixinPay.type == undefined) weixinPay.type = WeixinPayType.XCX
-    if(weixinPay.type === WeixinPayType.XCX) {
-      result = await this.xcxWxPay.transactions_jsapi(params);
-    } else if(weixinPay.type === WeixinPayType.GZH) {
-      result = await this.gzhWxPay.transactions_jsapi(params);
-    } else if(weixinPay.type === WeixinPayType.NTV) {
-      result = await this.ntvWxPay.transactions_native(params2);
-    }
-    console.log(result);
-    if(result.status !== 200)
-      throw new ApiException(result.message)
-    // Error:
-    // { status: 400, code: 'PARAM_ERROR', message: 'JSAPI支付必须传openid' }
-    // Success:
-    //   {
-    //     appId: 'appid',
-    //     timeStamp: '1609918952',
-    //     nonceStr: 'y8aw9vrmx8c',
-    //     package: 'prepay_id=wx0615423208772665709493edbb4b330000',
-    //     signType: 'RSA',
-    //     paySign: 'JnFXsT4VNzlcamtmgOHhziw7JqdnUS9qJ5W6vmAluk3Q2nska7rxYB4hvcl0BTFAB1PBEnHEhCsUbs5zKPEig=='
-    //   }
-
-    // 我们需要把这个支付订单创建成功的标记，保存起来
-    const payment = new Payment()
-    payment.type = '2' // 微信支付
-    payment.status = '1' // 支付中
-    payment.orderId = weixinPay.orderId
-    payment.userId = userId
-    if(weixinPay.type === WeixinPayType.XCX) {
-      payment.orderTokenId = result.package.substr(10) // trim('prepay_id=')
-    } else if(weixinPay.type === WeixinPayType.GZH) {
-      payment.orderTokenId = result.package.substr(10) // trim('prepay_id=')
-    } else if(weixinPay.type === WeixinPayType.NTV) {
-      payment.orderTokenId = result.code_url // trim('prepay_id=')
-    }
-
-    await this.paymentRepository.save(payment)
-
-    return result
-  }
-
-  // 微信支付通知
-  async weixinPaymentNotify(cryptoNotifyDto: ReqWeixinPaymentNotifyDto, type: string) {
-    const resource = cryptoNotifyDto.resource
-    let asset: Bankcard | Giftcard
-    try {
-      let paymentNotify
-      if (type==undefined || type === WeixinPayType.XCX) {
-        paymentNotify = this.xcxWxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
-          resource.associated_data, resource.nonce);
-      } else if (type === WeixinPayType.NTV) {
-        paymentNotify = this.ntvWxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
-          resource.associated_data, resource.nonce);
-      } else {
-        paymentNotify = this.gzhWxPay.decipher_gcm<WeixinPaymentNotify>(resource.ciphertext, 
-          resource.associated_data, resource.nonce);
-      }
-      
-      this.logger.debug("Payment Notice Decoded result: " + JSON.stringify(paymentNotify))
-      const orderId = paymentNotify.out_trade_no
-      const order = await this.orderRepository.findOne({ where: { id: parseInt(orderId), status: '1' }, relations: { user: true } })
-      if (!order) return {code: 200, data: null}
-      if (order.assetType === '0') { // 藏品
-        asset = await this.bankcardRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-      } else if (order.assetType === '1') { // 盲盒
-        // asset = await this.magicboxRepository.findOne({ where: { id: order.assetId }, relations: { user: true } })
-      }
-      if (paymentNotify.trade_state === 'SUCCESS') {
-        // 把collection里的个数增加一个，这个时候需要通过交易完成，防止出现多发问题
-        await this.orderRepository.manager.transaction(async manager => {
-          const ownerId = asset.userId
-          const marketFeeString = await this.sysconfigService.getValue(SYSCONF_MARKET_FEE_KEY)
-          let marketFee = Number(marketFeeString)
-
-          if (marketFee > 1.0 || marketFee < 0.0) {
-            marketFee = 0.0
-          }
-          marketFee = order.totalPrice * marketFee
-
-          await manager.increment(Account, { userId: asset.userId, currencyId: 1 }, "usable", order.totalPrice - marketFee)
-          await manager.increment(Account, { userId: 1, currencyId: 1 }, "usable", marketFee)
-          await manager.update(Payment, { orderId: parseInt(orderId) }, { status: '2' }) // 支付完成
-          await manager.update(Order, { id: parseInt(orderId) }, { status: '2' })
-          
-          if (order.assetType === '0') { // Bankcard
-            await manager.update(Bankcard, { id: asset.id }, { status: '1' })
-          } else if (order.assetType === '1') { // Giftcard
-            await manager.update(Giftcard, { id: asset.id }, { status: '1' })
-          }
-        })
-      } else {
-        this.logger.error("Payment Notice not success.")
-        return {code: 500, data: {code:'FAIL', message: '微信支付失败'}}
-      }
-    } catch (error) {
-      this.logger.error("Payment Notice : " + error)
-      return {code: 500, data: {code:'FAIL', message: '微信支付失败'}}
-    }
-
-    return {code: 200, data: null}
   }
 }
 //

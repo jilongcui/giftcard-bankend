@@ -106,36 +106,6 @@ export class LoginController {
     async elogin(@Body() reqLoginDto: ReqEmailLoginDto, @Req() req: Request): Promise<ResLoginDto> {
         return await this.loginService.login(req)
     }
-
-    /* 微信小程序登录 */
-    @Post('wxlogin')
-    @Public()
-    @UseGuards(WeixinAuthGuard)
-    async wxlogin(@Body() reqLoginDto: ReqWeixinLoginDto, @Req() req: Request): Promise<ResLoginDto> {
-
-        const result = await this.loginService.login(req)
-        const { user } = req as any
-        if(reqLoginDto.inviteCode) {
-            await this.inviteService.bindInviteCode(user.userId, reqLoginDto.inviteCode)
-            await this.memberService.create({ memberInfoId: 0}, user.userId)
-        }
-        return result
-    }
-
-    /* 微信web端登录 */
-    @Post('weilogin')
-    @Public()
-    @UseGuards(WeixinWebAuthGuard)
-    async weilogin(@Body() reqLoginDto: ReqWeixinLoginDto, @Req() req: Request): Promise<ResLoginDto> {
-
-        const result = await this.loginService.login(req)
-        const { user } = req as any
-        if(reqLoginDto.inviteCode) {
-            await this.inviteService.bindInviteCode(user.userId, reqLoginDto.inviteCode)
-            await this.memberService.create({ memberInfoId: 0}, user.userId)
-        }
-        return result
-    }
     
     /* 用户手机注册 */
     @Post('mregister')
