@@ -1,7 +1,7 @@
 import { Body, CacheInterceptor, CacheTTL, Controller, Get, Inject, Param, Post, Put, Query, StreamableFile, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
-import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqBankCertifyDto, ReqWithdrawDto, ReqWithdrawNotify, WithdrawWithCardDto } from '../fund/dto/request-fund.dto';
+import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, ReqWithdrawNotify } from './dto/request-fund.dto';
 import { WithdrawService } from './withdraw.service';
 import { ApiDataResponse, typeEnum } from '@app/common/decorators/api-data-response.decorator';
 import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';

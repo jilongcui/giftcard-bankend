@@ -9,20 +9,16 @@ import { EntityManager, FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual, Repo
 import { InjectRepository } from '@nestjs/typeorm';
 import { SharedService } from '@app/shared';
 
-import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, QueryBankCardInfoDto, ReqWithdrawNotify } from '../fund/dto/request-fund.dto';
+import { ConfirmWithdrawDto, CreateWithdrawDto, ListMyWithdrawDto, ListWithdrawDto, ReqWithdrawNotify } from './dto/request-fund.dto';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Account } from '../account/entities/account.entity';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginatedDto } from '@app/common/dto/paginated.dto';
-import { RES_CODE_SUCCESS } from '../fund/fund.const';
 import { Withdraw } from './entities/withdraw.entity';
 import { WithdrawFlow } from './entities/withdraw-flow.entity';
 import { Fund33RechargeDto, Fund33Response } from './dto/response-fund33.dto';
-import { QueryRechargeDto } from './dto/create-fund33.dto';
-import { BankcardService } from 'apps/giftcard/src/bankcard/bankcard.service';
 import { Bankcard } from 'apps/giftcard/src/bankcard/entities/bankcard.entity';
-import { CreateProfitRecordDto } from '../profit_record/dto/create-profit_record.dto';
 import { ProfitRecord, ProfitType } from '../profit_record/entities/profit_record.entity';
 import { ProfitRecordService } from '../profit_record/profit_record.service';
 import { AccountFlow, AccountFlowType, AccountFlowDirection } from '../account/entities/account-flow.entity';
