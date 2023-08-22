@@ -5,7 +5,6 @@ import { PaginatedDto } from '@app/common/dto/paginated.dto';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import moment from 'moment';
 import { Between, FindOptionsWhere, MoreThanOrEqual, Repository } from 'typeorm';
-import { ListMyOrderDto, ListOrderDto } from '../order/dto/request-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()

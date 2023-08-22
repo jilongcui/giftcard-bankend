@@ -8,8 +8,6 @@ import { RequiresRoles } from '@app/common/decorators/requires-roles.decorator';
 import { UserDec, UserEnum } from '@app/common/decorators/user.decorator';
 import { PaginationDto } from '@app/common/dto/pagination.dto';
 import { PaginationPipe } from '@app/common/pipes/pagination.pipe';
-import { ExcelService } from '../common/excel/excel.service';
-import { PaymentService } from '../payment/payment.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {Version} from './entities/version.entity'
 

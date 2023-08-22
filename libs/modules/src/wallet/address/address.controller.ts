@@ -40,10 +40,5 @@ export class AddressController {
     addressRequest(@Body() addressCreate: ReqAddressRequestDto, @UserDec(UserEnum.userId) userId: number): Promise<ResRequestAddressDto[]> {
         return this.addressService.addressRequest(addressCreate, userId);
     }
-
-    @Post('bind/crichain')
-    async bindWithCrichain(@Body() reqBindAddress: ReqBindAddressDto, @UserDec(UserEnum.userId) userId: number) {
-        return this.addressService.bindWithCrichain(reqBindAddress.address, userId);
-    }
 }
 

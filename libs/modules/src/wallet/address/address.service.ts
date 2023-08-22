@@ -10,7 +10,6 @@ import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiException } from '@app/common/exceptions/api.exception';
 import { Identity } from '@app/modules/identity/entities/identity.entity';
-import { RealAuthDto } from '@app/chain/dto/request-chain.dto';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as qs from 'qs'; 
@@ -355,43 +354,6 @@ export class AddressService implements OnModuleInit {
         else if (addressType === AddressTypeEnum.BTC)
             address = await this.addressBtcRepository.findOne({ where: { address: addressValue} })
         return address
-    }
-
-    async bindWithCrichain(address: string, userId: number) {
-        // let isIdentify = true;
-        const addressInfo = await this.addressCriRepository.findOne({ where: { address: address } })
-        if (!addressInfo) {
-            throw new ApiException("没有找到此地址")
-        }
-        if (addressInfo.status !== '0') {
-            throw new ApiException("此地址已绑定")
-        }
-
-        const identity = await this.identityRepository.findOne({ where: { user: { userId: userId } } })
-        if (!identity) {
-            throw new ApiException("没有实名认证")
-        }
-        let isBind = await this.doBindWithCrichain(address, identity.cardId, identity.realName)
-        if (isBind) {
-            // save address status to '1'
-            await this.addressCriRepository.update({ userId: userId }, { status: '1' })
-        } else {
-            throw new ApiException("地址绑定失败", 403)
-        }
-    }
-    async doBindWithCrichain(
-        address: string, cardId: string, realName: string
-    ): Promise<boolean> {
-
-        const pattern = { cmd: 'realAuth' }
-        const dto = new RealAuthDto()
-        dto.hexAddress = address
-        dto.userCardId = cardId
-        dto.userName = realName
-        const response = await firstValueFrom(this.client.send(pattern, dto))
-        if (!response || !response.result)
-            return false;
-        return true
     }
 
     /* 分页查询 */

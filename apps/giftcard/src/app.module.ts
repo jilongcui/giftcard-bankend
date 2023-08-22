@@ -1,5 +1,4 @@
 import { ExistingProvider, forwardRef, Module } from '@nestjs/common';
-import { NotifyController } from './notify/notify.controller';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration'
@@ -9,7 +8,6 @@ import { UserModule } from '@app/modules/system/user/user.module';
 import { CommonModule } from '@app/modules/common/common.module';
 import { DictModule } from '@app/modules/system/dict/dict.module';
 import { AccountModule } from '@app/modules/account/account.module';
-import { ContractModule } from '@app/modules/contract/contract.module';
 import { CurrencyModule } from '@app/modules/currency/currency.module';
 import { LoginModule } from '@app/modules/login/login.module';
 import { JobModule } from '@app/modules/monitor/job/job.module';
@@ -32,7 +30,6 @@ import { KycModule } from '@app/modules/kyc/kyc.module';
 import { CardinfoModule } from '@app/modules/cardinfo/cardinfo.module';
 import { Fund33Module } from '@app/modules/fund33/fund33.module';
 import { CollectModule } from '@app/modules/wallet/collect/collect.module';
-import { StatsModule } from '@app/modules/stats/stats.module';
 import { SubmitterModule } from '@app/modules/submitter/submitter.module';
 import { ApplyCardModule } from '@app/modules/apply-card/apply-card.module';
 import { WithdrawModule } from '@app/modules/wallet/withdraw/withdraw.module';
@@ -108,7 +105,6 @@ const aliasProviders = createAliasProviders();
     BannerModule,
     CollectModule,
     WithdrawModule,
-    StatsModule,
     SubmitterModule,
     EmailModule,
     PdfModule,
@@ -125,7 +121,6 @@ const aliasProviders = createAliasProviders();
     PromotionAgentModule,
     VersionModule,
   ],
-  // controllers: [NotifyController],
   providers: [...aliasProviders],
 })
 export class AppModule { }
