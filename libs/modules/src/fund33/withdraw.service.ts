@@ -179,7 +179,7 @@ export class WithdrawService {
             withdraw2.bankcard.user = undefined
             withdraw2.bankcard.signTradeNo = undefined
 
-            this.emailService.sendSystemNotice(`【通知】用户发起银行卡提现-${realAmount}`, `用户(userId)发起银行卡提现-${realAmount}`)
+            this.emailService.sendSystemNotice(`【通知】用户发起银行卡提现-${realAmount}`, `用户${userId}发起银行卡提现-${realAmount}`)
             return withdraw2
         })
     }

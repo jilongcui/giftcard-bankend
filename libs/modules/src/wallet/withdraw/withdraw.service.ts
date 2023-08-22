@@ -21,6 +21,7 @@ import { CurrencyService } from '@app/modules/currency/currency.service';
 import { SYSCONF_WITHDRAW_FEE_KEY } from '@app/common/contants/sysconfig.contants';
 import { SysConfigService } from '@app/modules/system/sys-config/sys-config.service';
 import { AccountFlow, AccountFlowType, AccountFlowDirection } from '@app/modules/account/entities/account-flow.entity';
+import { EmailService } from '@app/modules/email/email.service';
 
 @Injectable()
 export class WithdrawService {
@@ -30,6 +31,7 @@ export class WithdrawService {
     private readonly addressService: AddressService,
     private readonly sysconfigService: SysConfigService,
     private readonly currencyService: CurrencyService,
+    private readonly emailService: EmailService,
     @InjectRepository(Withdraw) private readonly withdrawRepository: Repository<Withdraw>,
     @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
     @InjectRedis() private readonly redis: Redis,
@@ -109,6 +111,9 @@ export class WithdrawService {
         // withdraw2.bankcard.user = undefined
         // withdraw2.bankcard.identity = undefined
         // withdraw2.bankcard.signTradeNo = undefined
+
+        this.emailService.sendSystemNotice(`【通知】用户发起钱包提币-${createWithdrawDto.amount}`, `用户${userId}发起银行卡提现-${createWithdrawDto.amount}`)
+
         return withdraw2
     })
   }
